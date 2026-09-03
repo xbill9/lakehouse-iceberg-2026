@@ -10,11 +10,14 @@ the wire and published alongside it.
 
 ## Papers
 
-| # | paper | status |
-|---|---|---|
-| 1 | [What They Declare, and What They Serve](papers/01-what-they-declare-and-what-they-serve.md) — seven Iceberg REST catalogs against the specification | draft |
-| 2 | — | planned |
-| 3 | — | planned |
+| # | paper | channel | status |
+|---|---|---|---|
+| 1 | [Seven Iceberg REST Catalogs: What They Declare, and What They Serve](papers/iceberg-rest-catalog-conformance/devto-iceberg-rest-catalog-conformance.md) | dev.to `gde` | draft |
+| 2 | [AWS Has Two Iceberg REST Catalogs: What Each One Actually Serves](papers/aws-two-iceberg-rest-catalogs/devto-aws-two-iceberg-rest-catalogs.md) | dev.to `aws-builders` | draft |
+| 3 | — | — | planned |
+
+Each paper directory holds the article, its cover, and an `evidence/` directory
+carrying the artifacts every figure in it traces back to.
 
 ## Code
 

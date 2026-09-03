@@ -1,0 +1,43 @@
+Glue vs S3 Tables, probe-level differences, measured 2026-09-03
+
+list_views                     glue=HTTP_406         406  | s3tables=NOT_FOUND        404 
+    glue     : ListViews endpoint is not supported for Glue Catalog.
+    s3tables : {'_raw': '<UnknownOperationException/>\n'}
+plan_table_scan                glue=200_WITH_ERROR   200  | s3tables=NOT_FOUND        404 
+    glue     : {'Output': {'__type': 'com.amazon.coral.service#UnknownOpera
+    s3tables : {'_raw': '<UnknownOperationException/>\n'}
+report_metrics                 glue=200_WITH_ERROR   200  | s3tables=BAD_REQUEST      400 
+    glue     : {'Output': {'__type': 'com.amazon.coral.service#UnknownOpera
+    s3tables : ReportMetrics is currently not supported.
+update_namespace_props         glue=OK               200  | s3tables=NOT_FOUND        404 
+    glue     : {'missing': [], 'removed': [], 'updated': ['probe']}
+    s3tables : {'_raw': '<UnknownOperationException/>\n'}
+commit_transaction             glue=200_WITH_ERROR   200  | s3tables=NOT_FOUND        404 
+    glue     : {'Output': {'__type': 'com.amazon.coral.service#UnknownOpera
+    s3tables : {'_raw': '<UnknownOperationException/>\n'}
+rename_table                   glue=HTTP_406         406  | s3tables=OK               204 
+    glue     : RenameTable endpoint is not supported for Glue Catalog.
+    s3tables : 
+drop_table_purge               glue=BAD_REQUEST      400  | s3tables=OK               204 
+    glue     : PurgeRequested cannot be true for Glue iceberg tables.
+    s3tables : 
+drop_table                     glue=OK               204  | s3tables=BAD_REQUEST      400 
+    glue     : 
+    s3tables : DropTable operation failed. S3 Tables only supports dropping tab
+create_view                    glue=HTTP_406         406  | s3tables=NOT_FOUND        404 
+    glue     : CreateView endpoint is not supported for Glue Catalog.
+    s3tables : {'_raw': '<UnknownOperationException/>\n'}
+load_view                      glue=HTTP_406         406  | s3tables=NOT_FOUND        404 
+    glue     : LoadView endpoint is not supported for Glue Catalog.
+    s3tables : {'_raw': '<UnknownOperationException/>\n'}
+replace_view                   glue=HTTP_406         406  | s3tables=NOT_FOUND        404 
+    glue     : ReplaceView endpoint is not supported for Glue Catalog.
+    s3tables : {'_raw': '<UnknownOperationException/>\n'}
+rename_view                    glue=HTTP_406         406  | s3tables=NOT_FOUND        404 
+    glue     : RenameView endpoint is not supported for Glue Catalog.
+    s3tables : {'_raw': '<UnknownOperationException/>\n'}
+drop_view                      glue=HTTP_406         406  | s3tables=NOT_FOUND        404 
+    glue     : DropView endpoint is not supported for Glue Catalog.
+    s3tables : {'_raw': '<UnknownOperationException/>\n'}
+
+probes with identical verdicts: 20 of 33
