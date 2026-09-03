@@ -1,0 +1,2954 @@
+{
+  "catalog": "aws-s3tables",
+  "base_url": "https://s3tables.us-east-1.amazonaws.com/iceberg",
+  "resolved_prefix": "arn%3Aaws%3As3tables%3Aus-east-1%3Aaws-account-0001%3Abucket%2Ficeberg-probe",
+  "auth_kind": "sigv4",
+  "harness_fingerprint": "8f2caf7575dd",
+  "declared_endpoints": [],
+  "namespace": "probe_ns",
+  "table": "probe_table",
+  "allow_writes": true,
+  "run_at": "2026-09-03T21:32:09Z",
+  "probes": [
+    {
+      "probe": "config",
+      "category": "config",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "GetConfig",
+      "why": "Advertises the routing prefix and vendor overrides. Everything else depends on what this returns.",
+      "request": {
+        "method": "GET",
+        "url": "https://s3tables.us-east-1.amazonaws.com/iceberg/v1/config?warehouse=arn%3Aaws%3As3tables%3Aus-east-1%3Aaws-account-0001%3Abucket%2Ficeberg-probe",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "X-Iceberg-Access-Delegation": "vended-credentials",
+          "X-Amz-Date": "20260903T213206Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-s3tables",
+      "signature": "GET /v1/config",
+      "variant_of": null,
+      "depends_on": null,
+      "ts": 1788471126.7848022,
+      "elapsed_ms": 189.0,
+      "response": {
+        "status": 200,
+        "headers": {
+          "x-amzn-RequestId": "guid-0067",
+          "Content-Type": "application/json",
+          "Content-Length": "316",
+          "Date": "Thu, 03 Sep 2026 21:32:06 GMT"
+        },
+        "body": {
+          "defaults": {
+            "write.object-storage.partitioned-paths": "false",
+            "s3.delete-enabled": "false",
+            "io-impl": "org.apache.iceberg.aws.s3.S3FileIO",
+            "write.object-storage.enabled": "true",
+            "prefix": "arn%3Aaws%3As3tables%3Aus-east-1%3Aaws-account-0001%3Abucket%2Ficeberg-probe",
+            "rest-metrics-reporting-enabled": "false"
+          },
+          "overrides": {}
+        }
+      },
+      "verdict": "OK",
+      "declared": false,
+      "reconciled": "undeclared, works"
+    },
+    {
+      "probe": "list_namespaces",
+      "category": "namespace",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "ListNamespaces",
+      "why": "The baseline read. If this 404s the prefix is wrong, not the catalog.",
+      "request": {
+        "method": "GET",
+        "url": "https://s3tables.us-east-1.amazonaws.com/iceberg/v1/arn%3Aaws%3As3tables%3Aus-east-1%3Aaws-account-0001%3Abucket%2Ficeberg-probe/namespaces",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "X-Iceberg-Access-Delegation": "vended-credentials",
+          "X-Amz-Date": "20260903T213206Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-s3tables",
+      "signature": "GET /v1/{prefix}/namespaces",
+      "variant_of": null,
+      "depends_on": null,
+      "ts": 1788471126.9828026,
+      "elapsed_ms": 53.0,
+      "response": {
+        "status": 200,
+        "headers": {
+          "x-amzn-RequestId": "guid-0068",
+          "Content-Type": "application/json",
+          "Content-Length": "29",
+          "Date": "Thu, 03 Sep 2026 21:32:07 GMT"
+        },
+        "body": {
+          "namespaces": [
+            [
+              "probe_ns"
+            ]
+          ]
+        }
+      },
+      "verdict": "OK",
+      "declared": false,
+      "reconciled": "undeclared, works"
+    },
+    {
+      "probe": "list_namespaces_paged",
+      "category": "namespace",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "ListNamespaces",
+      "why": "Pagination is optional in the spec. Who honours pageSize, who ignores it?",
+      "request": {
+        "method": "GET",
+        "url": "https://s3tables.us-east-1.amazonaws.com/iceberg/v1/arn%3Aaws%3As3tables%3Aus-east-1%3Aaws-account-0001%3Abucket%2Ficeberg-probe/namespaces?pageSize=1",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "X-Iceberg-Access-Delegation": "vended-credentials",
+          "X-Amz-Date": "20260903T213207Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-s3tables",
+      "signature": "GET /v1/{prefix}/namespaces",
+      "variant_of": "list_namespaces",
+      "depends_on": null,
+      "ts": 1788471127.0370357,
+      "elapsed_ms": 47.0,
+      "response": {
+        "status": 200,
+        "headers": {
+          "x-amzn-RequestId": "guid-0069",
+          "Content-Type": "application/json",
+          "Content-Length": "29",
+          "Date": "Thu, 03 Sep 2026 21:32:07 GMT"
+        },
+        "body": {
+          "namespaces": [
+            [
+              "probe_ns"
+            ]
+          ]
+        }
+      },
+      "verdict": "OK"
+    },
+    {
+      "probe": "list_namespaces_parent",
+      "category": "namespace",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "ListNamespaces",
+      "why": "Multi-level namespaces. OneLake documents that it does NOT support the parent param, so this cell is a known negative going in.",
+      "request": {
+        "method": "GET",
+        "url": "https://s3tables.us-east-1.amazonaws.com/iceberg/v1/arn%3Aaws%3As3tables%3Aus-east-1%3Aaws-account-0001%3Abucket%2Ficeberg-probe/namespaces?parent=probe_ns",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "X-Iceberg-Access-Delegation": "vended-credentials",
+          "X-Amz-Date": "20260903T213207Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-s3tables",
+      "signature": "GET /v1/{prefix}/namespaces",
+      "variant_of": "list_namespaces",
+      "depends_on": null,
+      "ts": 1788471127.085196,
+      "elapsed_ms": 36.7,
+      "response": {
+        "status": 400,
+        "headers": {
+          "x-amzn-RequestId": "guid-0070",
+          "x-amzn-ErrorType": "IrcBadRequestErrorResponse:http://catalog-host-0001/coral/com.amazon.s3tablebuckets.irc/",
+          "Content-Type": "application/json",
+          "Content-Length": "117",
+          "Date": "Thu, 03 Sep 2026 21:32:07 GMT",
+          "Connection": "close"
+        },
+        "body": {
+          "error": {
+            "code": 400,
+            "message": "Multipart namespaces are not supported.",
+            "type": "multipart_namespace_not_supported"
+          }
+        }
+      },
+      "verdict": "BAD_REQUEST"
+    },
+    {
+      "probe": "load_namespace",
+      "category": "namespace",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "LoadNamespaceMetadata",
+      "why": "Namespace properties round-trip.",
+      "request": {
+        "method": "GET",
+        "url": "https://s3tables.us-east-1.amazonaws.com/iceberg/v1/arn%3Aaws%3As3tables%3Aus-east-1%3Aaws-account-0001%3Abucket%2Ficeberg-probe/namespaces/probe_ns",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "X-Iceberg-Access-Delegation": "vended-credentials",
+          "X-Amz-Date": "20260903T213207Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-s3tables",
+      "signature": "GET /v1/{prefix}/namespaces/{namespace}",
+      "variant_of": null,
+      "depends_on": null,
+      "ts": 1788471127.1247919,
+      "elapsed_ms": 204.0,
+      "response": {
+        "status": 200,
+        "headers": {
+          "x-amzn-RequestId": "guid-0071",
+          "Content-Type": "application/json",
+          "Content-Length": "26",
+          "Date": "Thu, 03 Sep 2026 21:32:07 GMT"
+        },
+        "body": {
+          "namespace": [
+            "probe_ns"
+          ]
+        }
+      },
+      "verdict": "OK",
+      "declared": false,
+      "reconciled": "undeclared, works"
+    },
+    {
+      "probe": "head_namespace",
+      "category": "namespace",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "NamespaceExists",
+      "why": "Existence check without a body. Commonly unimplemented.",
+      "request": {
+        "method": "HEAD",
+        "url": "https://s3tables.us-east-1.amazonaws.com/iceberg/v1/arn%3Aaws%3As3tables%3Aus-east-1%3Aaws-account-0001%3Abucket%2Ficeberg-probe/namespaces/probe_ns",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "X-Iceberg-Access-Delegation": "vended-credentials",
+          "X-Amz-Date": "20260903T213207Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-s3tables",
+      "signature": "HEAD /v1/{prefix}/namespaces/{namespace}",
+      "variant_of": null,
+      "depends_on": null,
+      "ts": 1788471127.3299837,
+      "elapsed_ms": 51.6,
+      "response": {
+        "status": 204,
+        "headers": {
+          "x-amzn-RequestId": "guid-0072",
+          "Content-Type": "application/json",
+          "Date": "Thu, 03 Sep 2026 21:32:07 GMT"
+        },
+        "body": null
+      },
+      "verdict": "OK",
+      "declared": false,
+      "reconciled": "undeclared, works"
+    },
+    {
+      "probe": "list_tables",
+      "category": "table",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "ListTables",
+      "why": "Table listing within a namespace.",
+      "request": {
+        "method": "GET",
+        "url": "https://s3tables.us-east-1.amazonaws.com/iceberg/v1/arn%3Aaws%3As3tables%3Aus-east-1%3Aaws-account-0001%3Abucket%2Ficeberg-probe/namespaces/probe_ns/tables",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "X-Iceberg-Access-Delegation": "vended-credentials",
+          "X-Amz-Date": "20260903T213207Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-s3tables",
+      "signature": "GET /v1/{prefix}/namespaces/{namespace}/tables",
+      "variant_of": null,
+      "depends_on": null,
+      "ts": 1788471127.3825474,
+      "elapsed_ms": 44.0,
+      "response": {
+        "status": 200,
+        "headers": {
+          "x-amzn-RequestId": "guid-0073",
+          "Content-Type": "application/json",
+          "Content-Length": "65",
+          "Date": "Thu, 03 Sep 2026 21:32:07 GMT"
+        },
+        "body": {
+          "identifiers": [
+            {
+              "name": "probe_table",
+              "namespace": [
+                "probe_ns"
+              ]
+            }
+          ]
+        }
+      },
+      "verdict": "OK",
+      "declared": false,
+      "reconciled": "undeclared, works"
+    },
+    {
+      "probe": "load_table",
+      "category": "table",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "LoadTable",
+      "why": "The load-bearing call. Feeds the entire field tier below.",
+      "request": {
+        "method": "GET",
+        "url": "https://s3tables.us-east-1.amazonaws.com/iceberg/v1/arn%3Aaws%3As3tables%3Aus-east-1%3Aaws-account-0001%3Abucket%2Ficeberg-probe/namespaces/probe_ns/tables/probe_table",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "X-Iceberg-Access-Delegation": "vended-credentials",
+          "X-Amz-Date": "20260903T213207Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-s3tables",
+      "signature": "GET /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "variant_of": null,
+      "depends_on": null,
+      "ts": 1788471127.4278414,
+      "elapsed_ms": 82.5,
+      "response": {
+        "status": 200,
+        "headers": {
+          "x-amzn-RequestId": "guid-0074",
+          "ETag": "eb17f819674d5fa21fa8",
+          "Content-Type": "application/json",
+          "Content-Length": "5643",
+          "Date": "Thu, 03 Sep 2026 21:32:07 GMT"
+        },
+        "body": {
+          "config": {
+            "tableBucketId": "guid-0075",
+            "namespaceId": "guid-0076",
+            "tableId": "guid-0077"
+          },
+          "metadata": {
+            "format-version": 2,
+            "table-uuid": "guid-0078",
+            "location": "s3://managed-bucket-0001",
+            "last-sequence-number": 4,
+            "last-updated-ms": 1788468817455,
+            "last-column-id": 4,
+            "current-schema-id": 1,
+            "schemas": [
+              {
+                "type": "struct",
+                "schema-id": 0,
+                "fields": [
+                  {
+                    "id": 1,
+                    "name": "id",
+                    "required": true,
+                    "type": "long"
+                  },
+                  {
+                    "id": 2,
+                    "name": "ts",
+                    "required": false,
+                    "type": "timestamptz"
+                  },
+                  {
+                    "id": 3,
+                    "name": "payload",
+                    "required": false,
+                    "type": "string"
+                  }
+                ]
+              },
+              {
+                "type": "struct",
+                "schema-id": 1,
+                "fields": [
+                  {
+                    "id": 1,
+                    "name": "id",
+                    "required": true,
+                    "type": "long"
+                  },
+                  {
+                    "id": 2,
+                    "name": "ts",
+                    "required": false,
+                    "type": "timestamptz"
+                  },
+                  {
+                    "id": 3,
+                    "name": "payload",
+                    "required": false,
+                    "type": "string"
+                  },
+                  {
+                    "id": 4,
+                    "name": "region",
+                    "required": false,
+                    "type": "string",
+                    "doc": "added to exercise schema history"
+                  }
+                ]
+              }
+            ],
+            "default-spec-id": 0,
+            "partition-specs": [
+              {
+                "spec-id": 0,
+                "fields": [
+                  {
+                    "name": "ts_day",
+                    "transform": "day",
+                    "source-id": 2,
+                    "field-id": 1000
+                  }
+                ]
+              }
+            ],
+            "last-partition-id": 1000,
+            "default-sort-order-id": 1,
+            "sort-orders": [
+              {
+                "order-id": 1,
+                "fields": [
+                  {
+                    "transform": "identity",
+                    "source-id": 1,
+                    "direction": "asc",
+                    "null-order": "nulls-first"
+                  }
+                ]
+              }
+            ],
+            "properties": {
+              "write.merge.mode": "merge-on-read",
+              "write.update.mode": "merge-on-read",
+              "write.delete.mode": "merge-on-read",
+              "write.parquet.compression-codec": "zstd",
+              "probe": "control-column"
+            },
+            "current-snapshot-id": 2606005059456881273,
+            "refs": {
+              "control_tag": {
+                "snapshot-id": 2606005059456881273,
+                "type": "tag"
+              },
+              "main": {
+                "snapshot-id": 2606005059456881273,
+                "type": "branch"
+              }
+            },
+            "snapshots": [
+              {
+                "sequence-number": 1,
+                "snapshot-id": 2537117392582531654,
+                "timestamp-ms": 1788468814187,
+                "summary": {
+                  "operation": "append",
+                  "changed-partition-count": "1",
+                  "added-data-files": "1",
+                  "total-equality-deletes": "0",
+                  "added-records": "4",
+                  "total-position-deletes": "0",
+                  "added-files-size": "1402",
+                  "total-delete-files": "0",
+                  "total-files-size": "1402",
+                  "total-data-files": "1",
+                  "total-records": "4"
+                },
+                "manifest-list": "s3://managed-bucket-0001/metadata/snap-2537117392582531654-0-guid-0079.avro",
+                "schema-id": 0
+              },
+              {
+                "sequence-number": 2,
+                "snapshot-id": 5234414937250507588,
+                "parent-snapshot-id": 2537117392582531654,
+                "timestamp-ms": 1788468814796,
+                "summary": {
+                  "operation": "append",
+                  "changed-partition-count": "1",
+                  "added-data-files": "1",
+                  "total-equality-deletes": "0",
+                  "added-records": "4",
+                  "total-position-deletes": "0",
+                  "added-files-size": "1402",
+                  "total-delete-files": "0",
+                  "total-files-size": "2804",
+                  "total-data-files": "2",
+                  "total-records": "8"
+                },
+                "manifest-list": "s3://managed-bucket-0001/metadata/snap-5234414937250507588-0-guid-0080.avro",
+                "schema-id": 0
+              },
+              {
+                "sequence-number": 3,
+                "snapshot-id": 3923640114746408665,
+                "parent-snapshot-id": 5234414937250507588,
+                "timestamp-ms": 1788468815286,
+                "summary": {
+                  "operation": "append",
+                  "changed-partition-count": "1",
+                  "added-data-files": "1",
+                  "total-equality-deletes": "0",
+                  "added-records": "4",
+                  "total-position-deletes": "0",
+                  "added-files-size": "1402",
+                  "total-delete-files": "0",
+                  "total-files-size": "4206",
+                  "total-data-files": "3",
+                  "total-records": "12"
+                },
+                "manifest-list": "s3://managed-bucket-0001/metadata/snap-3923640114746408665-0-guid-0081.avro",
+                "schema-id": 0
+              },
+              {
+                "sequence-number": 4,
+                "snapshot-id": 2606005059456881273,
+                "parent-snapshot-id": 3923640114746408665,
+                "timestamp-ms": 1788468817159,
+                "summary": {
+                  "operation": "overwrite",
+                  "added-data-files": "1",
+                  "total-equality-deletes": "0",
+                  "added-records": "3",
+                  "deleted-data-files": "1",
+                  "deleted-records": "4",
+                  "total-records": "11",
+                  "removed-files-size": "1402",
+                  "changed-partition-count": "1",
+                  "total-position-deletes": "0",
+                  "added-files-size": "1391",
+                  "total-delete-files": "0",
+                  "total-files-size": "4195",
+                  "total-data-files": "3"
+                },
+                "manifest-list": "s3://managed-bucket-0001/metadata/snap-2606005059456881273-0-guid-0082.avro",
+                "schema-id": 0
+              }
+            ],
+            "statistics": [],
+            "partition-statistics": [],
+            "snapshot-log": [
+              {
+                "timestamp-ms": 1788468814187,
+                "snapshot-id": 2537117392582531654
+              },
+              {
+                "timestamp-ms": 1788468814796,
+                "snapshot-id": 5234414937250507588
+              },
+              {
+                "timestamp-ms": 1788468815286,
+                "snapshot-id": 3923640114746408665
+              },
+              {
+                "timestamp-ms": 1788468817159,
+                "snapshot-id": 2606005059456881273
+              }
+            ],
+            "metadata-log": [
+              {
+                "timestamp-ms": 1788468812951,
+                "metadata-file": "s3://managed-bucket-0001/metadata/00000-guid-0083.metadata.json"
+              },
+              {
+                "timestamp-ms": 1788468814187,
+                "metadata-file": "s3://managed-bucket-0001/metadata/00001-guid-0084.metadata.json"
+              },
+              {
+                "timestamp-ms": 1788468814796,
+                "metadata-file": "s3://managed-bucket-0001/metadata/00002-guid-0085.metadata.json"
+              },
+              {
+                "timestamp-ms": 1788468815286,
+                "metadata-file": "s3://managed-bucket-0001/metadata/00003-guid-0086.metadata.json"
+              },
+              {
+                "timestamp-ms": 1788468817159,
+                "metadata-file": "s3://managed-bucket-0001/metadata/00004-guid-0087.metadata.json"
+              },
+              {
+                "timestamp-ms": 1788468817347,
+                "metadata-file": "s3://managed-bucket-0001/metadata/00005-guid-0088.metadata.json"
+              }
+            ]
+          },
+          "metadata-location": "s3://managed-bucket-0001/metadata/00006-guid-0089.metadata.json"
+        }
+      },
+      "verdict": "OK",
+      "declared": false,
+      "reconciled": "undeclared, works"
+    },
+    {
+      "probe": "load_table_snapshots_all",
+      "category": "table",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "LoadTable",
+      "why": "Full snapshot history vs. the refs-only default. Time travel depends on it.",
+      "request": {
+        "method": "GET",
+        "url": "https://s3tables.us-east-1.amazonaws.com/iceberg/v1/arn%3Aaws%3As3tables%3Aus-east-1%3Aaws-account-0001%3Abucket%2Ficeberg-probe/namespaces/probe_ns/tables/probe_table?snapshots=all",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "X-Iceberg-Access-Delegation": "vended-credentials",
+          "X-Amz-Date": "20260903T213207Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-s3tables",
+      "signature": "GET /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "variant_of": "load_table",
+      "depends_on": null,
+      "ts": 1788471127.5130832,
+      "elapsed_ms": 58.1,
+      "response": {
+        "status": 200,
+        "headers": {
+          "x-amzn-RequestId": "guid-0090",
+          "ETag": "eb17f819674d5fa21fa8",
+          "Content-Type": "application/json",
+          "Content-Length": "5643",
+          "Date": "Thu, 03 Sep 2026 21:32:07 GMT"
+        },
+        "body": {
+          "config": {
+            "tableBucketId": "guid-0075",
+            "namespaceId": "guid-0076",
+            "tableId": "guid-0077"
+          },
+          "metadata": {
+            "format-version": 2,
+            "table-uuid": "guid-0078",
+            "location": "s3://managed-bucket-0001",
+            "last-sequence-number": 4,
+            "last-updated-ms": 1788468817455,
+            "last-column-id": 4,
+            "current-schema-id": 1,
+            "schemas": [
+              {
+                "type": "struct",
+                "schema-id": 0,
+                "fields": [
+                  {
+                    "id": 1,
+                    "name": "id",
+                    "required": true,
+                    "type": "long"
+                  },
+                  {
+                    "id": 2,
+                    "name": "ts",
+                    "required": false,
+                    "type": "timestamptz"
+                  },
+                  {
+                    "id": 3,
+                    "name": "payload",
+                    "required": false,
+                    "type": "string"
+                  }
+                ]
+              },
+              {
+                "type": "struct",
+                "schema-id": 1,
+                "fields": [
+                  {
+                    "id": 1,
+                    "name": "id",
+                    "required": true,
+                    "type": "long"
+                  },
+                  {
+                    "id": 2,
+                    "name": "ts",
+                    "required": false,
+                    "type": "timestamptz"
+                  },
+                  {
+                    "id": 3,
+                    "name": "payload",
+                    "required": false,
+                    "type": "string"
+                  },
+                  {
+                    "id": 4,
+                    "name": "region",
+                    "required": false,
+                    "type": "string",
+                    "doc": "added to exercise schema history"
+                  }
+                ]
+              }
+            ],
+            "default-spec-id": 0,
+            "partition-specs": [
+              {
+                "spec-id": 0,
+                "fields": [
+                  {
+                    "name": "ts_day",
+                    "transform": "day",
+                    "source-id": 2,
+                    "field-id": 1000
+                  }
+                ]
+              }
+            ],
+            "last-partition-id": 1000,
+            "default-sort-order-id": 1,
+            "sort-orders": [
+              {
+                "order-id": 1,
+                "fields": [
+                  {
+                    "transform": "identity",
+                    "source-id": 1,
+                    "direction": "asc",
+                    "null-order": "nulls-first"
+                  }
+                ]
+              }
+            ],
+            "properties": {
+              "write.merge.mode": "merge-on-read",
+              "write.update.mode": "merge-on-read",
+              "write.delete.mode": "merge-on-read",
+              "write.parquet.compression-codec": "zstd",
+              "probe": "control-column"
+            },
+            "current-snapshot-id": 2606005059456881273,
+            "refs": {
+              "control_tag": {
+                "snapshot-id": 2606005059456881273,
+                "type": "tag"
+              },
+              "main": {
+                "snapshot-id": 2606005059456881273,
+                "type": "branch"
+              }
+            },
+            "snapshots": [
+              {
+                "sequence-number": 1,
+                "snapshot-id": 2537117392582531654,
+                "timestamp-ms": 1788468814187,
+                "summary": {
+                  "operation": "append",
+                  "changed-partition-count": "1",
+                  "added-data-files": "1",
+                  "total-equality-deletes": "0",
+                  "added-records": "4",
+                  "total-position-deletes": "0",
+                  "added-files-size": "1402",
+                  "total-delete-files": "0",
+                  "total-files-size": "1402",
+                  "total-data-files": "1",
+                  "total-records": "4"
+                },
+                "manifest-list": "s3://managed-bucket-0001/metadata/snap-2537117392582531654-0-guid-0079.avro",
+                "schema-id": 0
+              },
+              {
+                "sequence-number": 2,
+                "snapshot-id": 5234414937250507588,
+                "parent-snapshot-id": 2537117392582531654,
+                "timestamp-ms": 1788468814796,
+                "summary": {
+                  "operation": "append",
+                  "changed-partition-count": "1",
+                  "added-data-files": "1",
+                  "total-equality-deletes": "0",
+                  "added-records": "4",
+                  "total-position-deletes": "0",
+                  "added-files-size": "1402",
+                  "total-delete-files": "0",
+                  "total-files-size": "2804",
+                  "total-data-files": "2",
+                  "total-records": "8"
+                },
+                "manifest-list": "s3://managed-bucket-0001/metadata/snap-5234414937250507588-0-guid-0080.avro",
+                "schema-id": 0
+              },
+              {
+                "sequence-number": 3,
+                "snapshot-id": 3923640114746408665,
+                "parent-snapshot-id": 5234414937250507588,
+                "timestamp-ms": 1788468815286,
+                "summary": {
+                  "operation": "append",
+                  "changed-partition-count": "1",
+                  "added-data-files": "1",
+                  "total-equality-deletes": "0",
+                  "added-records": "4",
+                  "total-position-deletes": "0",
+                  "added-files-size": "1402",
+                  "total-delete-files": "0",
+                  "total-files-size": "4206",
+                  "total-data-files": "3",
+                  "total-records": "12"
+                },
+                "manifest-list": "s3://managed-bucket-0001/metadata/snap-3923640114746408665-0-guid-0081.avro",
+                "schema-id": 0
+              },
+              {
+                "sequence-number": 4,
+                "snapshot-id": 2606005059456881273,
+                "parent-snapshot-id": 3923640114746408665,
+                "timestamp-ms": 1788468817159,
+                "summary": {
+                  "operation": "overwrite",
+                  "added-data-files": "1",
+                  "total-equality-deletes": "0",
+                  "added-records": "3",
+                  "deleted-data-files": "1",
+                  "deleted-records": "4",
+                  "total-records": "11",
+                  "removed-files-size": "1402",
+                  "changed-partition-count": "1",
+                  "total-position-deletes": "0",
+                  "added-files-size": "1391",
+                  "total-delete-files": "0",
+                  "total-files-size": "4195",
+                  "total-data-files": "3"
+                },
+                "manifest-list": "s3://managed-bucket-0001/metadata/snap-2606005059456881273-0-guid-0082.avro",
+                "schema-id": 0
+              }
+            ],
+            "statistics": [],
+            "partition-statistics": [],
+            "snapshot-log": [
+              {
+                "timestamp-ms": 1788468814187,
+                "snapshot-id": 2537117392582531654
+              },
+              {
+                "timestamp-ms": 1788468814796,
+                "snapshot-id": 5234414937250507588
+              },
+              {
+                "timestamp-ms": 1788468815286,
+                "snapshot-id": 3923640114746408665
+              },
+              {
+                "timestamp-ms": 1788468817159,
+                "snapshot-id": 2606005059456881273
+              }
+            ],
+            "metadata-log": [
+              {
+                "timestamp-ms": 1788468812951,
+                "metadata-file": "s3://managed-bucket-0001/metadata/00000-guid-0083.metadata.json"
+              },
+              {
+                "timestamp-ms": 1788468814187,
+                "metadata-file": "s3://managed-bucket-0001/metadata/00001-guid-0084.metadata.json"
+              },
+              {
+                "timestamp-ms": 1788468814796,
+                "metadata-file": "s3://managed-bucket-0001/metadata/00002-guid-0085.metadata.json"
+              },
+              {
+                "timestamp-ms": 1788468815286,
+                "metadata-file": "s3://managed-bucket-0001/metadata/00003-guid-0086.metadata.json"
+              },
+              {
+                "timestamp-ms": 1788468817159,
+                "metadata-file": "s3://managed-bucket-0001/metadata/00004-guid-0087.metadata.json"
+              },
+              {
+                "timestamp-ms": 1788468817347,
+                "metadata-file": "s3://managed-bucket-0001/metadata/00005-guid-0088.metadata.json"
+              }
+            ]
+          },
+          "metadata-location": "s3://managed-bucket-0001/metadata/00006-guid-0089.metadata.json"
+        }
+      },
+      "verdict": "OK"
+    },
+    {
+      "probe": "head_table",
+      "category": "table",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "TableExists",
+      "why": "Existence check without a body.",
+      "request": {
+        "method": "HEAD",
+        "url": "https://s3tables.us-east-1.amazonaws.com/iceberg/v1/arn%3Aaws%3As3tables%3Aus-east-1%3Aaws-account-0001%3Abucket%2Ficeberg-probe/namespaces/probe_ns/tables/probe_table",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "X-Iceberg-Access-Delegation": "vended-credentials",
+          "X-Amz-Date": "20260903T213207Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-s3tables",
+      "signature": "HEAD /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "variant_of": null,
+      "depends_on": null,
+      "ts": 1788471127.5734482,
+      "elapsed_ms": 32.2,
+      "response": {
+        "status": 204,
+        "headers": {
+          "x-amzn-RequestId": "guid-0091",
+          "Content-Type": "application/json",
+          "Date": "Thu, 03 Sep 2026 21:32:07 GMT"
+        },
+        "body": null
+      },
+      "verdict": "OK",
+      "declared": false,
+      "reconciled": "undeclared, works"
+    },
+    {
+      "probe": "load_credentials",
+      "category": "credentials",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "LoadCredentials",
+      "why": "Vended storage credentials. The newest and least evenly adopted endpoint.",
+      "request": {
+        "method": "GET",
+        "url": "https://s3tables.us-east-1.amazonaws.com/iceberg/v1/arn%3Aaws%3As3tables%3Aus-east-1%3Aaws-account-0001%3Abucket%2Ficeberg-probe/namespaces/probe_ns/tables/probe_table/credentials",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "X-Iceberg-Access-Delegation": "vended-credentials",
+          "X-Amz-Date": "20260903T213207Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-s3tables",
+      "signature": "GET /v1/{prefix}/namespaces/{namespace}/tables/{table}/credentials",
+      "variant_of": null,
+      "depends_on": null,
+      "ts": 1788471127.6064847,
+      "elapsed_ms": 25.1,
+      "response": {
+        "status": 404,
+        "headers": {
+          "x-amzn-RequestId": "guid-0092",
+          "Content-Length": "29",
+          "Date": "Thu, 03 Sep 2026 21:32:07 GMT"
+        },
+        "body": {
+          "_raw": "<UnknownOperationException/>\n"
+        }
+      },
+      "verdict": "NOT_FOUND",
+      "declared": false,
+      "reconciled": "undeclared, fails"
+    },
+    {
+      "probe": "list_views",
+      "category": "view",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "ListViews",
+      "why": "Iceberg views are a separate spec section and adoption is patchy.",
+      "request": {
+        "method": "GET",
+        "url": "https://s3tables.us-east-1.amazonaws.com/iceberg/v1/arn%3Aaws%3As3tables%3Aus-east-1%3Aaws-account-0001%3Abucket%2Ficeberg-probe/namespaces/probe_ns/views",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "X-Iceberg-Access-Delegation": "vended-credentials",
+          "X-Amz-Date": "20260903T213207Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-s3tables",
+      "signature": "GET /v1/{prefix}/namespaces/{namespace}/views",
+      "variant_of": null,
+      "depends_on": null,
+      "ts": 1788471127.63305,
+      "elapsed_ms": 30.8,
+      "response": {
+        "status": 404,
+        "headers": {
+          "x-amzn-RequestId": "guid-0093",
+          "Content-Length": "29",
+          "Date": "Thu, 03 Sep 2026 21:32:07 GMT"
+        },
+        "body": {
+          "_raw": "<UnknownOperationException/>\n"
+        }
+      },
+      "verdict": "NOT_FOUND",
+      "declared": false,
+      "reconciled": "undeclared, fails"
+    },
+    {
+      "probe": "plan_table_scan",
+      "category": "planning",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "PlanTableScan",
+      "why": "Server-side scan planning. Recent addition; expect mostly 404/501.",
+      "request": {
+        "method": "POST",
+        "url": "https://s3tables.us-east-1.amazonaws.com/iceberg/v1/arn%3Aaws%3As3tables%3Aus-east-1%3Aaws-account-0001%3Abucket%2Ficeberg-probe/namespaces/probe_ns/tables/probe_table/plan",
+        "body": {
+          "select": [
+            "*"
+          ],
+          "case-sensitive": false
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "X-Iceberg-Access-Delegation": "vended-credentials",
+          "Content-Type": "application/json",
+          "X-Amz-Date": "20260903T213207Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-s3tables",
+      "signature": "POST /v1/{prefix}/namespaces/{namespace}/tables/{table}/plan",
+      "variant_of": null,
+      "depends_on": null,
+      "ts": 1788471127.665077,
+      "elapsed_ms": 34.8,
+      "response": {
+        "status": 404,
+        "headers": {
+          "x-amzn-RequestId": "guid-0094",
+          "Content-Length": "29",
+          "Date": "Thu, 03 Sep 2026 21:32:07 GMT"
+        },
+        "body": {
+          "_raw": "<UnknownOperationException/>\n"
+        }
+      },
+      "verdict": "NOT_FOUND",
+      "declared": false,
+      "reconciled": "undeclared, fails"
+    },
+    {
+      "probe": "report_metrics",
+      "category": "telemetry",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "ReportMetrics",
+      "why": "Metrics reporting. Widely stubbed to 204 without storing anything. Body must be a complete ScanReport or a 400 tells you nothing.",
+      "request": {
+        "method": "POST",
+        "url": "https://s3tables.us-east-1.amazonaws.com/iceberg/v1/arn%3Aaws%3As3tables%3Aus-east-1%3Aaws-account-0001%3Abucket%2Ficeberg-probe/namespaces/probe_ns/tables/probe_table/metrics",
+        "body": {
+          "report-type": "scan-report",
+          "table-name": "probe_table",
+          "snapshot-id": 1,
+          "filter": {
+            "type": "eq",
+            "term": "id",
+            "value": 1
+          },
+          "schema-id": 0,
+          "projected-field-ids": [
+            1
+          ],
+          "projected-field-names": [
+            "id"
+          ],
+          "metrics": {
+            "total-planning-duration": {
+              "count": 1,
+              "time-unit": "nanoseconds",
+              "total-duration": 1
+            },
+            "total-file-size-in-bytes": {
+              "unit": "bytes",
+              "value": 1
+            },
+            "result-data-files": {
+              "unit": "count",
+              "value": 1
+            }
+          }
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "X-Iceberg-Access-Delegation": "vended-credentials",
+          "Content-Type": "application/json",
+          "X-Amz-Date": "20260903T213207Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-s3tables",
+      "signature": "POST /v1/{prefix}/namespaces/{namespace}/tables/{table}/metrics",
+      "variant_of": null,
+      "depends_on": null,
+      "ts": 1788471127.7014735,
+      "elapsed_ms": 36.9,
+      "response": {
+        "status": 400,
+        "headers": {
+          "x-amzn-RequestId": "guid-0095",
+          "x-amzn-ErrorType": "IrcBadRequestErrorResponse:http://catalog-host-0001/coral/com.amazon.s3tablebuckets.irc/",
+          "Content-Type": "application/json",
+          "Content-Length": "100",
+          "Date": "Thu, 03 Sep 2026 21:32:07 GMT",
+          "Connection": "close"
+        },
+        "body": {
+          "error": {
+            "code": 400,
+            "message": "ReportMetrics is currently not supported.",
+            "type": "report_metrics"
+          }
+        }
+      },
+      "verdict": "BAD_REQUEST",
+      "declared": false,
+      "reconciled": "undeclared, fails"
+    },
+    {
+      "probe": "create_namespace",
+      "category": "namespace",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "CreateNamespace",
+      "why": "First real write. OneLake is documented read-only, so this is where that shows up as a status code.",
+      "request": {
+        "method": "POST",
+        "url": "https://s3tables.us-east-1.amazonaws.com/iceberg/v1/arn%3Aaws%3As3tables%3Aus-east-1%3Aaws-account-0001%3Abucket%2Ficeberg-probe/namespaces",
+        "body": {
+          "namespace": [
+            "irc_probe_20260903173206"
+          ],
+          "properties": {}
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "X-Iceberg-Access-Delegation": "vended-credentials",
+          "Content-Type": "application/json",
+          "X-Amz-Date": "20260903T213207Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-s3tables",
+      "signature": "POST /v1/{prefix}/namespaces",
+      "variant_of": null,
+      "depends_on": null,
+      "ts": 1788471127.740131,
+      "elapsed_ms": 212.0,
+      "response": {
+        "status": 200,
+        "headers": {
+          "x-amzn-RequestId": "guid-0096",
+          "Content-Type": "application/json",
+          "Content-Length": "42",
+          "Date": "Thu, 03 Sep 2026 21:32:07 GMT"
+        },
+        "body": {
+          "namespace": [
+            "irc_probe_20260903173206"
+          ]
+        }
+      },
+      "verdict": "OK",
+      "declared": false,
+      "reconciled": "undeclared, works"
+    },
+    {
+      "probe": "update_namespace_props",
+      "category": "namespace",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "UpdateProperties",
+      "why": "Property updates are separately optional from namespace creation.",
+      "request": {
+        "method": "POST",
+        "url": "https://s3tables.us-east-1.amazonaws.com/iceberg/v1/arn%3Aaws%3As3tables%3Aus-east-1%3Aaws-account-0001%3Abucket%2Ficeberg-probe/namespaces/irc_probe_20260903173206/properties",
+        "body": {
+          "removals": [],
+          "updates": {
+            "probe": "conformance"
+          }
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "X-Iceberg-Access-Delegation": "vended-credentials",
+          "Content-Type": "application/json",
+          "X-Amz-Date": "20260903T213207Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-s3tables",
+      "signature": "POST /v1/{prefix}/namespaces/{namespace}/properties",
+      "variant_of": null,
+      "depends_on": "create_namespace",
+      "ts": 1788471127.9529076,
+      "elapsed_ms": 32.0,
+      "response": {
+        "status": 404,
+        "headers": {
+          "x-amzn-RequestId": "guid-0097",
+          "Content-Length": "29",
+          "Date": "Thu, 03 Sep 2026 21:32:07 GMT"
+        },
+        "body": {
+          "_raw": "<UnknownOperationException/>\n"
+        }
+      },
+      "verdict": "NOT_FOUND",
+      "declared": false,
+      "reconciled": "undeclared, fails"
+    },
+    {
+      "probe": "create_table",
+      "category": "table",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "CreateTable",
+      "why": "Table creation with an explicit schema, partition spec and sort order \u2014 checks whether all three survive a round-trip.",
+      "request": {
+        "method": "POST",
+        "url": "https://s3tables.us-east-1.amazonaws.com/iceberg/v1/arn%3Aaws%3As3tables%3Aus-east-1%3Aaws-account-0001%3Abucket%2Ficeberg-probe/namespaces/irc_probe_20260903173206/tables",
+        "body": {
+          "name": "probe_tbl",
+          "schema": {
+            "type": "struct",
+            "schema-id": 0,
+            "fields": [
+              {
+                "id": 1,
+                "name": "id",
+                "required": true,
+                "type": "long"
+              },
+              {
+                "id": 2,
+                "name": "ts",
+                "required": false,
+                "type": "timestamptz"
+              },
+              {
+                "id": 3,
+                "name": "payload",
+                "required": false,
+                "type": "string"
+              }
+            ]
+          },
+          "partition-spec": {
+            "spec-id": 0,
+            "fields": [
+              {
+                "source-id": 2,
+                "field-id": 1000,
+                "transform": "day",
+                "name": "ts_day"
+              }
+            ]
+          },
+          "write-order": {
+            "order-id": 1,
+            "fields": [
+              {
+                "source-id": 1,
+                "transform": "identity",
+                "direction": "asc",
+                "null-order": "nulls-first"
+              }
+            ]
+          },
+          "properties": {
+            "probe": "conformance"
+          },
+          "stage-create": false
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "X-Iceberg-Access-Delegation": "vended-credentials",
+          "Content-Type": "application/json",
+          "X-Amz-Date": "20260903T213207Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-s3tables",
+      "signature": "POST /v1/{prefix}/namespaces/{namespace}/tables",
+      "variant_of": null,
+      "depends_on": "create_namespace",
+      "ts": 1788471127.9862735,
+      "elapsed_ms": 504.5,
+      "response": {
+        "status": 200,
+        "headers": {
+          "x-amzn-RequestId": "guid-0098",
+          "ETag": "273cadfd7893a26c9587",
+          "Content-Type": "application/json",
+          "Content-Length": "1328",
+          "Date": "Thu, 03 Sep 2026 21:32:08 GMT"
+        },
+        "body": {
+          "config": {
+            "tableId": "guid-0099",
+            "namespaceId": "guid-0100",
+            "tableBucketId": "guid-0075"
+          },
+          "metadata": {
+            "current-schema-id": 0,
+            "current-snapshot-id": -1,
+            "default-sort-order-id": 1,
+            "default-spec-id": 0,
+            "format-version": 2,
+            "last-column-id": 3,
+            "last-partition-id": 1000,
+            "last-sequence-number": 0,
+            "last-updated-ms": 1788471128387,
+            "location": "s3://managed-bucket-0002",
+            "metadata-log": [],
+            "partition-specs": [
+              {
+                "fields": [
+                  {
+                    "field-id": 1000,
+                    "name": "ts_day",
+                    "source-id": 2,
+                    "transform": "day"
+                  }
+                ],
+                "spec-id": 0
+              }
+            ],
+            "partition-statistics": [],
+            "properties": {
+              "write.parquet.compression-codec": "zstd",
+              "probe": "conformance"
+            },
+            "refs": {},
+            "schemas": [
+              {
+                "fields": [
+                  {
+                    "id": 1,
+                    "name": "id",
+                    "required": true,
+                    "type": "long"
+                  },
+                  {
+                    "id": 2,
+                    "name": "ts",
+                    "required": false,
+                    "type": "timestamptz"
+                  },
+                  {
+                    "id": 3,
+                    "name": "payload",
+                    "required": false,
+                    "type": "string"
+                  }
+                ],
+                "schema-id": 0,
+                "type": "struct"
+              }
+            ],
+            "snapshot-log": [],
+            "snapshots": [],
+            "sort-orders": [
+              {
+                "fields": [
+                  {
+                    "direction": "asc",
+                    "null-order": "nulls-first",
+                    "source-id": 1,
+                    "transform": "identity"
+                  }
+                ],
+                "order-id": 1
+              }
+            ],
+            "statistics": [],
+            "table-uuid": "guid-0101"
+          },
+          "metadata-location": "s3://managed-bucket-0002/metadata/00000-guid-0102.metadata.json"
+        }
+      },
+      "verdict": "OK",
+      "declared": false,
+      "reconciled": "undeclared, works"
+    },
+    {
+      "probe": "commit_table",
+      "category": "commit",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "UpdateTable",
+      "why": "A property-set commit \u2014 the cheapest possible exercise of the update path.",
+      "request": {
+        "method": "POST",
+        "url": "https://s3tables.us-east-1.amazonaws.com/iceberg/v1/arn%3Aaws%3As3tables%3Aus-east-1%3Aaws-account-0001%3Abucket%2Ficeberg-probe/namespaces/irc_probe_20260903173206/tables/probe_tbl",
+        "body": {
+          "requirements": [
+            {
+              "type": "assert-table-uuid",
+              "uuid": "guid-0101"
+            }
+          ],
+          "updates": [
+            {
+              "action": "set-properties",
+              "updates": {
+                "probe-commit": "1"
+              }
+            }
+          ]
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "X-Iceberg-Access-Delegation": "vended-credentials",
+          "Content-Type": "application/json",
+          "X-Amz-Date": "20260903T213208Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-s3tables",
+      "signature": "POST /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "variant_of": null,
+      "depends_on": "create_table",
+      "ts": 1788471128.4923246,
+      "elapsed_ms": 127.7,
+      "response": {
+        "status": 200,
+        "headers": {
+          "x-amzn-RequestId": "guid-0103",
+          "Content-Type": "application/json",
+          "Content-Length": "1362",
+          "Date": "Thu, 03 Sep 2026 21:32:08 GMT"
+        },
+        "body": {
+          "metadata": {
+            "current-schema-id": 0,
+            "current-snapshot-id": -1,
+            "default-sort-order-id": 1,
+            "default-spec-id": 0,
+            "format-version": 2,
+            "last-column-id": 3,
+            "last-partition-id": 1000,
+            "last-sequence-number": 0,
+            "last-updated-ms": 1788471128571,
+            "location": "s3://managed-bucket-0002",
+            "metadata-log": [
+              {
+                "metadata-file": "s3://managed-bucket-0002/metadata/00000-guid-0102.metadata.json",
+                "timestamp-ms": 1788471128387
+              }
+            ],
+            "partition-specs": [
+              {
+                "fields": [
+                  {
+                    "field-id": 1000,
+                    "name": "ts_day",
+                    "source-id": 2,
+                    "transform": "day"
+                  }
+                ],
+                "spec-id": 0
+              }
+            ],
+            "partition-statistics": [],
+            "properties": {
+              "probe-commit": "1",
+              "write.parquet.compression-codec": "zstd",
+              "probe": "conformance"
+            },
+            "refs": {},
+            "schemas": [
+              {
+                "fields": [
+                  {
+                    "id": 1,
+                    "name": "id",
+                    "required": true,
+                    "type": "long"
+                  },
+                  {
+                    "id": 2,
+                    "name": "ts",
+                    "required": false,
+                    "type": "timestamptz"
+                  },
+                  {
+                    "id": 3,
+                    "name": "payload",
+                    "required": false,
+                    "type": "string"
+                  }
+                ],
+                "schema-id": 0,
+                "type": "struct"
+              }
+            ],
+            "snapshot-log": [],
+            "snapshots": [],
+            "sort-orders": [
+              {
+                "fields": [
+                  {
+                    "direction": "asc",
+                    "null-order": "nulls-first",
+                    "source-id": 1,
+                    "transform": "identity"
+                  }
+                ],
+                "order-id": 1
+              }
+            ],
+            "statistics": [],
+            "table-uuid": "guid-0101"
+          },
+          "metadata-location": "s3://managed-bucket-0002/metadata/00001-guid-0104.metadata.json"
+        }
+      },
+      "verdict": "OK",
+      "declared": false,
+      "reconciled": "undeclared, works"
+    },
+    {
+      "probe": "commit_remove_properties",
+      "category": "commit",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "UpdateTable",
+      "why": "remove-properties: the inverse of the one action every catalog serves.",
+      "request": {
+        "method": "POST",
+        "url": "https://s3tables.us-east-1.amazonaws.com/iceberg/v1/arn%3Aaws%3As3tables%3Aus-east-1%3Aaws-account-0001%3Abucket%2Ficeberg-probe/namespaces/irc_probe_20260903173206/tables/probe_tbl",
+        "body": {
+          "requirements": [
+            {
+              "type": "assert-table-uuid",
+              "uuid": "guid-0101"
+            }
+          ],
+          "updates": [
+            {
+              "action": "remove-properties",
+              "removals": [
+                "probe"
+              ]
+            }
+          ]
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "X-Iceberg-Access-Delegation": "vended-credentials",
+          "Content-Type": "application/json",
+          "X-Amz-Date": "20260903T213208Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-s3tables",
+      "signature": "POST /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "variant_of": "commit_table",
+      "depends_on": "create_table",
+      "ts": 1788471128.6221728,
+      "elapsed_ms": 103.1,
+      "response": {
+        "status": 200,
+        "headers": {
+          "x-amzn-RequestId": "guid-0105",
+          "Content-Type": "application/json",
+          "Content-Length": "1524",
+          "Date": "Thu, 03 Sep 2026 21:32:08 GMT"
+        },
+        "body": {
+          "metadata": {
+            "current-schema-id": 0,
+            "current-snapshot-id": -1,
+            "default-sort-order-id": 1,
+            "default-spec-id": 0,
+            "format-version": 2,
+            "last-column-id": 3,
+            "last-partition-id": 1000,
+            "last-sequence-number": 0,
+            "last-updated-ms": 1788471128682,
+            "location": "s3://managed-bucket-0002",
+            "metadata-log": [
+              {
+                "metadata-file": "s3://managed-bucket-0002/metadata/00000-guid-0102.metadata.json",
+                "timestamp-ms": 1788471128387
+              },
+              {
+                "metadata-file": "s3://managed-bucket-0002/metadata/00001-guid-0104.metadata.json",
+                "timestamp-ms": 1788471128571
+              }
+            ],
+            "partition-specs": [
+              {
+                "fields": [
+                  {
+                    "field-id": 1000,
+                    "name": "ts_day",
+                    "source-id": 2,
+                    "transform": "day"
+                  }
+                ],
+                "spec-id": 0
+              }
+            ],
+            "partition-statistics": [],
+            "properties": {
+              "probe-commit": "1",
+              "write.parquet.compression-codec": "zstd"
+            },
+            "refs": {},
+            "schemas": [
+              {
+                "fields": [
+                  {
+                    "id": 1,
+                    "name": "id",
+                    "required": true,
+                    "type": "long"
+                  },
+                  {
+                    "id": 2,
+                    "name": "ts",
+                    "required": false,
+                    "type": "timestamptz"
+                  },
+                  {
+                    "id": 3,
+                    "name": "payload",
+                    "required": false,
+                    "type": "string"
+                  }
+                ],
+                "schema-id": 0,
+                "type": "struct"
+              }
+            ],
+            "snapshot-log": [],
+            "snapshots": [],
+            "sort-orders": [
+              {
+                "fields": [
+                  {
+                    "direction": "asc",
+                    "null-order": "nulls-first",
+                    "source-id": 1,
+                    "transform": "identity"
+                  }
+                ],
+                "order-id": 1
+              }
+            ],
+            "statistics": [],
+            "table-uuid": "guid-0101"
+          },
+          "metadata-location": "s3://managed-bucket-0002/metadata/00002-guid-0106.metadata.json"
+        }
+      },
+      "verdict": "OK"
+    },
+    {
+      "probe": "commit_add_schema",
+      "category": "commit",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "UpdateTable",
+      "why": "add-schema together with set-current-schema:-1 in a single commit. That pairing is the spec's idiom -- -1 means the schema added by this same request, so splitting them across two commits is meaningless.",
+      "request": {
+        "method": "POST",
+        "url": "https://s3tables.us-east-1.amazonaws.com/iceberg/v1/arn%3Aaws%3As3tables%3Aus-east-1%3Aaws-account-0001%3Abucket%2Ficeberg-probe/namespaces/irc_probe_20260903173206/tables/probe_tbl",
+        "body": {
+          "requirements": [
+            {
+              "type": "assert-table-uuid",
+              "uuid": "guid-0101"
+            }
+          ],
+          "updates": [
+            {
+              "action": "add-schema",
+              "schema": {
+                "type": "struct",
+                "schema-id": 1,
+                "fields": [
+                  {
+                    "id": 1,
+                    "name": "id",
+                    "required": true,
+                    "type": "long"
+                  },
+                  {
+                    "id": 2,
+                    "name": "ts",
+                    "required": false,
+                    "type": "timestamptz"
+                  },
+                  {
+                    "id": 3,
+                    "name": "payload",
+                    "required": false,
+                    "type": "string"
+                  },
+                  {
+                    "id": 4,
+                    "name": "added_col",
+                    "required": false,
+                    "type": "string"
+                  }
+                ]
+              }
+            },
+            {
+              "action": "set-current-schema",
+              "schema-id": -1
+            }
+          ]
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "X-Iceberg-Access-Delegation": "vended-credentials",
+          "Content-Type": "application/json",
+          "X-Amz-Date": "20260903T213208Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-s3tables",
+      "signature": "POST /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "variant_of": "commit_table",
+      "depends_on": "create_table",
+      "ts": 1788471128.7269883,
+      "elapsed_ms": 124.2,
+      "response": {
+        "status": 200,
+        "headers": {
+          "x-amzn-RequestId": "guid-0107",
+          "Content-Type": "application/json",
+          "Content-Length": "1981",
+          "Date": "Thu, 03 Sep 2026 21:32:08 GMT"
+        },
+        "body": {
+          "metadata": {
+            "current-schema-id": 1,
+            "current-snapshot-id": -1,
+            "default-sort-order-id": 1,
+            "default-spec-id": 0,
+            "format-version": 2,
+            "last-column-id": 4,
+            "last-partition-id": 1000,
+            "last-sequence-number": 0,
+            "last-updated-ms": 1788471128811,
+            "location": "s3://managed-bucket-0002",
+            "metadata-log": [
+              {
+                "metadata-file": "s3://managed-bucket-0002/metadata/00000-guid-0102.metadata.json",
+                "timestamp-ms": 1788471128387
+              },
+              {
+                "metadata-file": "s3://managed-bucket-0002/metadata/00001-guid-0104.metadata.json",
+                "timestamp-ms": 1788471128571
+              },
+              {
+                "metadata-file": "s3://managed-bucket-0002/metadata/00002-guid-0106.metadata.json",
+                "timestamp-ms": 1788471128682
+              }
+            ],
+            "partition-specs": [
+              {
+                "fields": [
+                  {
+                    "field-id": 1000,
+                    "name": "ts_day",
+                    "source-id": 2,
+                    "transform": "day"
+                  }
+                ],
+                "spec-id": 0
+              }
+            ],
+            "partition-statistics": [],
+            "properties": {
+              "probe-commit": "1",
+              "write.parquet.compression-codec": "zstd"
+            },
+            "refs": {},
+            "schemas": [
+              {
+                "fields": [
+                  {
+                    "id": 1,
+                    "name": "id",
+                    "required": true,
+                    "type": "long"
+                  },
+                  {
+                    "id": 2,
+                    "name": "ts",
+                    "required": false,
+                    "type": "timestamptz"
+                  },
+                  {
+                    "id": 3,
+                    "name": "payload",
+                    "required": false,
+                    "type": "string"
+                  }
+                ],
+                "schema-id": 0,
+                "type": "struct"
+              },
+              {
+                "fields": [
+                  {
+                    "id": 1,
+                    "name": "id",
+                    "required": true,
+                    "type": "long"
+                  },
+                  {
+                    "id": 2,
+                    "name": "ts",
+                    "required": false,
+                    "type": "timestamptz"
+                  },
+                  {
+                    "id": 3,
+                    "name": "payload",
+                    "required": false,
+                    "type": "string"
+                  },
+                  {
+                    "id": 4,
+                    "name": "added_col",
+                    "required": false,
+                    "type": "string"
+                  }
+                ],
+                "schema-id": 1,
+                "type": "struct"
+              }
+            ],
+            "snapshot-log": [],
+            "snapshots": [],
+            "sort-orders": [
+              {
+                "fields": [
+                  {
+                    "direction": "asc",
+                    "null-order": "nulls-first",
+                    "source-id": 1,
+                    "transform": "identity"
+                  }
+                ],
+                "order-id": 1
+              }
+            ],
+            "statistics": [],
+            "table-uuid": "guid-0101"
+          },
+          "metadata-location": "s3://managed-bucket-0002/metadata/00003-guid-0108.metadata.json"
+        }
+      },
+      "verdict": "OK"
+    },
+    {
+      "probe": "commit_set_current_schema",
+      "category": "commit",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "UpdateTable",
+      "why": "set-current-schema naming an existing schema (0), exercising the action on its own rather than as part of an add-schema commit.",
+      "request": {
+        "method": "POST",
+        "url": "https://s3tables.us-east-1.amazonaws.com/iceberg/v1/arn%3Aaws%3As3tables%3Aus-east-1%3Aaws-account-0001%3Abucket%2Ficeberg-probe/namespaces/irc_probe_20260903173206/tables/probe_tbl",
+        "body": {
+          "requirements": [
+            {
+              "type": "assert-table-uuid",
+              "uuid": "guid-0101"
+            }
+          ],
+          "updates": [
+            {
+              "action": "set-current-schema",
+              "schema-id": 0
+            }
+          ]
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "X-Iceberg-Access-Delegation": "vended-credentials",
+          "Content-Type": "application/json",
+          "X-Amz-Date": "20260903T213208Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-s3tables",
+      "signature": "POST /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "variant_of": "commit_table",
+      "depends_on": "create_table",
+      "ts": 1788471128.8530078,
+      "elapsed_ms": 93.5,
+      "response": {
+        "status": 200,
+        "headers": {
+          "x-amzn-RequestId": "guid-0109",
+          "Content-Type": "application/json",
+          "Content-Length": "2165",
+          "Date": "Thu, 03 Sep 2026 21:32:08 GMT"
+        },
+        "body": {
+          "metadata": {
+            "current-schema-id": 0,
+            "current-snapshot-id": -1,
+            "default-sort-order-id": 1,
+            "default-spec-id": 0,
+            "format-version": 2,
+            "last-column-id": 4,
+            "last-partition-id": 1000,
+            "last-sequence-number": 0,
+            "last-updated-ms": 1788471128905,
+            "location": "s3://managed-bucket-0002",
+            "metadata-log": [
+              {
+                "metadata-file": "s3://managed-bucket-0002/metadata/00000-guid-0102.metadata.json",
+                "timestamp-ms": 1788471128387
+              },
+              {
+                "metadata-file": "s3://managed-bucket-0002/metadata/00001-guid-0104.metadata.json",
+                "timestamp-ms": 1788471128571
+              },
+              {
+                "metadata-file": "s3://managed-bucket-0002/metadata/00002-guid-0106.metadata.json",
+                "timestamp-ms": 1788471128682
+              },
+              {
+                "metadata-file": "s3://managed-bucket-0002/metadata/00003-guid-0108.metadata.json",
+                "timestamp-ms": 1788471128811
+              }
+            ],
+            "partition-specs": [
+              {
+                "fields": [
+                  {
+                    "field-id": 1000,
+                    "name": "ts_day",
+                    "source-id": 2,
+                    "transform": "day"
+                  }
+                ],
+                "spec-id": 0
+              }
+            ],
+            "partition-statistics": [],
+            "properties": {
+              "probe-commit": "1",
+              "write.parquet.compression-codec": "zstd"
+            },
+            "refs": {},
+            "schemas": [
+              {
+                "fields": [
+                  {
+                    "id": 1,
+                    "name": "id",
+                    "required": true,
+                    "type": "long"
+                  },
+                  {
+                    "id": 2,
+                    "name": "ts",
+                    "required": false,
+                    "type": "timestamptz"
+                  },
+                  {
+                    "id": 3,
+                    "name": "payload",
+                    "required": false,
+                    "type": "string"
+                  }
+                ],
+                "schema-id": 0,
+                "type": "struct"
+              },
+              {
+                "fields": [
+                  {
+                    "id": 1,
+                    "name": "id",
+                    "required": true,
+                    "type": "long"
+                  },
+                  {
+                    "id": 2,
+                    "name": "ts",
+                    "required": false,
+                    "type": "timestamptz"
+                  },
+                  {
+                    "id": 3,
+                    "name": "payload",
+                    "required": false,
+                    "type": "string"
+                  },
+                  {
+                    "id": 4,
+                    "name": "added_col",
+                    "required": false,
+                    "type": "string"
+                  }
+                ],
+                "schema-id": 1,
+                "type": "struct"
+              }
+            ],
+            "snapshot-log": [],
+            "snapshots": [],
+            "sort-orders": [
+              {
+                "fields": [
+                  {
+                    "direction": "asc",
+                    "null-order": "nulls-first",
+                    "source-id": 1,
+                    "transform": "identity"
+                  }
+                ],
+                "order-id": 1
+              }
+            ],
+            "statistics": [],
+            "table-uuid": "guid-0101"
+          },
+          "metadata-location": "s3://managed-bucket-0002/metadata/00004-guid-0110.metadata.json"
+        }
+      },
+      "verdict": "OK"
+    },
+    {
+      "probe": "commit_upgrade_format_version",
+      "category": "commit",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "UpdateTable",
+      "why": "upgrade-format-version to 2. The fixture is already v2, so this is a no-op for a conformant server -- rejecting it is the finding.",
+      "request": {
+        "method": "POST",
+        "url": "https://s3tables.us-east-1.amazonaws.com/iceberg/v1/arn%3Aaws%3As3tables%3Aus-east-1%3Aaws-account-0001%3Abucket%2Ficeberg-probe/namespaces/irc_probe_20260903173206/tables/probe_tbl",
+        "body": {
+          "requirements": [
+            {
+              "type": "assert-table-uuid",
+              "uuid": "guid-0101"
+            }
+          ],
+          "updates": [
+            {
+              "action": "upgrade-format-version",
+              "format-version": 2
+            }
+          ]
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "X-Iceberg-Access-Delegation": "vended-credentials",
+          "Content-Type": "application/json",
+          "X-Amz-Date": "20260903T213208Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-s3tables",
+      "signature": "POST /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "variant_of": "commit_table",
+      "depends_on": "create_table",
+      "ts": 1788471128.948213,
+      "elapsed_ms": 62.2,
+      "response": {
+        "status": 200,
+        "headers": {
+          "x-amzn-RequestId": "guid-0111",
+          "Content-Type": "application/json",
+          "Content-Length": "2165",
+          "Date": "Thu, 03 Sep 2026 21:32:09 GMT"
+        },
+        "body": {
+          "metadata": {
+            "current-schema-id": 0,
+            "current-snapshot-id": -1,
+            "default-sort-order-id": 1,
+            "default-spec-id": 0,
+            "format-version": 2,
+            "last-column-id": 4,
+            "last-partition-id": 1000,
+            "last-sequence-number": 0,
+            "last-updated-ms": 1788471128905,
+            "location": "s3://managed-bucket-0002",
+            "metadata-log": [
+              {
+                "metadata-file": "s3://managed-bucket-0002/metadata/00000-guid-0102.metadata.json",
+                "timestamp-ms": 1788471128387
+              },
+              {
+                "metadata-file": "s3://managed-bucket-0002/metadata/00001-guid-0104.metadata.json",
+                "timestamp-ms": 1788471128571
+              },
+              {
+                "metadata-file": "s3://managed-bucket-0002/metadata/00002-guid-0106.metadata.json",
+                "timestamp-ms": 1788471128682
+              },
+              {
+                "metadata-file": "s3://managed-bucket-0002/metadata/00003-guid-0108.metadata.json",
+                "timestamp-ms": 1788471128811
+              }
+            ],
+            "partition-specs": [
+              {
+                "fields": [
+                  {
+                    "field-id": 1000,
+                    "name": "ts_day",
+                    "source-id": 2,
+                    "transform": "day"
+                  }
+                ],
+                "spec-id": 0
+              }
+            ],
+            "partition-statistics": [],
+            "properties": {
+              "probe-commit": "1",
+              "write.parquet.compression-codec": "zstd"
+            },
+            "refs": {},
+            "schemas": [
+              {
+                "fields": [
+                  {
+                    "id": 1,
+                    "name": "id",
+                    "required": true,
+                    "type": "long"
+                  },
+                  {
+                    "id": 2,
+                    "name": "ts",
+                    "required": false,
+                    "type": "timestamptz"
+                  },
+                  {
+                    "id": 3,
+                    "name": "payload",
+                    "required": false,
+                    "type": "string"
+                  }
+                ],
+                "schema-id": 0,
+                "type": "struct"
+              },
+              {
+                "fields": [
+                  {
+                    "id": 1,
+                    "name": "id",
+                    "required": true,
+                    "type": "long"
+                  },
+                  {
+                    "id": 2,
+                    "name": "ts",
+                    "required": false,
+                    "type": "timestamptz"
+                  },
+                  {
+                    "id": 3,
+                    "name": "payload",
+                    "required": false,
+                    "type": "string"
+                  },
+                  {
+                    "id": 4,
+                    "name": "added_col",
+                    "required": false,
+                    "type": "string"
+                  }
+                ],
+                "schema-id": 1,
+                "type": "struct"
+              }
+            ],
+            "snapshot-log": [],
+            "snapshots": [],
+            "sort-orders": [
+              {
+                "fields": [
+                  {
+                    "direction": "asc",
+                    "null-order": "nulls-first",
+                    "source-id": 1,
+                    "transform": "identity"
+                  }
+                ],
+                "order-id": 1
+              }
+            ],
+            "statistics": [],
+            "table-uuid": "guid-0101"
+          },
+          "metadata-location": "s3://managed-bucket-0002/metadata/00004-guid-0110.metadata.json"
+        }
+      },
+      "verdict": "OK"
+    },
+    {
+      "probe": "commit_transaction",
+      "category": "commit",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "CommitTransaction",
+      "why": "Multi-table atomic commit. Rarely implemented; a clean differentiator. Carries one real change: an empty transaction gets rejected as invalid, which would be indistinguishable from unimplemented.",
+      "request": {
+        "method": "POST",
+        "url": "https://s3tables.us-east-1.amazonaws.com/iceberg/v1/arn%3Aaws%3As3tables%3Aus-east-1%3Aaws-account-0001%3Abucket%2Ficeberg-probe/transactions/commit",
+        "body": {
+          "table-changes": [
+            {
+              "identifier": {
+                "namespace": [
+                  "irc_probe_20260903173206"
+                ],
+                "name": "probe_tbl"
+              },
+              "requirements": [],
+              "updates": [
+                {
+                  "action": "set-properties",
+                  "updates": {
+                    "probe-txn": "1"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "X-Iceberg-Access-Delegation": "vended-credentials",
+          "Content-Type": "application/json",
+          "X-Amz-Date": "20260903T213209Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-s3tables",
+      "signature": "POST /v1/{prefix}/transactions/commit",
+      "variant_of": null,
+      "depends_on": "create_table",
+      "ts": 1788471129.0120583,
+      "elapsed_ms": 32.1,
+      "response": {
+        "status": 404,
+        "headers": {
+          "x-amzn-RequestId": "guid-0112",
+          "Content-Length": "29",
+          "Date": "Thu, 03 Sep 2026 21:32:09 GMT"
+        },
+        "body": {
+          "_raw": "<UnknownOperationException/>\n"
+        }
+      },
+      "verdict": "NOT_FOUND",
+      "declared": false,
+      "reconciled": "undeclared, fails"
+    },
+    {
+      "probe": "rename_table",
+      "category": "table",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "RenameTable",
+      "why": "Rename is one of the most commonly missing write endpoints.",
+      "request": {
+        "method": "POST",
+        "url": "https://s3tables.us-east-1.amazonaws.com/iceberg/v1/arn%3Aaws%3As3tables%3Aus-east-1%3Aaws-account-0001%3Abucket%2Ficeberg-probe/tables/rename",
+        "body": {
+          "source": {
+            "namespace": [
+              "irc_probe_20260903173206"
+            ],
+            "name": "probe_tbl"
+          },
+          "destination": {
+            "namespace": [
+              "irc_probe_20260903173206"
+            ],
+            "name": "probe_tbl_r"
+          }
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "X-Iceberg-Access-Delegation": "vended-credentials",
+          "Content-Type": "application/json",
+          "X-Amz-Date": "20260903T213209Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-s3tables",
+      "signature": "POST /v1/{prefix}/tables/rename",
+      "variant_of": null,
+      "depends_on": "create_table",
+      "ts": 1788471129.0455651,
+      "elapsed_ms": 159.5,
+      "response": {
+        "status": 204,
+        "headers": {
+          "x-amzn-RequestId": "guid-0113",
+          "Content-Type": "application/json",
+          "Date": "Thu, 03 Sep 2026 21:32:09 GMT"
+        },
+        "body": null
+      },
+      "verdict": "OK",
+      "declared": false,
+      "reconciled": "undeclared, works"
+    },
+    {
+      "probe": "drop_table_purge",
+      "category": "table",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "DropTable",
+      "why": "Whether purgeRequested is honoured. Purge semantics vary widely and several catalogs gate it behind a server flag.",
+      "request": {
+        "method": "DELETE",
+        "url": "https://s3tables.us-east-1.amazonaws.com/iceberg/v1/arn%3Aaws%3As3tables%3Aus-east-1%3Aaws-account-0001%3Abucket%2Ficeberg-probe/namespaces/irc_probe_20260903173206/tables/probe_tbl_r?purgeRequested=true",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "X-Iceberg-Access-Delegation": "vended-credentials",
+          "X-Amz-Date": "20260903T213209Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-s3tables",
+      "signature": "DELETE /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "variant_of": "drop_table",
+      "depends_on": "create_table",
+      "ts": 1788471129.206262,
+      "elapsed_ms": 146.6,
+      "response": {
+        "status": 204,
+        "headers": {
+          "x-amzn-RequestId": "guid-0114",
+          "Content-Type": "application/json",
+          "Date": "Thu, 03 Sep 2026 21:32:09 GMT"
+        },
+        "body": null
+      },
+      "verdict": "OK"
+    },
+    {
+      "probe": "drop_table",
+      "category": "cleanup",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "DropTable",
+      "why": "Plain drop, and the cleanup that must succeed. A 404 here is the expected outcome when the purge drop above already removed the table.",
+      "request": {
+        "method": "DELETE",
+        "url": "https://s3tables.us-east-1.amazonaws.com/iceberg/v1/arn%3Aaws%3As3tables%3Aus-east-1%3Aaws-account-0001%3Abucket%2Ficeberg-probe/namespaces/irc_probe_20260903173206/tables/probe_tbl_r",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "X-Iceberg-Access-Delegation": "vended-credentials",
+          "X-Amz-Date": "20260903T213209Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-s3tables",
+      "signature": "DELETE /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "variant_of": null,
+      "depends_on": "create_table",
+      "ts": 1788471129.3544257,
+      "elapsed_ms": 34.0,
+      "response": {
+        "status": 400,
+        "headers": {
+          "x-amzn-RequestId": "guid-0115",
+          "x-amzn-ErrorType": "IrcBadRequestErrorResponse:http://catalog-host-0001/coral/com.amazon.s3tablebuckets.irc/",
+          "Content-Type": "application/json",
+          "Content-Length": "145",
+          "Date": "Thu, 03 Sep 2026 21:32:09 GMT",
+          "Connection": "close"
+        },
+        "body": {
+          "error": {
+            "code": 400,
+            "message": "DropTable operation failed. S3 Tables only supports dropping tables with purge enabled.",
+            "type": "purge_enabled"
+          }
+        }
+      },
+      "verdict": "BAD_REQUEST",
+      "declared": false,
+      "reconciled": "undeclared, works"
+    },
+    {
+      "probe": "create_view",
+      "category": "view",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "CreateView",
+      "why": "createView with a minimal SQL representation.",
+      "request": {
+        "method": "POST",
+        "url": "https://s3tables.us-east-1.amazonaws.com/iceberg/v1/arn%3Aaws%3As3tables%3Aus-east-1%3Aaws-account-0001%3Abucket%2Ficeberg-probe/namespaces/irc_probe_20260903173206/views",
+        "body": {
+          "name": "probe_view",
+          "schema": {
+            "type": "struct",
+            "schema-id": 0,
+            "fields": [
+              {
+                "id": 1,
+                "name": "id",
+                "required": false,
+                "type": "long"
+              }
+            ]
+          },
+          "view-version": {
+            "version-id": 1,
+            "schema-id": 0,
+            "timestamp-ms": 1788471126784,
+            "summary": {
+              "operation": "create"
+            },
+            "default-namespace": [
+              "irc_probe_20260903173206"
+            ],
+            "representations": [
+              {
+                "type": "sql",
+                "sql": "SELECT 1 AS id",
+                "dialect": "spark"
+              }
+            ]
+          },
+          "properties": {
+            "probe": "conformance"
+          }
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "X-Iceberg-Access-Delegation": "vended-credentials",
+          "Content-Type": "application/json",
+          "X-Amz-Date": "20260903T213209Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-s3tables",
+      "signature": "POST /v1/{prefix}/namespaces/{namespace}/views",
+      "variant_of": null,
+      "depends_on": "create_namespace",
+      "ts": 1788471129.3904188,
+      "elapsed_ms": 157.0,
+      "response": {
+        "status": 404,
+        "headers": {
+          "x-amzn-RequestId": "guid-0116",
+          "Content-Length": "29",
+          "Date": "Thu, 03 Sep 2026 21:32:09 GMT"
+        },
+        "body": {
+          "_raw": "<UnknownOperationException/>\n"
+        }
+      },
+      "verdict": "NOT_FOUND",
+      "declared": false,
+      "reconciled": "undeclared, fails"
+    },
+    {
+      "probe": "load_view",
+      "category": "view",
+      "tier": "write",
+      "surface": "read",
+      "spec_ref": "LoadView",
+      "why": "loadView -- the read counterpart of loadTable for views.",
+      "request": {
+        "method": "GET",
+        "url": "https://s3tables.us-east-1.amazonaws.com/iceberg/v1/arn%3Aaws%3As3tables%3Aus-east-1%3Aaws-account-0001%3Abucket%2Ficeberg-probe/namespaces/irc_probe_20260903173206/views/probe_view",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "X-Iceberg-Access-Delegation": "vended-credentials",
+          "X-Amz-Date": "20260903T213209Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-s3tables",
+      "signature": "GET /v1/{prefix}/namespaces/{namespace}/views/{view}",
+      "variant_of": null,
+      "depends_on": "create_view",
+      "ts": 1788471129.5487561,
+      "elapsed_ms": 28.7,
+      "response": {
+        "status": 404,
+        "headers": {
+          "x-amzn-RequestId": "guid-0117",
+          "Content-Length": "29",
+          "Date": "Thu, 03 Sep 2026 21:32:09 GMT"
+        },
+        "body": {
+          "_raw": "<UnknownOperationException/>\n"
+        }
+      },
+      "verdict": "NOT_FOUND",
+      "declared": false,
+      "reconciled": "undeclared, fails"
+    },
+    {
+      "probe": "head_view",
+      "category": "view",
+      "tier": "write",
+      "surface": "read",
+      "spec_ref": "ViewExists",
+      "why": "viewExists.",
+      "request": {
+        "method": "HEAD",
+        "url": "https://s3tables.us-east-1.amazonaws.com/iceberg/v1/arn%3Aaws%3As3tables%3Aus-east-1%3Aaws-account-0001%3Abucket%2Ficeberg-probe/namespaces/irc_probe_20260903173206/views/probe_view",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "X-Iceberg-Access-Delegation": "vended-credentials",
+          "X-Amz-Date": "20260903T213209Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-s3tables",
+      "signature": "HEAD /v1/{prefix}/namespaces/{namespace}/views/{view}",
+      "variant_of": null,
+      "depends_on": "create_view",
+      "ts": 1788471129.5792382,
+      "elapsed_ms": 36.0,
+      "response": {
+        "status": 404,
+        "headers": {
+          "x-amzn-RequestId": "guid-0118",
+          "Content-Length": "29",
+          "Date": "Thu, 03 Sep 2026 21:32:09 GMT"
+        },
+        "body": null
+      },
+      "verdict": "INDETERMINATE",
+      "indeterminate_reason": "prerequisite 'create_view' did not succeed"
+    },
+    {
+      "probe": "replace_view",
+      "category": "view",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "ReplaceView",
+      "why": "replaceView: a property-set commit against the view.",
+      "request": {
+        "method": "POST",
+        "url": "https://s3tables.us-east-1.amazonaws.com/iceberg/v1/arn%3Aaws%3As3tables%3Aus-east-1%3Aaws-account-0001%3Abucket%2Ficeberg-probe/namespaces/irc_probe_20260903173206/views/probe_view",
+        "body": {
+          "requirements": [],
+          "updates": [
+            {
+              "action": "set-properties",
+              "updates": {
+                "probe-commit": "1"
+              }
+            }
+          ]
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "X-Iceberg-Access-Delegation": "vended-credentials",
+          "Content-Type": "application/json",
+          "X-Amz-Date": "20260903T213209Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-s3tables",
+      "signature": "POST /v1/{prefix}/namespaces/{namespace}/views/{view}",
+      "variant_of": null,
+      "depends_on": "create_view",
+      "ts": 1788471129.61648,
+      "elapsed_ms": 34.1,
+      "response": {
+        "status": 404,
+        "headers": {
+          "x-amzn-RequestId": "guid-0119",
+          "Content-Length": "29",
+          "Date": "Thu, 03 Sep 2026 21:32:09 GMT"
+        },
+        "body": {
+          "_raw": "<UnknownOperationException/>\n"
+        }
+      },
+      "verdict": "NOT_FOUND",
+      "declared": false,
+      "reconciled": "undeclared, fails"
+    },
+    {
+      "probe": "rename_view",
+      "category": "view",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "RenameView",
+      "why": "renameView -- separate from renameTable in the spec.",
+      "request": {
+        "method": "POST",
+        "url": "https://s3tables.us-east-1.amazonaws.com/iceberg/v1/arn%3Aaws%3As3tables%3Aus-east-1%3Aaws-account-0001%3Abucket%2Ficeberg-probe/views/rename",
+        "body": {
+          "source": {
+            "namespace": [
+              "irc_probe_20260903173206"
+            ],
+            "name": "probe_view"
+          },
+          "destination": {
+            "namespace": [
+              "irc_probe_20260903173206"
+            ],
+            "name": "probe_view_r"
+          }
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "X-Iceberg-Access-Delegation": "vended-credentials",
+          "Content-Type": "application/json",
+          "X-Amz-Date": "20260903T213209Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-s3tables",
+      "signature": "POST /v1/{prefix}/views/rename",
+      "variant_of": null,
+      "depends_on": "create_view",
+      "ts": 1788471129.6523297,
+      "elapsed_ms": 39.4,
+      "response": {
+        "status": 404,
+        "headers": {
+          "x-amzn-RequestId": "guid-0120",
+          "Content-Length": "29",
+          "Date": "Thu, 03 Sep 2026 21:32:09 GMT"
+        },
+        "body": {
+          "_raw": "<UnknownOperationException/>\n"
+        }
+      },
+      "verdict": "NOT_FOUND",
+      "declared": false,
+      "reconciled": "undeclared, fails"
+    },
+    {
+      "probe": "drop_view",
+      "category": "cleanup",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "DropView",
+      "why": "dropView, and the cleanup that must succeed before the namespace goes.",
+      "request": {
+        "method": "DELETE",
+        "url": "https://s3tables.us-east-1.amazonaws.com/iceberg/v1/arn%3Aaws%3As3tables%3Aus-east-1%3Aaws-account-0001%3Abucket%2Ficeberg-probe/namespaces/irc_probe_20260903173206/views/probe_view",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "X-Iceberg-Access-Delegation": "vended-credentials",
+          "X-Amz-Date": "20260903T213209Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-s3tables",
+      "signature": "DELETE /v1/{prefix}/namespaces/{namespace}/views/{view}",
+      "variant_of": null,
+      "depends_on": "create_view",
+      "ts": 1788471129.6930504,
+      "elapsed_ms": 33.3,
+      "response": {
+        "status": 404,
+        "headers": {
+          "x-amzn-RequestId": "guid-0121",
+          "Content-Length": "29",
+          "Date": "Thu, 03 Sep 2026 21:32:09 GMT"
+        },
+        "body": {
+          "_raw": "<UnknownOperationException/>\n"
+        }
+      },
+      "verdict": "NOT_FOUND",
+      "declared": false,
+      "reconciled": "undeclared, fails"
+    },
+    {
+      "probe": "drop_namespace",
+      "category": "cleanup",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "DropNamespace",
+      "why": "Cleanup.",
+      "request": {
+        "method": "DELETE",
+        "url": "https://s3tables.us-east-1.amazonaws.com/iceberg/v1/arn%3Aaws%3As3tables%3Aus-east-1%3Aaws-account-0001%3Abucket%2Ficeberg-probe/namespaces/irc_probe_20260903173206",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "X-Iceberg-Access-Delegation": "vended-credentials",
+          "X-Amz-Date": "20260903T213209Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-s3tables",
+      "signature": "DELETE /v1/{prefix}/namespaces/{namespace}",
+      "variant_of": null,
+      "depends_on": "create_namespace",
+      "ts": 1788471129.727394,
+      "elapsed_ms": 105.3,
+      "response": {
+        "status": 204,
+        "headers": {
+          "x-amzn-RequestId": "guid-0122",
+          "Content-Type": "application/json",
+          "Date": "Thu, 03 Sep 2026 21:32:09 GMT"
+        },
+        "body": null
+      },
+      "verdict": "OK",
+      "declared": false,
+      "reconciled": "undeclared, works"
+    }
+  ],
+  "load_table_fields": {
+    "metadata-location": {
+      "state": "PRESENT",
+      "why": "Where the table metadata actually lives"
+    },
+    "config": {
+      "state": "PRESENT",
+      "why": "Per-table client overrides"
+    },
+    "storage-credentials": {
+      "state": "ABSENT",
+      "why": "Vended credentials inline on load"
+    },
+    "metadata.format-version": {
+      "state": "PRESENT",
+      "why": "Iceberg v1 / v2 / v3"
+    },
+    "metadata.table-uuid": {
+      "state": "PRESENT",
+      "why": "Stable identity across renames"
+    },
+    "metadata.location": {
+      "state": "PRESENT",
+      "why": "Table root"
+    },
+    "metadata.last-updated-ms": {
+      "state": "PRESENT",
+      "why": "Freshness"
+    },
+    "metadata.last-column-id": {
+      "state": "PRESENT",
+      "why": "Column-ID allocation state"
+    },
+    "metadata.schemas": {
+      "state": "PRESENT",
+      "why": "Full schema history, not just current"
+    },
+    "metadata.current-schema-id": {
+      "state": "PRESENT",
+      "why": "Which schema is live"
+    },
+    "metadata.schemas[].fields[].id": {
+      "state": "PRESENT",
+      "why": "Column IDs \u2014 schema evolution depends on these"
+    },
+    "metadata.schemas[].fields[].required": {
+      "state": "PRESENT",
+      "why": "Nullability"
+    },
+    "metadata.partition-specs": {
+      "state": "PRESENT",
+      "why": "Partition spec history"
+    },
+    "metadata.default-spec-id": {
+      "state": "PRESENT",
+      "why": "Which spec is live"
+    },
+    "metadata.partition-specs[].fields[].transform": {
+      "state": "PRESENT",
+      "why": "Partition transforms"
+    },
+    "metadata.last-partition-id": {
+      "state": "PRESENT",
+      "why": "Partition field-ID allocation state"
+    },
+    "metadata.sort-orders": {
+      "state": "PRESENT",
+      "why": "Sort order history"
+    },
+    "metadata.default-sort-order-id": {
+      "state": "PRESENT",
+      "why": "Which sort order is live"
+    },
+    "metadata.properties": {
+      "state": "PRESENT",
+      "why": "Table properties"
+    },
+    "metadata.current-snapshot-id": {
+      "state": "PRESENT",
+      "why": "Current snapshot pointer"
+    },
+    "metadata.snapshots": {
+      "state": "PRESENT",
+      "why": "Snapshot list \u2014 time travel"
+    },
+    "metadata.snapshots[].summary": {
+      "state": "PRESENT",
+      "why": "Row/file counts per snapshot"
+    },
+    "metadata.snapshots[].manifest-list": {
+      "state": "PRESENT",
+      "why": "Manifest list pointer"
+    },
+    "metadata.snapshots[].schema-id": {
+      "state": "PRESENT",
+      "why": "Per-snapshot schema binding"
+    },
+    "metadata.snapshots[].sequence-number": {
+      "state": "PRESENT",
+      "why": "v2 sequence numbers \u2014 row-level deletes"
+    },
+    "metadata.snapshot-log": {
+      "state": "PRESENT",
+      "why": "Snapshot lineage over time"
+    },
+    "metadata.metadata-log": {
+      "state": "PRESENT",
+      "why": "Previous metadata files"
+    },
+    "metadata.refs": {
+      "state": "PRESENT",
+      "why": "Branches and tags"
+    },
+    "metadata.statistics": {
+      "state": "EMPTY",
+      "why": "Table-level statistics files"
+    },
+    "metadata.partition-statistics": {
+      "state": "EMPTY",
+      "why": "Partition-level statistics files"
+    }
+  },
+  "seed_profile": {
+    "schemas": 2,
+    "partition_fields": 1,
+    "sort_fields": 1,
+    "snapshots": 4,
+    "refs": [
+      "control_tag",
+      "main"
+    ],
+    "has_delete_snapshot": true,
+    "delete_files": 0
+  }
+}

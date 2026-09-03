@@ -1,0 +1,2962 @@
+{
+  "catalog": "snowflake-horizon",
+  "base_url": "https://catalog-host-0004/polaris/api/catalog",
+  "resolved_prefix": "PROBE_DB",
+  "auth_kind": "snowflake_keypair",
+  "harness_fingerprint": "8f2caf7575dd",
+  "declared_endpoints": [
+    "GET /v1/{prefix}/namespaces",
+    "GET /v1/{prefix}/namespaces/{namespace}",
+    "HEAD /v1/{prefix}/namespaces/{namespace}",
+    "POST /v1/{prefix}/namespaces",
+    "POST /v1/{prefix}/namespaces/{namespace}/properties",
+    "DELETE /v1/{prefix}/namespaces/{namespace}",
+    "GET /v1/{prefix}/namespaces/{namespace}/tables",
+    "GET /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+    "HEAD /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+    "POST /v1/{prefix}/namespaces/{namespace}/tables",
+    "POST /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+    "DELETE /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+    "POST /v1/{prefix}/tables/rename",
+    "POST /v1/{prefix}/namespaces/{namespace}/register",
+    "POST /v1/{prefix}/namespaces/{namespace}/tables/{table}/metrics",
+    "POST /v1/{prefix}/transactions/commit",
+    "GET /v1/{prefix}/namespaces/{namespace}/views",
+    "GET /v1/{prefix}/namespaces/{namespace}/views/{view}",
+    "HEAD /v1/{prefix}/namespaces/{namespace}/views/{view}",
+    "POST /v1/{prefix}/namespaces/{namespace}/views",
+    "POST /v1/{prefix}/namespaces/{namespace}/views/{view}",
+    "DELETE /v1/{prefix}/namespaces/{namespace}/views/{view}",
+    "POST /v1/{prefix}/views/rename"
+  ],
+  "namespace": "PROBE_NS",
+  "table": "PROBE_TABLE",
+  "allow_writes": true,
+  "run_at": "2026-09-03T21:32:34Z",
+  "probes": [
+    {
+      "probe": "config",
+      "category": "config",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "GetConfig",
+      "why": "Advertises the routing prefix and vendor overrides. Everything else depends on what this returns.",
+      "request": {
+        "method": "GET",
+        "url": "https://catalog-host-0004/polaris/api/catalog/v1/config?warehouse=PROBE_DB",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "snowflake-horizon",
+      "signature": "GET /v1/config",
+      "variant_of": null,
+      "depends_on": null,
+      "ts": 1788471129.8424733,
+      "elapsed_ms": 415.9,
+      "response": {
+        "status": 200,
+        "headers": {
+          "date": "Thu, 03 Sep 2026 21:32:10 GMT",
+          "content-type": "application/json;charset=utf-8",
+          "request_id": "guid-0235",
+          "open-catalog-request-id": "guid-0235",
+          "vary": "Accept-Encoding, User-Agent",
+          "server": "SF-LB-T1",
+          "x-envoy-upstream-service-time": "241",
+          "x-snowflake-fe-instance": "-",
+          "x-snowflake-fe-config": "v20260902.0.0.1788340621.awsuseast2.1788471031921",
+          "x-frame-options": "deny",
+          "x-envoy-attempt-count": "1",
+          "content-encoding": "gzip",
+          "x-content-type-options": "nosniff",
+          "x-xss-protection": "1; mode=block",
+          "expect-ct": "enforce, max-age=3600",
+          "strict-transport-security": "max-age=31536000; includeSubDomains",
+          "transfer-encoding": "chunked"
+        },
+        "body": {
+          "defaults": {
+            "default-base-location": ""
+          },
+          "overrides": {
+            "prefix": "PROBE_DB"
+          },
+          "endpoints": [
+            "GET /v1/{prefix}/namespaces",
+            "GET /v1/{prefix}/namespaces/{namespace}",
+            "HEAD /v1/{prefix}/namespaces/{namespace}",
+            "POST /v1/{prefix}/namespaces",
+            "POST /v1/{prefix}/namespaces/{namespace}/properties",
+            "DELETE /v1/{prefix}/namespaces/{namespace}",
+            "GET /v1/{prefix}/namespaces/{namespace}/tables",
+            "GET /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+            "HEAD /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+            "POST /v1/{prefix}/namespaces/{namespace}/tables",
+            "POST /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+            "DELETE /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+            "POST /v1/{prefix}/tables/rename",
+            "POST /v1/{prefix}/namespaces/{namespace}/register",
+            "POST /v1/{prefix}/namespaces/{namespace}/tables/{table}/metrics",
+            "POST /v1/{prefix}/transactions/commit",
+            "GET /v1/{prefix}/namespaces/{namespace}/views",
+            "GET /v1/{prefix}/namespaces/{namespace}/views/{view}",
+            "HEAD /v1/{prefix}/namespaces/{namespace}/views/{view}",
+            "POST /v1/{prefix}/namespaces/{namespace}/views",
+            "POST /v1/{prefix}/namespaces/{namespace}/views/{view}",
+            "DELETE /v1/{prefix}/namespaces/{namespace}/views/{view}",
+            "POST /v1/{prefix}/views/rename"
+          ]
+        }
+      },
+      "verdict": "OK",
+      "declared": false,
+      "reconciled": "undeclared, works"
+    },
+    {
+      "probe": "list_namespaces",
+      "category": "namespace",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "ListNamespaces",
+      "why": "The baseline read. If this 404s the prefix is wrong, not the catalog.",
+      "request": {
+        "method": "GET",
+        "url": "https://catalog-host-0004/polaris/api/catalog/v1/PROBE_DB/namespaces",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "snowflake-horizon",
+      "signature": "GET /v1/{prefix}/namespaces",
+      "variant_of": null,
+      "depends_on": null,
+      "ts": 1788471130.73622,
+      "elapsed_ms": 341.4,
+      "response": {
+        "status": 200,
+        "headers": {
+          "date": "Thu, 03 Sep 2026 21:32:10 GMT",
+          "content-type": "application/json;charset=utf-8",
+          "request_id": "guid-0236",
+          "open-catalog-request-id": "guid-0236",
+          "vary": "Accept-Encoding, User-Agent",
+          "server": "SF-LB-T1",
+          "x-envoy-upstream-service-time": "299",
+          "x-snowflake-fe-instance": "-",
+          "x-snowflake-fe-config": "v20260902.0.0.1788340621.awsuseast2.1788471031921",
+          "x-frame-options": "deny",
+          "x-envoy-attempt-count": "1",
+          "content-encoding": "gzip",
+          "x-content-type-options": "nosniff",
+          "x-xss-protection": "1; mode=block",
+          "expect-ct": "enforce, max-age=3600",
+          "strict-transport-security": "max-age=31536000; includeSubDomains",
+          "transfer-encoding": "chunked"
+        },
+        "body": {
+          "namespaces": [
+            [
+              "PROBE_NS"
+            ],
+            [
+              "PUBLIC"
+            ]
+          ],
+          "next-page-token": null
+        }
+      },
+      "verdict": "OK",
+      "declared": true,
+      "reconciled": "declared, works"
+    },
+    {
+      "probe": "list_namespaces_paged",
+      "category": "namespace",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "ListNamespaces",
+      "why": "Pagination is optional in the spec. Who honours pageSize, who ignores it?",
+      "request": {
+        "method": "GET",
+        "url": "https://catalog-host-0004/polaris/api/catalog/v1/PROBE_DB/namespaces?pageSize=1",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "snowflake-horizon",
+      "signature": "GET /v1/{prefix}/namespaces",
+      "variant_of": "list_namespaces",
+      "depends_on": null,
+      "ts": 1788471131.0780854,
+      "elapsed_ms": 310.1,
+      "response": {
+        "status": 200,
+        "headers": {
+          "date": "Thu, 03 Sep 2026 21:32:11 GMT",
+          "content-type": "application/json;charset=utf-8",
+          "request_id": "guid-0237",
+          "open-catalog-request-id": "guid-0237",
+          "vary": "Accept-Encoding, User-Agent",
+          "server": "SF-LB-T1",
+          "x-envoy-upstream-service-time": "272",
+          "x-snowflake-fe-instance": "-",
+          "x-snowflake-fe-config": "v20260902.0.0.1788340621.awsuseast2.1788471031921",
+          "x-frame-options": "deny",
+          "x-envoy-attempt-count": "1",
+          "content-encoding": "gzip",
+          "x-content-type-options": "nosniff",
+          "x-xss-protection": "1; mode=block",
+          "expect-ct": "enforce, max-age=3600",
+          "strict-transport-security": "max-age=31536000; includeSubDomains",
+          "transfer-encoding": "chunked"
+        },
+        "body": {
+          "namespaces": [
+            [
+              "PROBE_NS"
+            ],
+            [
+              "PUBLIC"
+            ]
+          ],
+          "next-page-token": null
+        }
+      },
+      "verdict": "OK"
+    },
+    {
+      "probe": "list_namespaces_parent",
+      "category": "namespace",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "ListNamespaces",
+      "why": "Multi-level namespaces. OneLake documents that it does NOT support the parent param, so this cell is a known negative going in.",
+      "request": {
+        "method": "GET",
+        "url": "https://catalog-host-0004/polaris/api/catalog/v1/PROBE_DB/namespaces?parent=PROBE_NS",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "snowflake-horizon",
+      "signature": "GET /v1/{prefix}/namespaces",
+      "variant_of": "list_namespaces",
+      "depends_on": null,
+      "ts": 1788471131.3886244,
+      "elapsed_ms": 402.7,
+      "response": {
+        "status": 200,
+        "headers": {
+          "date": "Thu, 03 Sep 2026 21:32:11 GMT",
+          "content-type": "application/json;charset=utf-8",
+          "request_id": "guid-0238",
+          "open-catalog-request-id": "guid-0238",
+          "vary": "Accept-Encoding, User-Agent",
+          "server": "SF-LB-T1",
+          "x-envoy-upstream-service-time": "361",
+          "x-snowflake-fe-instance": "-",
+          "x-snowflake-fe-config": "v20260902.0.0.1788340621.awsuseast2.1788471031921",
+          "x-frame-options": "deny",
+          "x-envoy-attempt-count": "1",
+          "content-encoding": "gzip",
+          "x-content-type-options": "nosniff",
+          "x-xss-protection": "1; mode=block",
+          "expect-ct": "enforce, max-age=3600",
+          "strict-transport-security": "max-age=31536000; includeSubDomains",
+          "transfer-encoding": "chunked"
+        },
+        "body": {
+          "namespaces": [],
+          "next-page-token": null
+        }
+      },
+      "verdict": "OK"
+    },
+    {
+      "probe": "load_namespace",
+      "category": "namespace",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "LoadNamespaceMetadata",
+      "why": "Namespace properties round-trip.",
+      "request": {
+        "method": "GET",
+        "url": "https://catalog-host-0004/polaris/api/catalog/v1/PROBE_DB/namespaces/PROBE_NS",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "snowflake-horizon",
+      "signature": "GET /v1/{prefix}/namespaces/{namespace}",
+      "variant_of": null,
+      "depends_on": null,
+      "ts": 1788471131.7917175,
+      "elapsed_ms": 437.7,
+      "response": {
+        "status": 200,
+        "headers": {
+          "date": "Thu, 03 Sep 2026 21:32:11 GMT",
+          "content-type": "application/json;charset=utf-8",
+          "request_id": "guid-0239",
+          "open-catalog-request-id": "guid-0239",
+          "vary": "Accept-Encoding, User-Agent",
+          "server": "SF-LB-T1",
+          "x-envoy-upstream-service-time": "394",
+          "x-snowflake-fe-instance": "-",
+          "x-snowflake-fe-config": "v20260902.0.0.1788340621.awsuseast2.1788471031921",
+          "x-frame-options": "deny",
+          "x-envoy-attempt-count": "1",
+          "content-encoding": "gzip",
+          "x-content-type-options": "nosniff",
+          "x-xss-protection": "1; mode=block",
+          "expect-ct": "enforce, max-age=3600",
+          "strict-transport-security": "max-age=31536000; includeSubDomains",
+          "transfer-encoding": "chunked"
+        },
+        "body": {
+          "namespace": [
+            "PROBE_NS"
+          ],
+          "properties": {
+            "location": "s3://bucket-0001/snowflake/PROBE_DB/PROBE_NS/"
+          }
+        }
+      },
+      "verdict": "OK",
+      "declared": true,
+      "reconciled": "declared, works"
+    },
+    {
+      "probe": "head_namespace",
+      "category": "namespace",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "NamespaceExists",
+      "why": "Existence check without a body. Commonly unimplemented.",
+      "request": {
+        "method": "HEAD",
+        "url": "https://catalog-host-0004/polaris/api/catalog/v1/PROBE_DB/namespaces/PROBE_NS",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "snowflake-horizon",
+      "signature": "HEAD /v1/{prefix}/namespaces/{namespace}",
+      "variant_of": null,
+      "depends_on": null,
+      "ts": 1788471132.2300541,
+      "elapsed_ms": 394.1,
+      "response": {
+        "status": 204,
+        "headers": {
+          "date": "Thu, 03 Sep 2026 21:32:12 GMT",
+          "request_id": "guid-0240",
+          "open-catalog-request-id": "guid-0240",
+          "server": "SF-LB-T1",
+          "x-envoy-upstream-service-time": "355",
+          "x-snowflake-fe-instance": "-",
+          "x-snowflake-fe-config": "v20260902.0.0.1788340621.awsuseast2.1788471031921",
+          "x-frame-options": "deny",
+          "x-envoy-attempt-count": "1",
+          "vary": "Accept-Encoding",
+          "x-content-type-options": "nosniff",
+          "x-xss-protection": "1; mode=block",
+          "expect-ct": "enforce, max-age=3600",
+          "strict-transport-security": "max-age=31536000; includeSubDomains"
+        },
+        "body": null
+      },
+      "verdict": "OK",
+      "declared": true,
+      "reconciled": "declared, works"
+    },
+    {
+      "probe": "list_tables",
+      "category": "table",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "ListTables",
+      "why": "Table listing within a namespace.",
+      "request": {
+        "method": "GET",
+        "url": "https://catalog-host-0004/polaris/api/catalog/v1/PROBE_DB/namespaces/PROBE_NS/tables",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "snowflake-horizon",
+      "signature": "GET /v1/{prefix}/namespaces/{namespace}/tables",
+      "variant_of": null,
+      "depends_on": null,
+      "ts": 1788471132.624417,
+      "elapsed_ms": 984.5,
+      "response": {
+        "status": 200,
+        "headers": {
+          "date": "Thu, 03 Sep 2026 21:32:12 GMT",
+          "content-type": "application/json;charset=utf-8",
+          "request_id": "guid-0241",
+          "open-catalog-request-id": "guid-0241",
+          "vary": "Accept-Encoding, User-Agent",
+          "server": "SF-LB-T1",
+          "x-envoy-upstream-service-time": "948",
+          "x-snowflake-fe-instance": "-",
+          "x-snowflake-fe-config": "v20260902.0.0.1788340621.awsuseast2.1788471031921",
+          "x-frame-options": "deny",
+          "x-envoy-attempt-count": "1",
+          "content-encoding": "gzip",
+          "x-content-type-options": "nosniff",
+          "x-xss-protection": "1; mode=block",
+          "expect-ct": "enforce, max-age=3600",
+          "strict-transport-security": "max-age=31536000; includeSubDomains",
+          "transfer-encoding": "chunked"
+        },
+        "body": {
+          "identifiers": [
+            {
+              "namespace": [
+                "PROBE_NS"
+              ],
+              "name": "PROBE_TABLE"
+            }
+          ],
+          "next-page-token": null
+        }
+      },
+      "verdict": "OK",
+      "declared": true,
+      "reconciled": "declared, works"
+    },
+    {
+      "probe": "load_table",
+      "category": "table",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "LoadTable",
+      "why": "The load-bearing call. Feeds the entire field tier below.",
+      "request": {
+        "method": "GET",
+        "url": "https://catalog-host-0004/polaris/api/catalog/v1/PROBE_DB/namespaces/PROBE_NS/tables/PROBE_TABLE",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "snowflake-horizon",
+      "signature": "GET /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "variant_of": null,
+      "depends_on": null,
+      "ts": 1788471133.6093512,
+      "elapsed_ms": 891.0,
+      "response": {
+        "status": 200,
+        "headers": {
+          "date": "Thu, 03 Sep 2026 21:32:13 GMT",
+          "content-type": "application/json;charset=utf-8",
+          "etag": "W/\"e6c079161f6759cdb394c27d67d00cb2bb0da75b9f7febaa9b59192834207fd3\"",
+          "request_id": "guid-0242",
+          "open-catalog-request-id": "guid-0242",
+          "vary": "Accept-Encoding, User-Agent",
+          "server": "SF-LB-T1",
+          "x-envoy-upstream-service-time": "846",
+          "x-snowflake-fe-instance": "-",
+          "x-snowflake-fe-config": "v20260902.0.0.1788340621.awsuseast2.1788471031921",
+          "x-frame-options": "deny",
+          "x-envoy-attempt-count": "1",
+          "content-encoding": "gzip",
+          "x-content-type-options": "nosniff",
+          "x-xss-protection": "1; mode=block",
+          "expect-ct": "enforce, max-age=3600",
+          "strict-transport-security": "max-age=31536000; includeSubDomains",
+          "transfer-encoding": "chunked"
+        },
+        "body": {
+          "metadata-location": "s3://bucket-0001/snowflake/PROBE_DB/PROBE_NS/PROBE_TABLE.5f2d75ba/metadata/00004-guid-0243.metadata.json",
+          "metadata": {
+            "format-version": 2,
+            "table-uuid": "guid-0244",
+            "location": "s3://bucket-0001/snowflake/PROBE_DB/PROBE_NS/PROBE_TABLE.5f2d75ba",
+            "last-sequence-number": 3,
+            "last-updated-ms": 1788468690881,
+            "last-column-id": 4,
+            "current-schema-id": 1,
+            "schemas": [
+              {
+                "type": "struct",
+                "schema-id": 0,
+                "fields": [
+                  {
+                    "id": 1,
+                    "name": "id",
+                    "required": true,
+                    "type": "long"
+                  },
+                  {
+                    "id": 2,
+                    "name": "ts",
+                    "required": false,
+                    "type": "timestamptz"
+                  },
+                  {
+                    "id": 3,
+                    "name": "payload",
+                    "required": false,
+                    "type": "string"
+                  }
+                ]
+              },
+              {
+                "type": "struct",
+                "schema-id": 1,
+                "fields": [
+                  {
+                    "id": 1,
+                    "name": "id",
+                    "required": true,
+                    "type": "long"
+                  },
+                  {
+                    "id": 2,
+                    "name": "ts",
+                    "required": false,
+                    "type": "timestamptz"
+                  },
+                  {
+                    "id": 3,
+                    "name": "payload",
+                    "required": false,
+                    "type": "string"
+                  },
+                  {
+                    "id": 4,
+                    "name": "region",
+                    "required": false,
+                    "type": "string",
+                    "doc": "added to exercise schema history"
+                  }
+                ]
+              }
+            ],
+            "default-spec-id": 0,
+            "partition-specs": [
+              {
+                "spec-id": 0,
+                "fields": [
+                  {
+                    "name": "ts_day",
+                    "transform": "day",
+                    "source-id": 2,
+                    "field-id": 1000
+                  }
+                ]
+              }
+            ],
+            "last-partition-id": 1000,
+            "default-sort-order-id": 1,
+            "sort-orders": [
+              {
+                "order-id": 1,
+                "fields": [
+                  {
+                    "transform": "identity",
+                    "source-id": 1,
+                    "direction": "asc",
+                    "null-order": "nulls-first"
+                  }
+                ]
+              }
+            ],
+            "properties": {
+              "write.merge.mode": "merge-on-read",
+              "created-at": "2026-09-03T20:51:10.476204175Z",
+              "write.update.mode": "merge-on-read",
+              "write.delete.mode": "merge-on-read",
+              "write.parquet.compression-codec": "zstd",
+              "probe": "control-column"
+            },
+            "current-snapshot-id": 9096856357731013671,
+            "refs": {
+              "main": {
+                "snapshot-id": 9096856357731013671,
+                "type": "branch"
+              }
+            },
+            "snapshots": [
+              {
+                "sequence-number": 1,
+                "snapshot-id": 2003245413157429371,
+                "timestamp-ms": 1788468673719,
+                "summary": {
+                  "operation": "append",
+                  "added-files-size": "1402",
+                  "added-data-files": "1",
+                  "added-records": "4",
+                  "changed-partition-count": "1",
+                  "total-data-files": "1",
+                  "total-delete-files": "0",
+                  "total-records": "4",
+                  "total-files-size": "1402",
+                  "total-position-deletes": "0",
+                  "total-equality-deletes": "0"
+                },
+                "manifest-list": "s3://bucket-0001/snowflake/PROBE_DB/PROBE_NS/PROBE_TABLE.5f2d75ba/metadata/snap-2003245413157429371-0-guid-0245.avro",
+                "schema-id": 0
+              },
+              {
+                "sequence-number": 2,
+                "snapshot-id": 8426461908404449649,
+                "parent-snapshot-id": 2003245413157429371,
+                "timestamp-ms": 1788468681140,
+                "summary": {
+                  "operation": "append",
+                  "added-files-size": "1402",
+                  "added-data-files": "1",
+                  "added-records": "4",
+                  "changed-partition-count": "1",
+                  "total-data-files": "2",
+                  "total-delete-files": "0",
+                  "total-records": "8",
+                  "total-files-size": "2804",
+                  "total-position-deletes": "0",
+                  "total-equality-deletes": "0"
+                },
+                "manifest-list": "s3://bucket-0001/snowflake/PROBE_DB/PROBE_NS/PROBE_TABLE.5f2d75ba/metadata/snap-8426461908404449649-0-guid-0246.avro",
+                "schema-id": 0
+              },
+              {
+                "sequence-number": 3,
+                "snapshot-id": 9096856357731013671,
+                "parent-snapshot-id": 8426461908404449649,
+                "timestamp-ms": 1788468684273,
+                "summary": {
+                  "operation": "append",
+                  "added-files-size": "1402",
+                  "added-data-files": "1",
+                  "added-records": "4",
+                  "changed-partition-count": "1",
+                  "total-data-files": "3",
+                  "total-delete-files": "0",
+                  "total-records": "12",
+                  "total-files-size": "4206",
+                  "total-position-deletes": "0",
+                  "total-equality-deletes": "0"
+                },
+                "manifest-list": "s3://bucket-0001/snowflake/PROBE_DB/PROBE_NS/PROBE_TABLE.5f2d75ba/metadata/snap-9096856357731013671-0-guid-0247.avro",
+                "schema-id": 0
+              }
+            ],
+            "statistics": [],
+            "partition-statistics": [],
+            "snapshot-log": [
+              {
+                "timestamp-ms": 1788468673719,
+                "snapshot-id": 2003245413157429371
+              },
+              {
+                "timestamp-ms": 1788468681140,
+                "snapshot-id": 8426461908404449649
+              },
+              {
+                "timestamp-ms": 1788468684273,
+                "snapshot-id": 9096856357731013671
+              }
+            ],
+            "metadata-log": [
+              {
+                "timestamp-ms": 1788468670562,
+                "metadata-file": "s3://bucket-0001/snowflake/PROBE_DB/PROBE_NS/PROBE_TABLE.5f2d75ba/metadata/00000-guid-0248.metadata.json"
+              },
+              {
+                "timestamp-ms": 1788468673719,
+                "metadata-file": "s3://bucket-0001/snowflake/PROBE_DB/PROBE_NS/PROBE_TABLE.5f2d75ba/metadata/00001-guid-0249.metadata.json"
+              },
+              {
+                "timestamp-ms": 1788468681140,
+                "metadata-file": "s3://bucket-0001/snowflake/PROBE_DB/PROBE_NS/PROBE_TABLE.5f2d75ba/metadata/00002-guid-0250.metadata.json"
+              },
+              {
+                "timestamp-ms": 1788468684273,
+                "metadata-file": "s3://bucket-0001/snowflake/PROBE_DB/PROBE_NS/PROBE_TABLE.5f2d75ba/metadata/00003-guid-0251.metadata.json"
+              }
+            ]
+          },
+          "config": {
+            "client.region": "us-east-1"
+          }
+        }
+      },
+      "verdict": "OK",
+      "declared": true,
+      "reconciled": "declared, works"
+    },
+    {
+      "probe": "load_table_snapshots_all",
+      "category": "table",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "LoadTable",
+      "why": "Full snapshot history vs. the refs-only default. Time travel depends on it.",
+      "request": {
+        "method": "GET",
+        "url": "https://catalog-host-0004/polaris/api/catalog/v1/PROBE_DB/namespaces/PROBE_NS/tables/PROBE_TABLE?snapshots=all",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "snowflake-horizon",
+      "signature": "GET /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "variant_of": "load_table",
+      "depends_on": null,
+      "ts": 1788471134.5024672,
+      "elapsed_ms": 816.2,
+      "response": {
+        "status": 200,
+        "headers": {
+          "date": "Thu, 03 Sep 2026 21:32:14 GMT",
+          "content-type": "application/json;charset=utf-8",
+          "etag": "W/\"e6c079161f6759cdb394c27d67d00cb2bb0da75b9f7febaa9b59192834207fd3\"",
+          "request_id": "guid-0252",
+          "open-catalog-request-id": "guid-0252",
+          "vary": "Accept-Encoding, User-Agent",
+          "server": "SF-LB-T1",
+          "x-envoy-upstream-service-time": "774",
+          "x-snowflake-fe-instance": "-",
+          "x-snowflake-fe-config": "v20260902.0.0.1788340621.awsuseast2.1788471031921",
+          "x-frame-options": "deny",
+          "x-envoy-attempt-count": "1",
+          "content-encoding": "gzip",
+          "x-content-type-options": "nosniff",
+          "x-xss-protection": "1; mode=block",
+          "expect-ct": "enforce, max-age=3600",
+          "strict-transport-security": "max-age=31536000; includeSubDomains",
+          "transfer-encoding": "chunked"
+        },
+        "body": {
+          "metadata-location": "s3://bucket-0001/snowflake/PROBE_DB/PROBE_NS/PROBE_TABLE.5f2d75ba/metadata/00004-guid-0243.metadata.json",
+          "metadata": {
+            "format-version": 2,
+            "table-uuid": "guid-0244",
+            "location": "s3://bucket-0001/snowflake/PROBE_DB/PROBE_NS/PROBE_TABLE.5f2d75ba",
+            "last-sequence-number": 3,
+            "last-updated-ms": 1788468690881,
+            "last-column-id": 4,
+            "current-schema-id": 1,
+            "schemas": [
+              {
+                "type": "struct",
+                "schema-id": 0,
+                "fields": [
+                  {
+                    "id": 1,
+                    "name": "id",
+                    "required": true,
+                    "type": "long"
+                  },
+                  {
+                    "id": 2,
+                    "name": "ts",
+                    "required": false,
+                    "type": "timestamptz"
+                  },
+                  {
+                    "id": 3,
+                    "name": "payload",
+                    "required": false,
+                    "type": "string"
+                  }
+                ]
+              },
+              {
+                "type": "struct",
+                "schema-id": 1,
+                "fields": [
+                  {
+                    "id": 1,
+                    "name": "id",
+                    "required": true,
+                    "type": "long"
+                  },
+                  {
+                    "id": 2,
+                    "name": "ts",
+                    "required": false,
+                    "type": "timestamptz"
+                  },
+                  {
+                    "id": 3,
+                    "name": "payload",
+                    "required": false,
+                    "type": "string"
+                  },
+                  {
+                    "id": 4,
+                    "name": "region",
+                    "required": false,
+                    "type": "string",
+                    "doc": "added to exercise schema history"
+                  }
+                ]
+              }
+            ],
+            "default-spec-id": 0,
+            "partition-specs": [
+              {
+                "spec-id": 0,
+                "fields": [
+                  {
+                    "name": "ts_day",
+                    "transform": "day",
+                    "source-id": 2,
+                    "field-id": 1000
+                  }
+                ]
+              }
+            ],
+            "last-partition-id": 1000,
+            "default-sort-order-id": 1,
+            "sort-orders": [
+              {
+                "order-id": 1,
+                "fields": [
+                  {
+                    "transform": "identity",
+                    "source-id": 1,
+                    "direction": "asc",
+                    "null-order": "nulls-first"
+                  }
+                ]
+              }
+            ],
+            "properties": {
+              "write.merge.mode": "merge-on-read",
+              "created-at": "2026-09-03T20:51:10.476204175Z",
+              "write.update.mode": "merge-on-read",
+              "write.delete.mode": "merge-on-read",
+              "write.parquet.compression-codec": "zstd",
+              "probe": "control-column"
+            },
+            "current-snapshot-id": 9096856357731013671,
+            "refs": {
+              "main": {
+                "snapshot-id": 9096856357731013671,
+                "type": "branch"
+              }
+            },
+            "snapshots": [
+              {
+                "sequence-number": 1,
+                "snapshot-id": 2003245413157429371,
+                "timestamp-ms": 1788468673719,
+                "summary": {
+                  "operation": "append",
+                  "added-files-size": "1402",
+                  "added-data-files": "1",
+                  "added-records": "4",
+                  "changed-partition-count": "1",
+                  "total-data-files": "1",
+                  "total-delete-files": "0",
+                  "total-records": "4",
+                  "total-files-size": "1402",
+                  "total-position-deletes": "0",
+                  "total-equality-deletes": "0"
+                },
+                "manifest-list": "s3://bucket-0001/snowflake/PROBE_DB/PROBE_NS/PROBE_TABLE.5f2d75ba/metadata/snap-2003245413157429371-0-guid-0245.avro",
+                "schema-id": 0
+              },
+              {
+                "sequence-number": 2,
+                "snapshot-id": 8426461908404449649,
+                "parent-snapshot-id": 2003245413157429371,
+                "timestamp-ms": 1788468681140,
+                "summary": {
+                  "operation": "append",
+                  "added-files-size": "1402",
+                  "added-data-files": "1",
+                  "added-records": "4",
+                  "changed-partition-count": "1",
+                  "total-data-files": "2",
+                  "total-delete-files": "0",
+                  "total-records": "8",
+                  "total-files-size": "2804",
+                  "total-position-deletes": "0",
+                  "total-equality-deletes": "0"
+                },
+                "manifest-list": "s3://bucket-0001/snowflake/PROBE_DB/PROBE_NS/PROBE_TABLE.5f2d75ba/metadata/snap-8426461908404449649-0-guid-0246.avro",
+                "schema-id": 0
+              },
+              {
+                "sequence-number": 3,
+                "snapshot-id": 9096856357731013671,
+                "parent-snapshot-id": 8426461908404449649,
+                "timestamp-ms": 1788468684273,
+                "summary": {
+                  "operation": "append",
+                  "added-files-size": "1402",
+                  "added-data-files": "1",
+                  "added-records": "4",
+                  "changed-partition-count": "1",
+                  "total-data-files": "3",
+                  "total-delete-files": "0",
+                  "total-records": "12",
+                  "total-files-size": "4206",
+                  "total-position-deletes": "0",
+                  "total-equality-deletes": "0"
+                },
+                "manifest-list": "s3://bucket-0001/snowflake/PROBE_DB/PROBE_NS/PROBE_TABLE.5f2d75ba/metadata/snap-9096856357731013671-0-guid-0247.avro",
+                "schema-id": 0
+              }
+            ],
+            "statistics": [],
+            "partition-statistics": [],
+            "snapshot-log": [
+              {
+                "timestamp-ms": 1788468673719,
+                "snapshot-id": 2003245413157429371
+              },
+              {
+                "timestamp-ms": 1788468681140,
+                "snapshot-id": 8426461908404449649
+              },
+              {
+                "timestamp-ms": 1788468684273,
+                "snapshot-id": 9096856357731013671
+              }
+            ],
+            "metadata-log": [
+              {
+                "timestamp-ms": 1788468670562,
+                "metadata-file": "s3://bucket-0001/snowflake/PROBE_DB/PROBE_NS/PROBE_TABLE.5f2d75ba/metadata/00000-guid-0248.metadata.json"
+              },
+              {
+                "timestamp-ms": 1788468673719,
+                "metadata-file": "s3://bucket-0001/snowflake/PROBE_DB/PROBE_NS/PROBE_TABLE.5f2d75ba/metadata/00001-guid-0249.metadata.json"
+              },
+              {
+                "timestamp-ms": 1788468681140,
+                "metadata-file": "s3://bucket-0001/snowflake/PROBE_DB/PROBE_NS/PROBE_TABLE.5f2d75ba/metadata/00002-guid-0250.metadata.json"
+              },
+              {
+                "timestamp-ms": 1788468684273,
+                "metadata-file": "s3://bucket-0001/snowflake/PROBE_DB/PROBE_NS/PROBE_TABLE.5f2d75ba/metadata/00003-guid-0251.metadata.json"
+              }
+            ]
+          },
+          "config": {
+            "client.region": "us-east-1"
+          }
+        }
+      },
+      "verdict": "OK"
+    },
+    {
+      "probe": "head_table",
+      "category": "table",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "TableExists",
+      "why": "Existence check without a body.",
+      "request": {
+        "method": "HEAD",
+        "url": "https://catalog-host-0004/polaris/api/catalog/v1/PROBE_DB/namespaces/PROBE_NS/tables/PROBE_TABLE",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "snowflake-horizon",
+      "signature": "HEAD /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "variant_of": null,
+      "depends_on": null,
+      "ts": 1788471135.320562,
+      "elapsed_ms": 531.5,
+      "response": {
+        "status": 204,
+        "headers": {
+          "date": "Thu, 03 Sep 2026 21:32:15 GMT",
+          "request_id": "guid-0253",
+          "open-catalog-request-id": "guid-0253",
+          "server": "SF-LB-T1",
+          "x-envoy-upstream-service-time": "492",
+          "x-snowflake-fe-instance": "-",
+          "x-snowflake-fe-config": "v20260902.0.0.1788340621.awsuseast2.1788471031921",
+          "x-frame-options": "deny",
+          "x-envoy-attempt-count": "1",
+          "vary": "Accept-Encoding",
+          "x-content-type-options": "nosniff",
+          "x-xss-protection": "1; mode=block",
+          "expect-ct": "enforce, max-age=3600",
+          "strict-transport-security": "max-age=31536000; includeSubDomains"
+        },
+        "body": null
+      },
+      "verdict": "OK",
+      "declared": true,
+      "reconciled": "declared, works"
+    },
+    {
+      "probe": "load_credentials",
+      "category": "credentials",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "LoadCredentials",
+      "why": "Vended storage credentials. The newest and least evenly adopted endpoint.",
+      "request": {
+        "method": "GET",
+        "url": "https://catalog-host-0004/polaris/api/catalog/v1/PROBE_DB/namespaces/PROBE_NS/tables/PROBE_TABLE/credentials",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "snowflake-horizon",
+      "signature": "GET /v1/{prefix}/namespaces/{namespace}/tables/{table}/credentials",
+      "variant_of": null,
+      "depends_on": null,
+      "ts": 1788471135.8523574,
+      "elapsed_ms": 825.1,
+      "response": {
+        "status": 200,
+        "headers": {
+          "date": "Thu, 03 Sep 2026 21:32:15 GMT",
+          "content-type": "application/json;charset=utf-8",
+          "request_id": "guid-0254",
+          "open-catalog-request-id": "guid-0254",
+          "vary": "Accept-Encoding, User-Agent",
+          "server": "SF-LB-T1",
+          "x-envoy-upstream-service-time": "790",
+          "x-snowflake-fe-instance": "-",
+          "x-snowflake-fe-config": "v20260902.0.0.1788340621.awsuseast2.1788471031921",
+          "x-frame-options": "deny",
+          "x-envoy-attempt-count": "1",
+          "content-encoding": "gzip",
+          "x-content-type-options": "nosniff",
+          "x-xss-protection": "1; mode=block",
+          "expect-ct": "enforce, max-age=3600",
+          "strict-transport-security": "max-age=31536000; includeSubDomains",
+          "transfer-encoding": "chunked"
+        },
+        "body": {
+          "storage-credentials": [
+            {
+              "prefix": "s3://bucket-0001/snowflake/PROBE_DB/PROBE_NS/PROBE_TABLE.5f2d75ba",
+              "config": {
+                "s3.access-key-id": "<redacted:20 chars>",
+                "s3.secret-access-key": "<redacted:40 chars>",
+                "s3.session-token": "<redacted:984 chars>",
+                "expiration-time": "1788472274000"
+              }
+            }
+          ]
+        }
+      },
+      "verdict": "OK",
+      "declared": false,
+      "reconciled": "undeclared, works"
+    },
+    {
+      "probe": "list_views",
+      "category": "view",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "ListViews",
+      "why": "Iceberg views are a separate spec section and adoption is patchy.",
+      "request": {
+        "method": "GET",
+        "url": "https://catalog-host-0004/polaris/api/catalog/v1/PROBE_DB/namespaces/PROBE_NS/views",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "snowflake-horizon",
+      "signature": "GET /v1/{prefix}/namespaces/{namespace}/views",
+      "variant_of": null,
+      "depends_on": null,
+      "ts": 1788471136.677866,
+      "elapsed_ms": 306.4,
+      "response": {
+        "status": 403,
+        "headers": {
+          "date": "Thu, 03 Sep 2026 21:32:16 GMT",
+          "content-type": "application/json",
+          "request_id": "guid-0255",
+          "open-catalog-request-id": "guid-0255",
+          "server": "SF-LB-T1",
+          "x-envoy-upstream-service-time": "268",
+          "x-snowflake-fe-instance": "-",
+          "x-snowflake-fe-config": "v20260902.0.0.1788340621.awsuseast2.1788471031921",
+          "x-frame-options": "deny",
+          "x-envoy-attempt-count": "1",
+          "content-encoding": "gzip",
+          "vary": "Accept-Encoding",
+          "x-content-type-options": "nosniff",
+          "x-xss-protection": "1; mode=block",
+          "expect-ct": "enforce, max-age=3600",
+          "strict-transport-security": "max-age=31536000; includeSubDomains",
+          "transfer-encoding": "chunked"
+        },
+        "body": {
+          "error": {
+            "message": "Authorization failed",
+            "type": "ForbiddenException",
+            "code": 403
+          }
+        }
+      },
+      "verdict": "UNAUTHORIZED",
+      "declared": true,
+      "reconciled": "DECLARED, FAILS"
+    },
+    {
+      "probe": "plan_table_scan",
+      "category": "planning",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "PlanTableScan",
+      "why": "Server-side scan planning. Recent addition; expect mostly 404/501.",
+      "request": {
+        "method": "POST",
+        "url": "https://catalog-host-0004/polaris/api/catalog/v1/PROBE_DB/namespaces/PROBE_NS/tables/PROBE_TABLE/plan",
+        "body": {
+          "select": [
+            "*"
+          ],
+          "case-sensitive": false
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Content-Type": "application/json",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "snowflake-horizon",
+      "signature": "POST /v1/{prefix}/namespaces/{namespace}/tables/{table}/plan",
+      "variant_of": null,
+      "depends_on": null,
+      "ts": 1788471136.9846938,
+      "elapsed_ms": 182.4,
+      "response": {
+        "status": 404,
+        "headers": {
+          "date": "Thu, 03 Sep 2026 21:32:17 GMT",
+          "request_id": "guid-0256",
+          "open-catalog-request-id": "guid-0256",
+          "content-type": "application/json",
+          "content-length": "0",
+          "server": "SF-LB-T1",
+          "x-envoy-upstream-service-time": "137",
+          "x-snowflake-fe-instance": "-",
+          "x-snowflake-fe-config": "v20260902.0.0.1788340621.awsuseast2.1788471082967",
+          "x-frame-options": "deny",
+          "x-envoy-attempt-count": "1",
+          "x-content-type-options": "nosniff",
+          "x-xss-protection": "1; mode=block",
+          "expect-ct": "enforce, max-age=3600",
+          "strict-transport-security": "max-age=31536000; includeSubDomains"
+        },
+        "body": null
+      },
+      "verdict": "NOT_FOUND",
+      "declared": false,
+      "reconciled": "undeclared, fails"
+    },
+    {
+      "probe": "report_metrics",
+      "category": "telemetry",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "ReportMetrics",
+      "why": "Metrics reporting. Widely stubbed to 204 without storing anything. Body must be a complete ScanReport or a 400 tells you nothing.",
+      "request": {
+        "method": "POST",
+        "url": "https://catalog-host-0004/polaris/api/catalog/v1/PROBE_DB/namespaces/PROBE_NS/tables/PROBE_TABLE/metrics",
+        "body": {
+          "report-type": "scan-report",
+          "table-name": "PROBE_TABLE",
+          "snapshot-id": 1,
+          "filter": {
+            "type": "eq",
+            "term": "id",
+            "value": 1
+          },
+          "schema-id": 0,
+          "projected-field-ids": [
+            1
+          ],
+          "projected-field-names": [
+            "id"
+          ],
+          "metrics": {
+            "total-planning-duration": {
+              "count": 1,
+              "time-unit": "nanoseconds",
+              "total-duration": 1
+            },
+            "total-file-size-in-bytes": {
+              "unit": "bytes",
+              "value": 1
+            },
+            "result-data-files": {
+              "unit": "count",
+              "value": 1
+            }
+          }
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Content-Type": "application/json",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "snowflake-horizon",
+      "signature": "POST /v1/{prefix}/namespaces/{namespace}/tables/{table}/metrics",
+      "variant_of": null,
+      "depends_on": null,
+      "ts": 1788471137.1676617,
+      "elapsed_ms": 145.7,
+      "response": {
+        "status": 204,
+        "headers": {
+          "date": "Thu, 03 Sep 2026 21:32:17 GMT",
+          "request_id": "guid-0257",
+          "open-catalog-request-id": "guid-0257",
+          "server": "SF-LB-T1",
+          "x-envoy-upstream-service-time": "99",
+          "x-snowflake-fe-instance": "-",
+          "x-snowflake-fe-config": "v20260902.0.0.1788340621.awsuseast2.1788471082967",
+          "x-frame-options": "deny",
+          "x-envoy-attempt-count": "1",
+          "vary": "Accept-Encoding",
+          "x-content-type-options": "nosniff",
+          "x-xss-protection": "1; mode=block",
+          "expect-ct": "enforce, max-age=3600",
+          "strict-transport-security": "max-age=31536000; includeSubDomains"
+        },
+        "body": null
+      },
+      "verdict": "OK",
+      "declared": true,
+      "reconciled": "declared, works"
+    },
+    {
+      "probe": "create_namespace",
+      "category": "namespace",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "CreateNamespace",
+      "why": "First real write. OneLake is documented read-only, so this is where that shows up as a status code.",
+      "request": {
+        "method": "POST",
+        "url": "https://catalog-host-0004/polaris/api/catalog/v1/PROBE_DB/namespaces",
+        "body": {
+          "namespace": [
+            "irc_probe_20260903173209"
+          ],
+          "properties": {}
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Content-Type": "application/json",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "snowflake-horizon",
+      "signature": "POST /v1/{prefix}/namespaces",
+      "variant_of": null,
+      "depends_on": null,
+      "ts": 1788471137.3137407,
+      "elapsed_ms": 835.6,
+      "response": {
+        "status": 200,
+        "headers": {
+          "date": "Thu, 03 Sep 2026 21:32:17 GMT",
+          "content-type": "application/json;charset=utf-8",
+          "request_id": "guid-0258",
+          "open-catalog-request-id": "guid-0258",
+          "vary": "Accept-Encoding, User-Agent",
+          "server": "SF-LB-T1",
+          "x-envoy-upstream-service-time": "790",
+          "x-snowflake-fe-instance": "-",
+          "x-snowflake-fe-config": "v20260902.0.0.1788340621.awsuseast2.1788471031921",
+          "x-frame-options": "deny",
+          "x-envoy-attempt-count": "1",
+          "content-encoding": "gzip",
+          "x-content-type-options": "nosniff",
+          "x-xss-protection": "1; mode=block",
+          "expect-ct": "enforce, max-age=3600",
+          "strict-transport-security": "max-age=31536000; includeSubDomains",
+          "transfer-encoding": "chunked"
+        },
+        "body": {
+          "namespace": [
+            "irc_probe_20260903173209"
+          ],
+          "properties": {
+            "location": "s3://bucket-0001/snowflake/PROBE_DB/irc_probe_20260903173209/"
+          }
+        }
+      },
+      "verdict": "OK",
+      "declared": true,
+      "reconciled": "declared, works"
+    },
+    {
+      "probe": "update_namespace_props",
+      "category": "namespace",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "UpdateProperties",
+      "why": "Property updates are separately optional from namespace creation.",
+      "request": {
+        "method": "POST",
+        "url": "https://catalog-host-0004/polaris/api/catalog/v1/PROBE_DB/namespaces/irc_probe_20260903173209/properties",
+        "body": {
+          "removals": [],
+          "updates": {
+            "probe": "conformance"
+          }
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Content-Type": "application/json",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "snowflake-horizon",
+      "signature": "POST /v1/{prefix}/namespaces/{namespace}/properties",
+      "variant_of": null,
+      "depends_on": "create_namespace",
+      "ts": 1788471138.14985,
+      "elapsed_ms": 380.7,
+      "response": {
+        "status": 403,
+        "headers": {
+          "date": "Thu, 03 Sep 2026 21:32:18 GMT",
+          "content-type": "application/json",
+          "request_id": "guid-0259",
+          "open-catalog-request-id": "guid-0259",
+          "server": "SF-LB-T1",
+          "x-envoy-upstream-service-time": "344",
+          "x-snowflake-fe-instance": "-",
+          "x-snowflake-fe-config": "v20260902.0.0.1788340621.awsuseast2.1788471031921",
+          "x-frame-options": "deny",
+          "x-envoy-attempt-count": "1",
+          "content-encoding": "gzip",
+          "vary": "Accept-Encoding",
+          "x-content-type-options": "nosniff",
+          "x-xss-protection": "1; mode=block",
+          "expect-ct": "enforce, max-age=3600",
+          "strict-transport-security": "max-age=31536000; includeSubDomains",
+          "transfer-encoding": "chunked"
+        },
+        "body": {
+          "error": {
+            "message": "Authorization failed",
+            "type": "ForbiddenException",
+            "code": 403
+          }
+        }
+      },
+      "verdict": "UNAUTHORIZED",
+      "declared": true,
+      "reconciled": "DECLARED, FAILS"
+    },
+    {
+      "probe": "create_table",
+      "category": "table",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "CreateTable",
+      "why": "Table creation with an explicit schema, partition spec and sort order \u2014 checks whether all three survive a round-trip.",
+      "request": {
+        "method": "POST",
+        "url": "https://catalog-host-0004/polaris/api/catalog/v1/PROBE_DB/namespaces/irc_probe_20260903173209/tables",
+        "body": {
+          "name": "probe_tbl",
+          "schema": {
+            "type": "struct",
+            "schema-id": 0,
+            "fields": [
+              {
+                "id": 1,
+                "name": "id",
+                "required": true,
+                "type": "long"
+              },
+              {
+                "id": 2,
+                "name": "ts",
+                "required": false,
+                "type": "timestamptz"
+              },
+              {
+                "id": 3,
+                "name": "payload",
+                "required": false,
+                "type": "string"
+              }
+            ]
+          },
+          "partition-spec": {
+            "spec-id": 0,
+            "fields": [
+              {
+                "source-id": 2,
+                "field-id": 1000,
+                "transform": "day",
+                "name": "ts_day"
+              }
+            ]
+          },
+          "write-order": {
+            "order-id": 1,
+            "fields": [
+              {
+                "source-id": 1,
+                "transform": "identity",
+                "direction": "asc",
+                "null-order": "nulls-first"
+              }
+            ]
+          },
+          "properties": {
+            "probe": "conformance"
+          },
+          "stage-create": false
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Content-Type": "application/json",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "snowflake-horizon",
+      "signature": "POST /v1/{prefix}/namespaces/{namespace}/tables",
+      "variant_of": null,
+      "depends_on": "create_namespace",
+      "ts": 1788471138.5312338,
+      "elapsed_ms": 2176.5,
+      "response": {
+        "status": 200,
+        "headers": {
+          "date": "Thu, 03 Sep 2026 21:32:18 GMT",
+          "content-type": "application/json;charset=utf-8",
+          "etag": "W/\"6934cd1c9e2ae3163884415ce357f8365854d9e5cee47c832b79237d9f1a2043\"",
+          "request_id": "guid-0260",
+          "open-catalog-request-id": "guid-0260",
+          "vary": "Accept-Encoding, User-Agent",
+          "server": "SF-LB-T1",
+          "x-envoy-upstream-service-time": "2130",
+          "x-snowflake-fe-instance": "-",
+          "x-snowflake-fe-config": "v20260902.0.0.1788340621.awsuseast2.1788471082967",
+          "x-frame-options": "deny",
+          "x-envoy-attempt-count": "1",
+          "content-encoding": "gzip",
+          "x-content-type-options": "nosniff",
+          "x-xss-protection": "1; mode=block",
+          "expect-ct": "enforce, max-age=3600",
+          "strict-transport-security": "max-age=31536000; includeSubDomains",
+          "transfer-encoding": "chunked"
+        },
+        "body": {
+          "metadata-location": "s3://bucket-0001/snowflake/PROBE_DB/irc_probe_20260903173209/probe_tbl.42860354/metadata/00000-guid-0261.metadata.json",
+          "metadata": {
+            "format-version": 2,
+            "table-uuid": "guid-0262",
+            "location": "s3://bucket-0001/snowflake/PROBE_DB/irc_probe_20260903173209/probe_tbl.42860354",
+            "last-sequence-number": 0,
+            "last-updated-ms": 1788471139088,
+            "last-column-id": 3,
+            "current-schema-id": 0,
+            "schemas": [
+              {
+                "type": "struct",
+                "schema-id": 0,
+                "fields": [
+                  {
+                    "id": 1,
+                    "name": "id",
+                    "required": true,
+                    "type": "long"
+                  },
+                  {
+                    "id": 2,
+                    "name": "ts",
+                    "required": false,
+                    "type": "timestamptz"
+                  },
+                  {
+                    "id": 3,
+                    "name": "payload",
+                    "required": false,
+                    "type": "string"
+                  }
+                ]
+              }
+            ],
+            "default-spec-id": 0,
+            "partition-specs": [
+              {
+                "spec-id": 0,
+                "fields": [
+                  {
+                    "name": "ts_day",
+                    "transform": "day",
+                    "source-id": 2,
+                    "field-id": 1000
+                  }
+                ]
+              }
+            ],
+            "last-partition-id": 1000,
+            "default-sort-order-id": 1,
+            "sort-orders": [
+              {
+                "order-id": 1,
+                "fields": [
+                  {
+                    "transform": "identity",
+                    "source-id": 1,
+                    "direction": "asc",
+                    "null-order": "nulls-first"
+                  }
+                ]
+              }
+            ],
+            "properties": {
+              "created-at": "2026-09-03T21:32:19.020915309Z",
+              "write.parquet.compression-codec": "zstd",
+              "probe": "conformance"
+            },
+            "current-snapshot-id": -1,
+            "refs": {},
+            "snapshots": [],
+            "statistics": [],
+            "partition-statistics": [],
+            "snapshot-log": [],
+            "metadata-log": []
+          },
+          "config": {
+            "client.region": "us-east-1"
+          }
+        }
+      },
+      "verdict": "OK",
+      "declared": true,
+      "reconciled": "declared, works"
+    },
+    {
+      "probe": "commit_table",
+      "category": "commit",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "UpdateTable",
+      "why": "A property-set commit \u2014 the cheapest possible exercise of the update path.",
+      "request": {
+        "method": "POST",
+        "url": "https://catalog-host-0004/polaris/api/catalog/v1/PROBE_DB/namespaces/irc_probe_20260903173209/tables/probe_tbl",
+        "body": {
+          "requirements": [
+            {
+              "type": "assert-table-uuid",
+              "uuid": "guid-0262"
+            }
+          ],
+          "updates": [
+            {
+              "action": "set-properties",
+              "updates": {
+                "probe-commit": "1"
+              }
+            }
+          ]
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Content-Type": "application/json",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "snowflake-horizon",
+      "signature": "POST /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "variant_of": null,
+      "depends_on": "create_table",
+      "ts": 1788471140.708787,
+      "elapsed_ms": 1717.1,
+      "response": {
+        "status": 200,
+        "headers": {
+          "date": "Thu, 03 Sep 2026 21:32:20 GMT",
+          "content-type": "application/json;charset=utf-8",
+          "request_id": "guid-0263",
+          "open-catalog-request-id": "guid-0263",
+          "vary": "Accept-Encoding, User-Agent",
+          "server": "SF-LB-T1",
+          "x-envoy-upstream-service-time": "1669",
+          "x-snowflake-fe-instance": "-",
+          "x-snowflake-fe-config": "v20260902.0.0.1788340621.awsuseast2.1788471082967",
+          "x-frame-options": "deny",
+          "x-envoy-attempt-count": "1",
+          "content-encoding": "gzip",
+          "x-content-type-options": "nosniff",
+          "x-xss-protection": "1; mode=block",
+          "expect-ct": "enforce, max-age=3600",
+          "strict-transport-security": "max-age=31536000; includeSubDomains",
+          "transfer-encoding": "chunked"
+        },
+        "body": {
+          "metadata-location": "s3://bucket-0001/snowflake/PROBE_DB/irc_probe_20260903173209/probe_tbl.42860354/metadata/00001-guid-0264.metadata.json",
+          "metadata": {
+            "format-version": 2,
+            "table-uuid": "guid-0262",
+            "location": "s3://bucket-0001/snowflake/PROBE_DB/irc_probe_20260903173209/probe_tbl.42860354",
+            "last-sequence-number": 0,
+            "last-updated-ms": 1788471141347,
+            "last-column-id": 3,
+            "current-schema-id": 0,
+            "schemas": [
+              {
+                "type": "struct",
+                "schema-id": 0,
+                "fields": [
+                  {
+                    "id": 1,
+                    "name": "id",
+                    "required": true,
+                    "type": "long"
+                  },
+                  {
+                    "id": 2,
+                    "name": "ts",
+                    "required": false,
+                    "type": "timestamptz"
+                  },
+                  {
+                    "id": 3,
+                    "name": "payload",
+                    "required": false,
+                    "type": "string"
+                  }
+                ]
+              }
+            ],
+            "default-spec-id": 0,
+            "partition-specs": [
+              {
+                "spec-id": 0,
+                "fields": [
+                  {
+                    "name": "ts_day",
+                    "transform": "day",
+                    "source-id": 2,
+                    "field-id": 1000
+                  }
+                ]
+              }
+            ],
+            "last-partition-id": 1000,
+            "default-sort-order-id": 1,
+            "sort-orders": [
+              {
+                "order-id": 1,
+                "fields": [
+                  {
+                    "transform": "identity",
+                    "source-id": 1,
+                    "direction": "asc",
+                    "null-order": "nulls-first"
+                  }
+                ]
+              }
+            ],
+            "properties": {
+              "created-at": "2026-09-03T21:32:19.020915309Z",
+              "probe-commit": "1",
+              "write.parquet.compression-codec": "zstd",
+              "probe": "conformance"
+            },
+            "current-snapshot-id": -1,
+            "refs": {},
+            "snapshots": [],
+            "statistics": [],
+            "partition-statistics": [],
+            "snapshot-log": [],
+            "metadata-log": [
+              {
+                "timestamp-ms": 1788471139088,
+                "metadata-file": "s3://bucket-0001/snowflake/PROBE_DB/irc_probe_20260903173209/probe_tbl.42860354/metadata/00000-guid-0261.metadata.json"
+              }
+            ]
+          }
+        }
+      },
+      "verdict": "OK",
+      "declared": true,
+      "reconciled": "declared, works"
+    },
+    {
+      "probe": "commit_remove_properties",
+      "category": "commit",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "UpdateTable",
+      "why": "remove-properties: the inverse of the one action every catalog serves.",
+      "request": {
+        "method": "POST",
+        "url": "https://catalog-host-0004/polaris/api/catalog/v1/PROBE_DB/namespaces/irc_probe_20260903173209/tables/probe_tbl",
+        "body": {
+          "requirements": [
+            {
+              "type": "assert-table-uuid",
+              "uuid": "guid-0262"
+            }
+          ],
+          "updates": [
+            {
+              "action": "remove-properties",
+              "removals": [
+                "probe"
+              ]
+            }
+          ]
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Content-Type": "application/json",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "snowflake-horizon",
+      "signature": "POST /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "variant_of": "commit_table",
+      "depends_on": "create_table",
+      "ts": 1788471142.4268584,
+      "elapsed_ms": 1697.1,
+      "response": {
+        "status": 500,
+        "headers": {
+          "date": "Thu, 03 Sep 2026 21:32:22 GMT",
+          "content-type": "application/json",
+          "request_id": "guid-0265",
+          "open-catalog-request-id": "guid-0265",
+          "server": "SF-LB-T1",
+          "x-envoy-upstream-service-time": "1658",
+          "x-snowflake-fe-instance": "-",
+          "x-snowflake-fe-config": "v20260902.0.0.1788340621.awsuseast2.1788471082967",
+          "x-frame-options": "deny",
+          "x-envoy-attempt-count": "1",
+          "content-encoding": "gzip",
+          "vary": "Accept-Encoding",
+          "x-content-type-options": "nosniff",
+          "x-xss-protection": "1; mode=block",
+          "expect-ct": "enforce, max-age=3600",
+          "strict-transport-security": "max-age=31536000; includeSubDomains",
+          "transfer-encoding": "chunked"
+        },
+        "body": {
+          "error": {
+            "message": "Unknown error status for identifier irc_probe_20260903173209.probe_tbl: UNEXPECTED_ERROR_SIGNALED with extraInfo: Indeterminate result during conflict resolution check",
+            "type": "IllegalStateException",
+            "code": 500
+          }
+        }
+      },
+      "verdict": "SERVER_ERROR"
+    },
+    {
+      "probe": "commit_add_schema",
+      "category": "commit",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "UpdateTable",
+      "why": "add-schema together with set-current-schema:-1 in a single commit. That pairing is the spec's idiom -- -1 means the schema added by this same request, so splitting them across two commits is meaningless.",
+      "request": {
+        "method": "POST",
+        "url": "https://catalog-host-0004/polaris/api/catalog/v1/PROBE_DB/namespaces/irc_probe_20260903173209/tables/probe_tbl",
+        "body": {
+          "requirements": [
+            {
+              "type": "assert-table-uuid",
+              "uuid": "guid-0262"
+            }
+          ],
+          "updates": [
+            {
+              "action": "add-schema",
+              "schema": {
+                "type": "struct",
+                "schema-id": 1,
+                "fields": [
+                  {
+                    "id": 1,
+                    "name": "id",
+                    "required": true,
+                    "type": "long"
+                  },
+                  {
+                    "id": 2,
+                    "name": "ts",
+                    "required": false,
+                    "type": "timestamptz"
+                  },
+                  {
+                    "id": 3,
+                    "name": "payload",
+                    "required": false,
+                    "type": "string"
+                  },
+                  {
+                    "id": 4,
+                    "name": "added_col",
+                    "required": false,
+                    "type": "string"
+                  }
+                ]
+              }
+            },
+            {
+              "action": "set-current-schema",
+              "schema-id": -1
+            }
+          ]
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Content-Type": "application/json",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "snowflake-horizon",
+      "signature": "POST /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "variant_of": "commit_table",
+      "depends_on": "create_table",
+      "ts": 1788471144.1245208,
+      "elapsed_ms": 2177.2,
+      "response": {
+        "status": 200,
+        "headers": {
+          "date": "Thu, 03 Sep 2026 21:32:24 GMT",
+          "content-type": "application/json;charset=utf-8",
+          "request_id": "guid-0266",
+          "open-catalog-request-id": "guid-0266",
+          "vary": "Accept-Encoding, User-Agent",
+          "server": "SF-LB-T1",
+          "x-envoy-upstream-service-time": "2133",
+          "x-snowflake-fe-instance": "-",
+          "x-snowflake-fe-config": "v20260902.0.0.1788340621.awsuseast2.1788471082967",
+          "x-frame-options": "deny",
+          "x-envoy-attempt-count": "1",
+          "content-encoding": "gzip",
+          "x-content-type-options": "nosniff",
+          "x-xss-protection": "1; mode=block",
+          "expect-ct": "enforce, max-age=3600",
+          "strict-transport-security": "max-age=31536000; includeSubDomains",
+          "transfer-encoding": "chunked"
+        },
+        "body": {
+          "metadata-location": "s3://bucket-0001/snowflake/PROBE_DB/irc_probe_20260903173209/probe_tbl.42860354/metadata/00002-guid-0267.metadata.json",
+          "metadata": {
+            "format-version": 2,
+            "table-uuid": "guid-0262",
+            "location": "s3://bucket-0001/snowflake/PROBE_DB/irc_probe_20260903173209/probe_tbl.42860354",
+            "last-sequence-number": 0,
+            "last-updated-ms": 1788471144906,
+            "last-column-id": 4,
+            "current-schema-id": 1,
+            "schemas": [
+              {
+                "type": "struct",
+                "schema-id": 0,
+                "fields": [
+                  {
+                    "id": 1,
+                    "name": "id",
+                    "required": true,
+                    "type": "long"
+                  },
+                  {
+                    "id": 2,
+                    "name": "ts",
+                    "required": false,
+                    "type": "timestamptz"
+                  },
+                  {
+                    "id": 3,
+                    "name": "payload",
+                    "required": false,
+                    "type": "string"
+                  }
+                ]
+              },
+              {
+                "type": "struct",
+                "schema-id": 1,
+                "fields": [
+                  {
+                    "id": 1,
+                    "name": "id",
+                    "required": true,
+                    "type": "long"
+                  },
+                  {
+                    "id": 2,
+                    "name": "ts",
+                    "required": false,
+                    "type": "timestamptz"
+                  },
+                  {
+                    "id": 3,
+                    "name": "payload",
+                    "required": false,
+                    "type": "string"
+                  },
+                  {
+                    "id": 4,
+                    "name": "added_col",
+                    "required": false,
+                    "type": "string"
+                  }
+                ]
+              }
+            ],
+            "default-spec-id": 0,
+            "partition-specs": [
+              {
+                "spec-id": 0,
+                "fields": [
+                  {
+                    "name": "ts_day",
+                    "transform": "day",
+                    "source-id": 2,
+                    "field-id": 1000
+                  }
+                ]
+              }
+            ],
+            "last-partition-id": 1000,
+            "default-sort-order-id": 1,
+            "sort-orders": [
+              {
+                "order-id": 1,
+                "fields": [
+                  {
+                    "transform": "identity",
+                    "source-id": 1,
+                    "direction": "asc",
+                    "null-order": "nulls-first"
+                  }
+                ]
+              }
+            ],
+            "properties": {
+              "created-at": "2026-09-03T21:32:19.020915309Z",
+              "probe-commit": "1",
+              "write.parquet.compression-codec": "zstd",
+              "probe": "conformance"
+            },
+            "current-snapshot-id": -1,
+            "refs": {},
+            "snapshots": [],
+            "statistics": [],
+            "partition-statistics": [],
+            "snapshot-log": [],
+            "metadata-log": [
+              {
+                "timestamp-ms": 1788471139088,
+                "metadata-file": "s3://bucket-0001/snowflake/PROBE_DB/irc_probe_20260903173209/probe_tbl.42860354/metadata/00000-guid-0261.metadata.json"
+              },
+              {
+                "timestamp-ms": 1788471141347,
+                "metadata-file": "s3://bucket-0001/snowflake/PROBE_DB/irc_probe_20260903173209/probe_tbl.42860354/metadata/00001-guid-0264.metadata.json"
+              }
+            ]
+          }
+        }
+      },
+      "verdict": "OK"
+    },
+    {
+      "probe": "commit_set_current_schema",
+      "category": "commit",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "UpdateTable",
+      "why": "set-current-schema naming an existing schema (0), exercising the action on its own rather than as part of an add-schema commit.",
+      "request": {
+        "method": "POST",
+        "url": "https://catalog-host-0004/polaris/api/catalog/v1/PROBE_DB/namespaces/irc_probe_20260903173209/tables/probe_tbl",
+        "body": {
+          "requirements": [
+            {
+              "type": "assert-table-uuid",
+              "uuid": "guid-0262"
+            }
+          ],
+          "updates": [
+            {
+              "action": "set-current-schema",
+              "schema-id": 0
+            }
+          ]
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Content-Type": "application/json",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "snowflake-horizon",
+      "signature": "POST /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "variant_of": "commit_table",
+      "depends_on": "create_table",
+      "ts": 1788471146.3025799,
+      "elapsed_ms": 1830.2,
+      "response": {
+        "status": 409,
+        "headers": {
+          "date": "Thu, 03 Sep 2026 21:32:26 GMT",
+          "content-type": "application/json",
+          "request_id": "guid-0268",
+          "open-catalog-request-id": "guid-0268",
+          "server": "SF-LB-T1",
+          "x-envoy-upstream-service-time": "1786",
+          "x-snowflake-fe-instance": "-",
+          "x-snowflake-fe-config": "v20260902.0.0.1788340621.awsuseast2.1788471082967",
+          "x-frame-options": "deny",
+          "x-envoy-attempt-count": "1",
+          "content-encoding": "gzip",
+          "vary": "Accept-Encoding",
+          "x-content-type-options": "nosniff",
+          "x-xss-protection": "1; mode=block",
+          "expect-ct": "enforce, max-age=3600",
+          "strict-transport-security": "max-age=31536000; includeSubDomains",
+          "transfer-encoding": "chunked"
+        },
+        "body": {
+          "error": {
+            "message": "Failed to commit Table or View irc_probe_20260903173209.probe_tbl because it was concurrently modified",
+            "type": "CommitConflictException",
+            "code": 409
+          }
+        }
+      },
+      "verdict": "CONFLICT"
+    },
+    {
+      "probe": "commit_upgrade_format_version",
+      "category": "commit",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "UpdateTable",
+      "why": "upgrade-format-version to 2. The fixture is already v2, so this is a no-op for a conformant server -- rejecting it is the finding.",
+      "request": {
+        "method": "POST",
+        "url": "https://catalog-host-0004/polaris/api/catalog/v1/PROBE_DB/namespaces/irc_probe_20260903173209/tables/probe_tbl",
+        "body": {
+          "requirements": [
+            {
+              "type": "assert-table-uuid",
+              "uuid": "guid-0262"
+            }
+          ],
+          "updates": [
+            {
+              "action": "upgrade-format-version",
+              "format-version": 2
+            }
+          ]
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Content-Type": "application/json",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "snowflake-horizon",
+      "signature": "POST /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "variant_of": "commit_table",
+      "depends_on": "create_table",
+      "ts": 1788471148.1331499,
+      "elapsed_ms": 388.2,
+      "response": {
+        "status": 400,
+        "headers": {
+          "date": "Thu, 03 Sep 2026 21:32:28 GMT",
+          "content-type": "application/json",
+          "request_id": "guid-0269",
+          "open-catalog-request-id": "guid-0269",
+          "server": "SF-LB-T1",
+          "x-envoy-upstream-service-time": "349",
+          "x-snowflake-fe-instance": "-",
+          "x-snowflake-fe-config": "v20260902.0.0.1788340621.awsuseast2.1788471082967",
+          "x-frame-options": "deny",
+          "x-envoy-attempt-count": "1",
+          "content-encoding": "gzip",
+          "vary": "Accept-Encoding",
+          "x-content-type-options": "nosniff",
+          "x-xss-protection": "1; mode=block",
+          "expect-ct": "enforce, max-age=3600",
+          "strict-transport-security": "max-age=31536000; includeSubDomains",
+          "transfer-encoding": "chunked"
+        },
+        "body": {
+          "error": {
+            "message": "Upgrading the Iceberg format version of an existing table is not allowed for Horizon accounts",
+            "type": "BadRequestException",
+            "code": 400
+          }
+        }
+      },
+      "verdict": "BAD_REQUEST"
+    },
+    {
+      "probe": "commit_transaction",
+      "category": "commit",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "CommitTransaction",
+      "why": "Multi-table atomic commit. Rarely implemented; a clean differentiator. Carries one real change: an empty transaction gets rejected as invalid, which would be indistinguishable from unimplemented.",
+      "request": {
+        "method": "POST",
+        "url": "https://catalog-host-0004/polaris/api/catalog/v1/PROBE_DB/transactions/commit",
+        "body": {
+          "table-changes": [
+            {
+              "identifier": {
+                "namespace": [
+                  "irc_probe_20260903173209"
+                ],
+                "name": "probe_tbl"
+              },
+              "requirements": [],
+              "updates": [
+                {
+                  "action": "set-properties",
+                  "updates": {
+                    "probe-txn": "1"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Content-Type": "application/json",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "snowflake-horizon",
+      "signature": "POST /v1/{prefix}/transactions/commit",
+      "variant_of": null,
+      "depends_on": "create_table",
+      "ts": 1788471148.5217643,
+      "elapsed_ms": 552.8,
+      "response": {
+        "status": 403,
+        "headers": {
+          "date": "Thu, 03 Sep 2026 21:32:28 GMT",
+          "content-type": "application/json",
+          "request_id": "guid-0270",
+          "open-catalog-request-id": "guid-0270",
+          "server": "SF-LB-T1",
+          "x-envoy-upstream-service-time": "510",
+          "x-snowflake-fe-instance": "-",
+          "x-snowflake-fe-config": "v20260902.0.0.1788340621.awsuseast2.1788471082967",
+          "x-frame-options": "deny",
+          "x-envoy-attempt-count": "1",
+          "content-encoding": "gzip",
+          "vary": "Accept-Encoding",
+          "x-content-type-options": "nosniff",
+          "x-xss-protection": "1; mode=block",
+          "expect-ct": "enforce, max-age=3600",
+          "strict-transport-security": "max-age=31536000; includeSubDomains",
+          "transfer-encoding": "chunked"
+        },
+        "body": {
+          "error": {
+            "message": "Authorization failed",
+            "type": "ForbiddenException",
+            "code": 403
+          }
+        }
+      },
+      "verdict": "UNAUTHORIZED",
+      "declared": true,
+      "reconciled": "DECLARED, FAILS"
+    },
+    {
+      "probe": "rename_table",
+      "category": "table",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "RenameTable",
+      "why": "Rename is one of the most commonly missing write endpoints.",
+      "request": {
+        "method": "POST",
+        "url": "https://catalog-host-0004/polaris/api/catalog/v1/PROBE_DB/tables/rename",
+        "body": {
+          "source": {
+            "namespace": [
+              "irc_probe_20260903173209"
+            ],
+            "name": "probe_tbl"
+          },
+          "destination": {
+            "namespace": [
+              "irc_probe_20260903173209"
+            ],
+            "name": "probe_tbl_r"
+          }
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Content-Type": "application/json",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "snowflake-horizon",
+      "signature": "POST /v1/{prefix}/tables/rename",
+      "variant_of": null,
+      "depends_on": "create_table",
+      "ts": 1788471149.0750227,
+      "elapsed_ms": 679.5,
+      "response": {
+        "status": 200,
+        "headers": {
+          "date": "Thu, 03 Sep 2026 21:32:29 GMT",
+          "content-type": "application/json;charset=utf-8",
+          "request_id": "guid-0271",
+          "open-catalog-request-id": "guid-0271",
+          "vary": "Accept-Encoding, User-Agent",
+          "content-length": "12",
+          "server": "SF-LB-T1",
+          "x-envoy-upstream-service-time": "641",
+          "x-snowflake-fe-instance": "-",
+          "x-snowflake-fe-config": "v20260902.0.0.1788340621.awsuseast2.1788471082967",
+          "x-frame-options": "deny",
+          "x-envoy-attempt-count": "1",
+          "x-content-type-options": "nosniff",
+          "x-xss-protection": "1; mode=block",
+          "expect-ct": "enforce, max-age=3600",
+          "strict-transport-security": "max-age=31536000; includeSubDomains"
+        },
+        "body": "NO_CONTENT"
+      },
+      "verdict": "OK",
+      "declared": true,
+      "reconciled": "declared, works"
+    },
+    {
+      "probe": "drop_table_purge",
+      "category": "table",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "DropTable",
+      "why": "Whether purgeRequested is honoured. Purge semantics vary widely and several catalogs gate it behind a server flag.",
+      "request": {
+        "method": "DELETE",
+        "url": "https://catalog-host-0004/polaris/api/catalog/v1/PROBE_DB/namespaces/irc_probe_20260903173209/tables/probe_tbl_r?purgeRequested=true",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "snowflake-horizon",
+      "signature": "DELETE /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "variant_of": "drop_table",
+      "depends_on": "create_table",
+      "ts": 1788471149.7547047,
+      "elapsed_ms": 693.0,
+      "response": {
+        "status": 204,
+        "headers": {
+          "date": "Thu, 03 Sep 2026 21:32:29 GMT",
+          "request_id": "guid-0272",
+          "open-catalog-request-id": "guid-0272",
+          "server": "SF-LB-T1",
+          "x-envoy-upstream-service-time": "655",
+          "x-snowflake-fe-instance": "-",
+          "x-snowflake-fe-config": "v20260902.0.0.1788340621.awsuseast2.1788471082967",
+          "x-frame-options": "deny",
+          "x-envoy-attempt-count": "1",
+          "vary": "Accept-Encoding",
+          "x-content-type-options": "nosniff",
+          "x-xss-protection": "1; mode=block",
+          "expect-ct": "enforce, max-age=3600",
+          "strict-transport-security": "max-age=31536000; includeSubDomains"
+        },
+        "body": null
+      },
+      "verdict": "OK"
+    },
+    {
+      "probe": "drop_table",
+      "category": "cleanup",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "DropTable",
+      "why": "Plain drop, and the cleanup that must succeed. A 404 here is the expected outcome when the purge drop above already removed the table.",
+      "request": {
+        "method": "DELETE",
+        "url": "https://catalog-host-0004/polaris/api/catalog/v1/PROBE_DB/namespaces/irc_probe_20260903173209/tables/probe_tbl_r",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "snowflake-horizon",
+      "signature": "DELETE /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "variant_of": null,
+      "depends_on": "create_table",
+      "ts": 1788471150.4480608,
+      "elapsed_ms": 359.4,
+      "response": {
+        "status": 404,
+        "headers": {
+          "date": "Thu, 03 Sep 2026 21:32:30 GMT",
+          "content-type": "application/json",
+          "request_id": "guid-0273",
+          "open-catalog-request-id": "guid-0273",
+          "server": "SF-LB-T1",
+          "x-envoy-upstream-service-time": "324",
+          "x-snowflake-fe-instance": "-",
+          "x-snowflake-fe-config": "v20260902.0.0.1788340621.awsuseast2.1788471082967",
+          "x-frame-options": "deny",
+          "x-envoy-attempt-count": "1",
+          "content-encoding": "gzip",
+          "vary": "Accept-Encoding",
+          "x-content-type-options": "nosniff",
+          "x-xss-protection": "1; mode=block",
+          "expect-ct": "enforce, max-age=3600",
+          "strict-transport-security": "max-age=31536000; includeSubDomains",
+          "transfer-encoding": "chunked"
+        },
+        "body": {
+          "error": {
+            "message": "Table does not exist: irc_probe_20260903173209.probe_tbl_r",
+            "type": "NoSuchTableException",
+            "code": 404
+          }
+        }
+      },
+      "verdict": "NOT_FOUND",
+      "declared": true,
+      "reconciled": "declared, works"
+    },
+    {
+      "probe": "create_view",
+      "category": "view",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "CreateView",
+      "why": "createView with a minimal SQL representation.",
+      "request": {
+        "method": "POST",
+        "url": "https://catalog-host-0004/polaris/api/catalog/v1/PROBE_DB/namespaces/irc_probe_20260903173209/views",
+        "body": {
+          "name": "probe_view",
+          "schema": {
+            "type": "struct",
+            "schema-id": 0,
+            "fields": [
+              {
+                "id": 1,
+                "name": "id",
+                "required": false,
+                "type": "long"
+              }
+            ]
+          },
+          "view-version": {
+            "version-id": 1,
+            "schema-id": 0,
+            "timestamp-ms": 1788471129842,
+            "summary": {
+              "operation": "create"
+            },
+            "default-namespace": [
+              "irc_probe_20260903173209"
+            ],
+            "representations": [
+              {
+                "type": "sql",
+                "sql": "SELECT 1 AS id",
+                "dialect": "spark"
+              }
+            ]
+          },
+          "properties": {
+            "probe": "conformance"
+          }
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Content-Type": "application/json",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "snowflake-horizon",
+      "signature": "POST /v1/{prefix}/namespaces/{namespace}/views",
+      "variant_of": null,
+      "depends_on": "create_namespace",
+      "ts": 1788471150.8080366,
+      "elapsed_ms": 359.8,
+      "response": {
+        "status": 403,
+        "headers": {
+          "date": "Thu, 03 Sep 2026 21:32:30 GMT",
+          "content-type": "application/json",
+          "request_id": "guid-0274",
+          "open-catalog-request-id": "guid-0274",
+          "server": "SF-LB-T1",
+          "x-envoy-upstream-service-time": "320",
+          "x-snowflake-fe-instance": "-",
+          "x-snowflake-fe-config": "v20260902.0.0.1788340621.awsuseast2.1788471082967",
+          "x-frame-options": "deny",
+          "x-envoy-attempt-count": "1",
+          "content-encoding": "gzip",
+          "vary": "Accept-Encoding",
+          "x-content-type-options": "nosniff",
+          "x-xss-protection": "1; mode=block",
+          "expect-ct": "enforce, max-age=3600",
+          "strict-transport-security": "max-age=31536000; includeSubDomains",
+          "transfer-encoding": "chunked"
+        },
+        "body": {
+          "error": {
+            "message": "Authorization failed",
+            "type": "ForbiddenException",
+            "code": 403
+          }
+        }
+      },
+      "verdict": "UNAUTHORIZED",
+      "declared": true,
+      "reconciled": "DECLARED, FAILS"
+    },
+    {
+      "probe": "load_view",
+      "category": "view",
+      "tier": "write",
+      "surface": "read",
+      "spec_ref": "LoadView",
+      "why": "loadView -- the read counterpart of loadTable for views.",
+      "request": {
+        "method": "GET",
+        "url": "https://catalog-host-0004/polaris/api/catalog/v1/PROBE_DB/namespaces/irc_probe_20260903173209/views/probe_view",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "snowflake-horizon",
+      "signature": "GET /v1/{prefix}/namespaces/{namespace}/views/{view}",
+      "variant_of": null,
+      "depends_on": "create_view",
+      "ts": 1788471151.1681218,
+      "elapsed_ms": 296.1,
+      "response": {
+        "status": 404,
+        "headers": {
+          "date": "Thu, 03 Sep 2026 21:32:31 GMT",
+          "content-type": "application/json",
+          "request_id": "guid-0275",
+          "open-catalog-request-id": "guid-0275",
+          "server": "SF-LB-T1",
+          "x-envoy-upstream-service-time": "259",
+          "x-snowflake-fe-instance": "-",
+          "x-snowflake-fe-config": "v20260902.0.0.1788340621.awsuseast2.1788471082967",
+          "x-frame-options": "deny",
+          "x-envoy-attempt-count": "1",
+          "content-encoding": "gzip",
+          "vary": "Accept-Encoding",
+          "x-content-type-options": "nosniff",
+          "x-xss-protection": "1; mode=block",
+          "expect-ct": "enforce, max-age=3600",
+          "strict-transport-security": "max-age=31536000; includeSubDomains",
+          "transfer-encoding": "chunked"
+        },
+        "body": {
+          "error": {
+            "message": "View does not exist: irc_probe_20260903173209.probe_view",
+            "type": "NoSuchViewException",
+            "code": 404
+          }
+        }
+      },
+      "verdict": "INDETERMINATE",
+      "indeterminate_reason": "prerequisite 'create_view' did not succeed"
+    },
+    {
+      "probe": "head_view",
+      "category": "view",
+      "tier": "write",
+      "surface": "read",
+      "spec_ref": "ViewExists",
+      "why": "viewExists.",
+      "request": {
+        "method": "HEAD",
+        "url": "https://catalog-host-0004/polaris/api/catalog/v1/PROBE_DB/namespaces/irc_probe_20260903173209/views/probe_view",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "snowflake-horizon",
+      "signature": "HEAD /v1/{prefix}/namespaces/{namespace}/views/{view}",
+      "variant_of": null,
+      "depends_on": "create_view",
+      "ts": 1788471151.4645126,
+      "elapsed_ms": 295.8,
+      "response": {
+        "status": 404,
+        "headers": {
+          "date": "Thu, 03 Sep 2026 21:32:31 GMT",
+          "content-encoding": "identity",
+          "content-type": "application/json",
+          "request_id": "guid-0276",
+          "open-catalog-request-id": "guid-0276",
+          "content-length": "0",
+          "server": "SF-LB-T1",
+          "x-envoy-upstream-service-time": "259",
+          "x-snowflake-fe-instance": "-",
+          "x-snowflake-fe-config": "v20260902.0.0.1788340621.awsuseast2.1788471082967",
+          "x-frame-options": "deny",
+          "x-envoy-attempt-count": "1",
+          "x-content-type-options": "nosniff",
+          "x-xss-protection": "1; mode=block",
+          "expect-ct": "enforce, max-age=3600",
+          "strict-transport-security": "max-age=31536000; includeSubDomains"
+        },
+        "body": null
+      },
+      "verdict": "INDETERMINATE",
+      "indeterminate_reason": "prerequisite 'create_view' did not succeed"
+    },
+    {
+      "probe": "replace_view",
+      "category": "view",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "ReplaceView",
+      "why": "replaceView: a property-set commit against the view.",
+      "request": {
+        "method": "POST",
+        "url": "https://catalog-host-0004/polaris/api/catalog/v1/PROBE_DB/namespaces/irc_probe_20260903173209/views/probe_view",
+        "body": {
+          "requirements": [],
+          "updates": [
+            {
+              "action": "set-properties",
+              "updates": {
+                "probe-commit": "1"
+              }
+            }
+          ]
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Content-Type": "application/json",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "snowflake-horizon",
+      "signature": "POST /v1/{prefix}/namespaces/{namespace}/views/{view}",
+      "variant_of": null,
+      "depends_on": "create_view",
+      "ts": 1788471151.760515,
+      "elapsed_ms": 323.5,
+      "response": {
+        "status": 404,
+        "headers": {
+          "date": "Thu, 03 Sep 2026 21:32:31 GMT",
+          "content-type": "application/json",
+          "request_id": "guid-0277",
+          "open-catalog-request-id": "guid-0277",
+          "server": "SF-LB-T1",
+          "x-envoy-upstream-service-time": "280",
+          "x-snowflake-fe-instance": "-",
+          "x-snowflake-fe-config": "v20260902.0.0.1788340621.awsuseast2.1788471082967",
+          "x-frame-options": "deny",
+          "x-envoy-attempt-count": "1",
+          "content-encoding": "gzip",
+          "vary": "Accept-Encoding",
+          "x-content-type-options": "nosniff",
+          "x-xss-protection": "1; mode=block",
+          "expect-ct": "enforce, max-age=3600",
+          "strict-transport-security": "max-age=31536000; includeSubDomains",
+          "transfer-encoding": "chunked"
+        },
+        "body": {
+          "error": {
+            "message": "View does not exist: irc_probe_20260903173209.probe_view",
+            "type": "NoSuchViewException",
+            "code": 404
+          }
+        }
+      },
+      "verdict": "INDETERMINATE",
+      "indeterminate_reason": "prerequisite 'create_view' did not succeed"
+    },
+    {
+      "probe": "rename_view",
+      "category": "view",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "RenameView",
+      "why": "renameView -- separate from renameTable in the spec.",
+      "request": {
+        "method": "POST",
+        "url": "https://catalog-host-0004/polaris/api/catalog/v1/PROBE_DB/views/rename",
+        "body": {
+          "source": {
+            "namespace": [
+              "irc_probe_20260903173209"
+            ],
+            "name": "probe_view"
+          },
+          "destination": {
+            "namespace": [
+              "irc_probe_20260903173209"
+            ],
+            "name": "probe_view_r"
+          }
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Content-Type": "application/json",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "snowflake-horizon",
+      "signature": "POST /v1/{prefix}/views/rename",
+      "variant_of": null,
+      "depends_on": "create_view",
+      "ts": 1788471152.0844727,
+      "elapsed_ms": 571.6,
+      "response": {
+        "status": 404,
+        "headers": {
+          "date": "Thu, 03 Sep 2026 21:32:32 GMT",
+          "content-type": "application/json",
+          "request_id": "guid-0278",
+          "open-catalog-request-id": "guid-0278",
+          "server": "SF-LB-T1",
+          "x-envoy-upstream-service-time": "525",
+          "x-snowflake-fe-instance": "-",
+          "x-snowflake-fe-config": "v20260902.0.0.1788340621.awsuseast2.1788471082967",
+          "x-frame-options": "deny",
+          "x-envoy-attempt-count": "1",
+          "content-encoding": "gzip",
+          "vary": "Accept-Encoding",
+          "x-content-type-options": "nosniff",
+          "x-xss-protection": "1; mode=block",
+          "expect-ct": "enforce, max-age=3600",
+          "strict-transport-security": "max-age=31536000; includeSubDomains",
+          "transfer-encoding": "chunked"
+        },
+        "body": {
+          "error": {
+            "message": "View does not exist: irc_probe_20260903173209.probe_view_r",
+            "type": "NoSuchViewException",
+            "code": 404
+          }
+        }
+      },
+      "verdict": "INDETERMINATE",
+      "indeterminate_reason": "prerequisite 'create_view' did not succeed"
+    },
+    {
+      "probe": "drop_view",
+      "category": "cleanup",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "DropView",
+      "why": "dropView, and the cleanup that must succeed before the namespace goes.",
+      "request": {
+        "method": "DELETE",
+        "url": "https://catalog-host-0004/polaris/api/catalog/v1/PROBE_DB/namespaces/irc_probe_20260903173209/views/probe_view",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "snowflake-horizon",
+      "signature": "DELETE /v1/{prefix}/namespaces/{namespace}/views/{view}",
+      "variant_of": null,
+      "depends_on": "create_view",
+      "ts": 1788471152.656439,
+      "elapsed_ms": 604.7,
+      "response": {
+        "status": 404,
+        "headers": {
+          "date": "Thu, 03 Sep 2026 21:32:32 GMT",
+          "content-type": "application/json",
+          "request_id": "guid-0279",
+          "open-catalog-request-id": "guid-0279",
+          "server": "SF-LB-T1",
+          "x-envoy-upstream-service-time": "562",
+          "x-snowflake-fe-instance": "-",
+          "x-snowflake-fe-config": "v20260902.0.0.1788340621.awsuseast2.1788471082967",
+          "x-frame-options": "deny",
+          "x-envoy-attempt-count": "1",
+          "content-encoding": "gzip",
+          "vary": "Accept-Encoding",
+          "x-content-type-options": "nosniff",
+          "x-xss-protection": "1; mode=block",
+          "expect-ct": "enforce, max-age=3600",
+          "strict-transport-security": "max-age=31536000; includeSubDomains",
+          "transfer-encoding": "chunked"
+        },
+        "body": {
+          "error": {
+            "message": "View does not exist: irc_probe_20260903173209.probe_view",
+            "type": "NoSuchViewException",
+            "code": 404
+          }
+        }
+      },
+      "verdict": "INDETERMINATE",
+      "indeterminate_reason": "prerequisite 'create_view' did not succeed"
+    },
+    {
+      "probe": "drop_namespace",
+      "category": "cleanup",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "DropNamespace",
+      "why": "Cleanup.",
+      "request": {
+        "method": "DELETE",
+        "url": "https://catalog-host-0004/polaris/api/catalog/v1/PROBE_DB/namespaces/irc_probe_20260903173209",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "snowflake-horizon",
+      "signature": "DELETE /v1/{prefix}/namespaces/{namespace}",
+      "variant_of": null,
+      "depends_on": "create_namespace",
+      "ts": 1788471153.2615404,
+      "elapsed_ms": 1691.9,
+      "response": {
+        "status": 204,
+        "headers": {
+          "date": "Thu, 03 Sep 2026 21:32:33 GMT",
+          "request_id": "guid-0280",
+          "open-catalog-request-id": "guid-0280",
+          "server": "SF-LB-T1",
+          "x-envoy-upstream-service-time": "1654",
+          "x-snowflake-fe-instance": "-",
+          "x-snowflake-fe-config": "v20260902.0.0.1788340621.awsuseast2.1788471082967",
+          "x-frame-options": "deny",
+          "x-envoy-attempt-count": "1",
+          "vary": "Accept-Encoding",
+          "x-content-type-options": "nosniff",
+          "x-xss-protection": "1; mode=block",
+          "expect-ct": "enforce, max-age=3600",
+          "strict-transport-security": "max-age=31536000; includeSubDomains"
+        },
+        "body": null
+      },
+      "verdict": "OK",
+      "declared": true,
+      "reconciled": "declared, works"
+    }
+  ],
+  "load_table_fields": {
+    "metadata-location": {
+      "state": "PRESENT",
+      "why": "Where the table metadata actually lives"
+    },
+    "config": {
+      "state": "PRESENT",
+      "why": "Per-table client overrides"
+    },
+    "storage-credentials": {
+      "state": "ABSENT",
+      "why": "Vended credentials inline on load"
+    },
+    "metadata.format-version": {
+      "state": "PRESENT",
+      "why": "Iceberg v1 / v2 / v3"
+    },
+    "metadata.table-uuid": {
+      "state": "PRESENT",
+      "why": "Stable identity across renames"
+    },
+    "metadata.location": {
+      "state": "PRESENT",
+      "why": "Table root"
+    },
+    "metadata.last-updated-ms": {
+      "state": "PRESENT",
+      "why": "Freshness"
+    },
+    "metadata.last-column-id": {
+      "state": "PRESENT",
+      "why": "Column-ID allocation state"
+    },
+    "metadata.schemas": {
+      "state": "PRESENT",
+      "why": "Full schema history, not just current"
+    },
+    "metadata.current-schema-id": {
+      "state": "PRESENT",
+      "why": "Which schema is live"
+    },
+    "metadata.schemas[].fields[].id": {
+      "state": "PRESENT",
+      "why": "Column IDs \u2014 schema evolution depends on these"
+    },
+    "metadata.schemas[].fields[].required": {
+      "state": "PRESENT",
+      "why": "Nullability"
+    },
+    "metadata.partition-specs": {
+      "state": "PRESENT",
+      "why": "Partition spec history"
+    },
+    "metadata.default-spec-id": {
+      "state": "PRESENT",
+      "why": "Which spec is live"
+    },
+    "metadata.partition-specs[].fields[].transform": {
+      "state": "PRESENT",
+      "why": "Partition transforms"
+    },
+    "metadata.last-partition-id": {
+      "state": "PRESENT",
+      "why": "Partition field-ID allocation state"
+    },
+    "metadata.sort-orders": {
+      "state": "PRESENT",
+      "why": "Sort order history"
+    },
+    "metadata.default-sort-order-id": {
+      "state": "PRESENT",
+      "why": "Which sort order is live"
+    },
+    "metadata.properties": {
+      "state": "PRESENT",
+      "why": "Table properties"
+    },
+    "metadata.current-snapshot-id": {
+      "state": "PRESENT",
+      "why": "Current snapshot pointer"
+    },
+    "metadata.snapshots": {
+      "state": "PRESENT",
+      "why": "Snapshot list \u2014 time travel"
+    },
+    "metadata.snapshots[].summary": {
+      "state": "PRESENT",
+      "why": "Row/file counts per snapshot"
+    },
+    "metadata.snapshots[].manifest-list": {
+      "state": "PRESENT",
+      "why": "Manifest list pointer"
+    },
+    "metadata.snapshots[].schema-id": {
+      "state": "PRESENT",
+      "why": "Per-snapshot schema binding"
+    },
+    "metadata.snapshots[].sequence-number": {
+      "state": "PRESENT",
+      "why": "v2 sequence numbers \u2014 row-level deletes"
+    },
+    "metadata.snapshot-log": {
+      "state": "PRESENT",
+      "why": "Snapshot lineage over time"
+    },
+    "metadata.metadata-log": {
+      "state": "PRESENT",
+      "why": "Previous metadata files"
+    },
+    "metadata.refs": {
+      "state": "PRESENT",
+      "why": "Branches and tags"
+    },
+    "metadata.statistics": {
+      "state": "EMPTY",
+      "why": "Table-level statistics files"
+    },
+    "metadata.partition-statistics": {
+      "state": "EMPTY",
+      "why": "Partition-level statistics files"
+    }
+  },
+  "seed_profile": {
+    "schemas": 2,
+    "partition_fields": 1,
+    "sort_fields": 1,
+    "snapshots": 3,
+    "refs": [
+      "main"
+    ],
+    "has_delete_snapshot": false,
+    "delete_files": 0
+  }
+}

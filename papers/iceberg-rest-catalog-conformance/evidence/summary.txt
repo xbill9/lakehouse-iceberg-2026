@@ -1,0 +1,8 @@
+per-catalog summary, measured 2026-09-03
+apache-polaris      read 15/16  write 16/17  not-tested 0  fields 26/30  declares 36  overclaims 0 (-)
+aws-glue            read 9/15  write 10/17  not-tested 1  fields 26/30  declares 0  overclaims 0 (-)
+aws-s3tables        read 9/15  write 10/17  not-tested 1  fields 27/30  declares 0  overclaims 0 (-)
+databricks-unity    read 12/14  write 10/17  not-tested 2  fields 26/30  declares 18  overclaims 2 (plan_table_scan,update_namespace_props)
+google-lakehouse    read 11/14  write 10/14  not-tested 5  fields 26/30  declares 15  overclaims 1 (load_credentials)
+microsoft-onelake   read 11/15  write 0/14  not-tested 4  fields 25/30  declares 13  overclaims 4 (create_namespace,create_table,commit_table,rename_table)
+snowflake-horizon   read 12/14  write 7/14  not-tested 5  fields 27/30  declares 23  overclaims 4 (list_views,update_namespace_props,commit_transaction,create_view)

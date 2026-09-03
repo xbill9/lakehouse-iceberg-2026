@@ -1,0 +1,59 @@
+Iceberg REST catalog spec coverage, diffed 2026-09-03 against apache/iceberg main
+spec operations: 35
+probes: 33
+distinct endpoint signatures probed: 25
+spec operations covered: 25
+coverage percent: 71
+updateTable actions in spec: 25
+updateTable actions probed: 5
+table requirements in spec: 8
+table requirements probed: 1
+
+spec operations:
+  DELETE /v1/{prefix}/namespaces/{namespace}
+  DELETE /v1/{prefix}/namespaces/{namespace}/tables/{table}
+  DELETE /v1/{prefix}/namespaces/{namespace}/tables/{table}/plan/{plan-id}
+  DELETE /v1/{prefix}/namespaces/{namespace}/views/{view}
+  GET /v1/config
+  GET /v1/{prefix}/namespaces
+  GET /v1/{prefix}/namespaces/{namespace}
+  GET /v1/{prefix}/namespaces/{namespace}/functions
+  GET /v1/{prefix}/namespaces/{namespace}/functions/{function}
+  GET /v1/{prefix}/namespaces/{namespace}/tables
+  GET /v1/{prefix}/namespaces/{namespace}/tables/{table}
+  GET /v1/{prefix}/namespaces/{namespace}/tables/{table}/credentials
+  GET /v1/{prefix}/namespaces/{namespace}/tables/{table}/plan/{plan-id}
+  GET /v1/{prefix}/namespaces/{namespace}/views
+  GET /v1/{prefix}/namespaces/{namespace}/views/{view}
+  HEAD /v1/{prefix}/namespaces/{namespace}
+  HEAD /v1/{prefix}/namespaces/{namespace}/tables/{table}
+  HEAD /v1/{prefix}/namespaces/{namespace}/views/{view}
+  POST /v1/oauth/tokens
+  POST /v1/{prefix}/namespaces
+  POST /v1/{prefix}/namespaces/{namespace}/properties
+  POST /v1/{prefix}/namespaces/{namespace}/register
+  POST /v1/{prefix}/namespaces/{namespace}/register-view
+  POST /v1/{prefix}/namespaces/{namespace}/tables
+  POST /v1/{prefix}/namespaces/{namespace}/tables/{table}
+  POST /v1/{prefix}/namespaces/{namespace}/tables/{table}/metrics
+  POST /v1/{prefix}/namespaces/{namespace}/tables/{table}/plan
+  POST /v1/{prefix}/namespaces/{namespace}/tables/{table}/sign
+  POST /v1/{prefix}/namespaces/{namespace}/tables/{table}/tasks
+  POST /v1/{prefix}/namespaces/{namespace}/tables/{table}/unregister
+  POST /v1/{prefix}/namespaces/{namespace}/views
+  POST /v1/{prefix}/namespaces/{namespace}/views/{view}
+  POST /v1/{prefix}/tables/rename
+  POST /v1/{prefix}/transactions/commit
+  POST /v1/{prefix}/views/rename
+
+not probed:
+  DELETE /v1/{prefix}/namespaces/{namespace}/tables/{table}/plan/{plan-id}
+  GET /v1/{prefix}/namespaces/{namespace}/functions
+  GET /v1/{prefix}/namespaces/{namespace}/functions/{function}
+  GET /v1/{prefix}/namespaces/{namespace}/tables/{table}/plan/{plan-id}
+  POST /v1/oauth/tokens
+  POST /v1/{prefix}/namespaces/{namespace}/register
+  POST /v1/{prefix}/namespaces/{namespace}/register-view
+  POST /v1/{prefix}/namespaces/{namespace}/tables/{table}/sign
+  POST /v1/{prefix}/namespaces/{namespace}/tables/{table}/tasks
+  POST /v1/{prefix}/namespaces/{namespace}/tables/{table}/unregister
