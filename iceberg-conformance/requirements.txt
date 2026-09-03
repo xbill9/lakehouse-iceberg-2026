@@ -1,0 +1,3 @@
+requests>=2.31
+PyYAML>=6.0
+botocore>=1.34   # SigV4 signing for AWS Glue and S3 Tables only

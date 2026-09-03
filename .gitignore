@@ -1,0 +1,21 @@
+# credentials and live config — never commit
+iceberg-conformance/.secrets/
+iceberg-conformance/catalogs.yaml
+iceberg-conformance/.warehouse/
+
+# run artefacts: evidence contains account ids, bucket names and workspace GUIDs
+iceberg-conformance/evidence/
+iceberg-conformance/out/
+
+# sprint submission material — contains personal details
+sprint-rows.tsv
+sprint-rows.md
+gen_rows.py
+PROJECT-IDEAS.md
+*.pdf
+
+# working copy of the paper; the published copy lives in papers/
+article-draft.md
+
+__pycache__/
+*.pyc

@@ -1,0 +1,70 @@
+# Lakehouse and Apache Iceberg, measured
+
+Measured write-ups of Apache Iceberg lakehouse behaviour across cloud vendors,
+with the harness that produced each result.
+
+The rule for everything here: **published numbers come from stored evidence, and
+the evidence is re-derivable without re-running against a vendor.** Where a
+result depends on how a fixture was built, the fixture's shape is measured from
+the wire and published alongside it.
+
+## Papers
+
+| # | paper | status |
+|---|---|---|
+| 1 | [What They Declare, and What They Serve](papers/01-what-they-declare-and-what-they-serve.md) — seven Iceberg REST catalogs against the specification | draft |
+| 2 | — | planned |
+| 3 | — | planned |
+
+## Code
+
+### `iceberg-conformance/`
+
+One request suite pointed at seven Iceberg REST catalog implementations: Apache
+Polaris, Google BigLake, AWS Glue, AWS S3 Tables, Databricks Unity, Snowflake
+Horizon and Microsoft OneLake.
+
+33 probes covering 25 of the specification's 35 operations. Three tiers of
+evidence:
+
+- **endpoint tier** — does the operation exist, and what status comes back
+- **field tier** — 30 spec field paths checked against each `loadTable` response
+- **declaration tier** — what a catalog names in the `endpoints` array of its own
+  `/v1/config`, cross-checked against what it actually serves
+
+See [`iceberg-conformance/README.md`](iceberg-conformance/README.md) for design
+rules, per-catalog setup, coverage against the spec, the privilege audit and the
+limitations.
+
+## Reproducing
+
+Seven catalogs means seven accounts. Start with the control, which needs only
+Docker:
+
+```console
+$ cd iceberg-conformance
+$ pip install -r requirements.txt
+$ ./polaris-up.sh
+$ cp catalogs.example.yaml catalogs.yaml     # then fill in
+$ export POLARIS_CLIENT_ID=root POLARIS_CLIENT_SECRET=s3cr3t
+$ python3 run.py --only apache-polaris --allow-writes
+```
+
+Getting a clean control column working end to end validates the harness before
+any credentialed vendor is involved. Every `base_url` in `catalogs.example.yaml`
+is annotated with what that vendor requires beyond the URL — an enabled API, a
+particular token scope, a licence, or a privilege that has to be granted first.
+
+Three of the seven catalogs in paper 1 were measured on trial accounts that will
+have expired; paper 1 opens with what each catalog costs and requires.
+
+## What is not in this repository
+
+`catalogs.yaml`, `.secrets/` and `evidence/` are ignored. Evidence files contain
+account identifiers, bucket names and workspace GUIDs from the accounts they were
+gathered against, so the stored runs are not published as-is. The harness
+regenerates them.
+
+## Licence
+
+Apache-2.0.

@@ -1,0 +1,111 @@
+# Copy to catalogs.yaml and fill in. catalogs.yaml is gitignored.
+#
+# !! Every base_url below is marked VERIFY. Confirm each against the vendor's
+# !! own docs before your first run -- a wrong base URL produces a column of
+# !! 404s that looks like a conformance finding but is really a typo. The
+# !! harness records the resolved prefix from GET /v1/config, which is the
+# !! fastest way to tell "wrong URL" from "genuinely missing endpoint".
+#
+# Secrets never live in this file. oauth2 and bearer_env name ENV VARS.
+
+catalogs:
+  # --- the sprint's subject -------------------------------------------------
+  - name: google-lakehouse
+    # VERIFIED 2026-09-03 against a live catalog. Note `v1`, not `v1beta`
+    # (both resolve and return identical config, but v1 is what the docs give).
+    base_url: https://biglake.googleapis.com/iceberg/v1/restcatalog
+    # Single-bucket: gs://BUCKET. Multi-bucket: bl://projects/PROJECT/catalogs/CATALOG.
+    # NOT bq:// -- that is the separate BigQuery catalog-federation endpoint.
+    warehouse: gs://YOUR_BUCKET
+    namespace: YOUR_DATASET
+    table: YOUR_TABLE
+    headers:
+      x-goog-user-project: YOUR_PROJECT_ID     # required, else 403
+    auth:
+      type: gcloud                             # uses `gcloud auth print-access-token`
+    # Requires the Lakehouse API (biglake.googleapis.com) enabled on the project:
+    #   gcloud services enable biglake.googleapis.com --project=YOUR_PROJECT_ID
+    # Seeding also writes data files to GCS, which uses ADC rather than the
+    # gcloud token: `gcloud auth application-default login` if you hit invalid_rapt.
+    # docs: https://docs.cloud.google.com/lakehouse/docs/set-up-lakehouse-iceberg-rest-catalog
+
+  # --- AWS ships two independent implementations ----------------------------
+  - name: aws-glue
+    base_url: https://glue.us-east-1.amazonaws.com/iceberg  # VERIFY
+    warehouse: "YOUR_AWS_ACCOUNT_ID"
+    namespace: YOUR_DATABASE
+    table: YOUR_TABLE
+    auth:
+      type: sigv4
+      service: glue
+      region: us-east-1
+
+  - name: aws-s3tables
+    base_url: https://s3tables.us-east-1.amazonaws.com/iceberg  # VERIFY
+    warehouse: arn:aws:s3tables:us-east-1:ACCOUNT:bucket/YOUR_BUCKET
+    namespace: YOUR_NAMESPACE
+    table: YOUR_TABLE
+    auth:
+      type: sigv4
+      service: s3tables
+      region: us-east-1
+
+  # --- Databricks -----------------------------------------------------------
+  - name: databricks-unity
+    base_url: https://YOUR_WORKSPACE.cloud.databricks.com/api/2.1/unity-catalog/iceberg  # VERIFY
+    prefix: ""
+    namespace: YOUR_SCHEMA
+    table: YOUR_TABLE
+    auth:
+      type: bearer_env
+      env_var: DATABRICKS_TOKEN
+
+  # --- Snowflake ------------------------------------------------------------
+  - name: snowflake-horizon
+    base_url: https://YOUR_ACCOUNT.snowflakecomputing.com/polaris/api/catalog  # VERIFY
+    warehouse: YOUR_CATALOG
+    namespace: YOUR_SCHEMA
+    table: YOUR_TABLE
+    auth:
+      type: oauth2
+      token_url: https://YOUR_ACCOUNT.snowflakecomputing.com/polaris/api/catalog/v1/oauth/tokens
+      client_id_env: SNOWFLAKE_CLIENT_ID
+      client_secret_env: SNOWFLAKE_CLIENT_SECRET
+      scope: PRINCIPAL_ROLE:ALL
+
+  # --- Microsoft: documented read-only, single-level namespaces -------------
+  # Expect the write tier to fail wholesale and list_namespaces_parent to fail.
+  # Both are results, not misconfiguration.
+  - name: microsoft-onelake
+    # VERIFIED 2026-09-03 against the Microsoft Learn quickstart.
+    base_url: https://onelake.table.fabric.microsoft.com/iceberg
+    # warehouse is <Workspace>/<DataItem>, either as GUIDs or as names:
+    #   12345678-abcd-.../98765432-dcba-...   or   MyWorkspace/MyItem.Lakehouse
+    # The returned prefix is usually the same value, and it contains a slash --
+    # which is why prefixes are inserted raw rather than percent-encoded.
+    warehouse: YOUR_WORKSPACE_ID/YOUR_DATA_ITEM_ID
+    namespace: dbo                             # Fabric schemas map to namespaces
+    table: YOUR_TABLE
+    auth:
+      type: azure_cli
+      resource: https://storage.azure.com      # token audience per the docs
+    # Documented limits, expected as RESULTS rather than misconfiguration:
+    #   - read-only: the whole write tier should fail
+    #   - single-level namespaces only, and no ?parent= on listNamespaces
+    #   - /v1/config declares just 6 endpoints (vs 36 Polaris, 15 BigLake)
+    # docs: https://learn.microsoft.com/en-us/fabric/onelake/table-apis/iceberg-table-apis-get-started
+
+  # --- the control column ---------------------------------------------------
+  # Self-hosted reference. Every gap elsewhere is measured against this rather
+  # than asserted, which is what makes the matrix an argument instead of a list.
+  - name: apache-polaris
+    base_url: http://localhost:8181/api/catalog
+    warehouse: quickstart_catalog
+    namespace: probe_ns
+    table: probe_table
+    auth:
+      type: oauth2
+      token_url: http://localhost:8181/api/catalog/v1/oauth/tokens
+      client_id_env: POLARIS_CLIENT_ID
+      client_secret_env: POLARIS_CLIENT_SECRET
+      scope: PRINCIPAL_ROLE:ALL

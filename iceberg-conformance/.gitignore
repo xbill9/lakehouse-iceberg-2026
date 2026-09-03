@@ -1,0 +1,7 @@
+catalogs.yaml
+evidence/
+out/
+__pycache__/
+*.pyc
+.warehouse/
+.secrets/
