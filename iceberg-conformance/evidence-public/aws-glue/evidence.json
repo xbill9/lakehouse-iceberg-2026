@@ -1,0 +1,2952 @@
+{
+  "catalog": "aws-glue",
+  "base_url": "https://glue.us-east-1.amazonaws.com/iceberg",
+  "resolved_prefix": "catalogs/aws-account-0001",
+  "auth_kind": "sigv4",
+  "harness_fingerprint": "8f2caf7575dd",
+  "declared_endpoints": [],
+  "namespace": "probe_ns",
+  "table": "probe_table",
+  "allow_writes": true,
+  "run_at": "2026-09-03T21:32:06Z",
+  "probes": [
+    {
+      "probe": "config",
+      "category": "config",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "GetConfig",
+      "why": "Advertises the routing prefix and vendor overrides. Everything else depends on what this returns.",
+      "request": {
+        "method": "GET",
+        "url": "https://glue.us-east-1.amazonaws.com/iceberg/v1/config?warehouse=aws-account-0001",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "X-Amz-Date": "20260903T213202Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-glue",
+      "signature": "GET /v1/config",
+      "variant_of": null,
+      "depends_on": null,
+      "ts": 1788471122.3730123,
+      "elapsed_ms": 196.5,
+      "response": {
+        "status": 200,
+        "headers": {
+          "Date": "Thu, 03 Sep 2026 21:32:02 GMT",
+          "Content-Type": "application/json",
+          "Content-Length": "324",
+          "Connection": "keep-alive",
+          "x-amzn-RequestId": "guid-0022",
+          "Cache-Control": "no-cache"
+        },
+        "body": {
+          "defaults": {
+            "header.Content-Type": "application/x-amz-json-1.1",
+            "rest.sigv4-enabled": "true",
+            "rest-table-scan-enabled": "true",
+            "prefix": "aws-account-0001",
+            "rest.signing-region": "us-east-1",
+            "rest.signing-name": "glue",
+            "token-refresh-enabled": "<redacted:5 chars>",
+            "rest-data-commit-enabled": "true"
+          },
+          "overrides": {
+            "prefix": "catalogs/aws-account-0001"
+          }
+        }
+      },
+      "verdict": "OK",
+      "declared": false,
+      "reconciled": "undeclared, works"
+    },
+    {
+      "probe": "list_namespaces",
+      "category": "namespace",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "ListNamespaces",
+      "why": "The baseline read. If this 404s the prefix is wrong, not the catalog.",
+      "request": {
+        "method": "GET",
+        "url": "https://glue.us-east-1.amazonaws.com/iceberg/v1/catalogs/aws-account-0001/namespaces",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "X-Amz-Date": "20260903T213202Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-glue",
+      "signature": "GET /v1/{prefix}/namespaces",
+      "variant_of": null,
+      "depends_on": null,
+      "ts": 1788471122.6875231,
+      "elapsed_ms": 65.6,
+      "response": {
+        "status": 200,
+        "headers": {
+          "Date": "Thu, 03 Sep 2026 21:32:02 GMT",
+          "Content-Type": "application/json",
+          "Content-Length": "29",
+          "Connection": "keep-alive",
+          "x-amzn-RequestId": "guid-0023",
+          "Cache-Control": "no-cache"
+        },
+        "body": {
+          "namespaces": [
+            [
+              "probe_ns"
+            ]
+          ]
+        }
+      },
+      "verdict": "OK",
+      "declared": false,
+      "reconciled": "undeclared, works"
+    },
+    {
+      "probe": "list_namespaces_paged",
+      "category": "namespace",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "ListNamespaces",
+      "why": "Pagination is optional in the spec. Who honours pageSize, who ignores it?",
+      "request": {
+        "method": "GET",
+        "url": "https://glue.us-east-1.amazonaws.com/iceberg/v1/catalogs/aws-account-0001/namespaces?pageSize=1",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "X-Amz-Date": "20260903T213202Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-glue",
+      "signature": "GET /v1/{prefix}/namespaces",
+      "variant_of": "list_namespaces",
+      "depends_on": null,
+      "ts": 1788471122.7542238,
+      "elapsed_ms": 70.0,
+      "response": {
+        "status": 200,
+        "headers": {
+          "Date": "Thu, 03 Sep 2026 21:32:02 GMT",
+          "Content-Type": "application/json",
+          "Content-Length": "29",
+          "Connection": "keep-alive",
+          "x-amzn-RequestId": "guid-0024",
+          "Cache-Control": "no-cache"
+        },
+        "body": {
+          "namespaces": [
+            [
+              "probe_ns"
+            ]
+          ]
+        }
+      },
+      "verdict": "OK"
+    },
+    {
+      "probe": "list_namespaces_parent",
+      "category": "namespace",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "ListNamespaces",
+      "why": "Multi-level namespaces. OneLake documents that it does NOT support the parent param, so this cell is a known negative going in.",
+      "request": {
+        "method": "GET",
+        "url": "https://glue.us-east-1.amazonaws.com/iceberg/v1/catalogs/aws-account-0001/namespaces?parent=probe_ns",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "X-Amz-Date": "20260903T213202Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-glue",
+      "signature": "GET /v1/{prefix}/namespaces",
+      "variant_of": "list_namespaces",
+      "depends_on": null,
+      "ts": 1788471122.8250062,
+      "elapsed_ms": 35.9,
+      "response": {
+        "status": 400,
+        "headers": {
+          "Date": "Thu, 03 Sep 2026 21:32:02 GMT",
+          "Content-Type": "application/json",
+          "Content-Length": "123",
+          "Connection": "keep-alive",
+          "x-amzn-RequestId": "guid-0025",
+          "x-amzn-ErrorType": "BadRequestErrorResponse:http://catalog-host-0001/coral/com.amazonaws.glue.iceberg/",
+          "Cache-Control": "no-cache"
+        },
+        "body": {
+          "error": {
+            "code": 400,
+            "message": "Glue dataCatalog does not support multipart namespace.",
+            "type": "IllegalArgumentException"
+          }
+        }
+      },
+      "verdict": "BAD_REQUEST"
+    },
+    {
+      "probe": "load_namespace",
+      "category": "namespace",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "LoadNamespaceMetadata",
+      "why": "Namespace properties round-trip.",
+      "request": {
+        "method": "GET",
+        "url": "https://glue.us-east-1.amazonaws.com/iceberg/v1/catalogs/aws-account-0001/namespaces/probe_ns",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "X-Amz-Date": "20260903T213202Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-glue",
+      "signature": "GET /v1/{prefix}/namespaces/{namespace}",
+      "variant_of": null,
+      "depends_on": null,
+      "ts": 1788471122.8619552,
+      "elapsed_ms": 83.8,
+      "response": {
+        "status": 200,
+        "headers": {
+          "Date": "Thu, 03 Sep 2026 21:32:02 GMT",
+          "Content-Type": "application/json",
+          "Content-Length": "105",
+          "Connection": "keep-alive",
+          "x-amzn-RequestId": "guid-0026",
+          "Cache-Control": "no-cache"
+        },
+        "body": {
+          "namespace": [
+            "probe_ns"
+          ],
+          "properties": {
+            "location": "s3://bucket-0001/probe_ns/"
+          }
+        }
+      },
+      "verdict": "OK",
+      "declared": false,
+      "reconciled": "undeclared, works"
+    },
+    {
+      "probe": "head_namespace",
+      "category": "namespace",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "NamespaceExists",
+      "why": "Existence check without a body. Commonly unimplemented.",
+      "request": {
+        "method": "HEAD",
+        "url": "https://glue.us-east-1.amazonaws.com/iceberg/v1/catalogs/aws-account-0001/namespaces/probe_ns",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "X-Amz-Date": "20260903T213202Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-glue",
+      "signature": "HEAD /v1/{prefix}/namespaces/{namespace}",
+      "variant_of": null,
+      "depends_on": null,
+      "ts": 1788471122.9471276,
+      "elapsed_ms": 83.9,
+      "response": {
+        "status": 204,
+        "headers": {
+          "Date": "Thu, 03 Sep 2026 21:32:03 GMT",
+          "Content-Type": "application/json",
+          "Connection": "keep-alive",
+          "x-amzn-RequestId": "guid-0027",
+          "Cache-Control": "no-cache"
+        },
+        "body": null
+      },
+      "verdict": "OK",
+      "declared": false,
+      "reconciled": "undeclared, works"
+    },
+    {
+      "probe": "list_tables",
+      "category": "table",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "ListTables",
+      "why": "Table listing within a namespace.",
+      "request": {
+        "method": "GET",
+        "url": "https://glue.us-east-1.amazonaws.com/iceberg/v1/catalogs/aws-account-0001/namespaces/probe_ns/tables",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "X-Amz-Date": "20260903T213203Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-glue",
+      "signature": "GET /v1/{prefix}/namespaces/{namespace}/tables",
+      "variant_of": null,
+      "depends_on": null,
+      "ts": 1788471123.0321953,
+      "elapsed_ms": 74.2,
+      "response": {
+        "status": 200,
+        "headers": {
+          "Date": "Thu, 03 Sep 2026 21:32:03 GMT",
+          "Content-Type": "application/json",
+          "Content-Length": "65",
+          "Connection": "keep-alive",
+          "x-amzn-RequestId": "guid-0028",
+          "Cache-Control": "no-cache"
+        },
+        "body": {
+          "identifiers": [
+            {
+              "name": "probe_table",
+              "namespace": [
+                "probe_ns"
+              ]
+            }
+          ]
+        }
+      },
+      "verdict": "OK",
+      "declared": false,
+      "reconciled": "undeclared, works"
+    },
+    {
+      "probe": "load_table",
+      "category": "table",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "LoadTable",
+      "why": "The load-bearing call. Feeds the entire field tier below.",
+      "request": {
+        "method": "GET",
+        "url": "https://glue.us-east-1.amazonaws.com/iceberg/v1/catalogs/aws-account-0001/namespaces/probe_ns/tables/probe_table",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "X-Amz-Date": "20260903T213203Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-glue",
+      "signature": "GET /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "variant_of": null,
+      "depends_on": null,
+      "ts": 1788471123.1075215,
+      "elapsed_ms": 207.9,
+      "response": {
+        "status": 200,
+        "headers": {
+          "Date": "Thu, 03 Sep 2026 21:32:03 GMT",
+          "Content-Type": "application/json",
+          "Content-Length": "4916",
+          "Connection": "keep-alive",
+          "x-amzn-RequestId": "guid-0029",
+          "Cache-Control": "no-cache"
+        },
+        "body": {
+          "config": {
+            "metadata_hashcode": "af266725745833d07a7f2ff715f22d1153c75b25ee58c35c6cd93283a0aa814a",
+            "write.merge.mode": "merge-on-read",
+            "iceberg.table.lastUpdatedMs": "1788468781765",
+            "write.delete.mode": "merge-on-read",
+            "write.parquet.compression-codec": "zstd",
+            "metadata_location": "s3://bucket-0001/probe_ns/probe_table/metadata/00006-guid-0030.metadata.json",
+            "iceberg.table.uuid": "guid-0031",
+            "write.update.mode": "merge-on-read",
+            "client.region": "us-east-1",
+            "probe": "control-column",
+            "table_type": "iceberg"
+          },
+          "metadata": {
+            "current-schema-id": 1,
+            "current-snapshot-id": 9187553066798777529,
+            "default-sort-order-id": 1,
+            "default-spec-id": 0,
+            "format-version": 2,
+            "last-column-id": 4,
+            "last-partition-id": 1000,
+            "last-sequence-number": 4,
+            "last-updated-ms": 1788468781765,
+            "location": "s3://bucket-0001/probe_ns/probe_table",
+            "metadata-log": [],
+            "partition-specs": [
+              {
+                "fields": [
+                  {
+                    "field-id": 1000,
+                    "name": "ts_day",
+                    "source-id": 2,
+                    "transform": "day"
+                  }
+                ],
+                "spec-id": 0
+              }
+            ],
+            "partition-statistics-files": [],
+            "properties": {
+              "write.merge.mode": "merge-on-read",
+              "write.update.mode": "merge-on-read",
+              "write.delete.mode": "merge-on-read",
+              "write.parquet.compression-codec": "zstd",
+              "probe": "control-column"
+            },
+            "refs": {
+              "control_tag": {
+                "snapshot-id": 9187553066798777529,
+                "type": "tag"
+              },
+              "main": {
+                "snapshot-id": 9187553066798777529,
+                "type": "branch"
+              }
+            },
+            "schemas": [
+              {
+                "fields": [
+                  {
+                    "id": 1,
+                    "name": "id",
+                    "required": true,
+                    "type": "long"
+                  },
+                  {
+                    "id": 2,
+                    "name": "ts",
+                    "required": false,
+                    "type": "timestamptz"
+                  },
+                  {
+                    "id": 3,
+                    "name": "payload",
+                    "required": false,
+                    "type": "string"
+                  }
+                ],
+                "schema-id": 0,
+                "type": "struct"
+              },
+              {
+                "fields": [
+                  {
+                    "id": 1,
+                    "name": "id",
+                    "required": true,
+                    "type": "long"
+                  },
+                  {
+                    "id": 2,
+                    "name": "ts",
+                    "required": false,
+                    "type": "timestamptz"
+                  },
+                  {
+                    "id": 3,
+                    "name": "payload",
+                    "required": false,
+                    "type": "string"
+                  },
+                  {
+                    "doc": "added to exercise schema history",
+                    "id": 4,
+                    "name": "region",
+                    "required": false,
+                    "type": "string"
+                  }
+                ],
+                "schema-id": 1,
+                "type": "struct"
+              }
+            ],
+            "snapshot-log": [
+              {
+                "snapshot-id": 7956463676985805099,
+                "timestamp-ms": 1788468775962
+              },
+              {
+                "snapshot-id": 8065619111078549950,
+                "timestamp-ms": 1788468777341
+              },
+              {
+                "snapshot-id": 304441278659583722,
+                "timestamp-ms": 1788468778707
+              },
+              {
+                "snapshot-id": 9187553066798777529,
+                "timestamp-ms": 1788468781095
+              }
+            ],
+            "snapshots": [
+              {
+                "manifest-list": "s3://bucket-0001/probe_ns/probe_table/metadata/snap-7956463676985805099-0-guid-0032.avro",
+                "schema-id": 0,
+                "sequence-number": 1,
+                "snapshot-id": 7956463676985805099,
+                "summary": {
+                  "changed-partition-count": "1",
+                  "added-data-files": "1",
+                  "total-equality-deletes": "0",
+                  "added-records": "4",
+                  "total-position-deletes": "0",
+                  "added-files-size": "1402",
+                  "total-delete-files": "0",
+                  "total-files-size": "1402",
+                  "total-data-files": "1",
+                  "total-records": "4",
+                  "operation": "append"
+                },
+                "timestamp-ms": 1788468775962
+              },
+              {
+                "manifest-list": "s3://bucket-0001/probe_ns/probe_table/metadata/snap-8065619111078549950-0-guid-0033.avro",
+                "parent-snapshot-id": 7956463676985805099,
+                "schema-id": 0,
+                "sequence-number": 2,
+                "snapshot-id": 8065619111078549950,
+                "summary": {
+                  "changed-partition-count": "1",
+                  "added-data-files": "1",
+                  "total-equality-deletes": "0",
+                  "added-records": "4",
+                  "total-position-deletes": "0",
+                  "added-files-size": "1402",
+                  "total-delete-files": "0",
+                  "total-files-size": "2804",
+                  "total-data-files": "2",
+                  "total-records": "8",
+                  "operation": "append"
+                },
+                "timestamp-ms": 1788468777341
+              },
+              {
+                "manifest-list": "s3://bucket-0001/probe_ns/probe_table/metadata/snap-304441278659583722-0-guid-0034.avro",
+                "parent-snapshot-id": 8065619111078549950,
+                "schema-id": 0,
+                "sequence-number": 3,
+                "snapshot-id": 304441278659583722,
+                "summary": {
+                  "changed-partition-count": "1",
+                  "added-data-files": "1",
+                  "total-equality-deletes": "0",
+                  "added-records": "4",
+                  "total-position-deletes": "0",
+                  "added-files-size": "1402",
+                  "total-delete-files": "0",
+                  "total-files-size": "4206",
+                  "total-data-files": "3",
+                  "total-records": "12",
+                  "operation": "append"
+                },
+                "timestamp-ms": 1788468778707
+              },
+              {
+                "manifest-list": "s3://bucket-0001/probe_ns/probe_table/metadata/snap-9187553066798777529-0-guid-0035.avro",
+                "parent-snapshot-id": 304441278659583722,
+                "schema-id": 0,
+                "sequence-number": 4,
+                "snapshot-id": 9187553066798777529,
+                "summary": {
+                  "added-data-files": "1",
+                  "total-equality-deletes": "0",
+                  "added-records": "3",
+                  "deleted-data-files": "1",
+                  "deleted-records": "4",
+                  "total-records": "11",
+                  "removed-files-size": "1402",
+                  "changed-partition-count": "1",
+                  "total-position-deletes": "0",
+                  "added-files-size": "1391",
+                  "total-delete-files": "0",
+                  "total-files-size": "4195",
+                  "total-data-files": "3",
+                  "operation": "overwrite"
+                },
+                "timestamp-ms": 1788468781095
+              }
+            ],
+            "sort-orders": [
+              {
+                "fields": [
+                  {
+                    "direction": "asc",
+                    "null-order": "nulls-first",
+                    "source-id": 1,
+                    "transform": "identity"
+                  }
+                ],
+                "order-id": 1
+              }
+            ],
+            "statistics-files": [],
+            "table-uuid": "guid-0031"
+          },
+          "metadata-location": "s3://bucket-0001/probe_ns/probe_table/metadata/00006-guid-0030.metadata.json"
+        }
+      },
+      "verdict": "OK",
+      "declared": false,
+      "reconciled": "undeclared, works"
+    },
+    {
+      "probe": "load_table_snapshots_all",
+      "category": "table",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "LoadTable",
+      "why": "Full snapshot history vs. the refs-only default. Time travel depends on it.",
+      "request": {
+        "method": "GET",
+        "url": "https://glue.us-east-1.amazonaws.com/iceberg/v1/catalogs/aws-account-0001/namespaces/probe_ns/tables/probe_table?snapshots=all",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "X-Amz-Date": "20260903T213203Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-glue",
+      "signature": "GET /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "variant_of": "load_table",
+      "depends_on": null,
+      "ts": 1788471123.3178833,
+      "elapsed_ms": 122.7,
+      "response": {
+        "status": 200,
+        "headers": {
+          "Date": "Thu, 03 Sep 2026 21:32:03 GMT",
+          "Content-Type": "application/json",
+          "Content-Length": "4916",
+          "Connection": "keep-alive",
+          "x-amzn-RequestId": "guid-0036",
+          "Cache-Control": "no-cache"
+        },
+        "body": {
+          "config": {
+            "metadata_hashcode": "af266725745833d07a7f2ff715f22d1153c75b25ee58c35c6cd93283a0aa814a",
+            "write.merge.mode": "merge-on-read",
+            "iceberg.table.lastUpdatedMs": "1788468781765",
+            "write.delete.mode": "merge-on-read",
+            "write.parquet.compression-codec": "zstd",
+            "metadata_location": "s3://bucket-0001/probe_ns/probe_table/metadata/00006-guid-0030.metadata.json",
+            "iceberg.table.uuid": "guid-0031",
+            "write.update.mode": "merge-on-read",
+            "client.region": "us-east-1",
+            "probe": "control-column",
+            "table_type": "iceberg"
+          },
+          "metadata": {
+            "current-schema-id": 1,
+            "current-snapshot-id": 9187553066798777529,
+            "default-sort-order-id": 1,
+            "default-spec-id": 0,
+            "format-version": 2,
+            "last-column-id": 4,
+            "last-partition-id": 1000,
+            "last-sequence-number": 4,
+            "last-updated-ms": 1788468781765,
+            "location": "s3://bucket-0001/probe_ns/probe_table",
+            "metadata-log": [],
+            "partition-specs": [
+              {
+                "fields": [
+                  {
+                    "field-id": 1000,
+                    "name": "ts_day",
+                    "source-id": 2,
+                    "transform": "day"
+                  }
+                ],
+                "spec-id": 0
+              }
+            ],
+            "partition-statistics-files": [],
+            "properties": {
+              "write.merge.mode": "merge-on-read",
+              "write.update.mode": "merge-on-read",
+              "write.delete.mode": "merge-on-read",
+              "write.parquet.compression-codec": "zstd",
+              "probe": "control-column"
+            },
+            "refs": {
+              "control_tag": {
+                "snapshot-id": 9187553066798777529,
+                "type": "tag"
+              },
+              "main": {
+                "snapshot-id": 9187553066798777529,
+                "type": "branch"
+              }
+            },
+            "schemas": [
+              {
+                "fields": [
+                  {
+                    "id": 1,
+                    "name": "id",
+                    "required": true,
+                    "type": "long"
+                  },
+                  {
+                    "id": 2,
+                    "name": "ts",
+                    "required": false,
+                    "type": "timestamptz"
+                  },
+                  {
+                    "id": 3,
+                    "name": "payload",
+                    "required": false,
+                    "type": "string"
+                  }
+                ],
+                "schema-id": 0,
+                "type": "struct"
+              },
+              {
+                "fields": [
+                  {
+                    "id": 1,
+                    "name": "id",
+                    "required": true,
+                    "type": "long"
+                  },
+                  {
+                    "id": 2,
+                    "name": "ts",
+                    "required": false,
+                    "type": "timestamptz"
+                  },
+                  {
+                    "id": 3,
+                    "name": "payload",
+                    "required": false,
+                    "type": "string"
+                  },
+                  {
+                    "doc": "added to exercise schema history",
+                    "id": 4,
+                    "name": "region",
+                    "required": false,
+                    "type": "string"
+                  }
+                ],
+                "schema-id": 1,
+                "type": "struct"
+              }
+            ],
+            "snapshot-log": [
+              {
+                "snapshot-id": 7956463676985805099,
+                "timestamp-ms": 1788468775962
+              },
+              {
+                "snapshot-id": 8065619111078549950,
+                "timestamp-ms": 1788468777341
+              },
+              {
+                "snapshot-id": 304441278659583722,
+                "timestamp-ms": 1788468778707
+              },
+              {
+                "snapshot-id": 9187553066798777529,
+                "timestamp-ms": 1788468781095
+              }
+            ],
+            "snapshots": [
+              {
+                "manifest-list": "s3://bucket-0001/probe_ns/probe_table/metadata/snap-7956463676985805099-0-guid-0032.avro",
+                "schema-id": 0,
+                "sequence-number": 1,
+                "snapshot-id": 7956463676985805099,
+                "summary": {
+                  "changed-partition-count": "1",
+                  "added-data-files": "1",
+                  "total-equality-deletes": "0",
+                  "added-records": "4",
+                  "total-position-deletes": "0",
+                  "added-files-size": "1402",
+                  "total-delete-files": "0",
+                  "total-files-size": "1402",
+                  "total-data-files": "1",
+                  "total-records": "4",
+                  "operation": "append"
+                },
+                "timestamp-ms": 1788468775962
+              },
+              {
+                "manifest-list": "s3://bucket-0001/probe_ns/probe_table/metadata/snap-8065619111078549950-0-guid-0033.avro",
+                "parent-snapshot-id": 7956463676985805099,
+                "schema-id": 0,
+                "sequence-number": 2,
+                "snapshot-id": 8065619111078549950,
+                "summary": {
+                  "changed-partition-count": "1",
+                  "added-data-files": "1",
+                  "total-equality-deletes": "0",
+                  "added-records": "4",
+                  "total-position-deletes": "0",
+                  "added-files-size": "1402",
+                  "total-delete-files": "0",
+                  "total-files-size": "2804",
+                  "total-data-files": "2",
+                  "total-records": "8",
+                  "operation": "append"
+                },
+                "timestamp-ms": 1788468777341
+              },
+              {
+                "manifest-list": "s3://bucket-0001/probe_ns/probe_table/metadata/snap-304441278659583722-0-guid-0034.avro",
+                "parent-snapshot-id": 8065619111078549950,
+                "schema-id": 0,
+                "sequence-number": 3,
+                "snapshot-id": 304441278659583722,
+                "summary": {
+                  "changed-partition-count": "1",
+                  "added-data-files": "1",
+                  "total-equality-deletes": "0",
+                  "added-records": "4",
+                  "total-position-deletes": "0",
+                  "added-files-size": "1402",
+                  "total-delete-files": "0",
+                  "total-files-size": "4206",
+                  "total-data-files": "3",
+                  "total-records": "12",
+                  "operation": "append"
+                },
+                "timestamp-ms": 1788468778707
+              },
+              {
+                "manifest-list": "s3://bucket-0001/probe_ns/probe_table/metadata/snap-9187553066798777529-0-guid-0035.avro",
+                "parent-snapshot-id": 304441278659583722,
+                "schema-id": 0,
+                "sequence-number": 4,
+                "snapshot-id": 9187553066798777529,
+                "summary": {
+                  "added-data-files": "1",
+                  "total-equality-deletes": "0",
+                  "added-records": "3",
+                  "deleted-data-files": "1",
+                  "deleted-records": "4",
+                  "total-records": "11",
+                  "removed-files-size": "1402",
+                  "changed-partition-count": "1",
+                  "total-position-deletes": "0",
+                  "added-files-size": "1391",
+                  "total-delete-files": "0",
+                  "total-files-size": "4195",
+                  "total-data-files": "3",
+                  "operation": "overwrite"
+                },
+                "timestamp-ms": 1788468781095
+              }
+            ],
+            "sort-orders": [
+              {
+                "fields": [
+                  {
+                    "direction": "asc",
+                    "null-order": "nulls-first",
+                    "source-id": 1,
+                    "transform": "identity"
+                  }
+                ],
+                "order-id": 1
+              }
+            ],
+            "statistics-files": [],
+            "table-uuid": "guid-0031"
+          },
+          "metadata-location": "s3://bucket-0001/probe_ns/probe_table/metadata/00006-guid-0030.metadata.json"
+        }
+      },
+      "verdict": "OK"
+    },
+    {
+      "probe": "head_table",
+      "category": "table",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "TableExists",
+      "why": "Existence check without a body.",
+      "request": {
+        "method": "HEAD",
+        "url": "https://glue.us-east-1.amazonaws.com/iceberg/v1/catalogs/aws-account-0001/namespaces/probe_ns/tables/probe_table",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "X-Amz-Date": "20260903T213203Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-glue",
+      "signature": "HEAD /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "variant_of": null,
+      "depends_on": null,
+      "ts": 1788471123.44275,
+      "elapsed_ms": 109.4,
+      "response": {
+        "status": 204,
+        "headers": {
+          "Date": "Thu, 03 Sep 2026 21:32:03 GMT",
+          "Content-Type": "application/json",
+          "Connection": "keep-alive",
+          "x-amzn-RequestId": "guid-0037",
+          "Cache-Control": "no-cache"
+        },
+        "body": null
+      },
+      "verdict": "OK",
+      "declared": false,
+      "reconciled": "undeclared, works"
+    },
+    {
+      "probe": "load_credentials",
+      "category": "credentials",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "LoadCredentials",
+      "why": "Vended storage credentials. The newest and least evenly adopted endpoint.",
+      "request": {
+        "method": "GET",
+        "url": "https://glue.us-east-1.amazonaws.com/iceberg/v1/catalogs/aws-account-0001/namespaces/probe_ns/tables/probe_table/credentials",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "X-Amz-Date": "20260903T213203Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-glue",
+      "signature": "GET /v1/{prefix}/namespaces/{namespace}/tables/{table}/credentials",
+      "variant_of": null,
+      "depends_on": null,
+      "ts": 1788471123.552996,
+      "elapsed_ms": 30.6,
+      "response": {
+        "status": 404,
+        "headers": {
+          "Date": "Thu, 03 Sep 2026 21:32:03 GMT",
+          "Content-Length": "29",
+          "Connection": "keep-alive",
+          "x-amzn-RequestId": "guid-0038"
+        },
+        "body": {
+          "_raw": "<UnknownOperationException/>\n"
+        }
+      },
+      "verdict": "NOT_FOUND",
+      "declared": false,
+      "reconciled": "undeclared, fails"
+    },
+    {
+      "probe": "list_views",
+      "category": "view",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "ListViews",
+      "why": "Iceberg views are a separate spec section and adoption is patchy.",
+      "request": {
+        "method": "GET",
+        "url": "https://glue.us-east-1.amazonaws.com/iceberg/v1/catalogs/aws-account-0001/namespaces/probe_ns/views",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "X-Amz-Date": "20260903T213203Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-glue",
+      "signature": "GET /v1/{prefix}/namespaces/{namespace}/views",
+      "variant_of": null,
+      "depends_on": null,
+      "ts": 1788471123.5862732,
+      "elapsed_ms": 48.8,
+      "response": {
+        "status": 406,
+        "headers": {
+          "Date": "Thu, 03 Sep 2026 21:32:03 GMT",
+          "Content-Type": "application/json",
+          "Content-Length": "128",
+          "Connection": "keep-alive",
+          "x-amzn-RequestId": "guid-0039",
+          "x-amzn-ErrorType": "UnsupportedOperationResponse:http://catalog-host-0001/coral/com.amazonaws.glue.iceberg/",
+          "Cache-Control": "no-cache"
+        },
+        "body": {
+          "error": {
+            "code": 406,
+            "message": "ListViews endpoint is not supported for Glue Catalog.",
+            "type": "OperationNotSupportedException"
+          }
+        }
+      },
+      "verdict": "HTTP_406",
+      "declared": false,
+      "reconciled": "undeclared, fails"
+    },
+    {
+      "probe": "plan_table_scan",
+      "category": "planning",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "PlanTableScan",
+      "why": "Server-side scan planning. Recent addition; expect mostly 404/501.",
+      "request": {
+        "method": "POST",
+        "url": "https://glue.us-east-1.amazonaws.com/iceberg/v1/catalogs/aws-account-0001/namespaces/probe_ns/tables/probe_table/plan",
+        "body": {
+          "select": [
+            "*"
+          ],
+          "case-sensitive": false
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Content-Type": "application/json",
+          "X-Amz-Date": "20260903T213203Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-glue",
+      "signature": "POST /v1/{prefix}/namespaces/{namespace}/tables/{table}/plan",
+      "variant_of": null,
+      "depends_on": null,
+      "ts": 1788471123.6363502,
+      "elapsed_ms": 34.2,
+      "response": {
+        "status": 200,
+        "headers": {
+          "Date": "Thu, 03 Sep 2026 21:32:03 GMT",
+          "Content-Type": "application/json",
+          "Content-Length": "90",
+          "Connection": "keep-alive",
+          "x-amzn-RequestId": "guid-0040"
+        },
+        "body": {
+          "Output": {
+            "__type": "com.amazon.coral.service#UnknownOperationException"
+          },
+          "Version": "1.0"
+        }
+      },
+      "verdict": "200_WITH_ERROR",
+      "declared": false,
+      "reconciled": "undeclared, fails"
+    },
+    {
+      "probe": "report_metrics",
+      "category": "telemetry",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "ReportMetrics",
+      "why": "Metrics reporting. Widely stubbed to 204 without storing anything. Body must be a complete ScanReport or a 400 tells you nothing.",
+      "request": {
+        "method": "POST",
+        "url": "https://glue.us-east-1.amazonaws.com/iceberg/v1/catalogs/aws-account-0001/namespaces/probe_ns/tables/probe_table/metrics",
+        "body": {
+          "report-type": "scan-report",
+          "table-name": "probe_table",
+          "snapshot-id": 1,
+          "filter": {
+            "type": "eq",
+            "term": "id",
+            "value": 1
+          },
+          "schema-id": 0,
+          "projected-field-ids": [
+            1
+          ],
+          "projected-field-names": [
+            "id"
+          ],
+          "metrics": {
+            "total-planning-duration": {
+              "count": 1,
+              "time-unit": "nanoseconds",
+              "total-duration": 1
+            },
+            "total-file-size-in-bytes": {
+              "unit": "bytes",
+              "value": 1
+            },
+            "result-data-files": {
+              "unit": "count",
+              "value": 1
+            }
+          }
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Content-Type": "application/json",
+          "X-Amz-Date": "20260903T213203Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-glue",
+      "signature": "POST /v1/{prefix}/namespaces/{namespace}/tables/{table}/metrics",
+      "variant_of": null,
+      "depends_on": null,
+      "ts": 1788471123.6716835,
+      "elapsed_ms": 35.0,
+      "response": {
+        "status": 200,
+        "headers": {
+          "Date": "Thu, 03 Sep 2026 21:32:03 GMT",
+          "Content-Type": "application/json",
+          "Content-Length": "90",
+          "Connection": "keep-alive",
+          "x-amzn-RequestId": "guid-0041"
+        },
+        "body": {
+          "Output": {
+            "__type": "com.amazon.coral.service#UnknownOperationException"
+          },
+          "Version": "1.0"
+        }
+      },
+      "verdict": "200_WITH_ERROR",
+      "declared": false,
+      "reconciled": "undeclared, fails"
+    },
+    {
+      "probe": "create_namespace",
+      "category": "namespace",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "CreateNamespace",
+      "why": "First real write. OneLake is documented read-only, so this is where that shows up as a status code.",
+      "request": {
+        "method": "POST",
+        "url": "https://glue.us-east-1.amazonaws.com/iceberg/v1/catalogs/aws-account-0001/namespaces",
+        "body": {
+          "namespace": [
+            "irc_probe_20260903173202"
+          ],
+          "properties": {}
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Content-Type": "application/json",
+          "X-Amz-Date": "20260903T213203Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-glue",
+      "signature": "POST /v1/{prefix}/namespaces",
+      "variant_of": null,
+      "depends_on": null,
+      "ts": 1788471123.7075605,
+      "elapsed_ms": 125.5,
+      "response": {
+        "status": 200,
+        "headers": {
+          "Date": "Thu, 03 Sep 2026 21:32:03 GMT",
+          "Content-Type": "application/json",
+          "Content-Length": "58",
+          "Connection": "keep-alive",
+          "x-amzn-RequestId": "guid-0042",
+          "Cache-Control": "no-cache"
+        },
+        "body": {
+          "namespace": [
+            "irc_probe_20260903173202"
+          ],
+          "properties": {}
+        }
+      },
+      "verdict": "OK",
+      "declared": false,
+      "reconciled": "undeclared, works"
+    },
+    {
+      "probe": "update_namespace_props",
+      "category": "namespace",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "UpdateProperties",
+      "why": "Property updates are separately optional from namespace creation.",
+      "request": {
+        "method": "POST",
+        "url": "https://glue.us-east-1.amazonaws.com/iceberg/v1/catalogs/aws-account-0001/namespaces/irc_probe_20260903173202/properties",
+        "body": {
+          "removals": [],
+          "updates": {
+            "probe": "conformance"
+          }
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Content-Type": "application/json",
+          "X-Amz-Date": "20260903T213203Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-glue",
+      "signature": "POST /v1/{prefix}/namespaces/{namespace}/properties",
+      "variant_of": null,
+      "depends_on": "create_namespace",
+      "ts": 1788471123.8340948,
+      "elapsed_ms": 166.8,
+      "response": {
+        "status": 200,
+        "headers": {
+          "Date": "Thu, 03 Sep 2026 21:32:03 GMT",
+          "Content-Type": "application/json",
+          "Content-Length": "47",
+          "Connection": "keep-alive",
+          "x-amzn-RequestId": "guid-0043",
+          "Cache-Control": "no-cache"
+        },
+        "body": {
+          "missing": [],
+          "removed": [],
+          "updated": [
+            "probe"
+          ]
+        }
+      },
+      "verdict": "OK",
+      "declared": false,
+      "reconciled": "undeclared, works"
+    },
+    {
+      "probe": "create_table",
+      "category": "table",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "CreateTable",
+      "why": "Table creation with an explicit schema, partition spec and sort order \u2014 checks whether all three survive a round-trip.",
+      "request": {
+        "method": "POST",
+        "url": "https://glue.us-east-1.amazonaws.com/iceberg/v1/catalogs/aws-account-0001/namespaces/irc_probe_20260903173202/tables",
+        "body": {
+          "name": "probe_tbl",
+          "schema": {
+            "type": "struct",
+            "schema-id": 0,
+            "fields": [
+              {
+                "id": 1,
+                "name": "id",
+                "required": true,
+                "type": "long"
+              },
+              {
+                "id": 2,
+                "name": "ts",
+                "required": false,
+                "type": "timestamptz"
+              },
+              {
+                "id": 3,
+                "name": "payload",
+                "required": false,
+                "type": "string"
+              }
+            ]
+          },
+          "partition-spec": {
+            "spec-id": 0,
+            "fields": [
+              {
+                "source-id": 2,
+                "field-id": 1000,
+                "transform": "day",
+                "name": "ts_day"
+              }
+            ]
+          },
+          "write-order": {
+            "order-id": 1,
+            "fields": [
+              {
+                "source-id": 1,
+                "transform": "identity",
+                "direction": "asc",
+                "null-order": "nulls-first"
+              }
+            ]
+          },
+          "properties": {
+            "probe": "conformance"
+          },
+          "location": "s3://bucket-0001/irc_probe_20260903173202",
+          "stage-create": false
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Content-Type": "application/json",
+          "X-Amz-Date": "20260903T213204Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-glue",
+      "signature": "POST /v1/{prefix}/namespaces/{namespace}/tables",
+      "variant_of": null,
+      "depends_on": "create_namespace",
+      "ts": 1788471124.002524,
+      "elapsed_ms": 299.1,
+      "response": {
+        "status": 200,
+        "headers": {
+          "Date": "Thu, 03 Sep 2026 21:32:04 GMT",
+          "Content-Type": "application/json",
+          "Content-Length": "1610",
+          "Connection": "keep-alive",
+          "x-amzn-RequestId": "guid-0044",
+          "Cache-Control": "no-cache"
+        },
+        "body": {
+          "config": {
+            "metadata_hashcode": "b27c2df781ebb5ba8a506adf3727671c7ab334f3df86e06da00c9b812b2816c9",
+            "iceberg.table.lastUpdatedMs": "1788471124135",
+            "write.parquet.compression-codec": "zstd",
+            "metadata_location": "s3://bucket-0001/irc_probe_20260903173202/metadata/00000-guid-0045.metadata.json",
+            "iceberg.table.uuid": "guid-0046",
+            "probe": "conformance",
+            "table_type": "iceberg"
+          },
+          "metadata": {
+            "current-schema-id": 0,
+            "current-snapshot-id": -1,
+            "default-sort-order-id": 1,
+            "default-spec-id": 0,
+            "format-version": 2,
+            "last-column-id": 3,
+            "last-partition-id": 1000,
+            "last-sequence-number": 0,
+            "last-updated-ms": 1788471124135,
+            "location": "s3://bucket-0001/irc_probe_20260903173202",
+            "metadata-log": [],
+            "partition-specs": [
+              {
+                "fields": [
+                  {
+                    "field-id": 1000,
+                    "name": "ts_day",
+                    "source-id": 2,
+                    "transform": "day"
+                  }
+                ],
+                "spec-id": 0
+              }
+            ],
+            "partition-statistics-files": [],
+            "properties": {
+              "write.parquet.compression-codec": "zstd",
+              "probe": "conformance"
+            },
+            "refs": {},
+            "schemas": [
+              {
+                "fields": [
+                  {
+                    "id": 1,
+                    "name": "id",
+                    "required": true,
+                    "type": "long"
+                  },
+                  {
+                    "id": 2,
+                    "name": "ts",
+                    "required": false,
+                    "type": "timestamptz"
+                  },
+                  {
+                    "id": 3,
+                    "name": "payload",
+                    "required": false,
+                    "type": "string"
+                  }
+                ],
+                "schema-id": 0,
+                "type": "struct"
+              }
+            ],
+            "snapshot-log": [],
+            "snapshots": [],
+            "sort-orders": [
+              {
+                "fields": [
+                  {
+                    "direction": "asc",
+                    "null-order": "nulls-first",
+                    "source-id": 1,
+                    "transform": "identity"
+                  }
+                ],
+                "order-id": 1
+              }
+            ],
+            "statistics-files": [],
+            "table-uuid": "guid-0046"
+          },
+          "metadata-location": "s3://bucket-0001/irc_probe_20260903173202/metadata/00000-guid-0045.metadata.json"
+        }
+      },
+      "verdict": "OK",
+      "declared": false,
+      "reconciled": "undeclared, works"
+    },
+    {
+      "probe": "commit_table",
+      "category": "commit",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "UpdateTable",
+      "why": "A property-set commit \u2014 the cheapest possible exercise of the update path.",
+      "request": {
+        "method": "POST",
+        "url": "https://glue.us-east-1.amazonaws.com/iceberg/v1/catalogs/aws-account-0001/namespaces/irc_probe_20260903173202/tables/probe_tbl",
+        "body": {
+          "requirements": [
+            {
+              "type": "assert-table-uuid",
+              "uuid": "guid-0046"
+            }
+          ],
+          "updates": [
+            {
+              "action": "set-properties",
+              "updates": {
+                "probe-commit": "1"
+              }
+            }
+          ]
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Content-Type": "application/json",
+          "X-Amz-Date": "20260903T213204Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-glue",
+      "signature": "POST /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "variant_of": null,
+      "depends_on": "create_table",
+      "ts": 1788471124.3034065,
+      "elapsed_ms": 242.1,
+      "response": {
+        "status": 200,
+        "headers": {
+          "Date": "Thu, 03 Sep 2026 21:32:04 GMT",
+          "Content-Type": "application/json",
+          "Content-Length": "1185",
+          "Connection": "keep-alive",
+          "x-amzn-RequestId": "guid-0047",
+          "Cache-Control": "no-cache"
+        },
+        "body": {
+          "metadata": {
+            "current-schema-id": 0,
+            "current-snapshot-id": -1,
+            "default-sort-order-id": 1,
+            "default-spec-id": 0,
+            "format-version": 2,
+            "last-column-id": 3,
+            "last-partition-id": 1000,
+            "last-sequence-number": 0,
+            "last-updated-ms": 1788471124428,
+            "location": "s3://bucket-0001/irc_probe_20260903173202",
+            "metadata-log": [],
+            "partition-specs": [
+              {
+                "fields": [
+                  {
+                    "field-id": 1000,
+                    "name": "ts_day",
+                    "source-id": 2,
+                    "transform": "day"
+                  }
+                ],
+                "spec-id": 0
+              }
+            ],
+            "partition-statistics-files": [],
+            "properties": {
+              "probe-commit": "1",
+              "write.parquet.compression-codec": "zstd",
+              "probe": "conformance"
+            },
+            "refs": {},
+            "schemas": [
+              {
+                "fields": [
+                  {
+                    "id": 1,
+                    "name": "id",
+                    "required": true,
+                    "type": "long"
+                  },
+                  {
+                    "id": 2,
+                    "name": "ts",
+                    "required": false,
+                    "type": "timestamptz"
+                  },
+                  {
+                    "id": 3,
+                    "name": "payload",
+                    "required": false,
+                    "type": "string"
+                  }
+                ],
+                "schema-id": 0,
+                "type": "struct"
+              }
+            ],
+            "snapshot-log": [],
+            "snapshots": [],
+            "sort-orders": [
+              {
+                "fields": [
+                  {
+                    "direction": "asc",
+                    "null-order": "nulls-first",
+                    "source-id": 1,
+                    "transform": "identity"
+                  }
+                ],
+                "order-id": 1
+              }
+            ],
+            "statistics-files": [],
+            "table-uuid": "guid-0046"
+          },
+          "metadata-location": "s3://bucket-0001/irc_probe_20260903173202/metadata/00001-guid-0048.metadata.json"
+        }
+      },
+      "verdict": "OK",
+      "declared": false,
+      "reconciled": "undeclared, works"
+    },
+    {
+      "probe": "commit_remove_properties",
+      "category": "commit",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "UpdateTable",
+      "why": "remove-properties: the inverse of the one action every catalog serves.",
+      "request": {
+        "method": "POST",
+        "url": "https://glue.us-east-1.amazonaws.com/iceberg/v1/catalogs/aws-account-0001/namespaces/irc_probe_20260903173202/tables/probe_tbl",
+        "body": {
+          "requirements": [
+            {
+              "type": "assert-table-uuid",
+              "uuid": "guid-0046"
+            }
+          ],
+          "updates": [
+            {
+              "action": "remove-properties",
+              "removals": [
+                "probe"
+              ]
+            }
+          ]
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Content-Type": "application/json",
+          "X-Amz-Date": "20260903T213204Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-glue",
+      "signature": "POST /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "variant_of": "commit_table",
+      "depends_on": "create_table",
+      "ts": 1788471124.5469966,
+      "elapsed_ms": 230.3,
+      "response": {
+        "status": 200,
+        "headers": {
+          "Date": "Thu, 03 Sep 2026 21:32:04 GMT",
+          "Content-Type": "application/json",
+          "Content-Length": "1163",
+          "Connection": "keep-alive",
+          "x-amzn-RequestId": "guid-0049",
+          "Cache-Control": "no-cache"
+        },
+        "body": {
+          "metadata": {
+            "current-schema-id": 0,
+            "current-snapshot-id": -1,
+            "default-sort-order-id": 1,
+            "default-spec-id": 0,
+            "format-version": 2,
+            "last-column-id": 3,
+            "last-partition-id": 1000,
+            "last-sequence-number": 0,
+            "last-updated-ms": 1788471124680,
+            "location": "s3://bucket-0001/irc_probe_20260903173202",
+            "metadata-log": [],
+            "partition-specs": [
+              {
+                "fields": [
+                  {
+                    "field-id": 1000,
+                    "name": "ts_day",
+                    "source-id": 2,
+                    "transform": "day"
+                  }
+                ],
+                "spec-id": 0
+              }
+            ],
+            "partition-statistics-files": [],
+            "properties": {
+              "probe-commit": "1",
+              "write.parquet.compression-codec": "zstd"
+            },
+            "refs": {},
+            "schemas": [
+              {
+                "fields": [
+                  {
+                    "id": 1,
+                    "name": "id",
+                    "required": true,
+                    "type": "long"
+                  },
+                  {
+                    "id": 2,
+                    "name": "ts",
+                    "required": false,
+                    "type": "timestamptz"
+                  },
+                  {
+                    "id": 3,
+                    "name": "payload",
+                    "required": false,
+                    "type": "string"
+                  }
+                ],
+                "schema-id": 0,
+                "type": "struct"
+              }
+            ],
+            "snapshot-log": [],
+            "snapshots": [],
+            "sort-orders": [
+              {
+                "fields": [
+                  {
+                    "direction": "asc",
+                    "null-order": "nulls-first",
+                    "source-id": 1,
+                    "transform": "identity"
+                  }
+                ],
+                "order-id": 1
+              }
+            ],
+            "statistics-files": [],
+            "table-uuid": "guid-0046"
+          },
+          "metadata-location": "s3://bucket-0001/irc_probe_20260903173202/metadata/00002-guid-0050.metadata.json"
+        }
+      },
+      "verdict": "OK"
+    },
+    {
+      "probe": "commit_add_schema",
+      "category": "commit",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "UpdateTable",
+      "why": "add-schema together with set-current-schema:-1 in a single commit. That pairing is the spec's idiom -- -1 means the schema added by this same request, so splitting them across two commits is meaningless.",
+      "request": {
+        "method": "POST",
+        "url": "https://glue.us-east-1.amazonaws.com/iceberg/v1/catalogs/aws-account-0001/namespaces/irc_probe_20260903173202/tables/probe_tbl",
+        "body": {
+          "requirements": [
+            {
+              "type": "assert-table-uuid",
+              "uuid": "guid-0046"
+            }
+          ],
+          "updates": [
+            {
+              "action": "add-schema",
+              "schema": {
+                "type": "struct",
+                "schema-id": 1,
+                "fields": [
+                  {
+                    "id": 1,
+                    "name": "id",
+                    "required": true,
+                    "type": "long"
+                  },
+                  {
+                    "id": 2,
+                    "name": "ts",
+                    "required": false,
+                    "type": "timestamptz"
+                  },
+                  {
+                    "id": 3,
+                    "name": "payload",
+                    "required": false,
+                    "type": "string"
+                  },
+                  {
+                    "id": 4,
+                    "name": "added_col",
+                    "required": false,
+                    "type": "string"
+                  }
+                ]
+              }
+            },
+            {
+              "action": "set-current-schema",
+              "schema-id": -1
+            }
+          ]
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Content-Type": "application/json",
+          "X-Amz-Date": "20260903T213204Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-glue",
+      "signature": "POST /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "variant_of": "commit_table",
+      "depends_on": "create_table",
+      "ts": 1788471124.7785902,
+      "elapsed_ms": 326.0,
+      "response": {
+        "status": 200,
+        "headers": {
+          "Date": "Thu, 03 Sep 2026 21:32:05 GMT",
+          "Content-Type": "application/json",
+          "Content-Length": "1436",
+          "Connection": "keep-alive",
+          "x-amzn-RequestId": "guid-0051",
+          "Cache-Control": "no-cache"
+        },
+        "body": {
+          "metadata": {
+            "current-schema-id": 1,
+            "current-snapshot-id": -1,
+            "default-sort-order-id": 1,
+            "default-spec-id": 0,
+            "format-version": 2,
+            "last-column-id": 4,
+            "last-partition-id": 1000,
+            "last-sequence-number": 0,
+            "last-updated-ms": 1788471124945,
+            "location": "s3://bucket-0001/irc_probe_20260903173202",
+            "metadata-log": [],
+            "partition-specs": [
+              {
+                "fields": [
+                  {
+                    "field-id": 1000,
+                    "name": "ts_day",
+                    "source-id": 2,
+                    "transform": "day"
+                  }
+                ],
+                "spec-id": 0
+              }
+            ],
+            "partition-statistics-files": [],
+            "properties": {
+              "probe-commit": "1",
+              "write.parquet.compression-codec": "zstd"
+            },
+            "refs": {},
+            "schemas": [
+              {
+                "fields": [
+                  {
+                    "id": 1,
+                    "name": "id",
+                    "required": true,
+                    "type": "long"
+                  },
+                  {
+                    "id": 2,
+                    "name": "ts",
+                    "required": false,
+                    "type": "timestamptz"
+                  },
+                  {
+                    "id": 3,
+                    "name": "payload",
+                    "required": false,
+                    "type": "string"
+                  }
+                ],
+                "schema-id": 0,
+                "type": "struct"
+              },
+              {
+                "fields": [
+                  {
+                    "id": 1,
+                    "name": "id",
+                    "required": true,
+                    "type": "long"
+                  },
+                  {
+                    "id": 2,
+                    "name": "ts",
+                    "required": false,
+                    "type": "timestamptz"
+                  },
+                  {
+                    "id": 3,
+                    "name": "payload",
+                    "required": false,
+                    "type": "string"
+                  },
+                  {
+                    "id": 4,
+                    "name": "added_col",
+                    "required": false,
+                    "type": "string"
+                  }
+                ],
+                "schema-id": 1,
+                "type": "struct"
+              }
+            ],
+            "snapshot-log": [],
+            "snapshots": [],
+            "sort-orders": [
+              {
+                "fields": [
+                  {
+                    "direction": "asc",
+                    "null-order": "nulls-first",
+                    "source-id": 1,
+                    "transform": "identity"
+                  }
+                ],
+                "order-id": 1
+              }
+            ],
+            "statistics-files": [],
+            "table-uuid": "guid-0046"
+          },
+          "metadata-location": "s3://bucket-0001/irc_probe_20260903173202/metadata/00003-guid-0052.metadata.json"
+        }
+      },
+      "verdict": "OK"
+    },
+    {
+      "probe": "commit_set_current_schema",
+      "category": "commit",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "UpdateTable",
+      "why": "set-current-schema naming an existing schema (0), exercising the action on its own rather than as part of an add-schema commit.",
+      "request": {
+        "method": "POST",
+        "url": "https://glue.us-east-1.amazonaws.com/iceberg/v1/catalogs/aws-account-0001/namespaces/irc_probe_20260903173202/tables/probe_tbl",
+        "body": {
+          "requirements": [
+            {
+              "type": "assert-table-uuid",
+              "uuid": "guid-0046"
+            }
+          ],
+          "updates": [
+            {
+              "action": "set-current-schema",
+              "schema-id": 0
+            }
+          ]
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Content-Type": "application/json",
+          "X-Amz-Date": "20260903T213205Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-glue",
+      "signature": "POST /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "variant_of": "commit_table",
+      "depends_on": "create_table",
+      "ts": 1788471125.1058264,
+      "elapsed_ms": 367.9,
+      "response": {
+        "status": 200,
+        "headers": {
+          "Date": "Thu, 03 Sep 2026 21:32:05 GMT",
+          "Content-Type": "application/json",
+          "Content-Length": "1436",
+          "Connection": "keep-alive",
+          "x-amzn-RequestId": "guid-0053",
+          "Cache-Control": "no-cache"
+        },
+        "body": {
+          "metadata": {
+            "current-schema-id": 0,
+            "current-snapshot-id": -1,
+            "default-sort-order-id": 1,
+            "default-spec-id": 0,
+            "format-version": 2,
+            "last-column-id": 4,
+            "last-partition-id": 1000,
+            "last-sequence-number": 0,
+            "last-updated-ms": 1788471125302,
+            "location": "s3://bucket-0001/irc_probe_20260903173202",
+            "metadata-log": [],
+            "partition-specs": [
+              {
+                "fields": [
+                  {
+                    "field-id": 1000,
+                    "name": "ts_day",
+                    "source-id": 2,
+                    "transform": "day"
+                  }
+                ],
+                "spec-id": 0
+              }
+            ],
+            "partition-statistics-files": [],
+            "properties": {
+              "probe-commit": "1",
+              "write.parquet.compression-codec": "zstd"
+            },
+            "refs": {},
+            "schemas": [
+              {
+                "fields": [
+                  {
+                    "id": 1,
+                    "name": "id",
+                    "required": true,
+                    "type": "long"
+                  },
+                  {
+                    "id": 2,
+                    "name": "ts",
+                    "required": false,
+                    "type": "timestamptz"
+                  },
+                  {
+                    "id": 3,
+                    "name": "payload",
+                    "required": false,
+                    "type": "string"
+                  }
+                ],
+                "schema-id": 0,
+                "type": "struct"
+              },
+              {
+                "fields": [
+                  {
+                    "id": 1,
+                    "name": "id",
+                    "required": true,
+                    "type": "long"
+                  },
+                  {
+                    "id": 2,
+                    "name": "ts",
+                    "required": false,
+                    "type": "timestamptz"
+                  },
+                  {
+                    "id": 3,
+                    "name": "payload",
+                    "required": false,
+                    "type": "string"
+                  },
+                  {
+                    "id": 4,
+                    "name": "added_col",
+                    "required": false,
+                    "type": "string"
+                  }
+                ],
+                "schema-id": 1,
+                "type": "struct"
+              }
+            ],
+            "snapshot-log": [],
+            "snapshots": [],
+            "sort-orders": [
+              {
+                "fields": [
+                  {
+                    "direction": "asc",
+                    "null-order": "nulls-first",
+                    "source-id": 1,
+                    "transform": "identity"
+                  }
+                ],
+                "order-id": 1
+              }
+            ],
+            "statistics-files": [],
+            "table-uuid": "guid-0046"
+          },
+          "metadata-location": "s3://bucket-0001/irc_probe_20260903173202/metadata/00004-guid-0054.metadata.json"
+        }
+      },
+      "verdict": "OK"
+    },
+    {
+      "probe": "commit_upgrade_format_version",
+      "category": "commit",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "UpdateTable",
+      "why": "upgrade-format-version to 2. The fixture is already v2, so this is a no-op for a conformant server -- rejecting it is the finding.",
+      "request": {
+        "method": "POST",
+        "url": "https://glue.us-east-1.amazonaws.com/iceberg/v1/catalogs/aws-account-0001/namespaces/irc_probe_20260903173202/tables/probe_tbl",
+        "body": {
+          "requirements": [
+            {
+              "type": "assert-table-uuid",
+              "uuid": "guid-0046"
+            }
+          ],
+          "updates": [
+            {
+              "action": "upgrade-format-version",
+              "format-version": 2
+            }
+          ]
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Content-Type": "application/json",
+          "X-Amz-Date": "20260903T213205Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-glue",
+      "signature": "POST /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "variant_of": "commit_table",
+      "depends_on": "create_table",
+      "ts": 1788471125.475279,
+      "elapsed_ms": 187.7,
+      "response": {
+        "status": 200,
+        "headers": {
+          "Date": "Thu, 03 Sep 2026 21:32:05 GMT",
+          "Content-Type": "application/json",
+          "Content-Length": "1436",
+          "Connection": "keep-alive",
+          "x-amzn-RequestId": "guid-0055",
+          "Cache-Control": "no-cache"
+        },
+        "body": {
+          "metadata": {
+            "current-schema-id": 0,
+            "current-snapshot-id": -1,
+            "default-sort-order-id": 1,
+            "default-spec-id": 0,
+            "format-version": 2,
+            "last-column-id": 4,
+            "last-partition-id": 1000,
+            "last-sequence-number": 0,
+            "last-updated-ms": 1788471125302,
+            "location": "s3://bucket-0001/irc_probe_20260903173202",
+            "metadata-log": [],
+            "partition-specs": [
+              {
+                "fields": [
+                  {
+                    "field-id": 1000,
+                    "name": "ts_day",
+                    "source-id": 2,
+                    "transform": "day"
+                  }
+                ],
+                "spec-id": 0
+              }
+            ],
+            "partition-statistics-files": [],
+            "properties": {
+              "probe-commit": "1",
+              "write.parquet.compression-codec": "zstd"
+            },
+            "refs": {},
+            "schemas": [
+              {
+                "fields": [
+                  {
+                    "id": 1,
+                    "name": "id",
+                    "required": true,
+                    "type": "long"
+                  },
+                  {
+                    "id": 2,
+                    "name": "ts",
+                    "required": false,
+                    "type": "timestamptz"
+                  },
+                  {
+                    "id": 3,
+                    "name": "payload",
+                    "required": false,
+                    "type": "string"
+                  }
+                ],
+                "schema-id": 0,
+                "type": "struct"
+              },
+              {
+                "fields": [
+                  {
+                    "id": 1,
+                    "name": "id",
+                    "required": true,
+                    "type": "long"
+                  },
+                  {
+                    "id": 2,
+                    "name": "ts",
+                    "required": false,
+                    "type": "timestamptz"
+                  },
+                  {
+                    "id": 3,
+                    "name": "payload",
+                    "required": false,
+                    "type": "string"
+                  },
+                  {
+                    "id": 4,
+                    "name": "added_col",
+                    "required": false,
+                    "type": "string"
+                  }
+                ],
+                "schema-id": 1,
+                "type": "struct"
+              }
+            ],
+            "snapshot-log": [],
+            "snapshots": [],
+            "sort-orders": [
+              {
+                "fields": [
+                  {
+                    "direction": "asc",
+                    "null-order": "nulls-first",
+                    "source-id": 1,
+                    "transform": "identity"
+                  }
+                ],
+                "order-id": 1
+              }
+            ],
+            "statistics-files": [],
+            "table-uuid": "guid-0046"
+          },
+          "metadata-location": "s3://bucket-0001/irc_probe_20260903173202/metadata/00004-guid-0054.metadata.json"
+        }
+      },
+      "verdict": "OK"
+    },
+    {
+      "probe": "commit_transaction",
+      "category": "commit",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "CommitTransaction",
+      "why": "Multi-table atomic commit. Rarely implemented; a clean differentiator. Carries one real change: an empty transaction gets rejected as invalid, which would be indistinguishable from unimplemented.",
+      "request": {
+        "method": "POST",
+        "url": "https://glue.us-east-1.amazonaws.com/iceberg/v1/catalogs/aws-account-0001/transactions/commit",
+        "body": {
+          "table-changes": [
+            {
+              "identifier": {
+                "namespace": [
+                  "irc_probe_20260903173202"
+                ],
+                "name": "probe_tbl"
+              },
+              "requirements": [],
+              "updates": [
+                {
+                  "action": "set-properties",
+                  "updates": {
+                    "probe-txn": "1"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Content-Type": "application/json",
+          "X-Amz-Date": "20260903T213205Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-glue",
+      "signature": "POST /v1/{prefix}/transactions/commit",
+      "variant_of": null,
+      "depends_on": "create_table",
+      "ts": 1788471125.6646976,
+      "elapsed_ms": 38.8,
+      "response": {
+        "status": 200,
+        "headers": {
+          "Date": "Thu, 03 Sep 2026 21:32:05 GMT",
+          "Content-Type": "application/json",
+          "Content-Length": "90",
+          "Connection": "keep-alive",
+          "x-amzn-RequestId": "guid-0056"
+        },
+        "body": {
+          "Output": {
+            "__type": "com.amazon.coral.service#UnknownOperationException"
+          },
+          "Version": "1.0"
+        }
+      },
+      "verdict": "200_WITH_ERROR",
+      "declared": false,
+      "reconciled": "undeclared, fails"
+    },
+    {
+      "probe": "rename_table",
+      "category": "table",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "RenameTable",
+      "why": "Rename is one of the most commonly missing write endpoints.",
+      "request": {
+        "method": "POST",
+        "url": "https://glue.us-east-1.amazonaws.com/iceberg/v1/catalogs/aws-account-0001/tables/rename",
+        "body": {
+          "source": {
+            "namespace": [
+              "irc_probe_20260903173202"
+            ],
+            "name": "probe_tbl"
+          },
+          "destination": {
+            "namespace": [
+              "irc_probe_20260903173202"
+            ],
+            "name": "probe_tbl_r"
+          }
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Content-Type": "application/json",
+          "X-Amz-Date": "20260903T213205Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-glue",
+      "signature": "POST /v1/{prefix}/tables/rename",
+      "variant_of": null,
+      "depends_on": "create_table",
+      "ts": 1788471125.704948,
+      "elapsed_ms": 44.2,
+      "response": {
+        "status": 406,
+        "headers": {
+          "Date": "Thu, 03 Sep 2026 21:32:05 GMT",
+          "Content-Type": "application/json",
+          "Content-Length": "130",
+          "Connection": "keep-alive",
+          "x-amzn-RequestId": "guid-0057",
+          "x-amzn-ErrorType": "UnsupportedOperationResponse:http://catalog-host-0001/coral/com.amazonaws.glue.iceberg/",
+          "Cache-Control": "no-cache"
+        },
+        "body": {
+          "error": {
+            "code": 406,
+            "message": "RenameTable endpoint is not supported for Glue Catalog.",
+            "type": "OperationNotSupportedException"
+          }
+        }
+      },
+      "verdict": "HTTP_406",
+      "declared": false,
+      "reconciled": "undeclared, fails"
+    },
+    {
+      "probe": "drop_table_purge",
+      "category": "table",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "DropTable",
+      "why": "Whether purgeRequested is honoured. Purge semantics vary widely and several catalogs gate it behind a server flag.",
+      "request": {
+        "method": "DELETE",
+        "url": "https://glue.us-east-1.amazonaws.com/iceberg/v1/catalogs/aws-account-0001/namespaces/irc_probe_20260903173202/tables/probe_tbl?purgeRequested=true",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "X-Amz-Date": "20260903T213205Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-glue",
+      "signature": "DELETE /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "variant_of": "drop_table",
+      "depends_on": "create_table",
+      "ts": 1788471125.7505643,
+      "elapsed_ms": 88.7,
+      "response": {
+        "status": 400,
+        "headers": {
+          "Date": "Thu, 03 Sep 2026 21:32:05 GMT",
+          "Content-Type": "application/json",
+          "Content-Length": "120",
+          "Connection": "keep-alive",
+          "x-amzn-RequestId": "guid-0058",
+          "x-amzn-ErrorType": "BadRequestErrorResponse:http://catalog-host-0001/coral/com.amazonaws.glue.iceberg/",
+          "Cache-Control": "no-cache"
+        },
+        "body": {
+          "error": {
+            "code": 400,
+            "message": "PurgeRequested cannot be true for Glue iceberg tables.",
+            "type": "InvalidInputException"
+          }
+        }
+      },
+      "verdict": "BAD_REQUEST"
+    },
+    {
+      "probe": "drop_table",
+      "category": "cleanup",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "DropTable",
+      "why": "Plain drop, and the cleanup that must succeed. A 404 here is the expected outcome when the purge drop above already removed the table.",
+      "request": {
+        "method": "DELETE",
+        "url": "https://glue.us-east-1.amazonaws.com/iceberg/v1/catalogs/aws-account-0001/namespaces/irc_probe_20260903173202/tables/probe_tbl",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "X-Amz-Date": "20260903T213205Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-glue",
+      "signature": "DELETE /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "variant_of": null,
+      "depends_on": "create_table",
+      "ts": 1788471125.8400164,
+      "elapsed_ms": 327.8,
+      "response": {
+        "status": 204,
+        "headers": {
+          "Date": "Thu, 03 Sep 2026 21:32:06 GMT",
+          "Content-Type": "application/json",
+          "Connection": "keep-alive",
+          "x-amzn-RequestId": "guid-0059",
+          "Cache-Control": "no-cache"
+        },
+        "body": null
+      },
+      "verdict": "OK",
+      "declared": false,
+      "reconciled": "undeclared, works"
+    },
+    {
+      "probe": "create_view",
+      "category": "view",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "CreateView",
+      "why": "createView with a minimal SQL representation.",
+      "request": {
+        "method": "POST",
+        "url": "https://glue.us-east-1.amazonaws.com/iceberg/v1/catalogs/aws-account-0001/namespaces/irc_probe_20260903173202/views",
+        "body": {
+          "name": "probe_view",
+          "schema": {
+            "type": "struct",
+            "schema-id": 0,
+            "fields": [
+              {
+                "id": 1,
+                "name": "id",
+                "required": false,
+                "type": "long"
+              }
+            ]
+          },
+          "view-version": {
+            "version-id": 1,
+            "schema-id": 0,
+            "timestamp-ms": 1788471122372,
+            "summary": {
+              "operation": "create"
+            },
+            "default-namespace": [
+              "irc_probe_20260903173202"
+            ],
+            "representations": [
+              {
+                "type": "sql",
+                "sql": "SELECT 1 AS id",
+                "dialect": "spark"
+              }
+            ]
+          },
+          "properties": {
+            "probe": "conformance"
+          }
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Content-Type": "application/json",
+          "X-Amz-Date": "20260903T213206Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-glue",
+      "signature": "POST /v1/{prefix}/namespaces/{namespace}/views",
+      "variant_of": null,
+      "depends_on": "create_namespace",
+      "ts": 1788471126.1691606,
+      "elapsed_ms": 67.4,
+      "response": {
+        "status": 406,
+        "headers": {
+          "Date": "Thu, 03 Sep 2026 21:32:06 GMT",
+          "Content-Type": "application/json",
+          "Content-Length": "129",
+          "Connection": "keep-alive",
+          "x-amzn-RequestId": "guid-0060",
+          "x-amzn-ErrorType": "UnsupportedOperationResponse:http://catalog-host-0001/coral/com.amazonaws.glue.iceberg/",
+          "Cache-Control": "no-cache"
+        },
+        "body": {
+          "error": {
+            "code": 406,
+            "message": "CreateView endpoint is not supported for Glue Catalog.",
+            "type": "OperationNotSupportedException"
+          }
+        }
+      },
+      "verdict": "HTTP_406",
+      "declared": false,
+      "reconciled": "undeclared, fails"
+    },
+    {
+      "probe": "load_view",
+      "category": "view",
+      "tier": "write",
+      "surface": "read",
+      "spec_ref": "LoadView",
+      "why": "loadView -- the read counterpart of loadTable for views.",
+      "request": {
+        "method": "GET",
+        "url": "https://glue.us-east-1.amazonaws.com/iceberg/v1/catalogs/aws-account-0001/namespaces/irc_probe_20260903173202/views/probe_view",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "X-Amz-Date": "20260903T213206Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-glue",
+      "signature": "GET /v1/{prefix}/namespaces/{namespace}/views/{view}",
+      "variant_of": null,
+      "depends_on": "create_view",
+      "ts": 1788471126.2377033,
+      "elapsed_ms": 37.9,
+      "response": {
+        "status": 406,
+        "headers": {
+          "Date": "Thu, 03 Sep 2026 21:32:06 GMT",
+          "Content-Type": "application/json",
+          "Content-Length": "127",
+          "Connection": "keep-alive",
+          "x-amzn-RequestId": "guid-0061",
+          "x-amzn-ErrorType": "UnsupportedOperationResponse:http://catalog-host-0001/coral/com.amazonaws.glue.iceberg/",
+          "Cache-Control": "no-cache"
+        },
+        "body": {
+          "error": {
+            "code": 406,
+            "message": "LoadView endpoint is not supported for Glue Catalog.",
+            "type": "OperationNotSupportedException"
+          }
+        }
+      },
+      "verdict": "HTTP_406",
+      "declared": false,
+      "reconciled": "undeclared, fails"
+    },
+    {
+      "probe": "head_view",
+      "category": "view",
+      "tier": "write",
+      "surface": "read",
+      "spec_ref": "ViewExists",
+      "why": "viewExists.",
+      "request": {
+        "method": "HEAD",
+        "url": "https://glue.us-east-1.amazonaws.com/iceberg/v1/catalogs/aws-account-0001/namespaces/irc_probe_20260903173202/views/probe_view",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "X-Amz-Date": "20260903T213206Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-glue",
+      "signature": "HEAD /v1/{prefix}/namespaces/{namespace}/views/{view}",
+      "variant_of": null,
+      "depends_on": "create_view",
+      "ts": 1788471126.2764404,
+      "elapsed_ms": 77.2,
+      "response": {
+        "status": 406,
+        "headers": {
+          "Date": "Thu, 03 Sep 2026 21:32:06 GMT",
+          "Content-Type": "application/json",
+          "Content-Length": "129",
+          "Connection": "keep-alive",
+          "x-amzn-RequestId": "guid-0062",
+          "x-amzn-ErrorType": "UnsupportedOperationResponse:http://catalog-host-0001/coral/com.amazonaws.glue.iceberg/",
+          "Cache-Control": "no-cache"
+        },
+        "body": null
+      },
+      "verdict": "INDETERMINATE",
+      "indeterminate_reason": "prerequisite 'create_view' did not succeed"
+    },
+    {
+      "probe": "replace_view",
+      "category": "view",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "ReplaceView",
+      "why": "replaceView: a property-set commit against the view.",
+      "request": {
+        "method": "POST",
+        "url": "https://glue.us-east-1.amazonaws.com/iceberg/v1/catalogs/aws-account-0001/namespaces/irc_probe_20260903173202/views/probe_view",
+        "body": {
+          "requirements": [],
+          "updates": [
+            {
+              "action": "set-properties",
+              "updates": {
+                "probe-commit": "1"
+              }
+            }
+          ]
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Content-Type": "application/json",
+          "X-Amz-Date": "20260903T213206Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-glue",
+      "signature": "POST /v1/{prefix}/namespaces/{namespace}/views/{view}",
+      "variant_of": null,
+      "depends_on": "create_view",
+      "ts": 1788471126.3547297,
+      "elapsed_ms": 77.8,
+      "response": {
+        "status": 406,
+        "headers": {
+          "Date": "Thu, 03 Sep 2026 21:32:06 GMT",
+          "Content-Type": "application/json",
+          "Content-Length": "130",
+          "Connection": "keep-alive",
+          "x-amzn-RequestId": "guid-0063",
+          "x-amzn-ErrorType": "UnsupportedOperationResponse:http://catalog-host-0001/coral/com.amazonaws.glue.iceberg/",
+          "Cache-Control": "no-cache"
+        },
+        "body": {
+          "error": {
+            "code": 406,
+            "message": "ReplaceView endpoint is not supported for Glue Catalog.",
+            "type": "OperationNotSupportedException"
+          }
+        }
+      },
+      "verdict": "HTTP_406",
+      "declared": false,
+      "reconciled": "undeclared, fails"
+    },
+    {
+      "probe": "rename_view",
+      "category": "view",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "RenameView",
+      "why": "renameView -- separate from renameTable in the spec.",
+      "request": {
+        "method": "POST",
+        "url": "https://glue.us-east-1.amazonaws.com/iceberg/v1/catalogs/aws-account-0001/views/rename",
+        "body": {
+          "source": {
+            "namespace": [
+              "irc_probe_20260903173202"
+            ],
+            "name": "probe_view"
+          },
+          "destination": {
+            "namespace": [
+              "irc_probe_20260903173202"
+            ],
+            "name": "probe_view_r"
+          }
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Content-Type": "application/json",
+          "X-Amz-Date": "20260903T213206Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-glue",
+      "signature": "POST /v1/{prefix}/views/rename",
+      "variant_of": null,
+      "depends_on": "create_view",
+      "ts": 1788471126.433782,
+      "elapsed_ms": 84.4,
+      "response": {
+        "status": 406,
+        "headers": {
+          "Date": "Thu, 03 Sep 2026 21:32:06 GMT",
+          "Content-Type": "application/json",
+          "Content-Length": "129",
+          "Connection": "keep-alive",
+          "x-amzn-RequestId": "guid-0064",
+          "x-amzn-ErrorType": "UnsupportedOperationResponse:http://catalog-host-0001/coral/com.amazonaws.glue.iceberg/",
+          "Cache-Control": "no-cache"
+        },
+        "body": {
+          "error": {
+            "code": 406,
+            "message": "RenameView endpoint is not supported for Glue Catalog.",
+            "type": "OperationNotSupportedException"
+          }
+        }
+      },
+      "verdict": "HTTP_406",
+      "declared": false,
+      "reconciled": "undeclared, fails"
+    },
+    {
+      "probe": "drop_view",
+      "category": "cleanup",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "DropView",
+      "why": "dropView, and the cleanup that must succeed before the namespace goes.",
+      "request": {
+        "method": "DELETE",
+        "url": "https://glue.us-east-1.amazonaws.com/iceberg/v1/catalogs/aws-account-0001/namespaces/irc_probe_20260903173202/views/probe_view",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "X-Amz-Date": "20260903T213206Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-glue",
+      "signature": "DELETE /v1/{prefix}/namespaces/{namespace}/views/{view}",
+      "variant_of": null,
+      "depends_on": "create_view",
+      "ts": 1788471126.5194066,
+      "elapsed_ms": 80.9,
+      "response": {
+        "status": 406,
+        "headers": {
+          "Date": "Thu, 03 Sep 2026 21:32:06 GMT",
+          "Content-Type": "application/json",
+          "Content-Length": "127",
+          "Connection": "keep-alive",
+          "x-amzn-RequestId": "guid-0065",
+          "x-amzn-ErrorType": "UnsupportedOperationResponse:http://catalog-host-0001/coral/com.amazonaws.glue.iceberg/",
+          "Cache-Control": "no-cache"
+        },
+        "body": {
+          "error": {
+            "code": 406,
+            "message": "DropView endpoint is not supported for Glue Catalog.",
+            "type": "OperationNotSupportedException"
+          }
+        }
+      },
+      "verdict": "HTTP_406",
+      "declared": false,
+      "reconciled": "undeclared, fails"
+    },
+    {
+      "probe": "drop_namespace",
+      "category": "cleanup",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "DropNamespace",
+      "why": "Cleanup.",
+      "request": {
+        "method": "DELETE",
+        "url": "https://glue.us-east-1.amazonaws.com/iceberg/v1/catalogs/aws-account-0001/namespaces/irc_probe_20260903173202",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "X-Amz-Date": "20260903T213206Z",
+          "X-Amz-Security-Token": "<redacted>",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "aws-glue",
+      "signature": "DELETE /v1/{prefix}/namespaces/{namespace}",
+      "variant_of": null,
+      "depends_on": "create_namespace",
+      "ts": 1788471126.6012895,
+      "elapsed_ms": 174.8,
+      "response": {
+        "status": 204,
+        "headers": {
+          "Date": "Thu, 03 Sep 2026 21:32:06 GMT",
+          "Content-Type": "application/json",
+          "Connection": "keep-alive",
+          "x-amzn-RequestId": "guid-0066",
+          "Cache-Control": "no-cache"
+        },
+        "body": null
+      },
+      "verdict": "OK",
+      "declared": false,
+      "reconciled": "undeclared, works"
+    }
+  ],
+  "load_table_fields": {
+    "metadata-location": {
+      "state": "PRESENT",
+      "why": "Where the table metadata actually lives"
+    },
+    "config": {
+      "state": "PRESENT",
+      "why": "Per-table client overrides"
+    },
+    "storage-credentials": {
+      "state": "ABSENT",
+      "why": "Vended credentials inline on load"
+    },
+    "metadata.format-version": {
+      "state": "PRESENT",
+      "why": "Iceberg v1 / v2 / v3"
+    },
+    "metadata.table-uuid": {
+      "state": "PRESENT",
+      "why": "Stable identity across renames"
+    },
+    "metadata.location": {
+      "state": "PRESENT",
+      "why": "Table root"
+    },
+    "metadata.last-updated-ms": {
+      "state": "PRESENT",
+      "why": "Freshness"
+    },
+    "metadata.last-column-id": {
+      "state": "PRESENT",
+      "why": "Column-ID allocation state"
+    },
+    "metadata.schemas": {
+      "state": "PRESENT",
+      "why": "Full schema history, not just current"
+    },
+    "metadata.current-schema-id": {
+      "state": "PRESENT",
+      "why": "Which schema is live"
+    },
+    "metadata.schemas[].fields[].id": {
+      "state": "PRESENT",
+      "why": "Column IDs \u2014 schema evolution depends on these"
+    },
+    "metadata.schemas[].fields[].required": {
+      "state": "PRESENT",
+      "why": "Nullability"
+    },
+    "metadata.partition-specs": {
+      "state": "PRESENT",
+      "why": "Partition spec history"
+    },
+    "metadata.default-spec-id": {
+      "state": "PRESENT",
+      "why": "Which spec is live"
+    },
+    "metadata.partition-specs[].fields[].transform": {
+      "state": "PRESENT",
+      "why": "Partition transforms"
+    },
+    "metadata.last-partition-id": {
+      "state": "PRESENT",
+      "why": "Partition field-ID allocation state"
+    },
+    "metadata.sort-orders": {
+      "state": "PRESENT",
+      "why": "Sort order history"
+    },
+    "metadata.default-sort-order-id": {
+      "state": "PRESENT",
+      "why": "Which sort order is live"
+    },
+    "metadata.properties": {
+      "state": "PRESENT",
+      "why": "Table properties"
+    },
+    "metadata.current-snapshot-id": {
+      "state": "PRESENT",
+      "why": "Current snapshot pointer"
+    },
+    "metadata.snapshots": {
+      "state": "PRESENT",
+      "why": "Snapshot list \u2014 time travel"
+    },
+    "metadata.snapshots[].summary": {
+      "state": "PRESENT",
+      "why": "Row/file counts per snapshot"
+    },
+    "metadata.snapshots[].manifest-list": {
+      "state": "PRESENT",
+      "why": "Manifest list pointer"
+    },
+    "metadata.snapshots[].schema-id": {
+      "state": "PRESENT",
+      "why": "Per-snapshot schema binding"
+    },
+    "metadata.snapshots[].sequence-number": {
+      "state": "PRESENT",
+      "why": "v2 sequence numbers \u2014 row-level deletes"
+    },
+    "metadata.snapshot-log": {
+      "state": "PRESENT",
+      "why": "Snapshot lineage over time"
+    },
+    "metadata.metadata-log": {
+      "state": "EMPTY",
+      "why": "Previous metadata files"
+    },
+    "metadata.refs": {
+      "state": "PRESENT",
+      "why": "Branches and tags"
+    },
+    "metadata.statistics": {
+      "state": "ABSENT",
+      "why": "Table-level statistics files"
+    },
+    "metadata.partition-statistics": {
+      "state": "ABSENT",
+      "why": "Partition-level statistics files"
+    }
+  },
+  "seed_profile": {
+    "schemas": 2,
+    "partition_fields": 1,
+    "sort_fields": 1,
+    "snapshots": 4,
+    "refs": [
+      "control_tag",
+      "main"
+    ],
+    "has_delete_snapshot": true,
+    "delete_files": 0
+  }
+}

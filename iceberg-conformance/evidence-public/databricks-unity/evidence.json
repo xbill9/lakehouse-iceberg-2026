@@ -1,0 +1,3349 @@
+{
+  "catalog": "databricks-unity",
+  "base_url": "https://catalog-host-0002/api/2.1/unity-catalog/iceberg-rest",
+  "resolved_prefix": "catalogs/workspace",
+  "auth_kind": "bearer_env",
+  "harness_fingerprint": "8f2caf7575dd",
+  "declared_endpoints": [
+    "GET /v1/{prefix}/namespaces",
+    "GET /v1/{prefix}/namespaces/{namespace}",
+    "POST /v1/{prefix}/namespaces",
+    "POST /v1/{prefix}/namespaces/{namespace}/properties",
+    "DELETE /v1/{prefix}/namespaces/{namespace}",
+    "HEAD /v1/{prefix}/namespaces/{namespace}",
+    "GET /v1/{prefix}/namespaces/{namespace}/tables",
+    "GET /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+    "POST /v1/{prefix}/namespaces/{namespace}/tables",
+    "POST /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+    "DELETE /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+    "POST /v1/{prefix}/tables/rename",
+    "HEAD /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+    "GET /v1/{prefix}/namespaces/{namespace}/tables/{table}/credentials",
+    "POST /v1/{prefix}/namespaces/{namespace}/tables/{table}/metrics",
+    "HEAD /v1/{prefix}/namespaces/{namespace}/views/{view}",
+    "POST /v1/{prefix}/namespaces/{namespace}/tables/{table}/plan",
+    "GET /v1/{prefix}/namespaces/{namespace}/tables/{table}/plan/{plan-id}"
+  ],
+  "namespace": "probe_ns",
+  "table": "probe_table",
+  "allow_writes": true,
+  "run_at": "2026-09-03T21:32:58Z",
+  "probes": [
+    {
+      "probe": "config",
+      "category": "config",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "GetConfig",
+      "why": "Advertises the routing prefix and vendor overrides. Everything else depends on what this returns.",
+      "request": {
+        "method": "GET",
+        "url": "https://catalog-host-0002/api/2.1/unity-catalog/iceberg-rest/v1/config?warehouse=workspace",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "databricks-unity",
+      "signature": "GET /v1/config",
+      "variant_of": null,
+      "depends_on": null,
+      "ts": 1788471154.960779,
+      "elapsed_ms": 477.0,
+      "response": {
+        "status": 200,
+        "headers": {
+          "content-type": "application/json",
+          "date": "Thu, 3 Sep 2026 21:32:35 GMT",
+          "x-databricks-org-id": "7474647216480489",
+          "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+          "x-content-type-options": "nosniff",
+          "x-request-id": "guid-0123",
+          "content-encoding": "gzip",
+          "vary": "Accept-Encoding",
+          "server": "databricks",
+          "alt-svc": "clear",
+          "server-timing": "request_id;dur=0;desc=\"guid-0123\", client_protocol;dur=0;desc=\"HTTP/1.1\"",
+          "transfer-encoding": "chunked"
+        },
+        "body": {
+          "defaults": {
+            "snapshot-loading-mode": "refs",
+            "rest-page-size": "1000",
+            "s3.delete-enabled": "false"
+          },
+          "overrides": {
+            "prefix": "catalogs/workspace"
+          },
+          "endpoints": [
+            "GET /v1/{prefix}/namespaces",
+            "GET /v1/{prefix}/namespaces/{namespace}",
+            "POST /v1/{prefix}/namespaces",
+            "POST /v1/{prefix}/namespaces/{namespace}/properties",
+            "DELETE /v1/{prefix}/namespaces/{namespace}",
+            "HEAD /v1/{prefix}/namespaces/{namespace}",
+            "GET /v1/{prefix}/namespaces/{namespace}/tables",
+            "GET /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+            "POST /v1/{prefix}/namespaces/{namespace}/tables",
+            "POST /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+            "DELETE /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+            "POST /v1/{prefix}/tables/rename",
+            "HEAD /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+            "GET /v1/{prefix}/namespaces/{namespace}/tables/{table}/credentials",
+            "POST /v1/{prefix}/namespaces/{namespace}/tables/{table}/metrics",
+            "HEAD /v1/{prefix}/namespaces/{namespace}/views/{view}",
+            "POST /v1/{prefix}/namespaces/{namespace}/tables/{table}/plan",
+            "GET /v1/{prefix}/namespaces/{namespace}/tables/{table}/plan/{plan-id}"
+          ],
+          "idempotency-key-lifetime": "PT1H"
+        }
+      },
+      "verdict": "OK",
+      "declared": false,
+      "reconciled": "undeclared, works"
+    },
+    {
+      "probe": "list_namespaces",
+      "category": "namespace",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "ListNamespaces",
+      "why": "The baseline read. If this 404s the prefix is wrong, not the catalog.",
+      "request": {
+        "method": "GET",
+        "url": "https://catalog-host-0002/api/2.1/unity-catalog/iceberg-rest/v1/catalogs/workspace/namespaces",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "databricks-unity",
+      "signature": "GET /v1/{prefix}/namespaces",
+      "variant_of": null,
+      "depends_on": null,
+      "ts": 1788471155.4382815,
+      "elapsed_ms": 148.1,
+      "response": {
+        "status": 200,
+        "headers": {
+          "content-type": "application/json",
+          "date": "Thu, 3 Sep 2026 21:32:35 GMT",
+          "x-databricks-org-id": "7474647216480489",
+          "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+          "x-content-type-options": "nosniff",
+          "x-request-id": "guid-0124",
+          "content-encoding": "gzip",
+          "vary": "Accept-Encoding",
+          "server": "databricks",
+          "alt-svc": "clear",
+          "server-timing": "request_id;dur=0;desc=\"guid-0124\", client_protocol;dur=0;desc=\"HTTP/1.1\"",
+          "transfer-encoding": "chunked"
+        },
+        "body": {
+          "namespaces": [
+            [
+              "default"
+            ],
+            [
+              "information_schema"
+            ],
+            [
+              "probe_ns"
+            ]
+          ],
+          "next-page-token": null
+        }
+      },
+      "verdict": "OK",
+      "declared": true,
+      "reconciled": "declared, works"
+    },
+    {
+      "probe": "list_namespaces_paged",
+      "category": "namespace",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "ListNamespaces",
+      "why": "Pagination is optional in the spec. Who honours pageSize, who ignores it?",
+      "request": {
+        "method": "GET",
+        "url": "https://catalog-host-0002/api/2.1/unity-catalog/iceberg-rest/v1/catalogs/workspace/namespaces?pageSize=1",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "databricks-unity",
+      "signature": "GET /v1/{prefix}/namespaces",
+      "variant_of": "list_namespaces",
+      "depends_on": null,
+      "ts": 1788471155.5869982,
+      "elapsed_ms": 191.1,
+      "response": {
+        "status": 200,
+        "headers": {
+          "content-type": "application/json",
+          "date": "Thu, 3 Sep 2026 21:32:35 GMT",
+          "x-databricks-org-id": "7474647216480489",
+          "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+          "x-content-type-options": "nosniff",
+          "x-request-id": "guid-0125",
+          "content-encoding": "gzip",
+          "vary": "Accept-Encoding",
+          "server": "databricks",
+          "alt-svc": "clear",
+          "server-timing": "request_id;dur=0;desc=\"guid-0125\", client_protocol;dur=0;desc=\"HTTP/1.1\"",
+          "transfer-encoding": "chunked"
+        },
+        "body": {
+          "namespaces": [
+            [
+              "default"
+            ]
+          ],
+          "next-page-token": "<redacted:52 chars>"
+        }
+      },
+      "verdict": "OK"
+    },
+    {
+      "probe": "list_namespaces_parent",
+      "category": "namespace",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "ListNamespaces",
+      "why": "Multi-level namespaces. OneLake documents that it does NOT support the parent param, so this cell is a known negative going in.",
+      "request": {
+        "method": "GET",
+        "url": "https://catalog-host-0002/api/2.1/unity-catalog/iceberg-rest/v1/catalogs/workspace/namespaces?parent=probe_ns",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "databricks-unity",
+      "signature": "GET /v1/{prefix}/namespaces",
+      "variant_of": "list_namespaces",
+      "depends_on": null,
+      "ts": 1788471155.7786088,
+      "elapsed_ms": 140.2,
+      "response": {
+        "status": 200,
+        "headers": {
+          "content-type": "application/json",
+          "date": "Thu, 3 Sep 2026 21:32:35 GMT",
+          "x-databricks-org-id": "7474647216480489",
+          "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+          "x-content-type-options": "nosniff",
+          "x-request-id": "guid-0126",
+          "content-encoding": "gzip",
+          "vary": "Accept-Encoding",
+          "server": "databricks",
+          "alt-svc": "clear",
+          "server-timing": "request_id;dur=0;desc=\"guid-0126\", client_protocol;dur=0;desc=\"HTTP/1.1\"",
+          "transfer-encoding": "chunked"
+        },
+        "body": {
+          "namespaces": [],
+          "next-page-token": null
+        }
+      },
+      "verdict": "OK"
+    },
+    {
+      "probe": "load_namespace",
+      "category": "namespace",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "LoadNamespaceMetadata",
+      "why": "Namespace properties round-trip.",
+      "request": {
+        "method": "GET",
+        "url": "https://catalog-host-0002/api/2.1/unity-catalog/iceberg-rest/v1/catalogs/workspace/namespaces/probe_ns",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "databricks-unity",
+      "signature": "GET /v1/{prefix}/namespaces/{namespace}",
+      "variant_of": null,
+      "depends_on": null,
+      "ts": 1788471155.9192724,
+      "elapsed_ms": 138.3,
+      "response": {
+        "status": 200,
+        "headers": {
+          "content-type": "application/json",
+          "date": "Thu, 3 Sep 2026 21:32:36 GMT",
+          "x-databricks-org-id": "7474647216480489",
+          "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+          "x-content-type-options": "nosniff",
+          "x-request-id": "guid-0127",
+          "content-encoding": "gzip",
+          "vary": "Accept-Encoding",
+          "server": "databricks",
+          "alt-svc": "clear",
+          "server-timing": "request_id;dur=0;desc=\"guid-0127\", client_protocol;dur=0;desc=\"HTTP/1.1\"",
+          "transfer-encoding": "chunked"
+        },
+        "body": {
+          "namespace": [
+            "probe_ns"
+          ],
+          "properties": {
+            "owner": "root",
+            "location": "not_used"
+          }
+        }
+      },
+      "verdict": "OK",
+      "declared": true,
+      "reconciled": "declared, works"
+    },
+    {
+      "probe": "head_namespace",
+      "category": "namespace",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "NamespaceExists",
+      "why": "Existence check without a body. Commonly unimplemented.",
+      "request": {
+        "method": "HEAD",
+        "url": "https://catalog-host-0002/api/2.1/unity-catalog/iceberg-rest/v1/catalogs/workspace/namespaces/probe_ns",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "databricks-unity",
+      "signature": "HEAD /v1/{prefix}/namespaces/{namespace}",
+      "variant_of": null,
+      "depends_on": null,
+      "ts": 1788471156.0580065,
+      "elapsed_ms": 137.8,
+      "response": {
+        "status": 200,
+        "headers": {
+          "content-type": "text/plain; charset=utf-8",
+          "content-length": "6",
+          "date": "Thu, 3 Sep 2026 21:32:36 GMT",
+          "x-databricks-org-id": "7474647216480489",
+          "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+          "x-content-type-options": "nosniff",
+          "x-request-id": "guid-0128",
+          "server": "databricks",
+          "alt-svc": "clear",
+          "server-timing": "request_id;dur=0;desc=\"guid-0128\", client_protocol;dur=0;desc=\"HTTP/1.1\""
+        },
+        "body": null
+      },
+      "verdict": "OK",
+      "declared": true,
+      "reconciled": "declared, works"
+    },
+    {
+      "probe": "list_tables",
+      "category": "table",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "ListTables",
+      "why": "Table listing within a namespace.",
+      "request": {
+        "method": "GET",
+        "url": "https://catalog-host-0002/api/2.1/unity-catalog/iceberg-rest/v1/catalogs/workspace/namespaces/probe_ns/tables",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "databricks-unity",
+      "signature": "GET /v1/{prefix}/namespaces/{namespace}/tables",
+      "variant_of": null,
+      "depends_on": null,
+      "ts": 1788471156.19608,
+      "elapsed_ms": 175.6,
+      "response": {
+        "status": 200,
+        "headers": {
+          "content-type": "application/json",
+          "date": "Thu, 3 Sep 2026 21:32:36 GMT",
+          "x-databricks-org-id": "7474647216480489",
+          "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+          "x-content-type-options": "nosniff",
+          "x-request-id": "guid-0129",
+          "content-encoding": "gzip",
+          "vary": "Accept-Encoding",
+          "server": "databricks",
+          "alt-svc": "clear",
+          "server-timing": "request_id;dur=0;desc=\"guid-0129\", client_protocol;dur=0;desc=\"HTTP/1.1\"",
+          "transfer-encoding": "chunked"
+        },
+        "body": {
+          "identifiers": [
+            {
+              "namespace": [
+                "probe_ns"
+              ],
+              "name": "probe_table"
+            },
+            {
+              "namespace": [
+                "probe_ns"
+              ],
+              "name": "probe_view"
+            }
+          ],
+          "next-page-token": null
+        }
+      },
+      "verdict": "OK",
+      "declared": true,
+      "reconciled": "declared, works"
+    },
+    {
+      "probe": "load_table",
+      "category": "table",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "LoadTable",
+      "why": "The load-bearing call. Feeds the entire field tier below.",
+      "request": {
+        "method": "GET",
+        "url": "https://catalog-host-0002/api/2.1/unity-catalog/iceberg-rest/v1/catalogs/workspace/namespaces/probe_ns/tables/probe_table",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "databricks-unity",
+      "signature": "GET /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "variant_of": null,
+      "depends_on": null,
+      "ts": 1788471156.37209,
+      "elapsed_ms": 463.5,
+      "response": {
+        "status": 200,
+        "headers": {
+          "content-type": "application/json",
+          "etag": "W/\"7bc8108a\"",
+          "date": "Thu, 3 Sep 2026 21:32:36 GMT",
+          "x-databricks-org-id": "7474647216480489",
+          "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+          "x-content-type-options": "nosniff",
+          "x-request-id": "guid-0130",
+          "content-encoding": "gzip",
+          "vary": "Accept-Encoding",
+          "server": "databricks",
+          "alt-svc": "clear",
+          "server-timing": "request_id;dur=0;desc=\"guid-0130\", client_protocol;dur=0;desc=\"HTTP/1.1\"",
+          "transfer-encoding": "chunked"
+        },
+        "body": {
+          "metadata-location": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0134/_iceberg/metadata/00005-guid-0135.gz.metadata.json",
+          "metadata": {
+            "format-version": 2,
+            "table-uuid": "guid-0136",
+            "location": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0134/_iceberg",
+            "last-sequence-number": 4,
+            "last-updated-ms": 1788468557501,
+            "last-column-id": 4,
+            "current-schema-id": 1,
+            "schemas": [
+              {
+                "type": "struct",
+                "schema-id": 0,
+                "fields": [
+                  {
+                    "id": 1,
+                    "name": "id",
+                    "required": false,
+                    "type": "long"
+                  },
+                  {
+                    "id": 2,
+                    "name": "ts",
+                    "required": false,
+                    "type": "timestamptz"
+                  },
+                  {
+                    "id": 3,
+                    "name": "payload",
+                    "required": false,
+                    "type": "string"
+                  }
+                ]
+              },
+              {
+                "type": "struct",
+                "schema-id": 1,
+                "fields": [
+                  {
+                    "id": 1,
+                    "name": "id",
+                    "required": false,
+                    "type": "long"
+                  },
+                  {
+                    "id": 2,
+                    "name": "ts",
+                    "required": false,
+                    "type": "timestamptz"
+                  },
+                  {
+                    "id": 3,
+                    "name": "payload",
+                    "required": false,
+                    "type": "string"
+                  },
+                  {
+                    "id": 4,
+                    "name": "region",
+                    "required": false,
+                    "type": "string"
+                  }
+                ]
+              }
+            ],
+            "default-spec-id": 0,
+            "partition-specs": [
+              {
+                "spec-id": 0,
+                "fields": []
+              }
+            ],
+            "last-partition-id": 999,
+            "default-sort-order-id": 0,
+            "sort-orders": [
+              {
+                "order-id": 0,
+                "fields": []
+              }
+            ],
+            "properties": {
+              "databricks.internal.autoUpgrades.delta.feature.catalogManaged": "supported",
+              "write.metadata.path": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0134/_iceberg/metadata",
+              "gc.enabled": "false",
+              "write.parquet.compression-codec": "zstd",
+              "history.expire.min-snapshots-to-keep": "100",
+              "history.expire.max-snapshot-age-ms": "0",
+              "write.data.path": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0134",
+              "write.wap.enabled": "false",
+              "write.metadata.compression-codec": "gzip",
+              "io.unitycatalog.tableId": "guid-0134",
+              "write.object-storage.enabled": "true",
+              "write.summary.partition-limit": "100"
+            },
+            "current-snapshot-id": 3664766227925388262,
+            "refs": {
+              "main": {
+                "snapshot-id": 3664766227925388262,
+                "type": "branch"
+              }
+            },
+            "snapshots": [
+              {
+                "sequence-number": 1,
+                "snapshot-id": 6923157979238190054,
+                "timestamp-ms": 1788468537569,
+                "summary": {
+                  "operation": "append",
+                  "manifests-created": "1",
+                  "manifests-kept": "0",
+                  "manifests-replaced": "0",
+                  "added-data-files": "1",
+                  "added-records": "2",
+                  "added-files-size": "1893",
+                  "changed-partition-count": "1",
+                  "partition-summaries-included": "true",
+                  "total-records": "2",
+                  "total-files-size": "1893",
+                  "total-data-files": "1",
+                  "total-delete-files": "0",
+                  "total-position-deletes": "0",
+                  "total-equality-deletes": "0",
+                  "iceberg-version": "Apache Iceberg 1.11.0 (commit 6976e020b894f6a6777704df2b8c4458cb291ae9)"
+                },
+                "manifest-list": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0134/_iceberg/metadata/snap-6923157979238190054-1-guid-0137.avro",
+                "schema-id": 0
+              },
+              {
+                "sequence-number": 2,
+                "snapshot-id": 8911484741085514726,
+                "parent-snapshot-id": 6923157979238190054,
+                "timestamp-ms": 1788468541497,
+                "summary": {
+                  "operation": "append",
+                  "manifests-created": "1",
+                  "manifests-kept": "1",
+                  "manifests-replaced": "0",
+                  "added-data-files": "1",
+                  "added-records": "2",
+                  "added-files-size": "1893",
+                  "changed-partition-count": "1",
+                  "partition-summaries-included": "true",
+                  "total-records": "4",
+                  "total-files-size": "3786",
+                  "total-data-files": "2",
+                  "total-delete-files": "0",
+                  "total-position-deletes": "0",
+                  "total-equality-deletes": "0",
+                  "iceberg-version": "Apache Iceberg 1.11.0 (commit 6976e020b894f6a6777704df2b8c4458cb291ae9)"
+                },
+                "manifest-list": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0134/_iceberg/metadata/snap-8911484741085514726-1-guid-0138.avro",
+                "schema-id": 0
+              },
+              {
+                "sequence-number": 3,
+                "snapshot-id": 1676439466078063590,
+                "parent-snapshot-id": 8911484741085514726,
+                "timestamp-ms": 1788468544880,
+                "summary": {
+                  "operation": "append",
+                  "manifests-created": "1",
+                  "manifests-kept": "2",
+                  "manifests-replaced": "0",
+                  "added-data-files": "1",
+                  "added-records": "2",
+                  "added-files-size": "1892",
+                  "changed-partition-count": "1",
+                  "partition-summaries-included": "true",
+                  "total-records": "6",
+                  "total-files-size": "5678",
+                  "total-data-files": "3",
+                  "total-delete-files": "0",
+                  "total-position-deletes": "0",
+                  "total-equality-deletes": "0",
+                  "iceberg-version": "Apache Iceberg 1.11.0 (commit 6976e020b894f6a6777704df2b8c4458cb291ae9)"
+                },
+                "manifest-list": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0134/_iceberg/metadata/snap-1676439466078063590-1-guid-0139.avro",
+                "schema-id": 0
+              },
+              {
+                "sequence-number": 4,
+                "snapshot-id": 3664766227925388262,
+                "parent-snapshot-id": 1676439466078063590,
+                "timestamp-ms": 1788468555090,
+                "summary": {
+                  "operation": "overwrite",
+                  "manifests-created": "2",
+                  "manifests-kept": "2",
+                  "manifests-replaced": "1",
+                  "added-data-files": "1",
+                  "deleted-data-files": "1",
+                  "added-records": "1",
+                  "deleted-records": "2",
+                  "added-files-size": "1884",
+                  "removed-files-size": "1893",
+                  "changed-partition-count": "1",
+                  "partition-summaries-included": "true",
+                  "total-records": "5",
+                  "total-files-size": "5669",
+                  "total-data-files": "3",
+                  "total-delete-files": "0",
+                  "total-position-deletes": "0",
+                  "total-equality-deletes": "0",
+                  "iceberg-version": "Apache Iceberg 1.11.0 (commit 6976e020b894f6a6777704df2b8c4458cb291ae9)"
+                },
+                "manifest-list": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0134/_iceberg/metadata/snap-3664766227925388262-1-guid-0140.avro",
+                "schema-id": 0
+              }
+            ],
+            "statistics": [],
+            "partition-statistics": [],
+            "snapshot-log": [
+              {
+                "timestamp-ms": 1788468537569,
+                "snapshot-id": 6923157979238190054
+              },
+              {
+                "timestamp-ms": 1788468541497,
+                "snapshot-id": 8911484741085514726
+              },
+              {
+                "timestamp-ms": 1788468544880,
+                "snapshot-id": 1676439466078063590
+              },
+              {
+                "timestamp-ms": 1788468555090,
+                "snapshot-id": 3664766227925388262
+              }
+            ],
+            "metadata-log": [
+              {
+                "timestamp-ms": 1788468528590,
+                "metadata-file": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0134/_iceberg/metadata/00000-guid-0141.gz.metadata.json"
+              },
+              {
+                "timestamp-ms": 1788468537955,
+                "metadata-file": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0134/_iceberg/metadata/00001-guid-0142.gz.metadata.json"
+              },
+              {
+                "timestamp-ms": 1788468541835,
+                "metadata-file": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0134/_iceberg/metadata/00002-guid-0143.gz.metadata.json"
+              },
+              {
+                "timestamp-ms": 1788468544996,
+                "metadata-file": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0134/_iceberg/metadata/00003-guid-0144.gz.metadata.json"
+              },
+              {
+                "timestamp-ms": 1788468555163,
+                "metadata-file": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0134/_iceberg/metadata/00004-guid-0145.gz.metadata.json"
+              }
+            ]
+          },
+          "config": {
+            "s3.session-token-expires-at-ms": "<redacted:13 chars>",
+            "s3.access-key-id": "<redacted:20 chars>",
+            "s3.session-token": "<redacted:1204 chars>",
+            "s3.secret-access-key": "<redacted:40 chars>",
+            "client.region": "us-west-2"
+          },
+          "storage-credentials": []
+        }
+      },
+      "verdict": "OK",
+      "declared": true,
+      "reconciled": "declared, works"
+    },
+    {
+      "probe": "load_table_snapshots_all",
+      "category": "table",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "LoadTable",
+      "why": "Full snapshot history vs. the refs-only default. Time travel depends on it.",
+      "request": {
+        "method": "GET",
+        "url": "https://catalog-host-0002/api/2.1/unity-catalog/iceberg-rest/v1/catalogs/workspace/namespaces/probe_ns/tables/probe_table?snapshots=all",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "databricks-unity",
+      "signature": "GET /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "variant_of": "load_table",
+      "depends_on": null,
+      "ts": 1788471156.8376863,
+      "elapsed_ms": 371.6,
+      "response": {
+        "status": 200,
+        "headers": {
+          "content-type": "application/json",
+          "etag": "W/\"7bc8108a\"",
+          "date": "Thu, 3 Sep 2026 21:32:37 GMT",
+          "x-databricks-org-id": "7474647216480489",
+          "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+          "x-content-type-options": "nosniff",
+          "x-request-id": "guid-0146",
+          "content-encoding": "gzip",
+          "vary": "Accept-Encoding",
+          "server": "databricks",
+          "alt-svc": "clear",
+          "server-timing": "request_id;dur=0;desc=\"guid-0146\", client_protocol;dur=0;desc=\"HTTP/1.1\"",
+          "transfer-encoding": "chunked"
+        },
+        "body": {
+          "metadata-location": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0134/_iceberg/metadata/00005-guid-0135.gz.metadata.json",
+          "metadata": {
+            "format-version": 2,
+            "table-uuid": "guid-0136",
+            "location": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0134/_iceberg",
+            "last-sequence-number": 4,
+            "last-updated-ms": 1788468557501,
+            "last-column-id": 4,
+            "current-schema-id": 1,
+            "schemas": [
+              {
+                "type": "struct",
+                "schema-id": 0,
+                "fields": [
+                  {
+                    "id": 1,
+                    "name": "id",
+                    "required": false,
+                    "type": "long"
+                  },
+                  {
+                    "id": 2,
+                    "name": "ts",
+                    "required": false,
+                    "type": "timestamptz"
+                  },
+                  {
+                    "id": 3,
+                    "name": "payload",
+                    "required": false,
+                    "type": "string"
+                  }
+                ]
+              },
+              {
+                "type": "struct",
+                "schema-id": 1,
+                "fields": [
+                  {
+                    "id": 1,
+                    "name": "id",
+                    "required": false,
+                    "type": "long"
+                  },
+                  {
+                    "id": 2,
+                    "name": "ts",
+                    "required": false,
+                    "type": "timestamptz"
+                  },
+                  {
+                    "id": 3,
+                    "name": "payload",
+                    "required": false,
+                    "type": "string"
+                  },
+                  {
+                    "id": 4,
+                    "name": "region",
+                    "required": false,
+                    "type": "string"
+                  }
+                ]
+              }
+            ],
+            "default-spec-id": 0,
+            "partition-specs": [
+              {
+                "spec-id": 0,
+                "fields": []
+              }
+            ],
+            "last-partition-id": 999,
+            "default-sort-order-id": 0,
+            "sort-orders": [
+              {
+                "order-id": 0,
+                "fields": []
+              }
+            ],
+            "properties": {
+              "databricks.internal.autoUpgrades.delta.feature.catalogManaged": "supported",
+              "write.metadata.path": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0134/_iceberg/metadata",
+              "gc.enabled": "false",
+              "write.parquet.compression-codec": "zstd",
+              "history.expire.min-snapshots-to-keep": "100",
+              "history.expire.max-snapshot-age-ms": "0",
+              "write.data.path": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0134",
+              "write.wap.enabled": "false",
+              "write.metadata.compression-codec": "gzip",
+              "io.unitycatalog.tableId": "guid-0134",
+              "write.object-storage.enabled": "true",
+              "write.summary.partition-limit": "100"
+            },
+            "current-snapshot-id": 3664766227925388262,
+            "refs": {
+              "main": {
+                "snapshot-id": 3664766227925388262,
+                "type": "branch"
+              }
+            },
+            "snapshots": [
+              {
+                "sequence-number": 1,
+                "snapshot-id": 6923157979238190054,
+                "timestamp-ms": 1788468537569,
+                "summary": {
+                  "operation": "append",
+                  "manifests-created": "1",
+                  "manifests-kept": "0",
+                  "manifests-replaced": "0",
+                  "added-data-files": "1",
+                  "added-records": "2",
+                  "added-files-size": "1893",
+                  "changed-partition-count": "1",
+                  "partition-summaries-included": "true",
+                  "total-records": "2",
+                  "total-files-size": "1893",
+                  "total-data-files": "1",
+                  "total-delete-files": "0",
+                  "total-position-deletes": "0",
+                  "total-equality-deletes": "0",
+                  "iceberg-version": "Apache Iceberg 1.11.0 (commit 6976e020b894f6a6777704df2b8c4458cb291ae9)"
+                },
+                "manifest-list": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0134/_iceberg/metadata/snap-6923157979238190054-1-guid-0137.avro",
+                "schema-id": 0
+              },
+              {
+                "sequence-number": 2,
+                "snapshot-id": 8911484741085514726,
+                "parent-snapshot-id": 6923157979238190054,
+                "timestamp-ms": 1788468541497,
+                "summary": {
+                  "operation": "append",
+                  "manifests-created": "1",
+                  "manifests-kept": "1",
+                  "manifests-replaced": "0",
+                  "added-data-files": "1",
+                  "added-records": "2",
+                  "added-files-size": "1893",
+                  "changed-partition-count": "1",
+                  "partition-summaries-included": "true",
+                  "total-records": "4",
+                  "total-files-size": "3786",
+                  "total-data-files": "2",
+                  "total-delete-files": "0",
+                  "total-position-deletes": "0",
+                  "total-equality-deletes": "0",
+                  "iceberg-version": "Apache Iceberg 1.11.0 (commit 6976e020b894f6a6777704df2b8c4458cb291ae9)"
+                },
+                "manifest-list": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0134/_iceberg/metadata/snap-8911484741085514726-1-guid-0138.avro",
+                "schema-id": 0
+              },
+              {
+                "sequence-number": 3,
+                "snapshot-id": 1676439466078063590,
+                "parent-snapshot-id": 8911484741085514726,
+                "timestamp-ms": 1788468544880,
+                "summary": {
+                  "operation": "append",
+                  "manifests-created": "1",
+                  "manifests-kept": "2",
+                  "manifests-replaced": "0",
+                  "added-data-files": "1",
+                  "added-records": "2",
+                  "added-files-size": "1892",
+                  "changed-partition-count": "1",
+                  "partition-summaries-included": "true",
+                  "total-records": "6",
+                  "total-files-size": "5678",
+                  "total-data-files": "3",
+                  "total-delete-files": "0",
+                  "total-position-deletes": "0",
+                  "total-equality-deletes": "0",
+                  "iceberg-version": "Apache Iceberg 1.11.0 (commit 6976e020b894f6a6777704df2b8c4458cb291ae9)"
+                },
+                "manifest-list": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0134/_iceberg/metadata/snap-1676439466078063590-1-guid-0139.avro",
+                "schema-id": 0
+              },
+              {
+                "sequence-number": 4,
+                "snapshot-id": 3664766227925388262,
+                "parent-snapshot-id": 1676439466078063590,
+                "timestamp-ms": 1788468555090,
+                "summary": {
+                  "operation": "overwrite",
+                  "manifests-created": "2",
+                  "manifests-kept": "2",
+                  "manifests-replaced": "1",
+                  "added-data-files": "1",
+                  "deleted-data-files": "1",
+                  "added-records": "1",
+                  "deleted-records": "2",
+                  "added-files-size": "1884",
+                  "removed-files-size": "1893",
+                  "changed-partition-count": "1",
+                  "partition-summaries-included": "true",
+                  "total-records": "5",
+                  "total-files-size": "5669",
+                  "total-data-files": "3",
+                  "total-delete-files": "0",
+                  "total-position-deletes": "0",
+                  "total-equality-deletes": "0",
+                  "iceberg-version": "Apache Iceberg 1.11.0 (commit 6976e020b894f6a6777704df2b8c4458cb291ae9)"
+                },
+                "manifest-list": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0134/_iceberg/metadata/snap-3664766227925388262-1-guid-0140.avro",
+                "schema-id": 0
+              }
+            ],
+            "statistics": [],
+            "partition-statistics": [],
+            "snapshot-log": [
+              {
+                "timestamp-ms": 1788468537569,
+                "snapshot-id": 6923157979238190054
+              },
+              {
+                "timestamp-ms": 1788468541497,
+                "snapshot-id": 8911484741085514726
+              },
+              {
+                "timestamp-ms": 1788468544880,
+                "snapshot-id": 1676439466078063590
+              },
+              {
+                "timestamp-ms": 1788468555090,
+                "snapshot-id": 3664766227925388262
+              }
+            ],
+            "metadata-log": [
+              {
+                "timestamp-ms": 1788468528590,
+                "metadata-file": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0134/_iceberg/metadata/00000-guid-0141.gz.metadata.json"
+              },
+              {
+                "timestamp-ms": 1788468537955,
+                "metadata-file": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0134/_iceberg/metadata/00001-guid-0142.gz.metadata.json"
+              },
+              {
+                "timestamp-ms": 1788468541835,
+                "metadata-file": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0134/_iceberg/metadata/00002-guid-0143.gz.metadata.json"
+              },
+              {
+                "timestamp-ms": 1788468544996,
+                "metadata-file": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0134/_iceberg/metadata/00003-guid-0144.gz.metadata.json"
+              },
+              {
+                "timestamp-ms": 1788468555163,
+                "metadata-file": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0134/_iceberg/metadata/00004-guid-0145.gz.metadata.json"
+              }
+            ]
+          },
+          "config": {
+            "s3.session-token-expires-at-ms": "<redacted:13 chars>",
+            "s3.access-key-id": "<redacted:20 chars>",
+            "s3.session-token": "<redacted:1204 chars>",
+            "s3.secret-access-key": "<redacted:40 chars>",
+            "client.region": "us-west-2"
+          },
+          "storage-credentials": []
+        }
+      },
+      "verdict": "OK"
+    },
+    {
+      "probe": "head_table",
+      "category": "table",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "TableExists",
+      "why": "Existence check without a body.",
+      "request": {
+        "method": "HEAD",
+        "url": "https://catalog-host-0002/api/2.1/unity-catalog/iceberg-rest/v1/catalogs/workspace/namespaces/probe_ns/tables/probe_table",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "databricks-unity",
+      "signature": "HEAD /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "variant_of": null,
+      "depends_on": null,
+      "ts": 1788471157.2108262,
+      "elapsed_ms": 154.7,
+      "response": {
+        "status": 200,
+        "headers": {
+          "content-type": "text/plain; charset=utf-8",
+          "content-length": "6",
+          "date": "Thu, 3 Sep 2026 21:32:37 GMT",
+          "x-databricks-org-id": "7474647216480489",
+          "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+          "x-content-type-options": "nosniff",
+          "x-request-id": "guid-0147",
+          "server": "databricks",
+          "alt-svc": "clear",
+          "server-timing": "request_id;dur=0;desc=\"guid-0147\", client_protocol;dur=0;desc=\"HTTP/1.1\""
+        },
+        "body": null
+      },
+      "verdict": "OK",
+      "declared": true,
+      "reconciled": "declared, works"
+    },
+    {
+      "probe": "load_credentials",
+      "category": "credentials",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "LoadCredentials",
+      "why": "Vended storage credentials. The newest and least evenly adopted endpoint.",
+      "request": {
+        "method": "GET",
+        "url": "https://catalog-host-0002/api/2.1/unity-catalog/iceberg-rest/v1/catalogs/workspace/namespaces/probe_ns/tables/probe_table/credentials",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "databricks-unity",
+      "signature": "GET /v1/{prefix}/namespaces/{namespace}/tables/{table}/credentials",
+      "variant_of": null,
+      "depends_on": null,
+      "ts": 1788471157.3659754,
+      "elapsed_ms": 184.9,
+      "response": {
+        "status": 200,
+        "headers": {
+          "content-type": "application/json",
+          "date": "Thu, 3 Sep 2026 21:32:37 GMT",
+          "x-databricks-org-id": "7474647216480489",
+          "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+          "x-content-type-options": "nosniff",
+          "x-request-id": "guid-0148",
+          "content-encoding": "gzip",
+          "vary": "Accept-Encoding",
+          "server": "databricks",
+          "alt-svc": "clear",
+          "server-timing": "request_id;dur=0;desc=\"guid-0148\", client_protocol;dur=0;desc=\"HTTP/1.1\"",
+          "transfer-encoding": "chunked"
+        },
+        "body": {
+          "storage-credentials": [
+            {
+              "prefix": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0134",
+              "config": {
+                "s3.session-token-expires-at-ms": "<redacted:13 chars>",
+                "s3.access-key-id": "<redacted:20 chars>",
+                "s3.session-token": "<redacted:1204 chars>",
+                "s3.secret-access-key": "<redacted:40 chars>",
+                "client.region": "us-west-2"
+              }
+            }
+          ]
+        }
+      },
+      "verdict": "OK",
+      "declared": true,
+      "reconciled": "declared, works"
+    },
+    {
+      "probe": "list_views",
+      "category": "view",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "ListViews",
+      "why": "Iceberg views are a separate spec section and adoption is patchy.",
+      "request": {
+        "method": "GET",
+        "url": "https://catalog-host-0002/api/2.1/unity-catalog/iceberg-rest/v1/catalogs/workspace/namespaces/probe_ns/views",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "databricks-unity",
+      "signature": "GET /v1/{prefix}/namespaces/{namespace}/views",
+      "variant_of": null,
+      "depends_on": null,
+      "ts": 1788471157.551379,
+      "elapsed_ms": 103.0,
+      "response": {
+        "status": 404,
+        "headers": {
+          "content-type": "application/json; charset=utf-8",
+          "date": "Thu, 3 Sep 2026 21:32:37 GMT",
+          "x-databricks-org-id": "7474647216480489",
+          "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+          "x-content-type-options": "nosniff",
+          "x-request-id": "guid-0149",
+          "content-encoding": "gzip",
+          "vary": "Accept-Encoding",
+          "server": "databricks",
+          "alt-svc": "clear",
+          "server-timing": "request_id;dur=0;desc=\"guid-0149\", client_protocol;dur=0;desc=\"HTTP/1.1\"",
+          "transfer-encoding": "chunked"
+        },
+        "body": {
+          "error_code": "ENDPOINT_NOT_FOUND",
+          "message": "No API found for 'GET /unity-catalog/iceberg-rest/v1/catalogs/workspace/namespaces/probe_ns/views'",
+          "details": [
+            {
+              "@type": "type.googleapis.com/google.rpc.RequestInfo",
+              "request_id": "guid-0149",
+              "serving_data": ""
+            }
+          ]
+        }
+      },
+      "verdict": "NOT_FOUND",
+      "declared": false,
+      "reconciled": "undeclared, fails"
+    },
+    {
+      "probe": "plan_table_scan",
+      "category": "planning",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "PlanTableScan",
+      "why": "Server-side scan planning. Recent addition; expect mostly 404/501.",
+      "request": {
+        "method": "POST",
+        "url": "https://catalog-host-0002/api/2.1/unity-catalog/iceberg-rest/v1/catalogs/workspace/namespaces/probe_ns/tables/probe_table/plan",
+        "body": {
+          "select": [
+            "*"
+          ],
+          "case-sensitive": false
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Content-Type": "application/json",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "databricks-unity",
+      "signature": "POST /v1/{prefix}/namespaces/{namespace}/tables/{table}/plan",
+      "variant_of": null,
+      "depends_on": null,
+      "ts": 1788471157.6551332,
+      "elapsed_ms": 167.9,
+      "response": {
+        "status": 400,
+        "headers": {
+          "content-type": "application/json",
+          "date": "Thu, 3 Sep 2026 21:32:37 GMT",
+          "x-databricks-org-id": "7474647216480489",
+          "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+          "x-content-type-options": "nosniff",
+          "x-request-id": "guid-0150",
+          "content-encoding": "gzip",
+          "vary": "Accept-Encoding",
+          "server": "databricks",
+          "alt-svc": "clear",
+          "server-timing": "request_id;dur=0;desc=\"guid-0150\", client_protocol;dur=0;desc=\"HTTP/1.1\"",
+          "transfer-encoding": "chunked"
+        },
+        "body": {
+          "error": {
+            "message": "Failed to process column projection. [ErrorCode: 4001] (request_id: guid-0150)",
+            "type": "BadRequestException",
+            "code": 400
+          }
+        }
+      },
+      "verdict": "BAD_REQUEST",
+      "declared": true,
+      "reconciled": "DECLARED, FAILS"
+    },
+    {
+      "probe": "report_metrics",
+      "category": "telemetry",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "ReportMetrics",
+      "why": "Metrics reporting. Widely stubbed to 204 without storing anything. Body must be a complete ScanReport or a 400 tells you nothing.",
+      "request": {
+        "method": "POST",
+        "url": "https://catalog-host-0002/api/2.1/unity-catalog/iceberg-rest/v1/catalogs/workspace/namespaces/probe_ns/tables/probe_table/metrics",
+        "body": {
+          "report-type": "scan-report",
+          "table-name": "probe_table",
+          "snapshot-id": 1,
+          "filter": {
+            "type": "eq",
+            "term": "id",
+            "value": 1
+          },
+          "schema-id": 0,
+          "projected-field-ids": [
+            1
+          ],
+          "projected-field-names": [
+            "id"
+          ],
+          "metrics": {
+            "total-planning-duration": {
+              "count": 1,
+              "time-unit": "nanoseconds",
+              "total-duration": 1
+            },
+            "total-file-size-in-bytes": {
+              "unit": "bytes",
+              "value": 1
+            },
+            "result-data-files": {
+              "unit": "count",
+              "value": 1
+            }
+          }
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Content-Type": "application/json",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "databricks-unity",
+      "signature": "POST /v1/{prefix}/namespaces/{namespace}/tables/{table}/metrics",
+      "variant_of": null,
+      "depends_on": null,
+      "ts": 1788471157.8235283,
+      "elapsed_ms": 163.7,
+      "response": {
+        "status": 200,
+        "headers": {
+          "content-type": "text/plain; charset=utf-8",
+          "content-length": "6",
+          "date": "Thu, 3 Sep 2026 21:32:37 GMT",
+          "x-databricks-org-id": "7474647216480489",
+          "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+          "x-content-type-options": "nosniff",
+          "x-request-id": "guid-0151",
+          "server": "databricks",
+          "alt-svc": "clear",
+          "server-timing": "request_id;dur=0;desc=\"guid-0151\", client_protocol;dur=0;desc=\"HTTP/1.1\""
+        },
+        "body": {
+          "_raw": "200 OK"
+        }
+      },
+      "verdict": "OK",
+      "declared": true,
+      "reconciled": "declared, works"
+    },
+    {
+      "probe": "create_namespace",
+      "category": "namespace",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "CreateNamespace",
+      "why": "First real write. OneLake is documented read-only, so this is where that shows up as a status code.",
+      "request": {
+        "method": "POST",
+        "url": "https://catalog-host-0002/api/2.1/unity-catalog/iceberg-rest/v1/catalogs/workspace/namespaces",
+        "body": {
+          "namespace": [
+            "irc_probe_20260903173234"
+          ],
+          "properties": {}
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Content-Type": "application/json",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "databricks-unity",
+      "signature": "POST /v1/{prefix}/namespaces",
+      "variant_of": null,
+      "depends_on": null,
+      "ts": 1788471157.9875433,
+      "elapsed_ms": 248.7,
+      "response": {
+        "status": 200,
+        "headers": {
+          "content-type": "application/json",
+          "date": "Thu, 3 Sep 2026 21:32:38 GMT",
+          "x-databricks-org-id": "7474647216480489",
+          "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+          "x-content-type-options": "nosniff",
+          "x-request-id": "guid-0152",
+          "content-encoding": "gzip",
+          "vary": "Accept-Encoding",
+          "server": "databricks",
+          "alt-svc": "clear",
+          "server-timing": "request_id;dur=0;desc=\"guid-0152\", client_protocol;dur=0;desc=\"HTTP/1.1\"",
+          "transfer-encoding": "chunked"
+        },
+        "body": {
+          "namespace": [
+            "irc_probe_20260903173234"
+          ],
+          "properties": {}
+        }
+      },
+      "verdict": "OK",
+      "declared": true,
+      "reconciled": "declared, works"
+    },
+    {
+      "probe": "update_namespace_props",
+      "category": "namespace",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "UpdateProperties",
+      "why": "Property updates are separately optional from namespace creation.",
+      "request": {
+        "method": "POST",
+        "url": "https://catalog-host-0002/api/2.1/unity-catalog/iceberg-rest/v1/catalogs/workspace/namespaces/irc_probe_20260903173234/properties",
+        "body": {
+          "removals": [],
+          "updates": {
+            "probe": "conformance"
+          }
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Content-Type": "application/json",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "databricks-unity",
+      "signature": "POST /v1/{prefix}/namespaces/{namespace}/properties",
+      "variant_of": null,
+      "depends_on": "create_namespace",
+      "ts": 1788471158.2368808,
+      "elapsed_ms": 292.4,
+      "response": {
+        "status": 400,
+        "headers": {
+          "content-type": "application/json",
+          "date": "Thu, 3 Sep 2026 21:32:38 GMT",
+          "x-databricks-org-id": "7474647216480489",
+          "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+          "x-content-type-options": "nosniff",
+          "x-request-id": "guid-0153",
+          "content-encoding": "gzip",
+          "vary": "Accept-Encoding",
+          "server": "databricks",
+          "alt-svc": "clear",
+          "server-timing": "request_id;dur=0;desc=\"guid-0153\", client_protocol;dur=0;desc=\"HTTP/1.1\"",
+          "transfer-encoding": "chunked"
+        },
+        "body": {
+          "error": {
+            "message": "Malformed request: INVALID_PARAMETER_VALUE: Etag token version is missing (request_id: guid-0153)",
+            "type": "BadRequestException",
+            "code": 400
+          }
+        }
+      },
+      "verdict": "BAD_REQUEST",
+      "declared": true,
+      "reconciled": "DECLARED, FAILS"
+    },
+    {
+      "probe": "create_table",
+      "category": "table",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "CreateTable",
+      "why": "Table creation with an explicit schema, partition spec and sort order \u2014 checks whether all three survive a round-trip.",
+      "request": {
+        "method": "POST",
+        "url": "https://catalog-host-0002/api/2.1/unity-catalog/iceberg-rest/v1/catalogs/workspace/namespaces/irc_probe_20260903173234/tables",
+        "body": {
+          "name": "probe_tbl",
+          "schema": {
+            "type": "struct",
+            "schema-id": 0,
+            "fields": [
+              {
+                "id": 1,
+                "name": "id",
+                "required": true,
+                "type": "long"
+              },
+              {
+                "id": 2,
+                "name": "ts",
+                "required": false,
+                "type": "timestamptz"
+              },
+              {
+                "id": 3,
+                "name": "payload",
+                "required": false,
+                "type": "string"
+              }
+            ]
+          },
+          "partition-spec": {
+            "spec-id": 0,
+            "fields": [
+              {
+                "source-id": 2,
+                "field-id": 1000,
+                "transform": "day",
+                "name": "ts_day"
+              }
+            ]
+          },
+          "write-order": {
+            "order-id": 1,
+            "fields": [
+              {
+                "source-id": 1,
+                "transform": "identity",
+                "direction": "asc",
+                "null-order": "nulls-first"
+              }
+            ]
+          },
+          "properties": {
+            "probe": "conformance"
+          },
+          "stage-create": false
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Content-Type": "application/json",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "databricks-unity",
+      "signature": "POST /v1/{prefix}/namespaces/{namespace}/tables",
+      "variant_of": null,
+      "depends_on": "create_namespace",
+      "ts": 1788471158.5298316,
+      "elapsed_ms": 2645.3,
+      "response": {
+        "status": 200,
+        "headers": {
+          "content-type": "application/json",
+          "date": "Thu, 3 Sep 2026 21:32:41 GMT",
+          "x-databricks-org-id": "7474647216480489",
+          "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+          "x-content-type-options": "nosniff",
+          "x-request-id": "guid-0154",
+          "content-encoding": "gzip",
+          "vary": "Accept-Encoding",
+          "server": "databricks",
+          "alt-svc": "clear",
+          "server-timing": "request_id;dur=0;desc=\"guid-0154\", client_protocol;dur=0;desc=\"HTTP/1.1\"",
+          "transfer-encoding": "chunked"
+        },
+        "body": {
+          "metadata-location": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0155/_iceberg/metadata/00001-guid-0156.gz.metadata.json",
+          "metadata": {
+            "format-version": 2,
+            "table-uuid": "guid-0155",
+            "location": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0155/_iceberg",
+            "last-sequence-number": 0,
+            "last-updated-ms": 1788471158919,
+            "last-column-id": 3,
+            "current-schema-id": 0,
+            "schemas": [
+              {
+                "type": "struct",
+                "schema-id": 0,
+                "fields": [
+                  {
+                    "id": 1,
+                    "name": "id",
+                    "required": true,
+                    "type": "long"
+                  },
+                  {
+                    "id": 2,
+                    "name": "ts",
+                    "required": false,
+                    "type": "timestamptz"
+                  },
+                  {
+                    "id": 3,
+                    "name": "payload",
+                    "required": false,
+                    "type": "string"
+                  }
+                ]
+              }
+            ],
+            "default-spec-id": 0,
+            "partition-specs": [
+              {
+                "spec-id": 0,
+                "fields": [
+                  {
+                    "name": "ts_day",
+                    "transform": "day",
+                    "source-id": 2,
+                    "field-id": 1000
+                  }
+                ]
+              },
+              {
+                "spec-id": 1,
+                "fields": []
+              }
+            ],
+            "last-partition-id": 1000,
+            "default-sort-order-id": 1,
+            "sort-orders": [
+              {
+                "order-id": 1,
+                "fields": [
+                  {
+                    "transform": "identity",
+                    "source-id": 1,
+                    "direction": "asc",
+                    "null-order": "nulls-first"
+                  }
+                ]
+              }
+            ],
+            "properties": {
+              "write.object-storage.partitioned-paths": "false",
+              "write.metadata.path": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0155/_iceberg/metadata",
+              "gc.enabled": "false",
+              "write.parquet.compression-codec": "zstd",
+              "write.metadata.metrics.max-inferred-column-defaults": "32",
+              "history.expire.min-snapshots-to-keep": "100",
+              "probe": "conformance",
+              "history.expire.max-snapshot-age-ms": "0",
+              "write.data.path": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0155",
+              "write.wap.enabled": "false",
+              "write.metadata.previous-versions-max": "100",
+              "write.metadata.compression-codec": "gzip",
+              "write.object-storage.enabled": "true",
+              "write.summary.partition-limit": "100"
+            },
+            "current-snapshot-id": -1,
+            "refs": {},
+            "snapshots": [],
+            "statistics": [],
+            "partition-statistics": [],
+            "snapshot-log": [],
+            "metadata-log": []
+          },
+          "config": {
+            "s3.session-token-expires-at-ms": "<redacted:13 chars>",
+            "s3.access-key-id": "<redacted:20 chars>",
+            "s3.session-token": "<redacted:1208 chars>",
+            "s3.secret-access-key": "<redacted:40 chars>",
+            "client.region": "us-west-2"
+          }
+        }
+      },
+      "verdict": "OK",
+      "declared": true,
+      "reconciled": "declared, works"
+    },
+    {
+      "probe": "commit_table",
+      "category": "commit",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "UpdateTable",
+      "why": "A property-set commit \u2014 the cheapest possible exercise of the update path.",
+      "request": {
+        "method": "POST",
+        "url": "https://catalog-host-0002/api/2.1/unity-catalog/iceberg-rest/v1/catalogs/workspace/namespaces/irc_probe_20260903173234/tables/probe_tbl",
+        "body": {
+          "requirements": [
+            {
+              "type": "assert-table-uuid",
+              "uuid": "guid-0155"
+            }
+          ],
+          "updates": [
+            {
+              "action": "set-properties",
+              "updates": {
+                "probe-commit": "1"
+              }
+            }
+          ]
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Content-Type": "application/json",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "databricks-unity",
+      "signature": "POST /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "variant_of": null,
+      "depends_on": "create_table",
+      "ts": 1788471161.1763341,
+      "elapsed_ms": 2750.7,
+      "response": {
+        "status": 200,
+        "headers": {
+          "content-type": "application/json",
+          "date": "Thu, 3 Sep 2026 21:32:43 GMT",
+          "x-databricks-org-id": "7474647216480489",
+          "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+          "x-content-type-options": "nosniff",
+          "x-request-id": "guid-0157",
+          "content-encoding": "gzip",
+          "vary": "Accept-Encoding",
+          "server": "databricks",
+          "alt-svc": "clear",
+          "server-timing": "request_id;dur=0;desc=\"guid-0157\", client_protocol;dur=0;desc=\"HTTP/1.1\"",
+          "transfer-encoding": "chunked"
+        },
+        "body": {
+          "metadata-location": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0155/_iceberg/metadata/00002-guid-0158.gz.metadata.json",
+          "metadata": {
+            "format-version": 2,
+            "table-uuid": "guid-0155",
+            "location": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0155/_iceberg",
+            "last-sequence-number": 0,
+            "last-updated-ms": 1788471161469,
+            "last-column-id": 3,
+            "current-schema-id": 0,
+            "schemas": [
+              {
+                "type": "struct",
+                "schema-id": 0,
+                "fields": [
+                  {
+                    "id": 1,
+                    "name": "id",
+                    "required": true,
+                    "type": "long"
+                  },
+                  {
+                    "id": 2,
+                    "name": "ts",
+                    "required": false,
+                    "type": "timestamptz"
+                  },
+                  {
+                    "id": 3,
+                    "name": "payload",
+                    "required": false,
+                    "type": "string"
+                  }
+                ]
+              }
+            ],
+            "default-spec-id": 0,
+            "partition-specs": [
+              {
+                "spec-id": 0,
+                "fields": [
+                  {
+                    "name": "ts_day",
+                    "transform": "day",
+                    "source-id": 2,
+                    "field-id": 1000
+                  }
+                ]
+              },
+              {
+                "spec-id": 1,
+                "fields": []
+              }
+            ],
+            "last-partition-id": 1000,
+            "default-sort-order-id": 1,
+            "sort-orders": [
+              {
+                "order-id": 1,
+                "fields": [
+                  {
+                    "transform": "identity",
+                    "source-id": 1,
+                    "direction": "asc",
+                    "null-order": "nulls-first"
+                  }
+                ]
+              }
+            ],
+            "properties": {
+              "write.object-storage.partitioned-paths": "false",
+              "write.metadata.path": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0155/_iceberg/metadata",
+              "gc.enabled": "false",
+              "write.parquet.compression-codec": "zstd",
+              "write.metadata.metrics.max-inferred-column-defaults": "32",
+              "history.expire.min-snapshots-to-keep": "100",
+              "probe": "conformance",
+              "history.expire.max-snapshot-age-ms": "0",
+              "write.data.path": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0155",
+              "write.wap.enabled": "false",
+              "write.metadata.previous-versions-max": "100",
+              "write.metadata.compression-codec": "gzip",
+              "probe-commit": "1",
+              "write.object-storage.enabled": "true",
+              "write.summary.partition-limit": "100"
+            },
+            "current-snapshot-id": -1,
+            "refs": {},
+            "snapshots": [],
+            "statistics": [],
+            "partition-statistics": [],
+            "snapshot-log": [],
+            "metadata-log": [
+              {
+                "timestamp-ms": 1788471158919,
+                "metadata-file": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0155/_iceberg/metadata/00001-guid-0156.gz.metadata.json"
+              }
+            ]
+          }
+        }
+      },
+      "verdict": "OK",
+      "declared": true,
+      "reconciled": "declared, works"
+    },
+    {
+      "probe": "commit_remove_properties",
+      "category": "commit",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "UpdateTable",
+      "why": "remove-properties: the inverse of the one action every catalog serves.",
+      "request": {
+        "method": "POST",
+        "url": "https://catalog-host-0002/api/2.1/unity-catalog/iceberg-rest/v1/catalogs/workspace/namespaces/irc_probe_20260903173234/tables/probe_tbl",
+        "body": {
+          "requirements": [
+            {
+              "type": "assert-table-uuid",
+              "uuid": "guid-0155"
+            }
+          ],
+          "updates": [
+            {
+              "action": "remove-properties",
+              "removals": [
+                "probe"
+              ]
+            }
+          ]
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Content-Type": "application/json",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "databricks-unity",
+      "signature": "POST /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "variant_of": "commit_table",
+      "depends_on": "create_table",
+      "ts": 1788471163.9284847,
+      "elapsed_ms": 2649.6,
+      "response": {
+        "status": 200,
+        "headers": {
+          "content-type": "application/json",
+          "date": "Thu, 3 Sep 2026 21:32:46 GMT",
+          "x-databricks-org-id": "7474647216480489",
+          "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+          "x-content-type-options": "nosniff",
+          "x-request-id": "guid-0159",
+          "content-encoding": "gzip",
+          "vary": "Accept-Encoding",
+          "server": "databricks",
+          "alt-svc": "clear",
+          "server-timing": "request_id;dur=0;desc=\"guid-0159\", client_protocol;dur=0;desc=\"HTTP/1.1\"",
+          "transfer-encoding": "chunked"
+        },
+        "body": {
+          "metadata-location": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0155/_iceberg/metadata/00003-guid-0160.gz.metadata.json",
+          "metadata": {
+            "format-version": 2,
+            "table-uuid": "guid-0155",
+            "location": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0155/_iceberg",
+            "last-sequence-number": 0,
+            "last-updated-ms": 1788471164255,
+            "last-column-id": 3,
+            "current-schema-id": 0,
+            "schemas": [
+              {
+                "type": "struct",
+                "schema-id": 0,
+                "fields": [
+                  {
+                    "id": 1,
+                    "name": "id",
+                    "required": true,
+                    "type": "long"
+                  },
+                  {
+                    "id": 2,
+                    "name": "ts",
+                    "required": false,
+                    "type": "timestamptz"
+                  },
+                  {
+                    "id": 3,
+                    "name": "payload",
+                    "required": false,
+                    "type": "string"
+                  }
+                ]
+              }
+            ],
+            "default-spec-id": 0,
+            "partition-specs": [
+              {
+                "spec-id": 0,
+                "fields": [
+                  {
+                    "name": "ts_day",
+                    "transform": "day",
+                    "source-id": 2,
+                    "field-id": 1000
+                  }
+                ]
+              },
+              {
+                "spec-id": 1,
+                "fields": []
+              }
+            ],
+            "last-partition-id": 1000,
+            "default-sort-order-id": 1,
+            "sort-orders": [
+              {
+                "order-id": 1,
+                "fields": [
+                  {
+                    "transform": "identity",
+                    "source-id": 1,
+                    "direction": "asc",
+                    "null-order": "nulls-first"
+                  }
+                ]
+              }
+            ],
+            "properties": {
+              "write.object-storage.partitioned-paths": "false",
+              "write.metadata.path": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0155/_iceberg/metadata",
+              "gc.enabled": "false",
+              "write.parquet.compression-codec": "zstd",
+              "write.metadata.metrics.max-inferred-column-defaults": "32",
+              "history.expire.min-snapshots-to-keep": "100",
+              "history.expire.max-snapshot-age-ms": "0",
+              "write.data.path": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0155",
+              "write.wap.enabled": "false",
+              "write.metadata.previous-versions-max": "100",
+              "write.metadata.compression-codec": "gzip",
+              "probe-commit": "1",
+              "write.object-storage.enabled": "true",
+              "write.summary.partition-limit": "100"
+            },
+            "current-snapshot-id": -1,
+            "refs": {},
+            "snapshots": [],
+            "statistics": [],
+            "partition-statistics": [],
+            "snapshot-log": [],
+            "metadata-log": [
+              {
+                "timestamp-ms": 1788471158919,
+                "metadata-file": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0155/_iceberg/metadata/00001-guid-0156.gz.metadata.json"
+              },
+              {
+                "timestamp-ms": 1788471161469,
+                "metadata-file": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0155/_iceberg/metadata/00002-guid-0158.gz.metadata.json"
+              }
+            ]
+          }
+        }
+      },
+      "verdict": "OK"
+    },
+    {
+      "probe": "commit_add_schema",
+      "category": "commit",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "UpdateTable",
+      "why": "add-schema together with set-current-schema:-1 in a single commit. That pairing is the spec's idiom -- -1 means the schema added by this same request, so splitting them across two commits is meaningless.",
+      "request": {
+        "method": "POST",
+        "url": "https://catalog-host-0002/api/2.1/unity-catalog/iceberg-rest/v1/catalogs/workspace/namespaces/irc_probe_20260903173234/tables/probe_tbl",
+        "body": {
+          "requirements": [
+            {
+              "type": "assert-table-uuid",
+              "uuid": "guid-0155"
+            }
+          ],
+          "updates": [
+            {
+              "action": "add-schema",
+              "schema": {
+                "type": "struct",
+                "schema-id": 1,
+                "fields": [
+                  {
+                    "id": 1,
+                    "name": "id",
+                    "required": true,
+                    "type": "long"
+                  },
+                  {
+                    "id": 2,
+                    "name": "ts",
+                    "required": false,
+                    "type": "timestamptz"
+                  },
+                  {
+                    "id": 3,
+                    "name": "payload",
+                    "required": false,
+                    "type": "string"
+                  },
+                  {
+                    "id": 4,
+                    "name": "added_col",
+                    "required": false,
+                    "type": "string"
+                  }
+                ]
+              }
+            },
+            {
+              "action": "set-current-schema",
+              "schema-id": -1
+            }
+          ]
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Content-Type": "application/json",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "databricks-unity",
+      "signature": "POST /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "variant_of": "commit_table",
+      "depends_on": "create_table",
+      "ts": 1788471166.5796564,
+      "elapsed_ms": 4135.7,
+      "response": {
+        "status": 200,
+        "headers": {
+          "content-type": "application/json",
+          "date": "Thu, 3 Sep 2026 21:32:50 GMT",
+          "x-databricks-org-id": "7474647216480489",
+          "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+          "x-content-type-options": "nosniff",
+          "x-request-id": "guid-0161",
+          "content-encoding": "gzip",
+          "vary": "Accept-Encoding",
+          "server": "databricks",
+          "alt-svc": "clear",
+          "server-timing": "request_id;dur=0;desc=\"guid-0161\", client_protocol;dur=0;desc=\"HTTP/1.1\"",
+          "transfer-encoding": "chunked"
+        },
+        "body": {
+          "metadata-location": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0155/_iceberg/metadata/00004-guid-0162.gz.metadata.json",
+          "metadata": {
+            "format-version": 2,
+            "table-uuid": "guid-0155",
+            "location": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0155/_iceberg",
+            "last-sequence-number": 0,
+            "last-updated-ms": 1788471166857,
+            "last-column-id": 4,
+            "current-schema-id": 1,
+            "schemas": [
+              {
+                "type": "struct",
+                "schema-id": 0,
+                "fields": [
+                  {
+                    "id": 1,
+                    "name": "id",
+                    "required": true,
+                    "type": "long"
+                  },
+                  {
+                    "id": 2,
+                    "name": "ts",
+                    "required": false,
+                    "type": "timestamptz"
+                  },
+                  {
+                    "id": 3,
+                    "name": "payload",
+                    "required": false,
+                    "type": "string"
+                  }
+                ]
+              },
+              {
+                "type": "struct",
+                "schema-id": 1,
+                "fields": [
+                  {
+                    "id": 1,
+                    "name": "id",
+                    "required": true,
+                    "type": "long"
+                  },
+                  {
+                    "id": 2,
+                    "name": "ts",
+                    "required": false,
+                    "type": "timestamptz"
+                  },
+                  {
+                    "id": 3,
+                    "name": "payload",
+                    "required": false,
+                    "type": "string"
+                  },
+                  {
+                    "id": 4,
+                    "name": "added_col",
+                    "required": false,
+                    "type": "string"
+                  }
+                ]
+              }
+            ],
+            "default-spec-id": 0,
+            "partition-specs": [
+              {
+                "spec-id": 0,
+                "fields": [
+                  {
+                    "name": "ts_day",
+                    "transform": "day",
+                    "source-id": 2,
+                    "field-id": 1000
+                  }
+                ]
+              },
+              {
+                "spec-id": 1,
+                "fields": []
+              }
+            ],
+            "last-partition-id": 1000,
+            "default-sort-order-id": 1,
+            "sort-orders": [
+              {
+                "order-id": 1,
+                "fields": [
+                  {
+                    "transform": "identity",
+                    "source-id": 1,
+                    "direction": "asc",
+                    "null-order": "nulls-first"
+                  }
+                ]
+              }
+            ],
+            "properties": {
+              "write.object-storage.partitioned-paths": "false",
+              "write.metadata.path": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0155/_iceberg/metadata",
+              "gc.enabled": "false",
+              "write.parquet.compression-codec": "zstd",
+              "write.metadata.metrics.max-inferred-column-defaults": "32",
+              "history.expire.min-snapshots-to-keep": "100",
+              "history.expire.max-snapshot-age-ms": "0",
+              "write.data.path": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0155",
+              "write.wap.enabled": "false",
+              "write.metadata.previous-versions-max": "100",
+              "write.metadata.compression-codec": "gzip",
+              "probe-commit": "1",
+              "write.object-storage.enabled": "true",
+              "write.summary.partition-limit": "100"
+            },
+            "current-snapshot-id": -1,
+            "refs": {},
+            "snapshots": [],
+            "statistics": [],
+            "partition-statistics": [],
+            "snapshot-log": [],
+            "metadata-log": [
+              {
+                "timestamp-ms": 1788471158919,
+                "metadata-file": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0155/_iceberg/metadata/00001-guid-0156.gz.metadata.json"
+              },
+              {
+                "timestamp-ms": 1788471161469,
+                "metadata-file": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0155/_iceberg/metadata/00002-guid-0158.gz.metadata.json"
+              },
+              {
+                "timestamp-ms": 1788471164255,
+                "metadata-file": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0155/_iceberg/metadata/00003-guid-0160.gz.metadata.json"
+              }
+            ]
+          }
+        }
+      },
+      "verdict": "OK"
+    },
+    {
+      "probe": "commit_set_current_schema",
+      "category": "commit",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "UpdateTable",
+      "why": "set-current-schema naming an existing schema (0), exercising the action on its own rather than as part of an add-schema commit.",
+      "request": {
+        "method": "POST",
+        "url": "https://catalog-host-0002/api/2.1/unity-catalog/iceberg-rest/v1/catalogs/workspace/namespaces/irc_probe_20260903173234/tables/probe_tbl",
+        "body": {
+          "requirements": [
+            {
+              "type": "assert-table-uuid",
+              "uuid": "guid-0155"
+            }
+          ],
+          "updates": [
+            {
+              "action": "set-current-schema",
+              "schema-id": 0
+            }
+          ]
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Content-Type": "application/json",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "databricks-unity",
+      "signature": "POST /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "variant_of": "commit_table",
+      "depends_on": "create_table",
+      "ts": 1788471170.7171087,
+      "elapsed_ms": 3963.6,
+      "response": {
+        "status": 200,
+        "headers": {
+          "content-type": "application/json",
+          "date": "Thu, 3 Sep 2026 21:32:54 GMT",
+          "x-databricks-org-id": "7474647216480489",
+          "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+          "x-content-type-options": "nosniff",
+          "x-request-id": "guid-0163",
+          "content-encoding": "gzip",
+          "vary": "Accept-Encoding",
+          "server": "databricks",
+          "alt-svc": "clear",
+          "server-timing": "request_id;dur=0;desc=\"guid-0163\", client_protocol;dur=0;desc=\"HTTP/1.1\"",
+          "transfer-encoding": "chunked"
+        },
+        "body": {
+          "metadata-location": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0155/_iceberg/metadata/00005-guid-0164.gz.metadata.json",
+          "metadata": {
+            "format-version": 2,
+            "table-uuid": "guid-0155",
+            "location": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0155/_iceberg",
+            "last-sequence-number": 0,
+            "last-updated-ms": 1788471170969,
+            "last-column-id": 4,
+            "current-schema-id": 0,
+            "schemas": [
+              {
+                "type": "struct",
+                "schema-id": 0,
+                "fields": [
+                  {
+                    "id": 1,
+                    "name": "id",
+                    "required": true,
+                    "type": "long"
+                  },
+                  {
+                    "id": 2,
+                    "name": "ts",
+                    "required": false,
+                    "type": "timestamptz"
+                  },
+                  {
+                    "id": 3,
+                    "name": "payload",
+                    "required": false,
+                    "type": "string"
+                  }
+                ]
+              },
+              {
+                "type": "struct",
+                "schema-id": 1,
+                "fields": [
+                  {
+                    "id": 1,
+                    "name": "id",
+                    "required": true,
+                    "type": "long"
+                  },
+                  {
+                    "id": 2,
+                    "name": "ts",
+                    "required": false,
+                    "type": "timestamptz"
+                  },
+                  {
+                    "id": 3,
+                    "name": "payload",
+                    "required": false,
+                    "type": "string"
+                  },
+                  {
+                    "id": 4,
+                    "name": "added_col",
+                    "required": false,
+                    "type": "string"
+                  }
+                ]
+              }
+            ],
+            "default-spec-id": 0,
+            "partition-specs": [
+              {
+                "spec-id": 0,
+                "fields": [
+                  {
+                    "name": "ts_day",
+                    "transform": "day",
+                    "source-id": 2,
+                    "field-id": 1000
+                  }
+                ]
+              },
+              {
+                "spec-id": 1,
+                "fields": []
+              }
+            ],
+            "last-partition-id": 1000,
+            "default-sort-order-id": 1,
+            "sort-orders": [
+              {
+                "order-id": 1,
+                "fields": [
+                  {
+                    "transform": "identity",
+                    "source-id": 1,
+                    "direction": "asc",
+                    "null-order": "nulls-first"
+                  }
+                ]
+              }
+            ],
+            "properties": {
+              "write.object-storage.partitioned-paths": "false",
+              "write.metadata.path": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0155/_iceberg/metadata",
+              "gc.enabled": "false",
+              "write.parquet.compression-codec": "zstd",
+              "write.metadata.metrics.max-inferred-column-defaults": "32",
+              "history.expire.min-snapshots-to-keep": "100",
+              "history.expire.max-snapshot-age-ms": "0",
+              "write.data.path": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0155",
+              "write.wap.enabled": "false",
+              "write.metadata.previous-versions-max": "100",
+              "write.metadata.compression-codec": "gzip",
+              "probe-commit": "1",
+              "write.object-storage.enabled": "true",
+              "write.summary.partition-limit": "100"
+            },
+            "current-snapshot-id": -1,
+            "refs": {},
+            "snapshots": [],
+            "statistics": [],
+            "partition-statistics": [],
+            "snapshot-log": [],
+            "metadata-log": [
+              {
+                "timestamp-ms": 1788471158919,
+                "metadata-file": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0155/_iceberg/metadata/00001-guid-0156.gz.metadata.json"
+              },
+              {
+                "timestamp-ms": 1788471161469,
+                "metadata-file": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0155/_iceberg/metadata/00002-guid-0158.gz.metadata.json"
+              },
+              {
+                "timestamp-ms": 1788471164255,
+                "metadata-file": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0155/_iceberg/metadata/00003-guid-0160.gz.metadata.json"
+              },
+              {
+                "timestamp-ms": 1788471166857,
+                "metadata-file": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0155/_iceberg/metadata/00004-guid-0162.gz.metadata.json"
+              }
+            ]
+          }
+        }
+      },
+      "verdict": "OK"
+    },
+    {
+      "probe": "commit_upgrade_format_version",
+      "category": "commit",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "UpdateTable",
+      "why": "upgrade-format-version to 2. The fixture is already v2, so this is a no-op for a conformant server -- rejecting it is the finding.",
+      "request": {
+        "method": "POST",
+        "url": "https://catalog-host-0002/api/2.1/unity-catalog/iceberg-rest/v1/catalogs/workspace/namespaces/irc_probe_20260903173234/tables/probe_tbl",
+        "body": {
+          "requirements": [
+            {
+              "type": "assert-table-uuid",
+              "uuid": "guid-0155"
+            }
+          ],
+          "updates": [
+            {
+              "action": "upgrade-format-version",
+              "format-version": 2
+            }
+          ]
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Content-Type": "application/json",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "databricks-unity",
+      "signature": "POST /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "variant_of": "commit_table",
+      "depends_on": "create_table",
+      "ts": 1788471174.6818597,
+      "elapsed_ms": 2578.5,
+      "response": {
+        "status": 200,
+        "headers": {
+          "content-type": "application/json",
+          "date": "Thu, 3 Sep 2026 21:32:57 GMT",
+          "x-databricks-org-id": "7474647216480489",
+          "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+          "x-content-type-options": "nosniff",
+          "x-request-id": "guid-0165",
+          "content-encoding": "gzip",
+          "vary": "Accept-Encoding",
+          "server": "databricks",
+          "alt-svc": "clear",
+          "server-timing": "request_id;dur=0;desc=\"guid-0165\", client_protocol;dur=0;desc=\"HTTP/1.1\"",
+          "transfer-encoding": "chunked"
+        },
+        "body": {
+          "metadata-location": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0155/_iceberg/metadata/00006-guid-0166.gz.metadata.json",
+          "metadata": {
+            "format-version": 2,
+            "table-uuid": "guid-0155",
+            "location": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0155/_iceberg",
+            "last-sequence-number": 0,
+            "last-updated-ms": 1788471174971,
+            "last-column-id": 4,
+            "current-schema-id": 0,
+            "schemas": [
+              {
+                "type": "struct",
+                "schema-id": 0,
+                "fields": [
+                  {
+                    "id": 1,
+                    "name": "id",
+                    "required": true,
+                    "type": "long"
+                  },
+                  {
+                    "id": 2,
+                    "name": "ts",
+                    "required": false,
+                    "type": "timestamptz"
+                  },
+                  {
+                    "id": 3,
+                    "name": "payload",
+                    "required": false,
+                    "type": "string"
+                  }
+                ]
+              },
+              {
+                "type": "struct",
+                "schema-id": 1,
+                "fields": [
+                  {
+                    "id": 1,
+                    "name": "id",
+                    "required": true,
+                    "type": "long"
+                  },
+                  {
+                    "id": 2,
+                    "name": "ts",
+                    "required": false,
+                    "type": "timestamptz"
+                  },
+                  {
+                    "id": 3,
+                    "name": "payload",
+                    "required": false,
+                    "type": "string"
+                  },
+                  {
+                    "id": 4,
+                    "name": "added_col",
+                    "required": false,
+                    "type": "string"
+                  }
+                ]
+              }
+            ],
+            "default-spec-id": 0,
+            "partition-specs": [
+              {
+                "spec-id": 0,
+                "fields": [
+                  {
+                    "name": "ts_day",
+                    "transform": "day",
+                    "source-id": 2,
+                    "field-id": 1000
+                  }
+                ]
+              },
+              {
+                "spec-id": 1,
+                "fields": []
+              }
+            ],
+            "last-partition-id": 1000,
+            "default-sort-order-id": 1,
+            "sort-orders": [
+              {
+                "order-id": 1,
+                "fields": [
+                  {
+                    "transform": "identity",
+                    "source-id": 1,
+                    "direction": "asc",
+                    "null-order": "nulls-first"
+                  }
+                ]
+              }
+            ],
+            "properties": {
+              "write.object-storage.partitioned-paths": "false",
+              "write.metadata.path": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0155/_iceberg/metadata",
+              "gc.enabled": "false",
+              "write.parquet.compression-codec": "zstd",
+              "write.metadata.metrics.max-inferred-column-defaults": "32",
+              "history.expire.min-snapshots-to-keep": "100",
+              "history.expire.max-snapshot-age-ms": "0",
+              "write.data.path": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0155",
+              "write.wap.enabled": "false",
+              "write.metadata.previous-versions-max": "100",
+              "write.metadata.compression-codec": "gzip",
+              "probe-commit": "1",
+              "write.object-storage.enabled": "true",
+              "write.summary.partition-limit": "100"
+            },
+            "current-snapshot-id": -1,
+            "refs": {},
+            "snapshots": [],
+            "statistics": [],
+            "partition-statistics": [],
+            "snapshot-log": [],
+            "metadata-log": [
+              {
+                "timestamp-ms": 1788471158919,
+                "metadata-file": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0155/_iceberg/metadata/00001-guid-0156.gz.metadata.json"
+              },
+              {
+                "timestamp-ms": 1788471161469,
+                "metadata-file": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0155/_iceberg/metadata/00002-guid-0158.gz.metadata.json"
+              },
+              {
+                "timestamp-ms": 1788471164255,
+                "metadata-file": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0155/_iceberg/metadata/00003-guid-0160.gz.metadata.json"
+              },
+              {
+                "timestamp-ms": 1788471166857,
+                "metadata-file": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0155/_iceberg/metadata/00004-guid-0162.gz.metadata.json"
+              },
+              {
+                "timestamp-ms": 1788471170969,
+                "metadata-file": "s3://bucket-0002/uc/guid-0131/guid-0132/__unitystorage/catalogs/guid-0133/tables/guid-0155/_iceberg/metadata/00005-guid-0164.gz.metadata.json"
+              }
+            ]
+          }
+        }
+      },
+      "verdict": "OK"
+    },
+    {
+      "probe": "commit_transaction",
+      "category": "commit",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "CommitTransaction",
+      "why": "Multi-table atomic commit. Rarely implemented; a clean differentiator. Carries one real change: an empty transaction gets rejected as invalid, which would be indistinguishable from unimplemented.",
+      "request": {
+        "method": "POST",
+        "url": "https://catalog-host-0002/api/2.1/unity-catalog/iceberg-rest/v1/catalogs/workspace/transactions/commit",
+        "body": {
+          "table-changes": [
+            {
+              "identifier": {
+                "namespace": [
+                  "irc_probe_20260903173234"
+                ],
+                "name": "probe_tbl"
+              },
+              "requirements": [],
+              "updates": [
+                {
+                  "action": "set-properties",
+                  "updates": {
+                    "probe-txn": "1"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Content-Type": "application/json",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "databricks-unity",
+      "signature": "POST /v1/{prefix}/transactions/commit",
+      "variant_of": null,
+      "depends_on": "create_table",
+      "ts": 1788471177.2615418,
+      "elapsed_ms": 107.7,
+      "response": {
+        "status": 404,
+        "headers": {
+          "content-type": "application/json; charset=utf-8",
+          "date": "Thu, 3 Sep 2026 21:32:57 GMT",
+          "x-databricks-org-id": "7474647216480489",
+          "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+          "x-content-type-options": "nosniff",
+          "x-request-id": "guid-0167",
+          "content-encoding": "gzip",
+          "vary": "Accept-Encoding",
+          "server": "databricks",
+          "alt-svc": "clear",
+          "server-timing": "request_id;dur=0;desc=\"guid-0167\", client_protocol;dur=0;desc=\"HTTP/1.1\"",
+          "transfer-encoding": "chunked"
+        },
+        "body": {
+          "error_code": "ENDPOINT_NOT_FOUND",
+          "message": "No API found for 'POST /unity-catalog/iceberg-rest/v1/catalogs/workspace/transactions/commit'",
+          "details": [
+            {
+              "@type": "type.googleapis.com/google.rpc.RequestInfo",
+              "request_id": "guid-0167",
+              "serving_data": ""
+            }
+          ]
+        }
+      },
+      "verdict": "NOT_FOUND",
+      "declared": false,
+      "reconciled": "undeclared, fails"
+    },
+    {
+      "probe": "rename_table",
+      "category": "table",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "RenameTable",
+      "why": "Rename is one of the most commonly missing write endpoints.",
+      "request": {
+        "method": "POST",
+        "url": "https://catalog-host-0002/api/2.1/unity-catalog/iceberg-rest/v1/catalogs/workspace/tables/rename",
+        "body": {
+          "source": {
+            "namespace": [
+              "irc_probe_20260903173234"
+            ],
+            "name": "probe_tbl"
+          },
+          "destination": {
+            "namespace": [
+              "irc_probe_20260903173234"
+            ],
+            "name": "probe_tbl_r"
+          }
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Content-Type": "application/json",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "databricks-unity",
+      "signature": "POST /v1/{prefix}/tables/rename",
+      "variant_of": null,
+      "depends_on": "create_table",
+      "ts": 1788471177.3697135,
+      "elapsed_ms": 243.0,
+      "response": {
+        "status": 204,
+        "headers": {
+          "date": "Thu, 3 Sep 2026 21:32:57 GMT",
+          "x-databricks-org-id": "7474647216480489",
+          "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+          "x-content-type-options": "nosniff",
+          "x-request-id": "guid-0168",
+          "vary": "Accept-Encoding",
+          "server": "databricks",
+          "alt-svc": "clear",
+          "server-timing": "request_id;dur=0;desc=\"guid-0168\", client_protocol;dur=0;desc=\"HTTP/1.1\""
+        },
+        "body": null
+      },
+      "verdict": "OK",
+      "declared": true,
+      "reconciled": "declared, works"
+    },
+    {
+      "probe": "drop_table_purge",
+      "category": "table",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "DropTable",
+      "why": "Whether purgeRequested is honoured. Purge semantics vary widely and several catalogs gate it behind a server flag.",
+      "request": {
+        "method": "DELETE",
+        "url": "https://catalog-host-0002/api/2.1/unity-catalog/iceberg-rest/v1/catalogs/workspace/namespaces/irc_probe_20260903173234/tables/probe_tbl_r?purgeRequested=true",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "databricks-unity",
+      "signature": "DELETE /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "variant_of": "drop_table",
+      "depends_on": "create_table",
+      "ts": 1788471177.6130664,
+      "elapsed_ms": 279.4,
+      "response": {
+        "status": 204,
+        "headers": {
+          "date": "Thu, 3 Sep 2026 21:32:57 GMT",
+          "x-databricks-org-id": "7474647216480489",
+          "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+          "x-content-type-options": "nosniff",
+          "x-request-id": "guid-0169",
+          "vary": "Accept-Encoding",
+          "server": "databricks",
+          "alt-svc": "clear",
+          "server-timing": "request_id;dur=0;desc=\"guid-0169\", client_protocol;dur=0;desc=\"HTTP/1.1\""
+        },
+        "body": null
+      },
+      "verdict": "OK"
+    },
+    {
+      "probe": "drop_table",
+      "category": "cleanup",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "DropTable",
+      "why": "Plain drop, and the cleanup that must succeed. A 404 here is the expected outcome when the purge drop above already removed the table.",
+      "request": {
+        "method": "DELETE",
+        "url": "https://catalog-host-0002/api/2.1/unity-catalog/iceberg-rest/v1/catalogs/workspace/namespaces/irc_probe_20260903173234/tables/probe_tbl_r",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "databricks-unity",
+      "signature": "DELETE /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "variant_of": null,
+      "depends_on": "create_table",
+      "ts": 1788471177.8927355,
+      "elapsed_ms": 164.1,
+      "response": {
+        "status": 404,
+        "headers": {
+          "content-type": "application/json",
+          "date": "Thu, 3 Sep 2026 21:32:58 GMT",
+          "x-databricks-org-id": "7474647216480489",
+          "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+          "x-content-type-options": "nosniff",
+          "x-request-id": "guid-0170",
+          "content-encoding": "gzip",
+          "vary": "Accept-Encoding",
+          "server": "databricks",
+          "alt-svc": "clear",
+          "server-timing": "request_id;dur=0;desc=\"guid-0170\", client_protocol;dur=0;desc=\"HTTP/1.1\"",
+          "transfer-encoding": "chunked"
+        },
+        "body": {
+          "error": {
+            "message": "Table irc_probe_20260903173234.probe_tbl_r not found. (request_id: guid-0170)",
+            "type": "NoSuchTableException",
+            "code": 404
+          }
+        }
+      },
+      "verdict": "NOT_FOUND",
+      "declared": true,
+      "reconciled": "declared, works"
+    },
+    {
+      "probe": "create_view",
+      "category": "view",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "CreateView",
+      "why": "createView with a minimal SQL representation.",
+      "request": {
+        "method": "POST",
+        "url": "https://catalog-host-0002/api/2.1/unity-catalog/iceberg-rest/v1/catalogs/workspace/namespaces/irc_probe_20260903173234/views",
+        "body": {
+          "name": "probe_view",
+          "schema": {
+            "type": "struct",
+            "schema-id": 0,
+            "fields": [
+              {
+                "id": 1,
+                "name": "id",
+                "required": false,
+                "type": "long"
+              }
+            ]
+          },
+          "view-version": {
+            "version-id": 1,
+            "schema-id": 0,
+            "timestamp-ms": 1788471154960,
+            "summary": {
+              "operation": "create"
+            },
+            "default-namespace": [
+              "irc_probe_20260903173234"
+            ],
+            "representations": [
+              {
+                "type": "sql",
+                "sql": "SELECT 1 AS id",
+                "dialect": "spark"
+              }
+            ]
+          },
+          "properties": {
+            "probe": "conformance"
+          }
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Content-Type": "application/json",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "databricks-unity",
+      "signature": "POST /v1/{prefix}/namespaces/{namespace}/views",
+      "variant_of": null,
+      "depends_on": "create_namespace",
+      "ts": 1788471178.0572736,
+      "elapsed_ms": 116.0,
+      "response": {
+        "status": 404,
+        "headers": {
+          "content-type": "application/json; charset=utf-8",
+          "date": "Thu, 3 Sep 2026 21:32:58 GMT",
+          "x-databricks-org-id": "7474647216480489",
+          "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+          "x-content-type-options": "nosniff",
+          "x-request-id": "guid-0171",
+          "content-encoding": "gzip",
+          "vary": "Accept-Encoding",
+          "server": "databricks",
+          "alt-svc": "clear",
+          "server-timing": "request_id;dur=0;desc=\"guid-0171\", client_protocol;dur=0;desc=\"HTTP/1.1\"",
+          "transfer-encoding": "chunked"
+        },
+        "body": {
+          "error_code": "ENDPOINT_NOT_FOUND",
+          "message": "No API found for 'POST /unity-catalog/iceberg-rest/v1/catalogs/workspace/namespaces/irc_probe_20260903173234/views'",
+          "details": [
+            {
+              "@type": "type.googleapis.com/google.rpc.RequestInfo",
+              "request_id": "guid-0171",
+              "serving_data": ""
+            }
+          ]
+        }
+      },
+      "verdict": "NOT_FOUND",
+      "declared": false,
+      "reconciled": "undeclared, fails"
+    },
+    {
+      "probe": "load_view",
+      "category": "view",
+      "tier": "write",
+      "surface": "read",
+      "spec_ref": "LoadView",
+      "why": "loadView -- the read counterpart of loadTable for views.",
+      "request": {
+        "method": "GET",
+        "url": "https://catalog-host-0002/api/2.1/unity-catalog/iceberg-rest/v1/catalogs/workspace/namespaces/irc_probe_20260903173234/views/probe_view",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "databricks-unity",
+      "signature": "GET /v1/{prefix}/namespaces/{namespace}/views/{view}",
+      "variant_of": null,
+      "depends_on": "create_view",
+      "ts": 1788471178.1738832,
+      "elapsed_ms": 111.4,
+      "response": {
+        "status": 404,
+        "headers": {
+          "content-type": "application/json",
+          "date": "Thu, 3 Sep 2026 21:32:58 GMT",
+          "x-databricks-org-id": "7474647216480489",
+          "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+          "x-content-type-options": "nosniff",
+          "x-request-id": "guid-0172",
+          "content-encoding": "gzip",
+          "vary": "Accept-Encoding",
+          "server": "databricks",
+          "alt-svc": "clear",
+          "server-timing": "request_id;dur=0;desc=\"guid-0172\", client_protocol;dur=0;desc=\"HTTP/1.1\"",
+          "transfer-encoding": "chunked"
+        },
+        "body": {
+          "error": {
+            "message": "View workspace.irc_probe_20260903173234.probe_view not found. (request_id: guid-0172)",
+            "type": "NoSuchViewException",
+            "code": 404
+          }
+        }
+      },
+      "verdict": "INDETERMINATE",
+      "indeterminate_reason": "prerequisite 'create_view' did not succeed"
+    },
+    {
+      "probe": "head_view",
+      "category": "view",
+      "tier": "write",
+      "surface": "read",
+      "spec_ref": "ViewExists",
+      "why": "viewExists.",
+      "request": {
+        "method": "HEAD",
+        "url": "https://catalog-host-0002/api/2.1/unity-catalog/iceberg-rest/v1/catalogs/workspace/namespaces/irc_probe_20260903173234/views/probe_view",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "databricks-unity",
+      "signature": "HEAD /v1/{prefix}/namespaces/{namespace}/views/{view}",
+      "variant_of": null,
+      "depends_on": "create_view",
+      "ts": 1788471178.2855465,
+      "elapsed_ms": 107.2,
+      "response": {
+        "status": 404,
+        "headers": {
+          "content-type": "application/json",
+          "content-length": "176",
+          "date": "Thu, 3 Sep 2026 21:32:58 GMT",
+          "x-databricks-org-id": "7474647216480489",
+          "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+          "x-content-type-options": "nosniff",
+          "x-request-id": "guid-0173",
+          "vary": "Accept-Encoding",
+          "server": "databricks",
+          "alt-svc": "clear",
+          "server-timing": "request_id;dur=0;desc=\"guid-0173\", client_protocol;dur=0;desc=\"HTTP/1.1\""
+        },
+        "body": null
+      },
+      "verdict": "INDETERMINATE",
+      "indeterminate_reason": "prerequisite 'create_view' did not succeed"
+    },
+    {
+      "probe": "replace_view",
+      "category": "view",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "ReplaceView",
+      "why": "replaceView: a property-set commit against the view.",
+      "request": {
+        "method": "POST",
+        "url": "https://catalog-host-0002/api/2.1/unity-catalog/iceberg-rest/v1/catalogs/workspace/namespaces/irc_probe_20260903173234/views/probe_view",
+        "body": {
+          "requirements": [],
+          "updates": [
+            {
+              "action": "set-properties",
+              "updates": {
+                "probe-commit": "1"
+              }
+            }
+          ]
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Content-Type": "application/json",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "databricks-unity",
+      "signature": "POST /v1/{prefix}/namespaces/{namespace}/views/{view}",
+      "variant_of": null,
+      "depends_on": "create_view",
+      "ts": 1788471178.3931272,
+      "elapsed_ms": 118.2,
+      "response": {
+        "status": 404,
+        "headers": {
+          "content-type": "application/json; charset=utf-8",
+          "date": "Thu, 3 Sep 2026 21:32:58 GMT",
+          "x-databricks-org-id": "7474647216480489",
+          "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+          "x-content-type-options": "nosniff",
+          "x-request-id": "guid-0174",
+          "content-encoding": "gzip",
+          "vary": "Accept-Encoding",
+          "server": "databricks",
+          "alt-svc": "clear",
+          "server-timing": "request_id;dur=0;desc=\"guid-0174\", client_protocol;dur=0;desc=\"HTTP/1.1\"",
+          "transfer-encoding": "chunked"
+        },
+        "body": {
+          "error_code": "ENDPOINT_NOT_FOUND",
+          "message": "No API found for 'POST /unity-catalog/iceberg-rest/v1/catalogs/workspace/namespaces/irc_probe_20260903173234/views/probe_view'",
+          "details": [
+            {
+              "@type": "type.googleapis.com/google.rpc.RequestInfo",
+              "request_id": "guid-0174",
+              "serving_data": ""
+            }
+          ]
+        }
+      },
+      "verdict": "NOT_FOUND",
+      "declared": false,
+      "reconciled": "undeclared, fails"
+    },
+    {
+      "probe": "rename_view",
+      "category": "view",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "RenameView",
+      "why": "renameView -- separate from renameTable in the spec.",
+      "request": {
+        "method": "POST",
+        "url": "https://catalog-host-0002/api/2.1/unity-catalog/iceberg-rest/v1/catalogs/workspace/views/rename",
+        "body": {
+          "source": {
+            "namespace": [
+              "irc_probe_20260903173234"
+            ],
+            "name": "probe_view"
+          },
+          "destination": {
+            "namespace": [
+              "irc_probe_20260903173234"
+            ],
+            "name": "probe_view_r"
+          }
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Content-Type": "application/json",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "databricks-unity",
+      "signature": "POST /v1/{prefix}/views/rename",
+      "variant_of": null,
+      "depends_on": "create_view",
+      "ts": 1788471178.5117095,
+      "elapsed_ms": 117.1,
+      "response": {
+        "status": 404,
+        "headers": {
+          "content-type": "application/json; charset=utf-8",
+          "date": "Thu, 3 Sep 2026 21:32:58 GMT",
+          "x-databricks-org-id": "7474647216480489",
+          "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+          "x-content-type-options": "nosniff",
+          "x-request-id": "guid-0175",
+          "content-encoding": "gzip",
+          "vary": "Accept-Encoding",
+          "server": "databricks",
+          "alt-svc": "clear",
+          "server-timing": "request_id;dur=0;desc=\"guid-0175\", client_protocol;dur=0;desc=\"HTTP/1.1\"",
+          "transfer-encoding": "chunked"
+        },
+        "body": {
+          "error_code": "ENDPOINT_NOT_FOUND",
+          "message": "No API found for 'POST /unity-catalog/iceberg-rest/v1/catalogs/workspace/views/rename'",
+          "details": [
+            {
+              "@type": "type.googleapis.com/google.rpc.RequestInfo",
+              "request_id": "guid-0175",
+              "serving_data": ""
+            }
+          ]
+        }
+      },
+      "verdict": "NOT_FOUND",
+      "declared": false,
+      "reconciled": "undeclared, fails"
+    },
+    {
+      "probe": "drop_view",
+      "category": "cleanup",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "DropView",
+      "why": "dropView, and the cleanup that must succeed before the namespace goes.",
+      "request": {
+        "method": "DELETE",
+        "url": "https://catalog-host-0002/api/2.1/unity-catalog/iceberg-rest/v1/catalogs/workspace/namespaces/irc_probe_20260903173234/views/probe_view",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "databricks-unity",
+      "signature": "DELETE /v1/{prefix}/namespaces/{namespace}/views/{view}",
+      "variant_of": null,
+      "depends_on": "create_view",
+      "ts": 1788471178.629248,
+      "elapsed_ms": 114.7,
+      "response": {
+        "status": 404,
+        "headers": {
+          "content-type": "application/json; charset=utf-8",
+          "date": "Thu, 3 Sep 2026 21:32:58 GMT",
+          "x-databricks-org-id": "7474647216480489",
+          "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+          "x-content-type-options": "nosniff",
+          "x-request-id": "guid-0176",
+          "content-encoding": "gzip",
+          "vary": "Accept-Encoding",
+          "server": "databricks",
+          "alt-svc": "clear",
+          "server-timing": "request_id;dur=0;desc=\"guid-0176\", client_protocol;dur=0;desc=\"HTTP/1.1\"",
+          "transfer-encoding": "chunked"
+        },
+        "body": {
+          "error_code": "ENDPOINT_NOT_FOUND",
+          "message": "No API found for 'DELETE /unity-catalog/iceberg-rest/v1/catalogs/workspace/namespaces/irc_probe_20260903173234/views/probe_view'",
+          "details": [
+            {
+              "@type": "type.googleapis.com/google.rpc.RequestInfo",
+              "request_id": "guid-0176",
+              "serving_data": ""
+            }
+          ]
+        }
+      },
+      "verdict": "NOT_FOUND",
+      "declared": false,
+      "reconciled": "undeclared, fails"
+    },
+    {
+      "probe": "drop_namespace",
+      "category": "cleanup",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "DropNamespace",
+      "why": "Cleanup.",
+      "request": {
+        "method": "DELETE",
+        "url": "https://catalog-host-0002/api/2.1/unity-catalog/iceberg-rest/v1/catalogs/workspace/namespaces/irc_probe_20260903173234",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "databricks-unity",
+      "signature": "DELETE /v1/{prefix}/namespaces/{namespace}",
+      "variant_of": null,
+      "depends_on": "create_namespace",
+      "ts": 1788471178.744188,
+      "elapsed_ms": 250.0,
+      "response": {
+        "status": 204,
+        "headers": {
+          "date": "Thu, 3 Sep 2026 21:32:58 GMT",
+          "x-databricks-org-id": "7474647216480489",
+          "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+          "x-content-type-options": "nosniff",
+          "x-request-id": "guid-0177",
+          "vary": "Accept-Encoding",
+          "server": "databricks",
+          "alt-svc": "clear",
+          "server-timing": "request_id;dur=0;desc=\"guid-0177\", client_protocol;dur=0;desc=\"HTTP/1.1\""
+        },
+        "body": null
+      },
+      "verdict": "OK",
+      "declared": true,
+      "reconciled": "declared, works"
+    }
+  ],
+  "load_table_fields": {
+    "metadata-location": {
+      "state": "PRESENT",
+      "why": "Where the table metadata actually lives"
+    },
+    "config": {
+      "state": "PRESENT",
+      "why": "Per-table client overrides"
+    },
+    "storage-credentials": {
+      "state": "EMPTY",
+      "why": "Vended credentials inline on load"
+    },
+    "metadata.format-version": {
+      "state": "PRESENT",
+      "why": "Iceberg v1 / v2 / v3"
+    },
+    "metadata.table-uuid": {
+      "state": "PRESENT",
+      "why": "Stable identity across renames"
+    },
+    "metadata.location": {
+      "state": "PRESENT",
+      "why": "Table root"
+    },
+    "metadata.last-updated-ms": {
+      "state": "PRESENT",
+      "why": "Freshness"
+    },
+    "metadata.last-column-id": {
+      "state": "PRESENT",
+      "why": "Column-ID allocation state"
+    },
+    "metadata.schemas": {
+      "state": "PRESENT",
+      "why": "Full schema history, not just current"
+    },
+    "metadata.current-schema-id": {
+      "state": "PRESENT",
+      "why": "Which schema is live"
+    },
+    "metadata.schemas[].fields[].id": {
+      "state": "PRESENT",
+      "why": "Column IDs \u2014 schema evolution depends on these"
+    },
+    "metadata.schemas[].fields[].required": {
+      "state": "PRESENT",
+      "why": "Nullability"
+    },
+    "metadata.partition-specs": {
+      "state": "PRESENT",
+      "why": "Partition spec history"
+    },
+    "metadata.default-spec-id": {
+      "state": "PRESENT",
+      "why": "Which spec is live"
+    },
+    "metadata.partition-specs[].fields[].transform": {
+      "state": "ABSENT",
+      "why": "Partition transforms"
+    },
+    "metadata.last-partition-id": {
+      "state": "PRESENT",
+      "why": "Partition field-ID allocation state"
+    },
+    "metadata.sort-orders": {
+      "state": "PRESENT",
+      "why": "Sort order history"
+    },
+    "metadata.default-sort-order-id": {
+      "state": "PRESENT",
+      "why": "Which sort order is live"
+    },
+    "metadata.properties": {
+      "state": "PRESENT",
+      "why": "Table properties"
+    },
+    "metadata.current-snapshot-id": {
+      "state": "PRESENT",
+      "why": "Current snapshot pointer"
+    },
+    "metadata.snapshots": {
+      "state": "PRESENT",
+      "why": "Snapshot list \u2014 time travel"
+    },
+    "metadata.snapshots[].summary": {
+      "state": "PRESENT",
+      "why": "Row/file counts per snapshot"
+    },
+    "metadata.snapshots[].manifest-list": {
+      "state": "PRESENT",
+      "why": "Manifest list pointer"
+    },
+    "metadata.snapshots[].schema-id": {
+      "state": "PRESENT",
+      "why": "Per-snapshot schema binding"
+    },
+    "metadata.snapshots[].sequence-number": {
+      "state": "PRESENT",
+      "why": "v2 sequence numbers \u2014 row-level deletes"
+    },
+    "metadata.snapshot-log": {
+      "state": "PRESENT",
+      "why": "Snapshot lineage over time"
+    },
+    "metadata.metadata-log": {
+      "state": "PRESENT",
+      "why": "Previous metadata files"
+    },
+    "metadata.refs": {
+      "state": "PRESENT",
+      "why": "Branches and tags"
+    },
+    "metadata.statistics": {
+      "state": "EMPTY",
+      "why": "Table-level statistics files"
+    },
+    "metadata.partition-statistics": {
+      "state": "EMPTY",
+      "why": "Partition-level statistics files"
+    }
+  },
+  "seed_profile": {
+    "schemas": 2,
+    "partition_fields": 0,
+    "sort_fields": 0,
+    "snapshots": 4,
+    "refs": [
+      "main"
+    ],
+    "has_delete_snapshot": true,
+    "delete_files": 0
+  }
+}
