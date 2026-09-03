@@ -1,0 +1,2301 @@
+{
+  "catalog": "microsoft-onelake",
+  "base_url": "https://onelake.table.fabric.microsoft.com/iceberg",
+  "resolved_prefix": "guid-0197/guid-0198",
+  "auth_kind": "azure_cli",
+  "harness_fingerprint": "8f2caf7575dd",
+  "declared_endpoints": [
+    "GET /v1/{prefix}/namespaces",
+    "POST /v1/{prefix}/namespaces",
+    "GET /v1/{prefix}/namespaces/{namespace}",
+    "HEAD /v1/{prefix}/namespaces/{namespace}",
+    "DELETE /v1/{prefix}/namespaces/{namespace}",
+    "GET /v1/{prefix}/namespaces/{namespace}/tables",
+    "GET /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+    "HEAD /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+    "POST /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+    "DELETE /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+    "POST /v1/{prefix}/namespaces/{namespace}/tables",
+    "POST /v1/{prefix}/tables/rename",
+    "GET /v1/{prefix}/namespaces/{namespace}/tables/{table}/credentials"
+  ],
+  "namespace": "dbo",
+  "table": "probe_table",
+  "allow_writes": true,
+  "run_at": "2026-09-03T21:32:02Z",
+  "probes": [
+    {
+      "probe": "config",
+      "category": "config",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "GetConfig",
+      "why": "Advertises the routing prefix and vendor overrides. Everything else depends on what this returns.",
+      "request": {
+        "method": "GET",
+        "url": "https://onelake.table.fabric.microsoft.com/iceberg/v1/config?warehouse=guid-0197%2Fguid-0198",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "microsoft-onelake",
+      "signature": "GET /v1/config",
+      "variant_of": null,
+      "depends_on": null,
+      "ts": 1788471119.3369882,
+      "elapsed_ms": 327.4,
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json",
+          "Date": "Thu, 03 Sep 2026 21:31:59 GMT",
+          "Server": "Kestrel",
+          "Access-Control-Allow-Headers": "*",
+          "Access-Control-Allow-Methods": "*",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Expose-Headers": "*,Authorization",
+          "Transfer-Encoding": "chunked",
+          "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+          "X-Content-Type-Options": "nosniff",
+          "x-ms-root-activity-id": "guid-0199"
+        },
+        "body": {
+          "defaults": {},
+          "endpoints": [
+            "GET /v1/{prefix}/namespaces",
+            "POST /v1/{prefix}/namespaces",
+            "GET /v1/{prefix}/namespaces/{namespace}",
+            "HEAD /v1/{prefix}/namespaces/{namespace}",
+            "DELETE /v1/{prefix}/namespaces/{namespace}",
+            "GET /v1/{prefix}/namespaces/{namespace}/tables",
+            "GET /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+            "HEAD /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+            "POST /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+            "DELETE /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+            "POST /v1/{prefix}/namespaces/{namespace}/tables",
+            "POST /v1/{prefix}/tables/rename",
+            "GET /v1/{prefix}/namespaces/{namespace}/tables/{table}/credentials"
+          ],
+          "overrides": {
+            "prefix": "guid-0197/guid-0198"
+          }
+        }
+      },
+      "verdict": "OK",
+      "declared": false,
+      "reconciled": "undeclared, works"
+    },
+    {
+      "probe": "list_namespaces",
+      "category": "namespace",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "ListNamespaces",
+      "why": "The baseline read. If this 404s the prefix is wrong, not the catalog.",
+      "request": {
+        "method": "GET",
+        "url": "https://onelake.table.fabric.microsoft.com/iceberg/v1/guid-0197/guid-0198/namespaces",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "microsoft-onelake",
+      "signature": "GET /v1/{prefix}/namespaces",
+      "variant_of": null,
+      "depends_on": null,
+      "ts": 1788471119.9934568,
+      "elapsed_ms": 298.8,
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json",
+          "Date": "Thu, 03 Sep 2026 21:31:59 GMT",
+          "Server": "Kestrel",
+          "Access-Control-Allow-Headers": "*",
+          "Access-Control-Allow-Methods": "*",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Expose-Headers": "*,Authorization",
+          "Transfer-Encoding": "chunked",
+          "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+          "X-Content-Type-Options": "nosniff",
+          "x-ms-root-activity-id": "guid-0200"
+        },
+        "body": {
+          "namespaces": [
+            [
+              "dbo"
+            ]
+          ],
+          "next-page-token": null
+        }
+      },
+      "verdict": "OK",
+      "declared": true,
+      "reconciled": "declared, works"
+    },
+    {
+      "probe": "list_namespaces_paged",
+      "category": "namespace",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "ListNamespaces",
+      "why": "Pagination is optional in the spec. Who honours pageSize, who ignores it?",
+      "request": {
+        "method": "GET",
+        "url": "https://onelake.table.fabric.microsoft.com/iceberg/v1/guid-0197/guid-0198/namespaces?pageSize=1",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "microsoft-onelake",
+      "signature": "GET /v1/{prefix}/namespaces",
+      "variant_of": "list_namespaces",
+      "depends_on": null,
+      "ts": 1788471120.2926877,
+      "elapsed_ms": 38.4,
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json",
+          "Date": "Thu, 03 Sep 2026 21:31:59 GMT",
+          "Server": "Kestrel",
+          "Access-Control-Allow-Headers": "*",
+          "Access-Control-Allow-Methods": "*",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Expose-Headers": "*,Authorization",
+          "Transfer-Encoding": "chunked",
+          "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+          "X-Content-Type-Options": "nosniff",
+          "x-ms-root-activity-id": "guid-0201"
+        },
+        "body": {
+          "namespaces": [
+            [
+              "dbo"
+            ]
+          ],
+          "next-page-token": null
+        }
+      },
+      "verdict": "OK"
+    },
+    {
+      "probe": "list_namespaces_parent",
+      "category": "namespace",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "ListNamespaces",
+      "why": "Multi-level namespaces. OneLake documents that it does NOT support the parent param, so this cell is a known negative going in.",
+      "request": {
+        "method": "GET",
+        "url": "https://onelake.table.fabric.microsoft.com/iceberg/v1/guid-0197/guid-0198/namespaces?parent=dbo",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "microsoft-onelake",
+      "signature": "GET /v1/{prefix}/namespaces",
+      "variant_of": "list_namespaces",
+      "depends_on": null,
+      "ts": 1788471120.3315163,
+      "elapsed_ms": 151.2,
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json",
+          "Date": "Thu, 03 Sep 2026 21:31:59 GMT",
+          "Server": "Kestrel",
+          "Access-Control-Allow-Headers": "*",
+          "Access-Control-Allow-Methods": "*",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Expose-Headers": "*,Authorization",
+          "Transfer-Encoding": "chunked",
+          "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+          "X-Content-Type-Options": "nosniff",
+          "x-ms-root-activity-id": "guid-0202"
+        },
+        "body": {
+          "namespaces": [],
+          "next-page-token": null
+        }
+      },
+      "verdict": "OK"
+    },
+    {
+      "probe": "load_namespace",
+      "category": "namespace",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "LoadNamespaceMetadata",
+      "why": "Namespace properties round-trip.",
+      "request": {
+        "method": "GET",
+        "url": "https://onelake.table.fabric.microsoft.com/iceberg/v1/guid-0197/guid-0198/namespaces/dbo",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "microsoft-onelake",
+      "signature": "GET /v1/{prefix}/namespaces/{namespace}",
+      "variant_of": null,
+      "depends_on": null,
+      "ts": 1788471120.4830945,
+      "elapsed_ms": 48.4,
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json",
+          "Date": "Thu, 03 Sep 2026 21:31:59 GMT",
+          "Server": "Kestrel",
+          "Access-Control-Allow-Headers": "*",
+          "Access-Control-Allow-Methods": "*",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Expose-Headers": "*,Authorization",
+          "Transfer-Encoding": "chunked",
+          "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+          "X-Content-Type-Options": "nosniff",
+          "x-ms-root-activity-id": "guid-0203"
+        },
+        "body": {
+          "namespace": [
+            "dbo"
+          ],
+          "properties": {
+            "location": "guid-0197/guid-0198/Tables/dbo"
+          }
+        }
+      },
+      "verdict": "OK",
+      "declared": true,
+      "reconciled": "declared, works"
+    },
+    {
+      "probe": "head_namespace",
+      "category": "namespace",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "NamespaceExists",
+      "why": "Existence check without a body. Commonly unimplemented.",
+      "request": {
+        "method": "HEAD",
+        "url": "https://onelake.table.fabric.microsoft.com/iceberg/v1/guid-0197/guid-0198/namespaces/dbo",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "microsoft-onelake",
+      "signature": "HEAD /v1/{prefix}/namespaces/{namespace}",
+      "variant_of": null,
+      "depends_on": null,
+      "ts": 1788471120.531934,
+      "elapsed_ms": 62.7,
+      "response": {
+        "status": 204,
+        "headers": {
+          "Date": "Thu, 03 Sep 2026 21:31:59 GMT",
+          "Server": "Kestrel",
+          "Access-Control-Allow-Headers": "*",
+          "Access-Control-Allow-Methods": "*",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Expose-Headers": "*,Authorization",
+          "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+          "X-Content-Type-Options": "nosniff",
+          "x-ms-root-activity-id": "guid-0204"
+        },
+        "body": null
+      },
+      "verdict": "OK",
+      "declared": true,
+      "reconciled": "declared, works"
+    },
+    {
+      "probe": "list_tables",
+      "category": "table",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "ListTables",
+      "why": "Table listing within a namespace.",
+      "request": {
+        "method": "GET",
+        "url": "https://onelake.table.fabric.microsoft.com/iceberg/v1/guid-0197/guid-0198/namespaces/dbo/tables",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "microsoft-onelake",
+      "signature": "GET /v1/{prefix}/namespaces/{namespace}/tables",
+      "variant_of": null,
+      "depends_on": null,
+      "ts": 1788471120.5949175,
+      "elapsed_ms": 67.3,
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json",
+          "Date": "Thu, 03 Sep 2026 21:31:59 GMT",
+          "Server": "Kestrel",
+          "Access-Control-Allow-Headers": "*",
+          "Access-Control-Allow-Methods": "*",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Expose-Headers": "*,Authorization",
+          "Transfer-Encoding": "chunked",
+          "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+          "X-Content-Type-Options": "nosniff",
+          "x-ms-root-activity-id": "guid-0205"
+        },
+        "body": {
+          "identifiers": [
+            {
+              "namespace": [
+                "dbo"
+              ],
+              "name": "probe_table"
+            }
+          ],
+          "next-page-token": null
+        }
+      },
+      "verdict": "OK",
+      "declared": true,
+      "reconciled": "declared, works"
+    },
+    {
+      "probe": "load_table",
+      "category": "table",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "LoadTable",
+      "why": "The load-bearing call. Feeds the entire field tier below.",
+      "request": {
+        "method": "GET",
+        "url": "https://onelake.table.fabric.microsoft.com/iceberg/v1/guid-0197/guid-0198/namespaces/dbo/tables/probe_table",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "microsoft-onelake",
+      "signature": "GET /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "variant_of": null,
+      "depends_on": null,
+      "ts": 1788471120.6626828,
+      "elapsed_ms": 493.4,
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json",
+          "Date": "Thu, 03 Sep 2026 21:32:01 GMT",
+          "Server": "Kestrel",
+          "Access-Control-Allow-Headers": "*",
+          "Access-Control-Allow-Methods": "*",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Expose-Headers": "*,Authorization",
+          "Transfer-Encoding": "chunked",
+          "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+          "X-Content-Type-Options": "nosniff",
+          "x-ms-root-activity-id": "guid-0206"
+        },
+        "body": {
+          "metadata-location": "abfss://bucket-0004/guid-0198/Tables/probe_table/metadata/v3.metadata.json",
+          "metadata": {
+            "format-version": 2,
+            "table-uuid": "guid-0207",
+            "location": "abfss://bucket-0004/guid-0198/Tables/probe_table",
+            "last-sequence-number": 1,
+            "last-updated-ms": 1788467061050,
+            "last-column-id": 3,
+            "current-schema-id": 1,
+            "schemas": [
+              {
+                "type": "struct",
+                "schema-id": 0,
+                "fields": []
+              },
+              {
+                "type": "struct",
+                "schema-id": 1,
+                "fields": [
+                  {
+                    "id": 1,
+                    "name": "id",
+                    "required": false,
+                    "type": "int"
+                  },
+                  {
+                    "id": 2,
+                    "name": "ts",
+                    "required": false,
+                    "type": "timestamptz"
+                  },
+                  {
+                    "id": 3,
+                    "name": "payload",
+                    "required": false,
+                    "type": "string"
+                  }
+                ]
+              }
+            ],
+            "default-spec-id": 0,
+            "partition-specs": [
+              {
+                "spec-id": 0,
+                "fields": []
+              }
+            ],
+            "last-partition-id": 999,
+            "default-sort-order-id": 0,
+            "sort-orders": [
+              {
+                "order-id": 0,
+                "fields": []
+              }
+            ],
+            "properties": {
+              "schema.name-mapping.default": "[ {\n  \"field-id\" : 1,\n  \"names\" : [ \"id\" ]\n}, {\n  \"field-id\" : 2,\n  \"names\" : [ \"ts\" ]\n}, {\n  \"field-id\" : 3,\n  \"names\" : [ \"payload\" ]\n} ]",
+              "write.metadata.delete-after-commit.enabled": "true",
+              "write.data.path": "abfs://bucket-0004/guid-0198/Tables/probe_table",
+              "XTABLE_METADATA": "{\"lastInstantSynced\":\"2026-09-03T20:23:20Z\",\"instantsToConsiderForNextSync\":[],\"version\":0,\"sourceTableFormat\":\"DELTA\",\"sourceIdentifier\":\"2\",\"targetConversionEpoch\":0}",
+              "write.parquet.compression-codec": "zstd"
+            },
+            "current-snapshot-id": 3346142071915475645,
+            "refs": {
+              "main": {
+                "snapshot-id": 3346142071915475645,
+                "type": "branch"
+              }
+            },
+            "snapshots": [
+              {
+                "sequence-number": 1,
+                "snapshot-id": 3346142071915475645,
+                "timestamp-ms": 1788467061050,
+                "summary": {
+                  "operation": "append",
+                  "XTABLE_METADATA": "{\"lastInstantSynced\":\"2026-09-03T20:23:20Z\",\"instantsToConsiderForNextSync\":[],\"version\":0,\"sourceTableFormat\":\"DELTA\",\"sourceIdentifier\":\"2\",\"targetConversionEpoch\":0}",
+                  "manifests-created": "1",
+                  "manifests-kept": "0",
+                  "manifests-replaced": "0",
+                  "added-data-files": "3",
+                  "added-records": "6",
+                  "added-files-size": "5722",
+                  "changed-partition-count": "1",
+                  "total-records": "6",
+                  "total-files-size": "5722",
+                  "total-data-files": "3",
+                  "total-delete-files": "0",
+                  "total-position-deletes": "0",
+                  "total-equality-deletes": "0",
+                  "iceberg-version": "Apache Iceberg 1.11.0 (commit 6976e020b894f6a6777704df2b8c4458cb291ae9)"
+                },
+                "manifest-list": "abfss://bucket-0004/guid-0198/Tables/probe_table/metadata/snap-3346142071915475645-1-guid-0208.avro",
+                "schema-id": 1
+              }
+            ],
+            "statistics": [],
+            "partition-statistics": [],
+            "snapshot-log": [
+              {
+                "timestamp-ms": 1788467061050,
+                "snapshot-id": 3346142071915475645
+              }
+            ],
+            "metadata-log": [
+              {
+                "timestamp-ms": 1788467059420,
+                "metadata-file": "abfss://bucket-0004/guid-0198/Tables/probe_table/metadata/v1.metadata.json"
+              },
+              {
+                "timestamp-ms": 1788467060081,
+                "metadata-file": "abfss://bucket-0004/guid-0198/Tables/probe_table/metadata/v2.metadata.json"
+              }
+            ]
+          }
+        }
+      },
+      "verdict": "OK",
+      "declared": true,
+      "reconciled": "declared, works"
+    },
+    {
+      "probe": "load_table_snapshots_all",
+      "category": "table",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "LoadTable",
+      "why": "Full snapshot history vs. the refs-only default. Time travel depends on it.",
+      "request": {
+        "method": "GET",
+        "url": "https://onelake.table.fabric.microsoft.com/iceberg/v1/guid-0197/guid-0198/namespaces/dbo/tables/probe_table?snapshots=all",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "microsoft-onelake",
+      "signature": "GET /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "variant_of": "load_table",
+      "depends_on": null,
+      "ts": 1788471121.1574025,
+      "elapsed_ms": 48.1,
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json",
+          "Date": "Thu, 03 Sep 2026 21:32:01 GMT",
+          "Server": "Kestrel",
+          "Access-Control-Allow-Headers": "*",
+          "Access-Control-Allow-Methods": "*",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Expose-Headers": "*,Authorization",
+          "Transfer-Encoding": "chunked",
+          "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+          "X-Content-Type-Options": "nosniff",
+          "x-ms-root-activity-id": "guid-0209"
+        },
+        "body": {
+          "metadata-location": "abfss://bucket-0004/guid-0198/Tables/probe_table/metadata/v3.metadata.json",
+          "metadata": {
+            "format-version": 2,
+            "table-uuid": "guid-0207",
+            "location": "abfss://bucket-0004/guid-0198/Tables/probe_table",
+            "last-sequence-number": 1,
+            "last-updated-ms": 1788467061050,
+            "last-column-id": 3,
+            "current-schema-id": 1,
+            "schemas": [
+              {
+                "type": "struct",
+                "schema-id": 0,
+                "fields": []
+              },
+              {
+                "type": "struct",
+                "schema-id": 1,
+                "fields": [
+                  {
+                    "id": 1,
+                    "name": "id",
+                    "required": false,
+                    "type": "int"
+                  },
+                  {
+                    "id": 2,
+                    "name": "ts",
+                    "required": false,
+                    "type": "timestamptz"
+                  },
+                  {
+                    "id": 3,
+                    "name": "payload",
+                    "required": false,
+                    "type": "string"
+                  }
+                ]
+              }
+            ],
+            "default-spec-id": 0,
+            "partition-specs": [
+              {
+                "spec-id": 0,
+                "fields": []
+              }
+            ],
+            "last-partition-id": 999,
+            "default-sort-order-id": 0,
+            "sort-orders": [
+              {
+                "order-id": 0,
+                "fields": []
+              }
+            ],
+            "properties": {
+              "schema.name-mapping.default": "[ {\n  \"field-id\" : 1,\n  \"names\" : [ \"id\" ]\n}, {\n  \"field-id\" : 2,\n  \"names\" : [ \"ts\" ]\n}, {\n  \"field-id\" : 3,\n  \"names\" : [ \"payload\" ]\n} ]",
+              "write.metadata.delete-after-commit.enabled": "true",
+              "write.data.path": "abfs://bucket-0004/guid-0198/Tables/probe_table",
+              "XTABLE_METADATA": "{\"lastInstantSynced\":\"2026-09-03T20:23:20Z\",\"instantsToConsiderForNextSync\":[],\"version\":0,\"sourceTableFormat\":\"DELTA\",\"sourceIdentifier\":\"2\",\"targetConversionEpoch\":0}",
+              "write.parquet.compression-codec": "zstd"
+            },
+            "current-snapshot-id": 3346142071915475645,
+            "refs": {
+              "main": {
+                "snapshot-id": 3346142071915475645,
+                "type": "branch"
+              }
+            },
+            "snapshots": [
+              {
+                "sequence-number": 1,
+                "snapshot-id": 3346142071915475645,
+                "timestamp-ms": 1788467061050,
+                "summary": {
+                  "operation": "append",
+                  "XTABLE_METADATA": "{\"lastInstantSynced\":\"2026-09-03T20:23:20Z\",\"instantsToConsiderForNextSync\":[],\"version\":0,\"sourceTableFormat\":\"DELTA\",\"sourceIdentifier\":\"2\",\"targetConversionEpoch\":0}",
+                  "manifests-created": "1",
+                  "manifests-kept": "0",
+                  "manifests-replaced": "0",
+                  "added-data-files": "3",
+                  "added-records": "6",
+                  "added-files-size": "5722",
+                  "changed-partition-count": "1",
+                  "total-records": "6",
+                  "total-files-size": "5722",
+                  "total-data-files": "3",
+                  "total-delete-files": "0",
+                  "total-position-deletes": "0",
+                  "total-equality-deletes": "0",
+                  "iceberg-version": "Apache Iceberg 1.11.0 (commit 6976e020b894f6a6777704df2b8c4458cb291ae9)"
+                },
+                "manifest-list": "abfss://bucket-0004/guid-0198/Tables/probe_table/metadata/snap-3346142071915475645-1-guid-0208.avro",
+                "schema-id": 1
+              }
+            ],
+            "statistics": [],
+            "partition-statistics": [],
+            "snapshot-log": [
+              {
+                "timestamp-ms": 1788467061050,
+                "snapshot-id": 3346142071915475645
+              }
+            ],
+            "metadata-log": [
+              {
+                "timestamp-ms": 1788467059420,
+                "metadata-file": "abfss://bucket-0004/guid-0198/Tables/probe_table/metadata/v1.metadata.json"
+              },
+              {
+                "timestamp-ms": 1788467060081,
+                "metadata-file": "abfss://bucket-0004/guid-0198/Tables/probe_table/metadata/v2.metadata.json"
+              }
+            ]
+          }
+        }
+      },
+      "verdict": "OK"
+    },
+    {
+      "probe": "head_table",
+      "category": "table",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "TableExists",
+      "why": "Existence check without a body.",
+      "request": {
+        "method": "HEAD",
+        "url": "https://onelake.table.fabric.microsoft.com/iceberg/v1/guid-0197/guid-0198/namespaces/dbo/tables/probe_table",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "microsoft-onelake",
+      "signature": "HEAD /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "variant_of": null,
+      "depends_on": null,
+      "ts": 1788471121.206659,
+      "elapsed_ms": 58.8,
+      "response": {
+        "status": 204,
+        "headers": {
+          "Date": "Thu, 03 Sep 2026 21:32:01 GMT",
+          "Server": "Kestrel",
+          "Access-Control-Allow-Headers": "*",
+          "Access-Control-Allow-Methods": "*",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Expose-Headers": "*,Authorization",
+          "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+          "X-Content-Type-Options": "nosniff",
+          "x-ms-root-activity-id": "guid-0210"
+        },
+        "body": null
+      },
+      "verdict": "OK",
+      "declared": true,
+      "reconciled": "declared, works"
+    },
+    {
+      "probe": "load_credentials",
+      "category": "credentials",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "LoadCredentials",
+      "why": "Vended storage credentials. The newest and least evenly adopted endpoint.",
+      "request": {
+        "method": "GET",
+        "url": "https://onelake.table.fabric.microsoft.com/iceberg/v1/guid-0197/guid-0198/namespaces/dbo/tables/probe_table/credentials",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "microsoft-onelake",
+      "signature": "GET /v1/{prefix}/namespaces/{namespace}/tables/{table}/credentials",
+      "variant_of": null,
+      "depends_on": null,
+      "ts": 1788471121.2656293,
+      "elapsed_ms": 292.0,
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json",
+          "Date": "Thu, 03 Sep 2026 21:32:01 GMT",
+          "Server": "Kestrel",
+          "Access-Control-Allow-Headers": "*",
+          "Access-Control-Allow-Methods": "*",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Expose-Headers": "*,Authorization",
+          "Transfer-Encoding": "chunked",
+          "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+          "X-Content-Type-Options": "nosniff",
+          "x-ms-root-activity-id": "guid-0211"
+        },
+        "body": {
+          "storage-credentials": [
+            {
+              "prefix": "https://catalog-host-0003/guid-0197/guid-0198/Tables/probe_table",
+              "config": {
+                "expiration-time": "1788471762000",
+                "adls.sas-token.catalog-host-0003": "<redacted:328 chars>"
+              }
+            }
+          ]
+        }
+      },
+      "verdict": "OK",
+      "declared": true,
+      "reconciled": "declared, works"
+    },
+    {
+      "probe": "list_views",
+      "category": "view",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "ListViews",
+      "why": "Iceberg views are a separate spec section and adoption is patchy.",
+      "request": {
+        "method": "GET",
+        "url": "https://onelake.table.fabric.microsoft.com/iceberg/v1/guid-0197/guid-0198/namespaces/dbo/views",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "microsoft-onelake",
+      "signature": "GET /v1/{prefix}/namespaces/{namespace}/views",
+      "variant_of": null,
+      "depends_on": null,
+      "ts": 1788471121.5581973,
+      "elapsed_ms": 33.2,
+      "response": {
+        "status": 404,
+        "headers": {
+          "Content-Type": "application/json",
+          "Date": "Thu, 03 Sep 2026 21:32:01 GMT",
+          "Server": "Kestrel",
+          "Access-Control-Allow-Headers": "*",
+          "Access-Control-Allow-Methods": "*",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Expose-Headers": "*,Authorization",
+          "Transfer-Encoding": "chunked",
+          "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+          "X-Content-Type-Options": "nosniff",
+          "x-ms-root-activity-id": "guid-0212"
+        },
+        "body": {
+          "error": {
+            "code": "NotFound",
+            "message": "Requested Api is not found.",
+            "target": null,
+            "details": null
+          }
+        }
+      },
+      "verdict": "NOT_FOUND",
+      "declared": false,
+      "reconciled": "undeclared, fails"
+    },
+    {
+      "probe": "plan_table_scan",
+      "category": "planning",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "PlanTableScan",
+      "why": "Server-side scan planning. Recent addition; expect mostly 404/501.",
+      "request": {
+        "method": "POST",
+        "url": "https://onelake.table.fabric.microsoft.com/iceberg/v1/guid-0197/guid-0198/namespaces/dbo/tables/probe_table/plan",
+        "body": {
+          "select": [
+            "*"
+          ],
+          "case-sensitive": false
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Content-Type": "application/json",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "microsoft-onelake",
+      "signature": "POST /v1/{prefix}/namespaces/{namespace}/tables/{table}/plan",
+      "variant_of": null,
+      "depends_on": null,
+      "ts": 1788471121.5919347,
+      "elapsed_ms": 30.3,
+      "response": {
+        "status": 405,
+        "headers": {
+          "Content-Length": "0",
+          "Date": "Thu, 03 Sep 2026 21:32:01 GMT",
+          "Server": "Kestrel",
+          "Access-Control-Allow-Headers": "*",
+          "Access-Control-Allow-Methods": "*",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Expose-Headers": "*,Authorization",
+          "Allow": "GET",
+          "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+          "X-Content-Type-Options": "nosniff",
+          "x-ms-root-activity-id": "guid-0213"
+        },
+        "body": null
+      },
+      "verdict": "METHOD_NOT_ALLOWED",
+      "declared": false,
+      "reconciled": "undeclared, fails"
+    },
+    {
+      "probe": "report_metrics",
+      "category": "telemetry",
+      "tier": "read",
+      "surface": "read",
+      "spec_ref": "ReportMetrics",
+      "why": "Metrics reporting. Widely stubbed to 204 without storing anything. Body must be a complete ScanReport or a 400 tells you nothing.",
+      "request": {
+        "method": "POST",
+        "url": "https://onelake.table.fabric.microsoft.com/iceberg/v1/guid-0197/guid-0198/namespaces/dbo/tables/probe_table/metrics",
+        "body": {
+          "report-type": "scan-report",
+          "table-name": "probe_table",
+          "snapshot-id": 1,
+          "filter": {
+            "type": "eq",
+            "term": "id",
+            "value": 1
+          },
+          "schema-id": 0,
+          "projected-field-ids": [
+            1
+          ],
+          "projected-field-names": [
+            "id"
+          ],
+          "metrics": {
+            "total-planning-duration": {
+              "count": 1,
+              "time-unit": "nanoseconds",
+              "total-duration": 1
+            },
+            "total-file-size-in-bytes": {
+              "unit": "bytes",
+              "value": 1
+            },
+            "result-data-files": {
+              "unit": "count",
+              "value": 1
+            }
+          }
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Content-Type": "application/json",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "microsoft-onelake",
+      "signature": "POST /v1/{prefix}/namespaces/{namespace}/tables/{table}/metrics",
+      "variant_of": null,
+      "depends_on": null,
+      "ts": 1788471121.622742,
+      "elapsed_ms": 31.3,
+      "response": {
+        "status": 405,
+        "headers": {
+          "Content-Length": "0",
+          "Date": "Thu, 03 Sep 2026 21:32:01 GMT",
+          "Server": "Kestrel",
+          "Access-Control-Allow-Headers": "*",
+          "Access-Control-Allow-Methods": "*",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Expose-Headers": "*,Authorization",
+          "Allow": "GET",
+          "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+          "X-Content-Type-Options": "nosniff",
+          "x-ms-root-activity-id": "guid-0214"
+        },
+        "body": null
+      },
+      "verdict": "METHOD_NOT_ALLOWED",
+      "declared": false,
+      "reconciled": "undeclared, fails"
+    },
+    {
+      "probe": "create_namespace",
+      "category": "namespace",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "CreateNamespace",
+      "why": "First real write. OneLake is documented read-only, so this is where that shows up as a status code.",
+      "request": {
+        "method": "POST",
+        "url": "https://onelake.table.fabric.microsoft.com/iceberg/v1/guid-0197/guid-0198/namespaces",
+        "body": {
+          "namespace": [
+            "irc_probe_20260903173159"
+          ],
+          "properties": {}
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Content-Type": "application/json",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "microsoft-onelake",
+      "signature": "POST /v1/{prefix}/namespaces",
+      "variant_of": null,
+      "depends_on": null,
+      "ts": 1788471121.6544821,
+      "elapsed_ms": 35.9,
+      "response": {
+        "status": 404,
+        "headers": {
+          "Content-Type": "application/json",
+          "Date": "Thu, 03 Sep 2026 21:32:01 GMT",
+          "Server": "Kestrel",
+          "Access-Control-Allow-Headers": "*",
+          "Access-Control-Allow-Methods": "*",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Expose-Headers": "*,Authorization",
+          "Transfer-Encoding": "chunked",
+          "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+          "X-Content-Type-Options": "nosniff",
+          "x-ms-root-activity-id": "guid-0215"
+        },
+        "body": {
+          "error": {
+            "code": "NotFound",
+            "message": "Requested Api is not found.",
+            "target": null,
+            "details": null
+          }
+        }
+      },
+      "verdict": "NOT_FOUND",
+      "declared": true,
+      "reconciled": "DECLARED, FAILS"
+    },
+    {
+      "probe": "update_namespace_props",
+      "category": "namespace",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "UpdateProperties",
+      "why": "Property updates are separately optional from namespace creation.",
+      "request": {
+        "method": "POST",
+        "url": "https://onelake.table.fabric.microsoft.com/iceberg/v1/guid-0197/guid-0198/namespaces/irc_probe_20260903173159/properties",
+        "body": {
+          "removals": [],
+          "updates": {
+            "probe": "conformance"
+          }
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Content-Type": "application/json",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "microsoft-onelake",
+      "signature": "POST /v1/{prefix}/namespaces/{namespace}/properties",
+      "variant_of": null,
+      "depends_on": "create_namespace",
+      "ts": 1788471121.690762,
+      "elapsed_ms": 29.9,
+      "response": {
+        "status": 405,
+        "headers": {
+          "Content-Length": "0",
+          "Date": "Thu, 03 Sep 2026 21:32:01 GMT",
+          "Server": "Kestrel",
+          "Access-Control-Allow-Headers": "*",
+          "Access-Control-Allow-Methods": "*",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Expose-Headers": "*,Authorization",
+          "Allow": "GET",
+          "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+          "X-Content-Type-Options": "nosniff",
+          "x-ms-root-activity-id": "guid-0216"
+        },
+        "body": null
+      },
+      "verdict": "METHOD_NOT_ALLOWED",
+      "declared": false,
+      "reconciled": "undeclared, fails"
+    },
+    {
+      "probe": "create_table",
+      "category": "table",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "CreateTable",
+      "why": "Table creation with an explicit schema, partition spec and sort order \u2014 checks whether all three survive a round-trip.",
+      "request": {
+        "method": "POST",
+        "url": "https://onelake.table.fabric.microsoft.com/iceberg/v1/guid-0197/guid-0198/namespaces/irc_probe_20260903173159/tables",
+        "body": {
+          "name": "probe_tbl",
+          "schema": {
+            "type": "struct",
+            "schema-id": 0,
+            "fields": [
+              {
+                "id": 1,
+                "name": "id",
+                "required": true,
+                "type": "long"
+              },
+              {
+                "id": 2,
+                "name": "ts",
+                "required": false,
+                "type": "timestamptz"
+              },
+              {
+                "id": 3,
+                "name": "payload",
+                "required": false,
+                "type": "string"
+              }
+            ]
+          },
+          "partition-spec": {
+            "spec-id": 0,
+            "fields": [
+              {
+                "source-id": 2,
+                "field-id": 1000,
+                "transform": "day",
+                "name": "ts_day"
+              }
+            ]
+          },
+          "write-order": {
+            "order-id": 1,
+            "fields": [
+              {
+                "source-id": 1,
+                "transform": "identity",
+                "direction": "asc",
+                "null-order": "nulls-first"
+              }
+            ]
+          },
+          "properties": {
+            "probe": "conformance"
+          },
+          "stage-create": false
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Content-Type": "application/json",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "microsoft-onelake",
+      "signature": "POST /v1/{prefix}/namespaces/{namespace}/tables",
+      "variant_of": null,
+      "depends_on": "create_namespace",
+      "ts": 1788471121.721167,
+      "elapsed_ms": 40.8,
+      "response": {
+        "status": 404,
+        "headers": {
+          "Content-Type": "application/json",
+          "Date": "Thu, 03 Sep 2026 21:32:01 GMT",
+          "Server": "Kestrel",
+          "Access-Control-Allow-Headers": "*",
+          "Access-Control-Allow-Methods": "*",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Expose-Headers": "*,Authorization",
+          "Transfer-Encoding": "chunked",
+          "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+          "X-Content-Type-Options": "nosniff",
+          "x-ms-root-activity-id": "guid-0217"
+        },
+        "body": {
+          "error": {
+            "code": "NotFound",
+            "message": "Requested Api is not found.",
+            "target": null,
+            "details": null
+          }
+        }
+      },
+      "verdict": "NOT_FOUND",
+      "declared": true,
+      "reconciled": "DECLARED, FAILS"
+    },
+    {
+      "probe": "commit_table",
+      "category": "commit",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "UpdateTable",
+      "why": "A property-set commit \u2014 the cheapest possible exercise of the update path.",
+      "request": {
+        "method": "POST",
+        "url": "https://onelake.table.fabric.microsoft.com/iceberg/v1/guid-0197/guid-0198/namespaces/irc_probe_20260903173159/tables/probe_tbl",
+        "body": {
+          "requirements": [
+            {
+              "type": "assert-table-uuid",
+              "uuid": "guid-0218"
+            }
+          ],
+          "updates": [
+            {
+              "action": "set-properties",
+              "updates": {
+                "probe-commit": "1"
+              }
+            }
+          ]
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Content-Type": "application/json",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "microsoft-onelake",
+      "signature": "POST /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "variant_of": null,
+      "depends_on": "create_table",
+      "ts": 1788471121.7622979,
+      "elapsed_ms": 27.9,
+      "response": {
+        "status": 404,
+        "headers": {
+          "Content-Type": "application/json",
+          "Date": "Thu, 03 Sep 2026 21:32:01 GMT",
+          "Server": "Kestrel",
+          "Access-Control-Allow-Headers": "*",
+          "Access-Control-Allow-Methods": "*",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Expose-Headers": "*,Authorization",
+          "Transfer-Encoding": "chunked",
+          "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+          "X-Content-Type-Options": "nosniff",
+          "x-ms-root-activity-id": "guid-0219"
+        },
+        "body": {
+          "error": {
+            "code": "NotFound",
+            "message": "Requested Api is not found.",
+            "target": null,
+            "details": null
+          }
+        }
+      },
+      "verdict": "NOT_FOUND",
+      "declared": true,
+      "reconciled": "DECLARED, FAILS"
+    },
+    {
+      "probe": "commit_remove_properties",
+      "category": "commit",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "UpdateTable",
+      "why": "remove-properties: the inverse of the one action every catalog serves.",
+      "request": {
+        "method": "POST",
+        "url": "https://onelake.table.fabric.microsoft.com/iceberg/v1/guid-0197/guid-0198/namespaces/irc_probe_20260903173159/tables/probe_tbl",
+        "body": {
+          "requirements": [
+            {
+              "type": "assert-table-uuid",
+              "uuid": "guid-0218"
+            }
+          ],
+          "updates": [
+            {
+              "action": "remove-properties",
+              "removals": [
+                "probe"
+              ]
+            }
+          ]
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Content-Type": "application/json",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "microsoft-onelake",
+      "signature": "POST /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "variant_of": "commit_table",
+      "depends_on": "create_table",
+      "ts": 1788471121.7906196,
+      "elapsed_ms": 34.9,
+      "response": {
+        "status": 404,
+        "headers": {
+          "Content-Type": "application/json",
+          "Date": "Thu, 03 Sep 2026 21:32:01 GMT",
+          "Server": "Kestrel",
+          "Access-Control-Allow-Headers": "*",
+          "Access-Control-Allow-Methods": "*",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Expose-Headers": "*,Authorization",
+          "Transfer-Encoding": "chunked",
+          "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+          "X-Content-Type-Options": "nosniff",
+          "x-ms-root-activity-id": "guid-0220"
+        },
+        "body": {
+          "error": {
+            "code": "NotFound",
+            "message": "Requested Api is not found.",
+            "target": null,
+            "details": null
+          }
+        }
+      },
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "probe": "commit_add_schema",
+      "category": "commit",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "UpdateTable",
+      "why": "add-schema together with set-current-schema:-1 in a single commit. That pairing is the spec's idiom -- -1 means the schema added by this same request, so splitting them across two commits is meaningless.",
+      "request": {
+        "method": "POST",
+        "url": "https://onelake.table.fabric.microsoft.com/iceberg/v1/guid-0197/guid-0198/namespaces/irc_probe_20260903173159/tables/probe_tbl",
+        "body": {
+          "requirements": [
+            {
+              "type": "assert-table-uuid",
+              "uuid": "guid-0218"
+            }
+          ],
+          "updates": [
+            {
+              "action": "add-schema",
+              "schema": {
+                "type": "struct",
+                "schema-id": 1,
+                "fields": [
+                  {
+                    "id": 1,
+                    "name": "id",
+                    "required": true,
+                    "type": "long"
+                  },
+                  {
+                    "id": 2,
+                    "name": "ts",
+                    "required": false,
+                    "type": "timestamptz"
+                  },
+                  {
+                    "id": 3,
+                    "name": "payload",
+                    "required": false,
+                    "type": "string"
+                  },
+                  {
+                    "id": 4,
+                    "name": "added_col",
+                    "required": false,
+                    "type": "string"
+                  }
+                ]
+              }
+            },
+            {
+              "action": "set-current-schema",
+              "schema-id": -1
+            }
+          ]
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Content-Type": "application/json",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "microsoft-onelake",
+      "signature": "POST /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "variant_of": "commit_table",
+      "depends_on": "create_table",
+      "ts": 1788471121.826106,
+      "elapsed_ms": 31.7,
+      "response": {
+        "status": 404,
+        "headers": {
+          "Content-Type": "application/json",
+          "Date": "Thu, 03 Sep 2026 21:32:01 GMT",
+          "Server": "Kestrel",
+          "Access-Control-Allow-Headers": "*",
+          "Access-Control-Allow-Methods": "*",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Expose-Headers": "*,Authorization",
+          "Transfer-Encoding": "chunked",
+          "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+          "X-Content-Type-Options": "nosniff",
+          "x-ms-root-activity-id": "guid-0221"
+        },
+        "body": {
+          "error": {
+            "code": "NotFound",
+            "message": "Requested Api is not found.",
+            "target": null,
+            "details": null
+          }
+        }
+      },
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "probe": "commit_set_current_schema",
+      "category": "commit",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "UpdateTable",
+      "why": "set-current-schema naming an existing schema (0), exercising the action on its own rather than as part of an add-schema commit.",
+      "request": {
+        "method": "POST",
+        "url": "https://onelake.table.fabric.microsoft.com/iceberg/v1/guid-0197/guid-0198/namespaces/irc_probe_20260903173159/tables/probe_tbl",
+        "body": {
+          "requirements": [
+            {
+              "type": "assert-table-uuid",
+              "uuid": "guid-0218"
+            }
+          ],
+          "updates": [
+            {
+              "action": "set-current-schema",
+              "schema-id": 0
+            }
+          ]
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Content-Type": "application/json",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "microsoft-onelake",
+      "signature": "POST /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "variant_of": "commit_table",
+      "depends_on": "create_table",
+      "ts": 1788471121.8581839,
+      "elapsed_ms": 29.2,
+      "response": {
+        "status": 404,
+        "headers": {
+          "Content-Type": "application/json",
+          "Date": "Thu, 03 Sep 2026 21:32:01 GMT",
+          "Server": "Kestrel",
+          "Access-Control-Allow-Headers": "*",
+          "Access-Control-Allow-Methods": "*",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Expose-Headers": "*,Authorization",
+          "Transfer-Encoding": "chunked",
+          "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+          "X-Content-Type-Options": "nosniff",
+          "x-ms-root-activity-id": "guid-0222"
+        },
+        "body": {
+          "error": {
+            "code": "NotFound",
+            "message": "Requested Api is not found.",
+            "target": null,
+            "details": null
+          }
+        }
+      },
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "probe": "commit_upgrade_format_version",
+      "category": "commit",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "UpdateTable",
+      "why": "upgrade-format-version to 2. The fixture is already v2, so this is a no-op for a conformant server -- rejecting it is the finding.",
+      "request": {
+        "method": "POST",
+        "url": "https://onelake.table.fabric.microsoft.com/iceberg/v1/guid-0197/guid-0198/namespaces/irc_probe_20260903173159/tables/probe_tbl",
+        "body": {
+          "requirements": [
+            {
+              "type": "assert-table-uuid",
+              "uuid": "guid-0218"
+            }
+          ],
+          "updates": [
+            {
+              "action": "upgrade-format-version",
+              "format-version": 2
+            }
+          ]
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Content-Type": "application/json",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "microsoft-onelake",
+      "signature": "POST /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "variant_of": "commit_table",
+      "depends_on": "create_table",
+      "ts": 1788471121.8878546,
+      "elapsed_ms": 35.4,
+      "response": {
+        "status": 404,
+        "headers": {
+          "Content-Type": "application/json",
+          "Date": "Thu, 03 Sep 2026 21:32:01 GMT",
+          "Server": "Kestrel",
+          "Access-Control-Allow-Headers": "*",
+          "Access-Control-Allow-Methods": "*",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Expose-Headers": "*,Authorization",
+          "Transfer-Encoding": "chunked",
+          "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+          "X-Content-Type-Options": "nosniff",
+          "x-ms-root-activity-id": "guid-0223"
+        },
+        "body": {
+          "error": {
+            "code": "NotFound",
+            "message": "Requested Api is not found.",
+            "target": null,
+            "details": null
+          }
+        }
+      },
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "probe": "commit_transaction",
+      "category": "commit",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "CommitTransaction",
+      "why": "Multi-table atomic commit. Rarely implemented; a clean differentiator. Carries one real change: an empty transaction gets rejected as invalid, which would be indistinguishable from unimplemented.",
+      "request": {
+        "method": "POST",
+        "url": "https://onelake.table.fabric.microsoft.com/iceberg/v1/guid-0197/guid-0198/transactions/commit",
+        "body": {
+          "table-changes": [
+            {
+              "identifier": {
+                "namespace": [
+                  "irc_probe_20260903173159"
+                ],
+                "name": "probe_tbl"
+              },
+              "requirements": [],
+              "updates": [
+                {
+                  "action": "set-properties",
+                  "updates": {
+                    "probe-txn": "1"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Content-Type": "application/json",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "microsoft-onelake",
+      "signature": "POST /v1/{prefix}/transactions/commit",
+      "variant_of": null,
+      "depends_on": "create_table",
+      "ts": 1788471121.9235535,
+      "elapsed_ms": 30.2,
+      "response": {
+        "status": 405,
+        "headers": {
+          "Content-Length": "0",
+          "Date": "Thu, 03 Sep 2026 21:32:01 GMT",
+          "Server": "Kestrel",
+          "Access-Control-Allow-Headers": "*",
+          "Access-Control-Allow-Methods": "*",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Expose-Headers": "*,Authorization",
+          "Allow": "GET",
+          "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+          "X-Content-Type-Options": "nosniff",
+          "x-ms-root-activity-id": "guid-0224"
+        },
+        "body": null
+      },
+      "verdict": "METHOD_NOT_ALLOWED",
+      "declared": false,
+      "reconciled": "undeclared, fails"
+    },
+    {
+      "probe": "rename_table",
+      "category": "table",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "RenameTable",
+      "why": "Rename is one of the most commonly missing write endpoints.",
+      "request": {
+        "method": "POST",
+        "url": "https://onelake.table.fabric.microsoft.com/iceberg/v1/guid-0197/guid-0198/tables/rename",
+        "body": {
+          "source": {
+            "namespace": [
+              "irc_probe_20260903173159"
+            ],
+            "name": "probe_tbl"
+          },
+          "destination": {
+            "namespace": [
+              "irc_probe_20260903173159"
+            ],
+            "name": "probe_tbl_r"
+          }
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Content-Type": "application/json",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "microsoft-onelake",
+      "signature": "POST /v1/{prefix}/tables/rename",
+      "variant_of": null,
+      "depends_on": "create_table",
+      "ts": 1788471121.9541366,
+      "elapsed_ms": 44.0,
+      "response": {
+        "status": 404,
+        "headers": {
+          "Content-Type": "application/json",
+          "Date": "Thu, 03 Sep 2026 21:32:01 GMT",
+          "Server": "Kestrel",
+          "Access-Control-Allow-Headers": "*",
+          "Access-Control-Allow-Methods": "*",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Expose-Headers": "*,Authorization",
+          "Transfer-Encoding": "chunked",
+          "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+          "X-Content-Type-Options": "nosniff",
+          "x-ms-root-activity-id": "guid-0225"
+        },
+        "body": {
+          "error": {
+            "code": "NotFound",
+            "message": "Requested Api is not found.",
+            "target": null,
+            "details": null
+          }
+        }
+      },
+      "verdict": "NOT_FOUND",
+      "declared": true,
+      "reconciled": "DECLARED, FAILS"
+    },
+    {
+      "probe": "drop_table_purge",
+      "category": "table",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "DropTable",
+      "why": "Whether purgeRequested is honoured. Purge semantics vary widely and several catalogs gate it behind a server flag.",
+      "request": {
+        "method": "DELETE",
+        "url": "https://onelake.table.fabric.microsoft.com/iceberg/v1/guid-0197/guid-0198/namespaces/irc_probe_20260903173159/tables/probe_tbl?purgeRequested=true",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "microsoft-onelake",
+      "signature": "DELETE /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "variant_of": "drop_table",
+      "depends_on": "create_table",
+      "ts": 1788471121.998526,
+      "elapsed_ms": 51.8,
+      "response": {
+        "status": 404,
+        "headers": {
+          "Content-Type": "application/json",
+          "Date": "Thu, 03 Sep 2026 21:32:01 GMT",
+          "Server": "Kestrel",
+          "Access-Control-Allow-Headers": "*",
+          "Access-Control-Allow-Methods": "*",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Expose-Headers": "*,Authorization",
+          "Transfer-Encoding": "chunked",
+          "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+          "X-Content-Type-Options": "nosniff",
+          "x-ms-root-activity-id": "guid-0226"
+        },
+        "body": {
+          "error": {
+            "message": "The given table does not exist",
+            "type": "NoSuchTableException",
+            "code": 404
+          }
+        }
+      },
+      "verdict": "INDETERMINATE",
+      "indeterminate_reason": "prerequisite 'create_table' did not succeed"
+    },
+    {
+      "probe": "drop_table",
+      "category": "cleanup",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "DropTable",
+      "why": "Plain drop, and the cleanup that must succeed. A 404 here is the expected outcome when the purge drop above already removed the table.",
+      "request": {
+        "method": "DELETE",
+        "url": "https://onelake.table.fabric.microsoft.com/iceberg/v1/guid-0197/guid-0198/namespaces/irc_probe_20260903173159/tables/probe_tbl",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "microsoft-onelake",
+      "signature": "DELETE /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "variant_of": null,
+      "depends_on": "create_table",
+      "ts": 1788471122.050716,
+      "elapsed_ms": 40.4,
+      "response": {
+        "status": 404,
+        "headers": {
+          "Content-Type": "application/json",
+          "Date": "Thu, 03 Sep 2026 21:32:01 GMT",
+          "Server": "Kestrel",
+          "Access-Control-Allow-Headers": "*",
+          "Access-Control-Allow-Methods": "*",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Expose-Headers": "*,Authorization",
+          "Transfer-Encoding": "chunked",
+          "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+          "X-Content-Type-Options": "nosniff",
+          "x-ms-root-activity-id": "guid-0227"
+        },
+        "body": {
+          "error": {
+            "message": "The given table does not exist",
+            "type": "NoSuchTableException",
+            "code": 404
+          }
+        }
+      },
+      "verdict": "INDETERMINATE",
+      "indeterminate_reason": "prerequisite 'create_table' did not succeed"
+    },
+    {
+      "probe": "create_view",
+      "category": "view",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "CreateView",
+      "why": "createView with a minimal SQL representation.",
+      "request": {
+        "method": "POST",
+        "url": "https://onelake.table.fabric.microsoft.com/iceberg/v1/guid-0197/guid-0198/namespaces/irc_probe_20260903173159/views",
+        "body": {
+          "name": "probe_view",
+          "schema": {
+            "type": "struct",
+            "schema-id": 0,
+            "fields": [
+              {
+                "id": 1,
+                "name": "id",
+                "required": false,
+                "type": "long"
+              }
+            ]
+          },
+          "view-version": {
+            "version-id": 1,
+            "schema-id": 0,
+            "timestamp-ms": 1788471119336,
+            "summary": {
+              "operation": "create"
+            },
+            "default-namespace": [
+              "irc_probe_20260903173159"
+            ],
+            "representations": [
+              {
+                "type": "sql",
+                "sql": "SELECT 1 AS id",
+                "dialect": "spark"
+              }
+            ]
+          },
+          "properties": {
+            "probe": "conformance"
+          }
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Content-Type": "application/json",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "microsoft-onelake",
+      "signature": "POST /v1/{prefix}/namespaces/{namespace}/views",
+      "variant_of": null,
+      "depends_on": "create_namespace",
+      "ts": 1788471122.0915997,
+      "elapsed_ms": 43.5,
+      "response": {
+        "status": 404,
+        "headers": {
+          "Content-Type": "application/json",
+          "Date": "Thu, 03 Sep 2026 21:32:01 GMT",
+          "Server": "Kestrel",
+          "Access-Control-Allow-Headers": "*",
+          "Access-Control-Allow-Methods": "*",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Expose-Headers": "*,Authorization",
+          "Transfer-Encoding": "chunked",
+          "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+          "X-Content-Type-Options": "nosniff",
+          "x-ms-root-activity-id": "guid-0228"
+        },
+        "body": {
+          "error": {
+            "code": "NotFound",
+            "message": "Requested Api is not found.",
+            "target": null,
+            "details": null
+          }
+        }
+      },
+      "verdict": "NOT_FOUND",
+      "declared": false,
+      "reconciled": "undeclared, fails"
+    },
+    {
+      "probe": "load_view",
+      "category": "view",
+      "tier": "write",
+      "surface": "read",
+      "spec_ref": "LoadView",
+      "why": "loadView -- the read counterpart of loadTable for views.",
+      "request": {
+        "method": "GET",
+        "url": "https://onelake.table.fabric.microsoft.com/iceberg/v1/guid-0197/guid-0198/namespaces/irc_probe_20260903173159/views/probe_view",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "microsoft-onelake",
+      "signature": "GET /v1/{prefix}/namespaces/{namespace}/views/{view}",
+      "variant_of": null,
+      "depends_on": "create_view",
+      "ts": 1788471122.1354802,
+      "elapsed_ms": 31.1,
+      "response": {
+        "status": 404,
+        "headers": {
+          "Content-Type": "application/json",
+          "Date": "Thu, 03 Sep 2026 21:32:01 GMT",
+          "Server": "Kestrel",
+          "Access-Control-Allow-Headers": "*",
+          "Access-Control-Allow-Methods": "*",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Expose-Headers": "*,Authorization",
+          "Transfer-Encoding": "chunked",
+          "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+          "X-Content-Type-Options": "nosniff",
+          "x-ms-root-activity-id": "guid-0229"
+        },
+        "body": {
+          "error": {
+            "code": "NotFound",
+            "message": "Requested Api is not found.",
+            "target": null,
+            "details": null
+          }
+        }
+      },
+      "verdict": "NOT_FOUND",
+      "declared": false,
+      "reconciled": "undeclared, fails"
+    },
+    {
+      "probe": "head_view",
+      "category": "view",
+      "tier": "write",
+      "surface": "read",
+      "spec_ref": "ViewExists",
+      "why": "viewExists.",
+      "request": {
+        "method": "HEAD",
+        "url": "https://onelake.table.fabric.microsoft.com/iceberg/v1/guid-0197/guid-0198/namespaces/irc_probe_20260903173159/views/probe_view",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "microsoft-onelake",
+      "signature": "HEAD /v1/{prefix}/namespaces/{namespace}/views/{view}",
+      "variant_of": null,
+      "depends_on": "create_view",
+      "ts": 1788471122.1668928,
+      "elapsed_ms": 35.5,
+      "response": {
+        "status": 404,
+        "headers": {
+          "Content-Length": "0",
+          "Date": "Thu, 03 Sep 2026 21:32:01 GMT",
+          "Server": "Kestrel",
+          "Access-Control-Allow-Headers": "*",
+          "Access-Control-Allow-Methods": "*",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Expose-Headers": "*,Authorization",
+          "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+          "X-Content-Type-Options": "nosniff",
+          "x-ms-root-activity-id": "guid-0230"
+        },
+        "body": null
+      },
+      "verdict": "INDETERMINATE",
+      "indeterminate_reason": "prerequisite 'create_view' did not succeed"
+    },
+    {
+      "probe": "replace_view",
+      "category": "view",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "ReplaceView",
+      "why": "replaceView: a property-set commit against the view.",
+      "request": {
+        "method": "POST",
+        "url": "https://onelake.table.fabric.microsoft.com/iceberg/v1/guid-0197/guid-0198/namespaces/irc_probe_20260903173159/views/probe_view",
+        "body": {
+          "requirements": [],
+          "updates": [
+            {
+              "action": "set-properties",
+              "updates": {
+                "probe-commit": "1"
+              }
+            }
+          ]
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Content-Type": "application/json",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "microsoft-onelake",
+      "signature": "POST /v1/{prefix}/namespaces/{namespace}/views/{view}",
+      "variant_of": null,
+      "depends_on": "create_view",
+      "ts": 1788471122.2027397,
+      "elapsed_ms": 47.4,
+      "response": {
+        "status": 404,
+        "headers": {
+          "Content-Type": "application/json",
+          "Date": "Thu, 03 Sep 2026 21:32:01 GMT",
+          "Server": "Kestrel",
+          "Access-Control-Allow-Headers": "*",
+          "Access-Control-Allow-Methods": "*",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Expose-Headers": "*,Authorization",
+          "Transfer-Encoding": "chunked",
+          "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+          "X-Content-Type-Options": "nosniff",
+          "x-ms-root-activity-id": "guid-0231"
+        },
+        "body": {
+          "error": {
+            "code": "NotFound",
+            "message": "Requested Api is not found.",
+            "target": null,
+            "details": null
+          }
+        }
+      },
+      "verdict": "NOT_FOUND",
+      "declared": false,
+      "reconciled": "undeclared, fails"
+    },
+    {
+      "probe": "rename_view",
+      "category": "view",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "RenameView",
+      "why": "renameView -- separate from renameTable in the spec.",
+      "request": {
+        "method": "POST",
+        "url": "https://onelake.table.fabric.microsoft.com/iceberg/v1/guid-0197/guid-0198/views/rename",
+        "body": {
+          "source": {
+            "namespace": [
+              "irc_probe_20260903173159"
+            ],
+            "name": "probe_view"
+          },
+          "destination": {
+            "namespace": [
+              "irc_probe_20260903173159"
+            ],
+            "name": "probe_view_r"
+          }
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Content-Type": "application/json",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "microsoft-onelake",
+      "signature": "POST /v1/{prefix}/views/rename",
+      "variant_of": null,
+      "depends_on": "create_view",
+      "ts": 1788471122.2506664,
+      "elapsed_ms": 32.7,
+      "response": {
+        "status": 405,
+        "headers": {
+          "Content-Length": "0",
+          "Date": "Thu, 03 Sep 2026 21:32:01 GMT",
+          "Server": "Kestrel",
+          "Access-Control-Allow-Headers": "*",
+          "Access-Control-Allow-Methods": "*",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Expose-Headers": "*,Authorization",
+          "Allow": "GET",
+          "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+          "X-Content-Type-Options": "nosniff",
+          "x-ms-root-activity-id": "guid-0232"
+        },
+        "body": null
+      },
+      "verdict": "METHOD_NOT_ALLOWED",
+      "declared": false,
+      "reconciled": "undeclared, fails"
+    },
+    {
+      "probe": "drop_view",
+      "category": "cleanup",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "DropView",
+      "why": "dropView, and the cleanup that must succeed before the namespace goes.",
+      "request": {
+        "method": "DELETE",
+        "url": "https://onelake.table.fabric.microsoft.com/iceberg/v1/guid-0197/guid-0198/namespaces/irc_probe_20260903173159/views/probe_view",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "microsoft-onelake",
+      "signature": "DELETE /v1/{prefix}/namespaces/{namespace}/views/{view}",
+      "variant_of": null,
+      "depends_on": "create_view",
+      "ts": 1788471122.2836382,
+      "elapsed_ms": 30.8,
+      "response": {
+        "status": 404,
+        "headers": {
+          "Content-Type": "application/json",
+          "Date": "Thu, 03 Sep 2026 21:32:01 GMT",
+          "Server": "Kestrel",
+          "Access-Control-Allow-Headers": "*",
+          "Access-Control-Allow-Methods": "*",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Expose-Headers": "*,Authorization",
+          "Transfer-Encoding": "chunked",
+          "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+          "X-Content-Type-Options": "nosniff",
+          "x-ms-root-activity-id": "guid-0233"
+        },
+        "body": {
+          "error": {
+            "code": "NotFound",
+            "message": "Requested Api is not found.",
+            "target": null,
+            "details": null
+          }
+        }
+      },
+      "verdict": "NOT_FOUND",
+      "declared": false,
+      "reconciled": "undeclared, fails"
+    },
+    {
+      "probe": "drop_namespace",
+      "category": "cleanup",
+      "tier": "write",
+      "surface": "write",
+      "spec_ref": "DropNamespace",
+      "why": "Cleanup.",
+      "request": {
+        "method": "DELETE",
+        "url": "https://onelake.table.fabric.microsoft.com/iceberg/v1/guid-0197/guid-0198/namespaces/irc_probe_20260903173159",
+        "body": null,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
+          "Authorization": "<redacted>"
+        }
+      },
+      "catalog": "microsoft-onelake",
+      "signature": "DELETE /v1/{prefix}/namespaces/{namespace}",
+      "variant_of": null,
+      "depends_on": "create_namespace",
+      "ts": 1788471122.3148494,
+      "elapsed_ms": 51.1,
+      "response": {
+        "status": 404,
+        "headers": {
+          "Content-Type": "application/json",
+          "Date": "Thu, 03 Sep 2026 21:32:01 GMT",
+          "Server": "Kestrel",
+          "Access-Control-Allow-Headers": "*",
+          "Access-Control-Allow-Methods": "*",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Expose-Headers": "*,Authorization",
+          "Transfer-Encoding": "chunked",
+          "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+          "X-Content-Type-Options": "nosniff",
+          "x-ms-root-activity-id": "guid-0234"
+        },
+        "body": {
+          "error": {
+            "message": "The given namespace does not exist",
+            "type": "NoSuchNamespaceException",
+            "code": 404
+          }
+        }
+      },
+      "verdict": "INDETERMINATE",
+      "indeterminate_reason": "prerequisite 'create_namespace' did not succeed"
+    }
+  ],
+  "load_table_fields": {
+    "metadata-location": {
+      "state": "PRESENT",
+      "why": "Where the table metadata actually lives"
+    },
+    "config": {
+      "state": "ABSENT",
+      "why": "Per-table client overrides"
+    },
+    "storage-credentials": {
+      "state": "ABSENT",
+      "why": "Vended credentials inline on load"
+    },
+    "metadata.format-version": {
+      "state": "PRESENT",
+      "why": "Iceberg v1 / v2 / v3"
+    },
+    "metadata.table-uuid": {
+      "state": "PRESENT",
+      "why": "Stable identity across renames"
+    },
+    "metadata.location": {
+      "state": "PRESENT",
+      "why": "Table root"
+    },
+    "metadata.last-updated-ms": {
+      "state": "PRESENT",
+      "why": "Freshness"
+    },
+    "metadata.last-column-id": {
+      "state": "PRESENT",
+      "why": "Column-ID allocation state"
+    },
+    "metadata.schemas": {
+      "state": "PRESENT",
+      "why": "Full schema history, not just current"
+    },
+    "metadata.current-schema-id": {
+      "state": "PRESENT",
+      "why": "Which schema is live"
+    },
+    "metadata.schemas[].fields[].id": {
+      "state": "PRESENT",
+      "why": "Column IDs \u2014 schema evolution depends on these"
+    },
+    "metadata.schemas[].fields[].required": {
+      "state": "PRESENT",
+      "why": "Nullability"
+    },
+    "metadata.partition-specs": {
+      "state": "PRESENT",
+      "why": "Partition spec history"
+    },
+    "metadata.default-spec-id": {
+      "state": "PRESENT",
+      "why": "Which spec is live"
+    },
+    "metadata.partition-specs[].fields[].transform": {
+      "state": "ABSENT",
+      "why": "Partition transforms"
+    },
+    "metadata.last-partition-id": {
+      "state": "PRESENT",
+      "why": "Partition field-ID allocation state"
+    },
+    "metadata.sort-orders": {
+      "state": "PRESENT",
+      "why": "Sort order history"
+    },
+    "metadata.default-sort-order-id": {
+      "state": "PRESENT",
+      "why": "Which sort order is live"
+    },
+    "metadata.properties": {
+      "state": "PRESENT",
+      "why": "Table properties"
+    },
+    "metadata.current-snapshot-id": {
+      "state": "PRESENT",
+      "why": "Current snapshot pointer"
+    },
+    "metadata.snapshots": {
+      "state": "PRESENT",
+      "why": "Snapshot list \u2014 time travel"
+    },
+    "metadata.snapshots[].summary": {
+      "state": "PRESENT",
+      "why": "Row/file counts per snapshot"
+    },
+    "metadata.snapshots[].manifest-list": {
+      "state": "PRESENT",
+      "why": "Manifest list pointer"
+    },
+    "metadata.snapshots[].schema-id": {
+      "state": "PRESENT",
+      "why": "Per-snapshot schema binding"
+    },
+    "metadata.snapshots[].sequence-number": {
+      "state": "PRESENT",
+      "why": "v2 sequence numbers \u2014 row-level deletes"
+    },
+    "metadata.snapshot-log": {
+      "state": "PRESENT",
+      "why": "Snapshot lineage over time"
+    },
+    "metadata.metadata-log": {
+      "state": "PRESENT",
+      "why": "Previous metadata files"
+    },
+    "metadata.refs": {
+      "state": "PRESENT",
+      "why": "Branches and tags"
+    },
+    "metadata.statistics": {
+      "state": "EMPTY",
+      "why": "Table-level statistics files"
+    },
+    "metadata.partition-statistics": {
+      "state": "EMPTY",
+      "why": "Partition-level statistics files"
+    }
+  },
+  "seed_profile": {
+    "schemas": 2,
+    "partition_fields": 0,
+    "sort_fields": 0,
+    "snapshots": 1,
+    "refs": [
+      "main"
+    ],
+    "has_delete_snapshot": false,
+    "delete_files": 0
+  }
+}
