@@ -14,9 +14,11 @@ read from the catalog itself.
 
 https://github.com/xbill9/lakehouse-iceberg-2026
 
-An earlier article measured seven Iceberg REST catalogs and found that the read
-path is the only surface all seven serve. This one asks the obvious follow-up:
-if an agent only reads, is it portable?
+An earlier article measured seven Iceberg REST catalogs against the
+specification. Nine read operations are served by all seven -- config, namespace
+listing and loading, table listing and loading, and their HEAD forms -- while
+views, scan planning and credential vending are not. This one asks the obvious
+follow-up: if an agent restricts itself to the nine, is it portable?
 
 All results below were measured on 2026-09-04.
 
@@ -72,9 +74,11 @@ answer:
 - `iceberg_count_rows` — exact count from the snapshot summary
 - `iceberg_scan_table` — sampled rows, and says so when the view is partial
 
-Read-only is a decision, not a limitation of effort. The conformance work found
-the read surface is the one all seven catalogs agree on, so a reading agent is
-the portable case worth measuring.
+Read-only is a decision, not a limitation of effort. These four tools use only
+operations in the nine that all seven catalogs serve, so a reading agent built
+this way is the portable case worth measuring. A tool that listed views or
+planned a scan would not be: views fail on six of the seven, and scan planning
+on all seven.
 
 ## Why Every Result Carries a Metadata Location
 
@@ -169,8 +173,13 @@ Agent(
 from agent_framework import Agent
 from agent_framework.foundry import FoundryChatClient
 
+client = FoundryChatClient(
+    project_endpoint=os.environ["FOUNDRY_PROJECT_ENDPOINT"],
+    model=model,
+    credential=DefaultAzureCredential(),
+)
 Agent(
-    client=FoundryChatClient(project_endpoint=..., model=model, credential=...),
+    client=client,                      # a chat *client* object
     instructions=common.INSTRUCTION,    # `instructions`
     tools=list(iceberg_tool.TOOLS),
 )
