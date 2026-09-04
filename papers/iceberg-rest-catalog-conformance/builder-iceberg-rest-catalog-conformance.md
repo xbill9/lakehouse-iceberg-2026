@@ -81,11 +81,11 @@ import re
 lines = open('irc.yaml').read().split('\n')
 inpaths = False; cur = None; ops = []
 for l in lines:
-    if re.match(r'^paths:', l): inpaths = True; continue
-    if inpaths and re.match(r'^\S', l): break
-    m = re.match(r'^  (/\S*):\s*$', l)
+    if re.match(r"^paths:", l): inpaths = True; continue
+    if inpaths and re.match(r"^\S", l): break
+    m = re.match(r"^  (/\S*):\s*$", l)
     if m: cur = m.group(1); continue
-    m2 = re.match(r'^    (get|put|post|delete|head|patch):\s*$', l)
+    m2 = re.match(r"^    (get|put|post|delete|head|patch):\s*$", l)
     if m2 and cur: ops.append('%s %s' % (m2.group(1).upper(), cur))
 print("spec operations:", len(ops))
 EOF
