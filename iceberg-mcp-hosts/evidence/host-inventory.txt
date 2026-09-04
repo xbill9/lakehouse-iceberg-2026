@@ -19,6 +19,23 @@ difference between them would have been noise reported as a finding. There is no
 control that would have caught it after the fact, because the two rows would
 agree perfectly -- which reads as a result rather than as a duplicate.
 
-So: THREE distinct hosts are available, not four. Google's own Gemini CLI is not
-installed. Either it gets installed and the paper keeps its fourth column, or the
-paper is about three hosts and says so.
+## Gemini CLI is retired, so three is the right number, not a shortfall
+
+Google announced at I/O on 2026-05-19 that it was consolidating developer tooling
+under the Antigravity brand and retiring the standalone Gemini CLI, which stopped
+serving Pro, Ultra and free Code Assist users on 2026-06-18. Antigravity CLI --
+Go, closed source, binary `agy` -- is the replacement.
+
+  https://developers.googleblog.com/an-important-update-transitioning-gemini-cli-to-antigravity-cli/
+  https://www.theregister.com/ai-ml/2026/05/20/bye-bye-gemini-cli-google-nudges-devs-toward-antigravity/5243605
+
+So the `gemini` -> `agy` wrapper on this machine is not a misconfiguration; it is
+what the migration leaves behind, and it is the reason the two names resolve to
+one binary.
+
+One qualifier the paper has to carry: retirement was not universal. Organisations
+on a Gemini Code Assist Standard or Enterprise licence keep access. So "Gemini CLI
+is gone" is wrong; "Gemini CLI stopped serving Pro, Ultra and free Code Assist
+users on 2026-06-18" is right.
+
+THREE hosts, and the fourth is not missing -- it no longer exists to test.

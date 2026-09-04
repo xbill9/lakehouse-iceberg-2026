@@ -49,10 +49,15 @@ those words.
 
 ## The hosts
 
-Claude Code, Codex and Antigravity. Each is configured with the same
-server set and asked the same questions. Google's own Gemini CLI is not
-installed on this machine, and the `gemini` command here is a wrapper around
-`agy` -- see `evidence/host-inventory.txt`, which is why the count is three.
+Claude Code, Codex and Antigravity. Each is configured with the same server set
+and asked the same questions.
+
+Three, not four. Google retired the standalone Gemini CLI on 2026-06-18 and
+replaced it with Antigravity, so the `gemini` command on this machine is a
+one-line wrapper around `agy` -- the same binary, wearing the old name. Counting
+both would have put two identical rows in the matrix, and they would have agreed
+perfectly, which reads as a result rather than as a duplicate.
+`evidence/host-inventory.txt` has the sources and the qualifier.
 
 ## Status
 
