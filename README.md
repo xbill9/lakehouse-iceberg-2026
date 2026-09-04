@@ -54,6 +54,10 @@ See [`iceberg-agent/README.md`](iceberg-agent/README.md).
 
 ## Reproducing
 
+[`SETUP.md`](SETUP.md) is the bring-up for a new machine: what the clone does
+not carry, what has to be installed, and the account state a copied credential
+cannot restore.
+
 Seven catalogs means seven accounts. Start with the control, which needs only
 Docker:
 
