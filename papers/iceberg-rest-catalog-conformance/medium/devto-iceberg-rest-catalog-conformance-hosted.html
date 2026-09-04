@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Seven Iceberg REST Catalogs: What They Declare, and What They Serve</title>
+  <meta name="description" content="One request suite against seven Apache Iceberg REST catalog implementations — Polaris, BigLake, Glue, S3 Tables, Unity, Horizon and OneLake — comparing what each catalog declares it supports against what it actually serves." />
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <style>
+    body{font-family:-apple-system,'Segoe UI',Roboto,'Liberation Sans',Arial,sans-serif;
+         font-size:18px;line-height:1.58;max-width:42em;color:#242424;}
+    h1,h2,h3,h4{font-weight:700;line-height:1.25;margin-top:1.8em;}
+    h4{font-size:1.25em;}
+    img{max-width:100%;height:auto;display:block;margin:1.6em 0;}
+    pre{background:#f7f7f7;border:1px solid #e6e6e6;border-radius:4px;
+        padding:12px 14px;overflow-x:auto;font-size:14px;line-height:1.45;}
+    code{font-family:'Liberation Mono',Menlo,Consolas,monospace;}
+    :not(pre)>code{background:#f2f2f2;padding:1px 5px;border-radius:3px;font-size:.9em;}
+    blockquote{border-left:3px solid #ddd;margin-left:0;padding-left:1em;color:#555;}
+    hr{border:0;border-top:1px solid #e6e6e6;margin:2.4em 0;}
+  </style>
+</head>
+<body>
+<figure><img src="https://raw.githubusercontent.com/xbill9/lakehouse-iceberg-2026/main/papers/iceberg-rest-catalog-conformance/medium/img/cover.99b538a5.jpg" alt="Seven Iceberg REST Catalogs: What They Declare, and What They Serve" /></figure>
+<header id="title-block-header" hidden>
+<h1 class="title">Seven Iceberg REST Catalogs: What They Declare, and
+What They Serve</h1>
+</header>
+<p>This article provides a step by step comparison of seven Apache
+Iceberg REST catalog implementations, measuring what each one actually
+serves against the published specification. A Python probe harness is
+built to issue one identical request suite to every catalog and store
+the raw response as evidence.</p>
+<p><a
+href="https://github.com/xbill9/lakehouse-iceberg-2026">https://github.com/xbill9/lakehouse-iceberg-2026</a></p>
+<p>Every vendor with a lakehouse now ships an Iceberg REST catalog, and
+every one of them says it implements the same specification. That claim
+is checkable. The specification also asks a server to publish a
+machine-readable list of the endpoints it supports, which makes a second
+claim checkable: does a catalog agree with itself?</p>
+<p>All results below were measured on 2026-09-03.</p>
+<p>Nothing here is about the REST catalog being broken. It works — every
+catalog served the core read path.</p>
+<h4 id="what-do-you-need-to-reproduce-this">What Do You Need to
+Reproduce This?</h4>
+<p>Seven catalogs means seven accounts, and three of mine were trials
+that will have expired by the time most people read this. Read this
+section before investing an afternoon.</p>
+<p><img src="https://raw.githubusercontent.com/xbill9/lakehouse-iceberg-2026/main/papers/iceberg-rest-catalog-conformance/medium/img/devto-iceberg-rest-catalog-conformance-table-1.png"
+alt="table" /></p>
+<p>Three of those need saying plainly.</p>
+<p><strong>Databricks Free Edition will not work.</strong> Enabling
+external data access is an account-level action, and Free Edition
+documents no access to the account console.</p>
+<p><strong>A personal Microsoft account cannot hold a Fabric
+licence.</strong> The Fabric API returns <code>UserNotLicensed</code>
+and no configuration changes it. A work or school account in an Entra
+tenant can, and the free 60-day trial capacity is enough — the paid
+F-SKU the Azure portal steers you toward is not needed.</p>
+<p><strong>Snowflake Open Catalog is closed to new signups.</strong>
+Snowflake's documentation directs new customers to Horizon, which is
+what this measures.</p>
+<p>Being on a trial tier is also a genuine confound in the results, not
+only an inconvenience. The limitations section returns to it.</p>
+<h4 id="what-is-apache-iceberg">What Is Apache Iceberg?</h4>
+<p>Iceberg is a table format. A table is a directory of Parquet files
+plus a chain of JSON metadata files recording which of those files
+belong to the table right now, what the schema is, how it is
+partitioned, and what it looked like at every previous commit. That
+history is why engines can time-travel and why two writers can commit
+without corrupting each other.</p>
+<p>Something has to hold the pointer to the current metadata file. That
+something is the catalog. It answers one question — for table
+<code>X</code>, where is the metadata right now — and it makes commits
+atomic by swapping that pointer.</p>
+<h4 id="what-is-the-rest-catalog">What Is the REST Catalog?</h4>
+<p>For years each engine brought its own catalog: Hive Metastore, a Glue
+client, a JDBC catalog, a filesystem convention. Every engine needed a
+driver for every catalog.</p>
+<p>The Iceberg REST catalog replaces that with one HTTP API. A client
+speaks HTTP to a URL and the vendor implements the endpoints behind it.
+The specification lives in the Iceberg repository as
+<code>open-api/rest-catalog-open-api.yaml</code>.</p>
+<pre class="console"><code>$ curl -sL -o irc.yaml https://raw.githubusercontent.com/apache/iceberg/main/open-api/rest-catalog-open-api.yaml
+$ python3 - &lt;&lt;&#39;EOF&#39;
+import re
+lines = open(&#39;irc.yaml&#39;).read().split(&#39;\n&#39;)
+inpaths = False; cur = None; ops = []
+for l in lines:
+    if re.match(r&#39;^paths:&#39;, l): inpaths = True; continue
+    if inpaths and re.match(r&#39;^\S&#39;, l): break
+    m = re.match(r&#39;^  (/\S*):\s*$&#39;, l)
+    if m: cur = m.group(1); continue
+    m2 = re.match(r&#39;^    (get|put|post|delete|head|patch):\s*$&#39;, l)
+    if m2 and cur: ops.append(&#39;%s %s&#39; % (m2.group(1).upper(), cur))
+print(&quot;spec operations:&quot;, len(ops))
+EOF
+spec operations: 35</code></pre>
+<p>Thirty-five operations: listing namespaces, loading a table,
+committing an update, creating a view, planning a scan.</p>
+<h4 id="what-does-a-catalog-say-about-itself">What Does a Catalog Say
+About Itself?</h4>
+<p>The endpoint every client calls first is <code>GET /v1/config</code>.
+It returns the routing prefix for every later request, and it may return
+one more thing:</p>
+<blockquote>
+<p><strong>endpoints</strong>: A list of endpoints that the server
+supports. The format of each endpoint must be
+<code>"&lt;HTTP verb&gt; &lt;resource path from OpenAPI REST spec&gt;"</code>.</p>
+<p>— <code>rest-catalog-open-api.yaml</code>,
+<code>CatalogConfig</code></p>
+</blockquote>
+<p>That field is the reason this article exists. A catalog publishes a
+machine-readable list of what it supports, and nothing stops a client
+from trusting it.</p>
+<p>Throughout, <strong>declared</strong> means named in that array and
+<strong>served</strong> means returned a 2xx to the probe. Where a
+catalog declares an endpoint and does not serve it, I call that an
+<strong>overclaim</strong>, on the strength of the spec's own word
+<em>supports</em>.</p>
+<h4 id="what-this-suite-does-not-do">What This Suite Does Not Do</h4>
+<p>Apache ships a REST Compatibility Kit,
+<code>RESTCompatibilityKitSuite</code>, which tests a server's behaviour
+against the Java reference implementation. It is the right tool for "is
+this catalog correct". It does not compare a server's declaration
+against what that server serves, which is the axis here. The two are
+complementary.</p>
+<p>This suite also never checks whether a returned value is
+<em>right</em>. It checks whether a field is present.</p>
+<h4 id="the-harness">The Harness</h4>
+<p>Three tiers of evidence, from one identical request suite:</p>
+<ul>
+<li><strong>Endpoint tier</strong> — does the operation exist, and what
+status comes back</li>
+<li><strong>Field tier</strong> — 30 specification field paths checked
+against each <code>loadTable</code></li>
+<li><strong>Declaration tier</strong> — the <code>endpoints</code> array
+cross-checked against behaviour</li>
+</ul>
+<pre class="console"><code>$ python3 -c &quot;
+import sys; sys.path.insert(0,&#39;.&#39;)
+from probe import spec
+sigs = {p.signature() for p in spec.PROBES + spec.WRITE_PROBES}
+print(&#39;probes:&#39;, len(spec.PROBES) + len(spec.WRITE_PROBES))
+print(&#39;distinct endpoint signatures:&#39;, len(sigs))
+&quot;
+probes: 33
+distinct endpoint signatures: 25</code></pre>
+<p>Twenty-five of the specification's 35 operations, or 71%.</p>
+<p>Two design rules matter for reading the results. Raw request and
+response are stored for every probe, so a verdict is re-derivable
+without re-running against a vendor. And a probe whose prerequisite
+failed is marked not-tested rather than failed — if a catalog refuses to
+create a namespace, the probes that needed one prove nothing about the
+endpoints they target.</p>
+<h4 id="at-this-point-you-should-have">At This Point You Should
+Have</h4>
+<ul>
+<li>Docker, for the control catalog</li>
+<li>Python 3.13 with <code>requests</code>, <code>pyiceberg</code> and
+<code>botocore</code></li>
+<li>An account on whichever vendors you intend to probe</li>
+<li>The maximum privilege available on each — every result below was
+gathered with <code>roles/owner</code>, AWS account root,
+<code>ACCOUNTADMIN</code>, Databricks account admin, Fabric workspace
+Admin, and the Polaris root principal</li>
+</ul>
+<pre class="console"><code>$ python3 -c &quot;
+import sys, pyiceberg, pyarrow, requests, botocore
+print(&#39;python     &#39;, sys.version.split()[0])
+print(&#39;pyiceberg  &#39;, pyiceberg.__version__)
+print(&#39;pyarrow    &#39;, pyarrow.__version__)
+print(&#39;requests   &#39;, requests.__version__)
+print(&#39;botocore   &#39;, botocore.__version__)
+&quot;
+python      3.13.13
+pyiceberg   0.12.0
+pyarrow     24.0.0
+requests    2.34.2
+botocore    1.43.34</code></pre>
+<h4 id="bringing-up-apache-polaris-the-control">Bringing Up Apache
+Polaris, the Control</h4>
+<p>Start with the control, not the clouds. A red cell in a permissively
+configured reference implementation is almost always your bug, not a
+specification gap.</p>
+<pre class="console"><code>$ docker run -d --name polaris -p 8181:8181 -p 8182:8182 \
+    --user &quot;$(id -u):$(id -g)&quot; \
+    -v /etc/passwd:/etc/passwd:ro -v /etc/group:/etc/group:ro \
+    -v &quot;$WH:$WH&quot; \
+    -e HADOOP_USER_NAME=&quot;$(id -un)&quot; \
+    -e POLARIS_BOOTSTRAP_CREDENTIALS=POLARIS,root,s3cr3t \
+    -e JAVA_OPTS_APPEND=&quot;-Dpolaris.features.\&quot;ALLOW_INSECURE_STORAGE_TYPES\&quot;=true \
+       -Dpolaris.features.\&quot;SUPPORTED_CATALOG_STORAGE_TYPES\&quot;=[\&quot;FILE\&quot;] \
+       -Dpolaris.readiness.ignore-severe-issues=true \
+       -Dpolaris.features.\&quot;DROP_WITH_PURGE_ENABLED\&quot;=true&quot; \
+    apache/polaris:latest
+$ curl -sf http://localhost:8182/q/health/ready
+{&quot;status&quot;: &quot;UP&quot;, &quot;checks&quot;: [...]}</code></pre>
+<p>Four things there are not obvious, and each one cost a failed
+attempt.</p>
+<p>FILE storage is refused by default, and enabling it needs
+<strong>both</strong> <code>ALLOW_INSECURE_STORAGE_TYPES</code> and
+<code>SUPPORTED_CATALOG_STORAGE_TYPES</code>. Enabling it then escalates
+the production-readiness check from warning to fatal:</p>
+<pre class="console"><code>$ docker logs polaris 2&gt;&amp;1 | grep -A1 &#39;Severe production&#39;
+Caused by: java.lang.IllegalStateException: Severe production readiness issues
+detected, startup aborted!</code></pre>
+<p>So <code>polaris.readiness.ignore-severe-issues</code> is required as
+well. Third, the container writes table metadata while the client writes
+data files, so both need the same warehouse path — hence the bind mount
+at an identical absolute path and <code>--user</code> so files are owned
+by you.</p>
+<p>Fourth, and the one that wastes an hour: with <code>--user</code>,
+Hadoop's <code>UserGroupInformation</code> cannot resolve the uid, and
+the failure surfaces as a 503 that reads like a storage error.</p>
+<pre class="console"><code>$ # symptom before mounting /etc/passwd
+RuntimeIOException: Failed to get file system for path: file:/.../metadata/00000-....json</code></pre>
+<p>Mounting <code>/etc/passwd</code> read-only fixes it.
+<code>DROP_WITH_PURGE_ENABLED</code> is on deliberately: with it off,
+Polaris refuses both a purge drop and <code>dropView</code>, which would
+put artificial red cells in the control.</p>
+<p>Then the catalog and its grants:</p>
+<pre class="console"><code>$ TOK=$(curl -s -X POST http://localhost:8181/api/catalog/v1/oauth/tokens \
+    -d grant_type=client_credentials -d client_id=root -d client_secret=s3cr3t \
+    -d scope=PRINCIPAL_ROLE:ALL | python3 -c &quot;import sys,json;print(json.load(sys.stdin)[&#39;access_token&#39;])&quot;)
+$ curl -s -o /dev/null -w &quot;create catalog: HTTP %{http_code}\n&quot; \
+    -X POST http://localhost:8181/api/management/v1/catalogs \
+    -H &quot;Authorization: Bearer $TOK&quot; -H &quot;Content-Type: application/json&quot; \
+    -d &quot;{\&quot;catalog\&quot;:{\&quot;name\&quot;:\&quot;quickstart_catalog\&quot;,\&quot;type\&quot;:\&quot;INTERNAL\&quot;, ... }}&quot;
+create catalog: HTTP 201</code></pre>
+<h4 id="bringing-up-google-biglake">Bringing Up Google BigLake</h4>
+<p>The endpoint is
+<code>https://biglake.googleapis.com/iceberg/v1/restcatalog</code>. Note
+<code>v1</code>, not <code>v1beta</code> — both resolve and return
+identical config, but <code>v1</code> is what the documentation
+gives.</p>
+<pre class="console"><code>$ gcloud services enable biglake.googleapis.com --project=$PROJECT
+Operation &quot;operations/acat....&quot; finished successfully.
+$ gcloud storage buckets create gs://$PROJECT-iceberg-probe \
+    --project=$PROJECT --location=us-central1 --uniform-bucket-level-access
+Creating gs://$PROJECT-iceberg-probe/...</code></pre>
+<p>Two things are required beyond the URL. The API is enabled under the
+name <code>biglake.googleapis.com</code>, but the error calls it the
+Lakehouse API:</p>
+<pre class="console"><code>$ curl -s &quot;https://biglake.googleapis.com/iceberg/v1/restcatalog/v1/config?warehouse=gs://$BUCKET&quot; \
+    -H &quot;Authorization: Bearer $(gcloud auth print-access-token)&quot;
+{&quot;error&quot;: {&quot;code&quot;: 403, &quot;message&quot;: &quot;Lakehouse API has not been used in project
+... before or it is disabled.&quot;}}</code></pre>
+<p>And every request needs an <code>x-goog-user-project</code> header.
+With both in place:</p>
+<pre class="console"><code>$ curl -s &quot;https://biglake.googleapis.com/iceberg/v1/restcatalog/v1/config?warehouse=gs://$BUCKET&quot; \
+    -H &quot;Authorization: Bearer $(gcloud auth print-access-token)&quot; \
+    -H &quot;x-goog-user-project: $PROJECT&quot;
+{&quot;overrides&quot;:{&quot;prefix&quot;:&quot;projects/GCP_PROJECT_NUMBER/catalogs/GCP_PROJECT-iceberg-probe&quot;,
+ &quot;catalog_credential_mode&quot;:&quot;CREDENTIAL_MODE_END_USER&quot;},&quot;defaults&quot;:{...},&quot;endpoints&quot;:[...]}</code></pre>
+<p>The warehouse is <code>gs://BUCKET</code> for a single-bucket catalog
+or <code>bl://projects/PROJECT/catalogs/CATALOG</code> for a
+multi-bucket one — <strong>not</strong> <code>bq://</code>, which
+addresses the separate BigQuery federation endpoint.</p>
+<p>Seeding writes data files to GCS with application-default
+credentials, which are separate from the <code>gcloud</code> user token.
+A <code>invalid_rapt</code> error means
+<code>gcloud auth application-default login</code>.</p>
+<h4 id="bringing-up-aws-glue">Bringing Up AWS Glue</h4>
+<p>The endpoint is
+<code>https://glue.us-east-1.amazonaws.com/iceberg</code>, SigV4-signed
+with signing name <code>glue</code>, and the warehouse is the account
+id.</p>
+<pre class="console"><code>$ aws s3api create-bucket --bucket $BUCKET --region us-east-1
+$ aws glue create-database --region us-east-1 \
+    --database-input &quot;{\&quot;Name\&quot;:\&quot;probe_ns\&quot;,\&quot;LocationUri\&quot;:\&quot;s3://$BUCKET/probe_ns/\&quot;}&quot;
+$ aws glue get-databases --region us-east-1 --query &#39;DatabaseList[].Name&#39; --output text
+probe_ns</code></pre>
+<p>Glue rejects <code>createTable</code> without an explicit table
+location, which every other catalog here infers:</p>
+<pre class="console"><code>$ # createTable with no location
+BadRequestException: Location information cannot be null while creating an iceberg table</code></pre>
+<h4 id="bringing-up-aws-s3-tables">Bringing Up AWS S3 Tables</h4>
+<p>The endpoint is
+<code>https://s3tables.us-east-1.amazonaws.com/iceberg</code>, SigV4
+with signing name <code>s3tables</code>, and the warehouse is the table
+bucket ARN.</p>
+<pre class="console"><code>$ ARN=$(aws s3tables create-table-bucket --name iceberg-probe \
+    --region us-east-1 --query arn --output text)
+$ echo $ARN
+arn:aws:s3tables:us-east-1:AWS_ACCOUNT_ID:bucket/iceberg-probe
+$ aws s3tables create-namespace --table-bucket-arn &quot;$ARN&quot; \
+    --namespace probe_ns --region us-east-1
+{&quot;tableBucketARN&quot;: &quot;...&quot;, &quot;namespace&quot;: [&quot;probe_ns&quot;]}</code></pre>
+<p>Two constraints do not appear until you hit them. Namespace names
+reject uppercase, so a scratch namespace stamped
+<code>irc_probe_20260903T1626</code> fails on the <code>T</code>:</p>
+<pre class="console"><code>$ # createNamespace with an uppercase character
+The specified namespace name isn&#39;t valid. Specify a different namespace name.</code></pre>
+<p>And <code>createTable</code> requires <code>stage-create</code> in
+the body. S3 Tables' managed bucket also rejected
+<code>pyiceberg</code>'s default PyArrow writer:</p>
+<pre class="console"><code>$ # seeding with the default FileIO
+AWS Error [code 134] during CreateMultipartUpload operation: The authorization
+mechanism you have provided is not supported. Please use Signature Version 4.</code></pre>
+<p>Switching to <code>pyiceberg.io.fsspec.FsspecFileIO</code>
+worked.</p>
+<h4 id="bringing-up-databricks-unity">Bringing Up Databricks Unity</h4>
+<p>The endpoint is
+<code>https://&lt;workspace&gt;.cloud.databricks.com/api/2.1/unity-catalog/iceberg-rest</code>.
+Three prerequisites, in order.</p>
+<p>External data access is off by default, per metastore:</p>
+<pre class="console"><code>$ curl -s -H &quot;Authorization: Bearer $TOKEN&quot; &quot;$HOST/api/2.1/unity-catalog/metastore_summary&quot; \
+    | python3 -c &quot;import sys,json;print(json.load(sys.stdin)[&#39;external_access_enabled&#39;])&quot;
+False
+$ curl -s -X PATCH -H &quot;Authorization: Bearer $TOKEN&quot; \
+    &quot;$HOST/api/2.1/unity-catalog/metastores/$METASTORE_ID&quot; \
+    -d &#39;{&quot;external_access_enabled&quot;: true}&#39; | python3 -c &quot;import sys,json;print(json.load(sys.stdin)[&#39;external_access_enabled&#39;])&quot;
+True</code></pre>
+<p>Second, the privilege, which must be granted on the
+<strong>catalog</strong>:</p>
+<pre class="console"><code>$ # on a schema in the default workspace catalog
+GRANT EXTERNAL USE SCHEMA ON SCHEMA workspace.probe_ns TO `you@example.com`
+[INVALID_PARAMETER_VALUE.PRIVILEGE_NOT_APPLICABLE_TO_ENTITY] Privilege EXTERNAL
+USE SCHEMA is not applicable to this entity [workspace.probe_ns:SCHEMA/SCHEMA_DB_STORAGE]
+
+$ GRANT EXTERNAL USE SCHEMA ON CATALOG workspace TO `you@example.com`
+SUCCEEDED</code></pre>
+<p>Third, and the one worth knowing: the Iceberg endpoint requires a
+token with the <code>all-apis</code> scope. A PAT scoped to
+<code>unity-catalog</code> plus <code>sql</code> — sufficient for
+Unity's own REST API and for the SQL statement API — is rejected:</p>
+<pre class="console"><code>$ curl -s -H &quot;Authorization: Bearer $SCOPED_TOKEN&quot; \
+    &quot;$HOST/api/2.1/unity-catalog/iceberg-rest/v1/config?warehouse=workspace&quot;
+{&quot;error_code&quot;:403,&quot;message&quot;:&quot;Provided access token does not have required scopes: all-apis&quot;}</code></pre>
+<p>Probing the open-standard surface needs a broader credential than the
+vendor's own APIs do.</p>
+<p>Unity also rejects two things during seeding —
+<code>identifier_field_ids</code> returns
+<code>Table with identifier columns is not allowed</code>, and managed
+Iceberg tables reject <code>write.delete.mode</code> with
+<code>MANAGED_ICEBERG_OPERATION_NOT_SUPPORTED</code>. Finally, its
+vended credentials explicitly deny <code>s3:PutObject</code> on
+Databricks-managed storage, so an external engine can create a table
+through the REST catalog but cannot write data files into it:</p>
+<pre class="console"><code>$ # pyiceberg appending through Unity&#39;s vended credentials
+AWS Error ACCESS_DENIED during CreateMultipartUpload operation: User: ... is not
+authorized to perform: s3:PutObject ... with an explicit deny in a resource-based policy</code></pre>
+<p>That table was seeded through Databricks SQL instead.</p>
+<h4 id="bringing-up-snowflake-horizon">Bringing Up Snowflake
+Horizon</h4>
+<p>The endpoint is
+<code>https://&lt;account&gt;.snowflakecomputing.com/polaris/api/catalog</code>
+— the same path as Open Catalog, because Apache Polaris is embedded in
+Horizon. The warehouse is a Snowflake <strong>database</strong> name,
+not a warehouse.</p>
+<p>Authentication is key-pair, so no account password is handled:</p>
+<pre class="console"><code>$ openssl genrsa -out sf_key.pem 2048
+$ openssl rsa -in sf_key.pem -pubout -out sf_key.pub
+writing RSA key</code></pre>
+<p>Register the public key once, then everything else runs over the SQL
+API:</p>
+<div class="sourceCode" id="cb21"><pre
+class="sourceCode sql"><code class="sourceCode sql"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="kw">ALTER</span> <span class="fu">USER</span> MYUSER <span class="kw">SET</span> RSA_PUBLIC_KEY<span class="op">=</span><span class="st">&#39;MIIBIjANBgkq...&#39;</span>;</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>Statement executed successfully.</span></code></pre></div>
+<p>The token exchange differs from stock Polaris in two ways: the scope
+is <code>session:role:&lt;role&gt;</code> rather than
+<code>PRINCIPAL_ROLE:ALL</code>, and the <code>client_credentials</code>
+grant carries a signed JWT in <code>client_secret</code> with no
+<code>client_id</code>.</p>
+<pre class="console"><code>$ curl -s -X POST &quot;$HOST/polaris/api/catalog/v1/oauth/tokens&quot; \
+    --data-urlencode &#39;grant_type=client_credentials&#39; \
+    --data-urlencode &#39;scope=session:role:ACCOUNTADMIN&#39; \
+    --data-urlencode &quot;client_secret=$JWT&quot; | head -c 60
+{&quot;access_token&quot;:&quot;eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...</code></pre>
+<p>Snowflake-managed Iceberg tables need an external volume, which needs
+an IAM role whose trust policy names values you only get after creating
+the volume:</p>
+<div class="sourceCode" id="cb23"><pre
+class="sourceCode sql"><code class="sourceCode sql"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">OR</span> <span class="kw">REPLACE</span> EXTERNAL VOLUME SF_ICEBERG_PROBE</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  STORAGE_LOCATIONS <span class="op">=</span> ((NAME<span class="op">=</span><span class="st">&#39;us-east-1-s3&#39;</span> STORAGE_PROVIDER<span class="op">=</span><span class="st">&#39;S3&#39;</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>    STORAGE_BASE_URL<span class="op">=</span><span class="st">&#39;s3://mybucket/snowflake/&#39;</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>    STORAGE_AWS_ROLE_ARN<span class="op">=</span><span class="st">&#39;arn:aws:iam::ACCOUNT:role/snowflake-iceberg-probe&#39;</span>))</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>  ALLOW_WRITES <span class="op">=</span> <span class="kw">TRUE</span>;</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>SF_ICEBERG_PROBE successfully created.</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a><span class="kw">DESC</span> EXTERNAL VOLUME SF_ICEBERG_PROBE;</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>STORAGE_AWS_IAM_USER_ARN: arn<span class="ch">:aws:iam</span>::<span class="op">..</span>.<span class="ch">:user</span><span class="op">/..</span>.</span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>STORAGE_AWS_EXTERNAL_ID:  <span class="op">..</span>._SFCRole<span class="op">=..</span>.</span></code></pre></div>
+<p>Update the role's trust policy with those two values, then
+verify:</p>
+<div class="sourceCode" id="cb24"><pre
+class="sourceCode sql"><code class="sourceCode sql"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> SYSTEM$VERIFY_EXTERNAL_VOLUME(<span class="st">&#39;SF_ICEBERG_PROBE&#39;</span>);</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>{<span class="ot">&quot;success&quot;</span>: <span class="kw">true</span>, <span class="ot">&quot;writeResult&quot;</span>: <span class="ot">&quot;PASSED&quot;</span>, <span class="ot">&quot;readResult&quot;</span>: <span class="ot">&quot;PASSED&quot;</span>,</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a> <span class="ot">&quot;listResult&quot;</span>: <span class="ot">&quot;PASSED&quot;</span>, <span class="ot">&quot;deleteResult&quot;</span>: <span class="ot">&quot;PASSED&quot;</span>,</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a> <span class="ot">&quot;awsRoleArnValidationResult&quot;</span>: <span class="ot">&quot;PASSED&quot;</span>}</span></code></pre></div>
+<p>Two more. Snowflake rejects <code>TIMESTAMP_TZ(9)</code> for Iceberg
+tables and wants <code>TIMESTAMP_LTZ(6)</code>. And creating a table
+through the REST catalog requires the database to carry a default
+external volume, or <code>createTable</code> returns 403 and four
+downstream probes fail for reasons unrelated to the endpoints they
+target:</p>
+<div class="sourceCode" id="cb25"><pre
+class="sourceCode sql"><code class="sourceCode sql"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="kw">ALTER</span> <span class="kw">DATABASE</span> PROBE_DB <span class="kw">SET</span> EXTERNAL_VOLUME <span class="op">=</span> <span class="st">&#39;SF_ICEBERG_PROBE&#39;</span>;</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>Statement executed successfully.</span></code></pre></div>
+<h4 id="bringing-up-microsoft-onelake">Bringing Up Microsoft
+OneLake</h4>
+<p>The endpoint is
+<code>https://onelake.table.fabric.microsoft.com/iceberg</code>.
+Warehouse and prefix are both
+<code>&lt;workspaceId&gt;/&lt;dataItemId&gt;</code>, and the bearer
+token audience is <code>https://storage.azure.com</code>.</p>
+<p>The gate here is licensing, not configuration:</p>
+<pre class="console"><code>$ FT=$(az account get-access-token --resource https://api.fabric.microsoft.com --query accessToken -o tsv)
+$ curl -s -H &quot;Authorization: Bearer $FT&quot; https://api.fabric.microsoft.com/v1/workspaces
+{&quot;requestId&quot;:&quot;...&quot;,&quot;errorCode&quot;:&quot;UserNotLicensed&quot;,&quot;message&quot;:&quot;User is not licensed&quot;,&quot;isRetriable&quot;:false}</code></pre>
+<p>That is a personal Microsoft account, and no configuration changes
+it. On a work account, with the free 60-day trial capacity
+activated:</p>
+<pre class="console"><code>$ curl -s -H &quot;Authorization: Bearer $FT&quot; https://api.fabric.microsoft.com/v1/capacities \
+    | python3 -c &quot;
+import sys,json
+for c in json.load(sys.stdin)[&#39;value&#39;]:
+    print(c[&#39;displayName&#39;], c[&#39;sku&#39;], c[&#39;state&#39;], c[&#39;region&#39;])&quot;
+Trial-...  FTL4  Active  East US 2</code></pre>
+<p>Then a workspace on that capacity, and a lakehouse in it:</p>
+<pre class="console"><code>$ curl -s -X POST -H &quot;Authorization: Bearer $FT&quot; &quot;$API/workspaces&quot; \
+    -d &#39;{&quot;displayName&quot;:&quot;iceberg-probe-ws&quot;}&#39; | python3 -c &quot;import sys,json;print(json.load(sys.stdin)[&#39;id&#39;])&quot;
+FABRIC_WORKSPACE_ID
+$ curl -s -o /dev/null -w &quot;assign capacity: HTTP %{http_code}\n&quot; -X POST \
+    -H &quot;Authorization: Bearer $FT&quot; &quot;$API/workspaces/$WS/assignToCapacity&quot; -d &quot;{\&quot;capacityId\&quot;:\&quot;$CAP\&quot;}&quot;
+assign capacity: HTTP 202
+$ curl -s -X POST -H &quot;Authorization: Bearer $FT&quot; &quot;$API/workspaces/$WS/lakehouses&quot; \
+    -d &#39;{&quot;displayName&quot;:&quot;probe_lh&quot;}&#39; | python3 -c &quot;import sys,json;print(json.load(sys.stdin)[&#39;id&#39;])&quot;
+FABRIC_LAKEHOUSE_ID</code></pre>
+<p>The table is loaded from CSV through the Fabric load-table API and
+stored as Delta. OneLake exposes it through the Iceberg endpoint by
+virtualisation — its properties carry <code>XTABLE_METADATA</code> with
+<code>"sourceTableFormat":"DELTA"</code>.</p>
+<h4 id="vendor-summary">Vendor Summary</h4>
+<p>Read and write surfaces are scored separately and deliberately not
+summed. A catalog that is read-only by design scores zero on writes, and
+folding that into one number makes a deliberate design read as a broken
+implementation.</p>
+<p><img src="https://raw.githubusercontent.com/xbill9/lakehouse-iceberg-2026/main/papers/iceberg-rest-catalog-conformance/medium/img/devto-iceberg-rest-catalog-conformance-table-2.png"
+alt="table" /></p>
+<p>Denominators differ because probes that could not be tested are
+excluded rather than counted as failures. The not-tested column makes
+each one reconstructable.</p>
+<p>Two of seven publish no <code>endpoints</code> list at all, so a
+client cannot discover their capabilities without probing. That is not a
+specification violation — the field is optional — but it means
+capability discovery is unavailable on both AWS catalogs.</p>
+<p>OneLake's read surface is mid-pack rather than last. Its zero on
+writes is its documented design.</p>
+<h4 id="why-the-prefix-matters">Why the Prefix Matters</h4>
+<p>Each catalog's routing prefix, as its own <code>/v1/config</code>
+returns it:</p>
+<p><img src="https://raw.githubusercontent.com/xbill9/lakehouse-iceberg-2026/main/papers/iceberg-rest-catalog-conformance/medium/img/devto-iceberg-rest-catalog-conformance-table-3.png"
+alt="table" /></p>
+<p>A prefix is not a single path segment. Google returns four, Unity and
+OneLake return two, and S3 Tables returns a percent-encoded ARN. A
+client that treats the prefix as one segment, or that re-encodes it,
+produces URLs the server does not route. I made both mistakes while
+building this.</p>
+<h4 id="views-are-declared-widely-and-implemented-once">Views Are
+Declared Widely and Implemented Once</h4>
+<p>The specification has six view operations. Probing only
+<code>listViews</code> cannot distinguish "views are unimplemented" from
+"list is unimplemented", so all six are probed.</p>
+<p><img src="https://raw.githubusercontent.com/xbill9/lakehouse-iceberg-2026/main/papers/iceberg-rest-catalog-conformance/medium/img/devto-iceberg-rest-catalog-conformance-table-4.png"
+alt="table" /></p>
+<p>Horizon declares seven view endpoints and serves none of them. Both
+Horizon and Unity were re-tested with a real native view present in the
+namespace, in case the failures were an empty-namespace artefact:</p>
+<pre class="console"><code>$ # a native view exists in both, created through each vendor&#39;s own SQL
+$ curl -s -H &quot;Authorization: Bearer $SFT&quot; &quot;$SF/v1/PROBE_DB/namespaces/PROBE_NS/views&quot;
+{&quot;error&quot;:{&quot;message&quot;:&quot;Authorization failed&quot;,&quot;type&quot;:&quot;ForbiddenException&quot;,&quot;code&quot;:403}}
+
+$ curl -s -H &quot;Authorization: Bearer $DBT&quot; &quot;$DBX/v1/catalogs/workspace/namespaces/probe_ns/views&quot;
+{&quot;error_code&quot;:&quot;ENDPOINT_NOT_FOUND&quot;,&quot;message&quot;:&quot;No API found for &#39;GET .../views&#39;&quot;}</code></pre>
+<p>Neither is a fixture problem, and ACCOUNTADMIN is the highest role in
+a Snowflake account.</p>
+<h4 id="glue-answers-unrouted-operations-with-http-200">Glue Answers
+Unrouted Operations With HTTP 200</h4>
+<p>Three probes against Glue return <code>200 OK</code> carrying an
+exception:</p>
+<pre class="console"><code>$ # POST .../tables/{table}/metrics against Glue
+HTTP 200
+{&quot;Output&quot;: {&quot;__type&quot;: &quot;com.amazon.coral.service#UnknownOperationException&quot;}, &quot;Version&quot;: &quot;1.0&quot;}</code></pre>
+<p>The mechanism is the AWS protocol layer answering an operation its
+front door does not route, rather than Glue returning a broken success
+for an implemented endpoint. The consequence for a client is the same
+either way: code that checks status codes sees three endpoints that
+work. The harness scores these with their own verdict rather than as
+<code>OK</code>.</p>
+<p>Glue's config also advertises
+<code>rest-table-scan-enabled: true</code>, and scan planning is one of
+the three.</p>
+<h4 id="eleven-overclaims-across-four-vendors">Eleven Overclaims Across
+Four Vendors</h4>
+<p>Endpoints named in a catalog's own <code>endpoints</code> array that
+did not serve:</p>
+<p><img src="https://raw.githubusercontent.com/xbill9/lakehouse-iceberg-2026/main/papers/iceberg-rest-catalog-conformance/medium/img/devto-iceberg-rest-catalog-conformance-table-5.png"
+alt="table" /></p>
+<p>Only the open-source control declares honestly. Two catalogs cannot
+be judged on this axis at all.</p>
+<p>Two of these deserve their exact wording. Unity's
+<code>update_namespace_props</code> requires a field the specification
+does not define:</p>
+<pre class="console"><code>$ # POST .../namespaces/{namespace}/properties against Unity
+HTTP 400
+Malformed request: INVALID_PARAMETER_VALUE: Etag token version is missing</code></pre>
+<p>The specification's <code>UpdateProperties</code> request has no etag
+field, so a conformant client cannot call this endpoint at all.</p>
+<p>And OneLake's documentation and its declaration are wrong in opposite
+directions. Microsoft documents the endpoint as read-only, which matches
+the behaviour — every write returns
+<code>Requested Api is not found</code> — but <code>/v1/config</code>
+declares four write endpoints anyway. Meanwhile Microsoft documents that
+the <code>parent</code> query parameter on <code>listNamespaces</code>
+is not supported, and measured, it works:</p>
+<pre class="console"><code>$ curl -s -H &quot;Authorization: Bearer $ST&quot; &quot;$OL/v1/$PREFIX/namespaces?parent=dbo&quot;
+{&quot;namespaces&quot;:[],&quot;next-page-token&quot;:null}
+$ curl -s -H &quot;Authorization: Bearer $ST&quot; &quot;$OL/v1/$PREFIX/namespaces?parent=zzz&quot;
+{&quot;error&quot;:{&quot;message&quot;:&quot;The given namespace does not exist&quot;,&quot;type&quot;:&quot;NoSuchNamespaceException&quot;...</code></pre>
+<p>An empty list for a namespace with no children, and a typed error for
+one that does not exist. That is the parameter working.</p>
+<h4 id="the-commit-path-has-depth-the-endpoint-list-does-not-show">The
+Commit Path Has Depth the Endpoint List Does Not Show</h4>
+<p><code>POST .../tables/{table}</code> is one endpoint carrying 25
+distinct update actions. Five are probed separately. Polaris, Glue, S3
+Tables, Unity and BigLake accept all five. Horizon accepts two:</p>
+<p><img src="https://raw.githubusercontent.com/xbill9/lakehouse-iceberg-2026/main/papers/iceberg-rest-catalog-conformance/medium/img/devto-iceberg-rest-catalog-conformance-table-6.png"
+alt="table" /></p>
+<p>The last is an explicit refusal:</p>
+<pre class="console"><code>$ # upgrade-format-version to 2 against Horizon
+HTTP 400
+Upgrading the Iceberg format version of an existing table is not allowed for
+Horizon accounts</code></pre>
+<p>The two showing two status codes are showing observed nondeterminism.
+Across back-to-back sweeps both alternate between
+<code>409 CONFLICT</code> and <code>500 SERVER_ERROR</code> on identical
+input:</p>
+<pre class="console"><code>$ # two consecutive full sweeps, diffed
+snowflake-horizon commit_remove_properties:  CONFLICT     -&gt; SERVER_ERROR
+snowflake-horizon commit_set_current_schema: SERVER_ERROR -&gt; CONFLICT
+differences across two sweeps: 2</code></pre>
+<p>The 500 carries
+<code>UNEXPECTED_ERROR_SIGNALED ... Indeterminate result during conflict resolution check</code>.
+Both fail either way, so the scores are stable and the status code is
+not. Two probes on the same conflict-resolution path behaving this way
+makes it a property of that path rather than a single flaky request.
+Every other cell in every catalog was stable across six sweeps.</p>
+<h4 id="what-does-not-differ">What Does Not Differ</h4>
+<p>The suite also checks 30 field paths in each <code>loadTable</code>
+response — schemas, column IDs, partition specs, sort orders, snapshot
+history, refs, statistics. Twenty-four of the thirty are identical
+across all seven catalogs.</p>
+<p>Whatever separates these implementations, it is not the fidelity of
+<code>loadTable</code>. Of the six rows that do differ, one is caused by
+the fixture rather than the catalog, two reflect storage and
+credential-vending configuration, and two are the difference between
+rendering "no statistics" as an empty list and omitting the key.</p>
+<p>This is a null result and it is worth stating plainly.</p>
+<h4 id="smaller-purge-semantics-are-per-catalog">Smaller: Purge
+Semantics Are Per-Catalog</h4>
+<p>Dropping a table is not uniform. Polaris refuses
+<code>purgeRequested=true</code> unless
+<code>DROP_WITH_PURGE_ENABLED</code> is set, Glue refuses it outright,
+S3 Tables refuses a plain drop, and BigLake, Unity and Horizon accept
+the purge form.</p>
+<pre class="console"><code>$ # DELETE .../tables/{table}?purgeRequested=true against Glue
+HTTP 400  PurgeRequested cannot be true for Glue iceberg tables.
+$ # DELETE .../tables/{table} against S3 Tables
+HTTP 400  DropTable operation failed. S3 Tables only supports dropping tables with purge enabled.</code></pre>
+<p>This is worth knowing when writing a client, but it is the weakest
+result here: these are separate products with different storage models,
+and a client configures a catalog once rather than swapping between
+them. I mention it because it is measured, not because it is
+important.</p>
+<h4 id="summary">Summary</h4>
+<p>The goal of this article was to measure what seven Iceberg REST
+catalog implementations actually serve, rather than what their
+documentation claims. The key to the solution was probing the
+<code>endpoints</code> array each catalog publishes about itself and
+comparing it against behaviour on the same request suite. The
+conformance results were:</p>
+<ul>
+<li><strong>Eleven overclaims across four vendors.</strong> Endpoints a
+catalog names in its own <code>/v1/config</code> and then does not
+serve. Only the open-source control, Apache Polaris, declares
+honestly.</li>
+<li><strong>Two of seven publish no declaration at all.</strong> Glue
+and S3 Tables leave a client no way to discover their surface short of
+probing it.</li>
+<li><strong>Views are effectively a Polaris-only feature.</strong> Six
+operations, six managed catalogs, zero implementations.</li>
+<li><strong>"Supports the REST catalog" is true and not very
+informative.</strong> All seven served the core read path. The
+divergence is in the write surface, in the update actions inside one
+endpoint, and in operational semantics.</li>
+<li><strong><code>loadTable</code> fidelity is not a
+differentiator.</strong> Twenty-four of thirty checked field paths are
+identical everywhere.</li>
+</ul>
+<p>Scope: seven catalogs, each probed once in a single region on
+2026-09-03 against one table shape, covering 25 of the specification's
+35 operations, 5 of 25 update actions and 1 of 8 table requirements;
+Polaris pinned to 1.7.0 locally with non-default permissive flags,
+BigLake in us-central1, Glue and S3 Tables in us-east-1, Unity in
+us-west-2, Horizon on AWS us-east-1 and OneLake in East US 2; Unity,
+Horizon and OneLake on trial accounts, which is a genuine confound
+because one Horizon refusal is worded "not allowed for Horizon
+accounts"; the six managed catalogs expose no version, so no result can
+be tied to a release; fixtures are identical on five of the seven, with
+the other two differing because those catalogs refuse part of the seed;
+and the field tier checks that a value is present, never that it is
+correct.</p>
+<p>The strategy for using a single request suite across seven vendor
+catalogs was validated with an incremental step by step approach.</p>
+</body>
+</html>
