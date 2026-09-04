@@ -1,0 +1,17 @@
+[package]
+name = "iceberg-rust-probe"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+# Pinned exactly. The whole point of the paper is "what does THIS client
+# reach", so a floating version would silently change the subject.
+[dependencies]
+iceberg = "=0.10.1"
+iceberg-catalog-rest = "=0.10.1"
+tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
+serde_json = "1"
+
+[[bin]]
+name = "irc-probe"
+path = "src/main.rs"
