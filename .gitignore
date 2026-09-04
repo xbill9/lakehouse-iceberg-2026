@@ -19,3 +19,8 @@ article-draft.md
 
 __pycache__/
 *.pyc
+iceberg-agent/__pycache__/
+# Azure SDK writes a developer-tools device id into a path built from
+# LOCALAPPDATA; unset on Linux, so it lands in a directory literally named None
+iceberg-agent/None/
+**/.cache/Microsoft/

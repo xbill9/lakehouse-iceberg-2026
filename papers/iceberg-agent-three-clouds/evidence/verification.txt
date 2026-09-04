@@ -1,0 +1,34 @@
+# verification captured 2026-09-04, comparing each agent answer against ground-truth.txt
+# every check is a string or integer comparison, not a reading
+
+gcp    model=gemini-2.5-flash catalog=google-lakehouse
+   row count 11 present         ok
+   snapshot id cited            ok
+   metadata location cited      ok
+   all columns named            ok
+   no column invented           ok
+   catalog in header matches    ok
+   instruction v2               ok
+   catalog_calls == 3           ok
+
+aws    model=us.amazon.nova-micro-v1:0 catalog=aws-glue
+   row count 11 present         ok
+   snapshot id cited            ok
+   metadata location cited      ok
+   all columns named            ok
+   no column invented           ok
+   catalog in header matches    ok
+   instruction v2               ok
+   catalog_calls == 3           ok
+
+azure  model=gpt-5-mini catalog=microsoft-onelake
+   row count 6 present          ok
+   snapshot id cited            ok
+   metadata location cited      ok
+   all columns named            ok
+   no column invented           ok
+   catalog in header matches    ok
+   instruction v2               ok
+   catalog_calls == 3           ok
+
+ALL CHECKS PASS

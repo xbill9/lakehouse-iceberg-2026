@@ -1,0 +1,21 @@
+# ground truth captured 2026-09-04T14:09:30Z, read directly from each catalog
+# not via any agent; this is what the agents' answers are checked against
+
+catalog=google-lakehouse table=probe_ns.probe_table
+  rows_scanned=11
+  total_records_in_summary=11
+  columns=id,ts,payload,region
+  snapshot_id=6042367411917366632
+  metadata_location=gs://aisprint-491218-iceberg-probe/probe_ns/probe_table/jy3n8ueer5x567uy/metadata/00006-6a99c835-0000-2c3f-a2cd-3c286d4fe366.metadata.json
+catalog=aws-glue table=probe_ns.probe_table
+  rows_scanned=11
+  total_records_in_summary=11
+  columns=id,ts,payload,region
+  snapshot_id=9187553066798777529
+  metadata_location=s3://aisprint-iceberg-probe-106059658660/probe_ns/probe_table/metadata/00006-26d323ba-b665-4a07-8e7d-33835342180f.metadata.json
+catalog=microsoft-onelake table=dbo.probe_table
+  rows_scanned=6
+  total_records_in_summary=6
+  columns=id,ts,payload
+  snapshot_id=3346142071915475645
+  metadata_location=abfss://daeb5aeb-8d04-4c52-9281-53e6efee093f@onelake.dfs.fabric.microsoft.com/739f7d11-d9b7-46a5-92eb-c1b6f121adb3/Tables/probe_table/metadata/v3.metadata.json

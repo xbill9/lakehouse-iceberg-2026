@@ -1,0 +1,24 @@
+# captured 2026-09-04T14:08:37Z by run_once.py on this machine
+# command: python3 run_once.py azure "How many rows are in the probe table, and what columns does it have? Cite the exact table version you read."
+
+cloud=azure model=gpt-5-mini catalog=microsoft-onelake
+question: How many rows are in the probe table, and what columns does it have? Cite the exact table version you read.
+
+
+<!-- cloud=azure model=gpt-5-mini catalog=microsoft-onelake instruction=v2 catalog_calls=3 -->
+Tables found:
+- dbo.probe_table
+
+Describing the table I used (dbo.probe_table):
+- Columns:
+  - id int (optional)
+  - ts timestamptz (optional)
+  - payload string (optional)
+- Partitioning: unpartitioned
+- metadata-location: abfss://daeb5aeb-8d04-4c52-9281-53e6efee093f@onelake.dfs.fabric.microsoft.com/739f7d11-d9b7-46a5-92eb-c1b6f121adb3/Tables/probe_table/metadata/v3.metadata.json
+- current-snapshot-id: 3346142071915475645
+
+Row count:
+- 6 rows (exact for snapshot-id 3346142071915475645; metadata-location quoted above).
+
+catalog calls: 3 of 8
