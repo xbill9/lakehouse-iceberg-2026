@@ -4,4 +4,4 @@ devto-gde = https://dev.to/gde/seven-iceberg-rest-catalogs-what-they-declare-and
 builder   = https://builder.aws.com/content/3IsAeGXbtuGMEvyAm1l22zHGc3U/seven-iceberg-rest-catalogs-what-they-declare-and-what-they-serve
 medium    = https://xbill999.medium.com/seven-iceberg-rest-catalogs-what-they-declare-and-what-they-serve-e0d199ff5a69
 repo      = https://github.com/xbill9/lakehouse-iceberg-2026
-linkedin  = https://www.linkedin.com/feed/update/urn:li:activity:7501714514246189057/
+linkedin  = https://www.linkedin.com/posts/xbill_github-xbill9lakehouse-iceberg-2026-measured-activity-7501714514246189057-SYyS
