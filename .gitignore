@@ -8,8 +8,10 @@ iceberg-conformance/evidence/
 iceberg-conformance/out/
 
 # sprint submission material — contains personal details
-sprint-rows.tsv
-sprint-rows.md
+# Any sprint submission row: these carry a real name, email and country.
+# Pattern rather than exact names -- sprint-row-paper1.* was not covered
+# by the two literal entries that used to be here.
+sprint-row*
 gen_rows.py
 PROJECT-IDEAS.md
 *.pdf
