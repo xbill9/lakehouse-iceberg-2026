@@ -1,0 +1,3 @@
+Every vendor with a lakehouse now ships an Iceberg REST catalog, and each one says it implements the same specification. I wanted to know what they actually serve, so I built one probe harness and pointed the identical request suite at all of them.
+This piece is the AWS pair on its own: Glue and S3 Tables score identically, 9 of 15 read probes and 10 of 17 write probes each, and behave differently in thirteen places. Glue answers three unrouted operations with HTTP 200 carrying an UnknownOperationException, and the two require opposite things of the same drop request.
+There is a companion covering all seven catalogs, on Builder Center here: https://builder.aws.com/content/3IsAeGXbtuGMEvyAm1l22zHGc3U/seven-iceberg-rest-catalogs-what-they-declare-and-what-they-serve
