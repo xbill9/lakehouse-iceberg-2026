@@ -27,3 +27,15 @@ ahodroj/mcp-iceberg-service  Python 3.10+, local process
   data reads: YES, SELECT through PyIceberg/PyArrow
   not implemented: UPDATE, DELETE (both on the roadmap)
   source: https://github.com/ahodroj/mcp-iceberg-service
+
+## Availability on this machine, checked 2026-09-04
+
+iceberg-mcp (morristai)    NOT INSTALLED -- Rust, needs `cargo install`; cargo is present
+mcp-iceberg-service        runnable via `uvx mcp-iceberg-service`; uvx is present
+bigquery MCP               endpoint live: bare GET returns 405, which is the
+                           expected answer from a POST-only MCP endpoint, not an error
+managed-spark MCP          endpoint live: same 405
+
+A 405 here means the URL exists and refuses GET. It is not evidence that auth
+works, and it is not evidence the tools are reachable -- only that the host is
+answering. Both remote servers still need OAuth/IAM through the CLI host.
