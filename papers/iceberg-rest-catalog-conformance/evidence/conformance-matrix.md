@@ -6,7 +6,7 @@
 | aws-glue | `https://glue.us-east-1.amazonaws.com/iceberg` | sigv4 | `catalogs/aws-account-0001` | 2026-09-03T21:32:06Z |
 | aws-s3tables | `https://s3tables.us-east-1.amazonaws.com/iceberg` | sigv4 | `arn%3Aaws%3As3tables%3Aus-east-1%3Aaws-account-0001%3Abucket%2Ficeberg-probe` | 2026-09-03T21:32:09Z |
 | databricks-unity | `https://catalog-host-0001/api/2.1/unity-catalog/iceberg-rest` | bearer_env | `catalogs/workspace` | 2026-09-03T21:32:58Z |
-| google-lakehouse | `https://biglake.googleapis.com/iceberg/v1/restcatalog` | gcloud | `projects/gcp-project-number-0001/catalogs/bucket-0002` | 2026-09-03T21:31:59Z |
+| google-lakehouse | `https://biglake.googleapis.com/iceberg/v1/restcatalog` | gcloud | `projects/GCP_PROJECT_NUMBER/catalogs/GCP_PROJECT-iceberg-probe` | 2026-09-03T21:31:59Z |
 | microsoft-onelake | `https://onelake.table.fabric.microsoft.com/iceberg` | azure_cli | `guid-0001/guid-0002` | 2026-09-03T21:32:02Z |
 | snowflake-horizon | `https://catalog-host-0002/polaris/api/catalog` | snowflake_keypair | `PROBE_DB` | 2026-09-03T21:32:34Z |
 

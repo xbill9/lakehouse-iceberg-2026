@@ -1,0 +1,29 @@
+# MCP servers under test, verified from their own documentation on 2026-09-04.
+# Tool names are quoted from the source, not paraphrased.
+
+## Google, first-party
+bigquery-mcp      https://bigquery.googleapis.com/mcp    remote, HTTP, OAuth2 + IAM
+  tools: execute_sql, execute_sql_readonly, list_dataset_ids, list_table_ids,
+         get_dataset_info, get_table_info
+  data reads: YES, SQL over BigLake and Apache Iceberg external tables
+  limits: 3 minute query timeout, 3000 row cap, no Google Drive external tables
+  source: https://docs.cloud.google.com/bigquery/docs/use-bigquery-mcp
+
+managed-spark-mcp https://dataproc-us-central1.googleapis.com/mcp   remote, HTTP
+  scope: cluster and job operations (create cluster, submit job, autoscaling)
+  data reads: not directly -- it is a compute control plane, not a query surface
+  source: https://docs.cloud.google.com/managed-spark/docs/reference/mcp
+
+## Community
+morristai/iceberg-mcp        Rust, local process
+  tools: namespaces, tables, table_schema, table_properties
+  catalogs: REST yes, AWS Glue yes, Hive Metastore no, S3 Tables no
+  data reads: NO -- catalog metadata only, there is no tool that returns rows
+  source: https://github.com/morristai/iceberg-mcp
+
+ahodroj/mcp-iceberg-service  Python 3.10+, local process
+  surface: LIST TABLES, DESCRIBE TABLE, SELECT, INSERT via a SQL interface
+  catalogs: REST (ICEBERG_CATALOG_URI)
+  data reads: YES, SELECT through PyIceberg/PyArrow
+  not implemented: UPDATE, DELETE (both on the roadmap)
+  source: https://github.com/ahodroj/mcp-iceberg-service

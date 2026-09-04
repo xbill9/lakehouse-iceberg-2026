@@ -52,6 +52,19 @@ GUID_RE = re.compile(r"\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f
 AWS_ACCT_RE = re.compile(r"\b\d{12}\b")
 BUCKET_RE = re.compile(r"(?:gs|s3|s3a|abfss)://([A-Za-z0-9._@-]+)")
 HOST_RE = re.compile(r"https?://([A-Za-z0-9.-]+(?::\d+)?)/")
+
+# MEASURED 2026-09-04: a real GCP project id reached the public repo 73 times,
+# including 33 in evidence-public/, because nothing here looked for one. A
+# project id is not a bucket and not a GUID, so every existing pattern missed
+# it -- BUCKET_RE caught "<project>-iceberg-probe" but never the bare id in a
+# routing prefix or an x-goog-user-project header.
+#   projects/<number>/catalogs/...      the numeric form
+#   x-goog-user-project: <id>           the string form
+#   ?warehouse=gs://<id>-...            embedded in a bucket name
+GCP_PROJECT_NUM_RE = re.compile(r"\bprojects/(\d{6,})\b")
+GCP_PROJECT_ID_RE = re.compile(
+    r"(?:x-goog-user-project:\s*|projects/|/catalogs/)([a-z][a-z0-9-]{4,28}[a-z0-9])\b",
+    re.I)
 # S3 Tables' managed buckets carry a long random component before "--table-s3".
 S3TABLES_BUCKET_RE = re.compile(r"\b[0-9a-f-]{8,}[a-z0-9]{20,}--table-s3\b", re.I)
 
@@ -79,6 +92,11 @@ def build_map(text):
         add(a, "aws-account")
     for g in GUID_RE.findall(text):
         add(g.lower(), "guid")
+    for n in GCP_PROJECT_NUM_RE.findall(text):
+        add(n, "gcp-project-number")
+    for pid in GCP_PROJECT_ID_RE.findall(text):
+        if not pid.isdigit():
+            add(pid, "gcp-project")
     return m
 
 
@@ -95,6 +113,8 @@ def residual_scan(text):
     findings = []
     for label, pat in (("guid", GUID_RE),
                        ("12-digit account", AWS_ACCT_RE),
+                       ("gcp project number", GCP_PROJECT_NUM_RE),
+                       ("gcp project id", GCP_PROJECT_ID_RE),
                        ("email", re.compile(r"[\w.+-]+@[\w-]+\.[\w.]{2,}"))):
         hits = {h if isinstance(h, str) else h[0] for h in pat.findall(text)}
         hits = {h for h in hits if not h.startswith(("guid-", "aws-account-"))}

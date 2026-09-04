@@ -1,0 +1,14 @@
+# Question set v1. Every host gets these, in this order, against the same table.
+# Graded against ground truth read from the catalog directly, never through a host.
+#
+# Chosen so that the tool surfaces separate: Q1-Q3 are answerable from catalog
+# metadata alone, Q4-Q5 need actual rows. A server with no row-returning tool
+# should fail Q4-Q5 and say why, rather than guess -- and whether it says why
+# is itself a result.
+
+Q1  What namespaces exist in this catalog?
+Q2  What tables are in the probe namespace?
+Q3  What columns does the probe table have, and what are their types?
+Q4  How many rows are in the probe table?
+Q5  What is the range of values in the ts column?
+Q6  Cite the exact table version you read, by metadata location or snapshot id.
