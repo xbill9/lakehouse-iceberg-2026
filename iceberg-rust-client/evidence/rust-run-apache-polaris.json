@@ -1,0 +1,381 @@
+{
+  "meta": {
+    "catalog": "apache-polaris",
+    "crate": "iceberg-catalog-rest 0.10.1",
+    "control": true,
+    "storage_factory": "local-fs",
+    "auth_mode": "native",
+    "auth_detail": "credential + oauth2-server-uri + scope",
+    "measured_utc": "2026-09-04T21:54:21Z",
+    "exit_code": 0,
+    "binary_reported": {
+      "crate": "iceberg-catalog-rest",
+      "storage_factory": "local-fs",
+      "version": "0.10.1"
+    },
+    "counts": {
+      "IMPLICIT": 1,
+      "OK": 7,
+      "NOT-EXPRESSIBLE": 25
+    }
+  },
+  "rows": [
+    {
+      "probe": "config",
+      "surface": "read",
+      "endpoint": "GET /v1/config",
+      "client_status": "implicit",
+      "rust_symbol": "RestCatalog::load_config",
+      "source_ref": "catalog.rs:426",
+      "verdict": "IMPLICIT",
+      "ms": null,
+      "note": "issued by RestCatalog on first use; not separately callable"
+    },
+    {
+      "probe": "list_namespaces",
+      "surface": "read",
+      "endpoint": "GET /v1/{prefix}/namespaces",
+      "client_status": "reachable",
+      "rust_symbol": "Catalog::list_namespaces",
+      "source_ref": "catalog.rs:512",
+      "verdict": "OK",
+      "ms": 24,
+      "detail": {
+        "count": 1
+      }
+    },
+    {
+      "probe": "list_namespaces_paged",
+      "surface": "read",
+      "endpoint": "GET /v1/{prefix}/namespaces",
+      "client_status": "degraded",
+      "rust_symbol": "Catalog::list_namespaces",
+      "source_ref": "catalog.rs:512",
+      "verdict": "NOT-EXPRESSIBLE",
+      "why": "The probe asks who honours `pageSize`. The crate never sends it: it follows `next-page-token` in a loop and returns the whole list (catalog.rs:530, 545). Pagination is handled, but not steerable, so this probe has no Rust equivalent to run."
+    },
+    {
+      "probe": "list_namespaces_parent",
+      "surface": "read",
+      "endpoint": "GET /v1/{prefix}/namespaces",
+      "client_status": "reachable",
+      "rust_symbol": "Catalog::list_namespaces",
+      "source_ref": "catalog.rs:526",
+      "verdict": "OK",
+      "ms": 7,
+      "detail": {
+        "count": 0
+      }
+    },
+    {
+      "probe": "load_namespace",
+      "surface": "read",
+      "endpoint": "GET /v1/{prefix}/namespaces/{namespace}",
+      "client_status": "reachable",
+      "rust_symbol": "Catalog::get_namespace",
+      "source_ref": "catalog.rs:603",
+      "verdict": "OK",
+      "ms": 8,
+      "detail": {
+        "property_count": 1
+      }
+    },
+    {
+      "probe": "head_namespace",
+      "surface": "read",
+      "endpoint": "HEAD /v1/{prefix}/namespaces/{namespace}",
+      "client_status": "reachable",
+      "rust_symbol": "Catalog::namespace_exists",
+      "source_ref": "catalog.rs:631",
+      "verdict": "OK",
+      "ms": 9,
+      "detail": {
+        "exists": true
+      }
+    },
+    {
+      "probe": "list_tables",
+      "surface": "read",
+      "endpoint": "GET /v1/{prefix}/namespaces/{namespace}/tables",
+      "client_status": "reachable",
+      "rust_symbol": "Catalog::list_tables",
+      "source_ref": "catalog.rs:687",
+      "verdict": "OK",
+      "ms": 9,
+      "detail": {
+        "count": 1
+      }
+    },
+    {
+      "probe": "load_table",
+      "surface": "read",
+      "endpoint": "GET /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "client_status": "reachable",
+      "rust_symbol": "Catalog::load_table",
+      "source_ref": "catalog.rs:822",
+      "verdict": "OK",
+      "ms": 24,
+      "detail": {
+        "format_version": "V2",
+        "has_current_snapshot": true,
+        "partition_field_count": 1,
+        "schema_field_count": 4,
+        "snapshot_count": 4,
+        "sort_order_field_count": 1
+      }
+    },
+    {
+      "probe": "load_table_snapshots_all",
+      "surface": "read",
+      "endpoint": "GET /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "client_status": "degraded",
+      "rust_symbol": "Catalog::load_table",
+      "source_ref": "catalog.rs:822",
+      "verdict": "NOT-EXPRESSIBLE",
+      "why": "`load_table` builds its request with no query parameters at all (catalog.rs:825-828), so `?snapshots=all` cannot be sent. A caller gets the server's default -- refs-only, where the server honours the parameter -- and cannot ask for the full history."
+    },
+    {
+      "probe": "head_table",
+      "surface": "read",
+      "endpoint": "HEAD /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "client_status": "reachable",
+      "rust_symbol": "Catalog::table_exists",
+      "source_ref": "catalog.rs:886",
+      "verdict": "OK",
+      "ms": 16,
+      "detail": {
+        "exists": true
+      }
+    },
+    {
+      "probe": "load_credentials",
+      "surface": "read",
+      "endpoint": "GET /v1/{prefix}/namespaces/{namespace}/tables/{table}/credentials",
+      "client_status": "absent",
+      "rust_symbol": null,
+      "source_ref": "grep, no match",
+      "verdict": "NOT-EXPRESSIBLE",
+      "why": "No `/credentials` endpoint builder. Vended credentials are modelled only where they arrive inside a loadTable response (StorageCredential, types.rs:235), not fetched separately."
+    },
+    {
+      "probe": "list_views",
+      "surface": "read",
+      "endpoint": "GET /v1/{prefix}/namespaces/{namespace}/views",
+      "client_status": "absent",
+      "rust_symbol": null,
+      "source_ref": "grep, no match",
+      "verdict": "NOT-EXPRESSIBLE",
+      "why": "No view support at all."
+    },
+    {
+      "probe": "plan_table_scan",
+      "surface": "read",
+      "endpoint": "POST /v1/{prefix}/namespaces/{namespace}/tables/{table}/plan",
+      "client_status": "absent",
+      "rust_symbol": null,
+      "source_ref": "grep, no match",
+      "verdict": "NOT-EXPRESSIBLE",
+      "why": "No `/plan` endpoint builder; scan planning is client-side."
+    },
+    {
+      "probe": "report_metrics",
+      "surface": "read",
+      "endpoint": "POST /v1/{prefix}/namespaces/{namespace}/tables/{table}/metrics",
+      "client_status": "absent",
+      "rust_symbol": null,
+      "source_ref": "grep, no match",
+      "verdict": "NOT-EXPRESSIBLE",
+      "why": "No `/metrics` endpoint builder."
+    },
+    {
+      "probe": "create_namespace",
+      "surface": "write",
+      "endpoint": "POST /v1/{prefix}/namespaces",
+      "client_status": "reachable",
+      "rust_symbol": "Catalog::create_namespace",
+      "source_ref": "catalog.rs:567",
+      "verdict": "NOT-EXPRESSIBLE",
+      "why": "no method issues this request"
+    },
+    {
+      "probe": "update_namespace_props",
+      "surface": "write",
+      "endpoint": "POST /v1/{prefix}/namespaces/{namespace}/properties",
+      "client_status": "unsupported",
+      "rust_symbol": "Catalog::update_namespace",
+      "source_ref": "catalog.rs:652",
+      "verdict": "NOT-EXPRESSIBLE",
+      "why": "Returns FeatureUnsupported, \"Updating namespace not supported yet!\". The method is in the trait a caller compiles against; there is no `/properties` endpoint builder behind it."
+    },
+    {
+      "probe": "create_table",
+      "surface": "write",
+      "endpoint": "POST /v1/{prefix}/namespaces/{namespace}/tables",
+      "client_status": "reachable",
+      "rust_symbol": "Catalog::create_table",
+      "source_ref": "catalog.rs:739",
+      "verdict": "NOT-EXPRESSIBLE",
+      "why": "no method issues this request"
+    },
+    {
+      "probe": "commit_table",
+      "surface": "write",
+      "endpoint": "POST /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "client_status": "reachable",
+      "rust_symbol": "Catalog::update_table",
+      "source_ref": "catalog.rs:1005",
+      "verdict": "NOT-EXPRESSIBLE",
+      "why": "no method issues this request"
+    },
+    {
+      "probe": "commit_remove_properties",
+      "surface": "write",
+      "endpoint": "POST /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "client_status": "reachable",
+      "rust_symbol": "Catalog::update_table",
+      "source_ref": "catalog.rs:1005",
+      "verdict": "NOT-EXPRESSIBLE",
+      "why": "Same endpoint; the update is expressed as a TableCommit."
+    },
+    {
+      "probe": "commit_add_schema",
+      "surface": "write",
+      "endpoint": "POST /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "client_status": "reachable",
+      "rust_symbol": "Catalog::update_table",
+      "source_ref": "catalog.rs:1005",
+      "verdict": "NOT-EXPRESSIBLE",
+      "why": "no method issues this request"
+    },
+    {
+      "probe": "commit_set_current_schema",
+      "surface": "write",
+      "endpoint": "POST /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "client_status": "reachable",
+      "rust_symbol": "Catalog::update_table",
+      "source_ref": "catalog.rs:1005",
+      "verdict": "NOT-EXPRESSIBLE",
+      "why": "no method issues this request"
+    },
+    {
+      "probe": "commit_upgrade_format_version",
+      "surface": "write",
+      "endpoint": "POST /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "client_status": "reachable",
+      "rust_symbol": "Catalog::update_table",
+      "source_ref": "catalog.rs:1005",
+      "verdict": "NOT-EXPRESSIBLE",
+      "why": "no method issues this request"
+    },
+    {
+      "probe": "commit_transaction",
+      "surface": "write",
+      "endpoint": "POST /v1/{prefix}/transactions/commit",
+      "client_status": "absent",
+      "rust_symbol": null,
+      "source_ref": "grep, no match",
+      "verdict": "NOT-EXPRESSIBLE",
+      "why": "No `/v1/{prefix}/transactions/commit` endpoint builder. CommitTransactionRequest exists as a type (types.rs:279) with no method that sends it."
+    },
+    {
+      "probe": "rename_table",
+      "surface": "write",
+      "endpoint": "POST /v1/{prefix}/tables/rename",
+      "client_status": "reachable",
+      "rust_symbol": "Catalog::rename_table",
+      "source_ref": "catalog.rs:908",
+      "verdict": "NOT-EXPRESSIBLE",
+      "why": "no method issues this request"
+    },
+    {
+      "probe": "drop_table_purge",
+      "surface": "write",
+      "endpoint": "DELETE /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "client_status": "reachable",
+      "rust_symbol": "Catalog::purge_table",
+      "source_ref": "catalog.rs:881",
+      "verdict": "NOT-EXPRESSIBLE",
+      "why": "`purgeRequested=true` via delete_table(purge=true), catalog.rs:388."
+    },
+    {
+      "probe": "drop_table",
+      "surface": "write",
+      "endpoint": "DELETE /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "client_status": "reachable",
+      "rust_symbol": "Catalog::drop_table",
+      "source_ref": "catalog.rs:875",
+      "verdict": "NOT-EXPRESSIBLE",
+      "why": "no method issues this request"
+    },
+    {
+      "probe": "create_view",
+      "surface": "write",
+      "endpoint": "POST /v1/{prefix}/namespaces/{namespace}/views",
+      "client_status": "absent",
+      "rust_symbol": null,
+      "source_ref": "grep, no match",
+      "verdict": "NOT-EXPRESSIBLE",
+      "why": "No view support."
+    },
+    {
+      "probe": "load_view",
+      "surface": "read",
+      "endpoint": "GET /v1/{prefix}/namespaces/{namespace}/views/{view}",
+      "client_status": "absent",
+      "rust_symbol": null,
+      "source_ref": "grep, no match",
+      "verdict": "NOT-EXPRESSIBLE",
+      "why": "No view support."
+    },
+    {
+      "probe": "head_view",
+      "surface": "read",
+      "endpoint": "HEAD /v1/{prefix}/namespaces/{namespace}/views/{view}",
+      "client_status": "absent",
+      "rust_symbol": null,
+      "source_ref": "grep, no match",
+      "verdict": "NOT-EXPRESSIBLE",
+      "why": "No view support."
+    },
+    {
+      "probe": "replace_view",
+      "surface": "write",
+      "endpoint": "POST /v1/{prefix}/namespaces/{namespace}/views/{view}",
+      "client_status": "absent",
+      "rust_symbol": null,
+      "source_ref": "grep, no match",
+      "verdict": "NOT-EXPRESSIBLE",
+      "why": "No view support."
+    },
+    {
+      "probe": "rename_view",
+      "surface": "write",
+      "endpoint": "POST /v1/{prefix}/views/rename",
+      "client_status": "absent",
+      "rust_symbol": null,
+      "source_ref": "grep, no match",
+      "verdict": "NOT-EXPRESSIBLE",
+      "why": "No view support."
+    },
+    {
+      "probe": "drop_view",
+      "surface": "write",
+      "endpoint": "DELETE /v1/{prefix}/namespaces/{namespace}/views/{view}",
+      "client_status": "absent",
+      "rust_symbol": null,
+      "source_ref": "grep, no match",
+      "verdict": "NOT-EXPRESSIBLE",
+      "why": "No view support."
+    },
+    {
+      "probe": "drop_namespace",
+      "surface": "write",
+      "endpoint": "DELETE /v1/{prefix}/namespaces/{namespace}",
+      "client_status": "reachable",
+      "rust_symbol": "Catalog::drop_namespace",
+      "source_ref": "catalog.rs:663",
+      "verdict": "NOT-EXPRESSIBLE",
+      "why": "no method issues this request"
+    }
+  ]
+}
