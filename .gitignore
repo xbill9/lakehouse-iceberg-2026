@@ -26,3 +26,6 @@ iceberg-agent/__pycache__/
 # LOCALAPPDATA; unset on Linux, so it lands in a directory literally named None
 iceberg-agent/None/
 **/.cache/Microsoft/
+
+# real values for check-no-identifiers.sh — never commit
+.known-identifiers
