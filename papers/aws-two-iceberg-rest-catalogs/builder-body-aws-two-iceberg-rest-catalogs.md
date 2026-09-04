@@ -1,14 +1,8 @@
-This article provides a step by step comparison of the two Apache Iceberg REST
-catalog implementations AWS ships — AWS Glue and Amazon S3 Tables — measuring what
-each one actually serves. A Python probe harness issues one identical request
-suite to both and stores the raw response as evidence.
+This article provides a step by step comparison of the two Apache Iceberg REST catalog implementations AWS ships — AWS Glue and Amazon S3 Tables — measuring what each one actually serves. A Python probe harness issues one identical request suite to both and stores the raw response as evidence.
 
 https://github.com/xbill9/lakehouse-iceberg-2026
 
-AWS ships two Iceberg REST catalogs. Both are managed, both are SigV4-signed, and
-both implement the same published specification. If you are choosing between them,
-or writing a client that has to work against either, the interesting question is
-where they diverge.
+AWS ships two Iceberg REST catalogs. Both are managed, both are SigV4-signed, and both implement the same published specification. If you are choosing between them, or writing a client that has to work against either, the interesting question is where they diverge.
 
 They score identically and behave differently in thirteen places.
 
@@ -16,14 +10,9 @@ All results below were measured on 2026-09-03.
 
 ## What Is the Iceberg REST Catalog?
 
-An Iceberg table is a directory of Parquet files plus a chain of JSON metadata
-files recording which files belong to the table right now. Something has to hold
-the pointer to the current metadata file, and make commits atomic by swapping it.
-That is the catalog.
+An Iceberg table is a directory of Parquet files plus a chain of JSON metadata files recording which files belong to the table right now. Something has to hold the pointer to the current metadata file, and make commits atomic by swapping it. That is the catalog.
 
-The REST catalog is one HTTP API for that job, so an engine needs one driver
-rather than one per catalog. The specification lives in the Iceberg repository as
-`open-api/rest-catalog-open-api.yaml` and defines 35 operations.
+The REST catalog is one HTTP API for that job, so an engine needs one driver rather than one per catalog. The specification lives in the Iceberg repository as `open-api/rest-catalog-open-api.yaml` and defines 35 operations.
 
 ```console
 $ curl -sL https://raw.githubusercontent.com/apache/iceberg/main/open-api/rest-catalog-open-api.yaml -o irc.yaml
@@ -36,7 +25,7 @@ This harness probes 25 of those 35, or 71%.
 ## At This Point You Should Have
 
 - An AWS account, and credentials with enough privilege to create a Glue database,
-  an S3 bucket and an S3 Tables table bucket
+an S3 bucket and an S3 Tables table bucket
 - Python 3.13 with `requests`, `pyiceberg` and `botocore`
 - `botocore` available for SigV4 signing
 
@@ -55,8 +44,7 @@ requests   2.34.2
 botocore   1.43.34
 ```
 
-Everything below was measured with account root, so no result here is a
-permissions artefact.
+Everything below was measured with account root, so no result here is a permissions artefact.
 
 ## Where Are the Two Endpoints?
 
@@ -77,9 +65,7 @@ $ # GET /v1/config against Glue
 
 ## Signing Is Where the First Hour Goes
 
-SigV4 signs the exact query string, so the URL you sign must be the URL you send.
-Building the URL and then letting an HTTP client re-encode the parameters
-separately produces a different canonical string:
+SigV4 signs the exact query string, so the URL you sign must be the URL you send. Building the URL and then letting an HTTP client re-encode the parameters separately produces a different canonical string:
 
 ```console
 $ # signing one URL, sending another
@@ -88,9 +74,7 @@ HTTP 403
 provided. Check your AWS Secret Access Key and signing method."}
 ```
 
-Build it once and send it whole. `urlencode`'s default `quote_plus` is also wrong
-here, because SigV4 wants `%20` rather than `+`. With both fixed, the same request
-reaches the service and returns a real answer:
+Build it once and send it whole. `urlencode`'s default `quote_plus` is also wrong here, because SigV4 wants `%20` rather than `+`. With both fixed, the same request reaches the service and returns a real answer:
 
 ```console
 $ # same probe, correct canonical query string
@@ -98,8 +82,7 @@ HTTP 404
 {"error":{"code":404,"message":"The specified bucket does not exist.","type":"no_such_bucket"}}
 ```
 
-A 403 signature error and a 404 no-such-bucket look equally like failure in a log.
-Only one of them is about the catalog.
+A 403 signature error and a 404 no-such-bucket look equally like failure in a log. Only one of them is about the catalog.
 
 ## Bringing Up AWS Glue
 
@@ -133,8 +116,7 @@ $ aws s3tables create-namespace --table-bucket-arn "$ARN" \
  "namespace": ["probe_ns"]}
 ```
 
-Two constraints surface only when you hit them. Namespace names reject uppercase,
-which a timestamped scratch namespace will contain:
+Two constraints surface only when you hit them. Namespace names reject uppercase, which a timestamped scratch namespace will contain:
 
 ```console
 $ # createNamespace named irc_probe_20260903T1626
@@ -150,8 +132,7 @@ $ # createTable without it
 HTTP 400  stage-create is a required field and cannot be null
 ```
 
-Seeding a table also failed against the managed bucket with `pyiceberg`'s default
-writer:
+Seeding a table also failed against the managed bucket with `pyiceberg`'s default writer:
 
 ```console
 $ # appending with the default PyArrow FileIO
@@ -159,23 +140,18 @@ AWS Error [code 134] during CreateMultipartUpload operation: The authorization
 mechanism you have provided is not supported. Please use Signature Version 4.
 ```
 
-Switching to `pyiceberg.io.fsspec.FsspecFileIO` worked. Note the bucket name in
-that error is not the one you created — S3 Tables stores data in a managed bucket
-of its own.
+Switching to `pyiceberg.io.fsspec.FsspecFileIO` worked. Note the bucket name in that error is not the one you created — S3 Tables stores data in a managed bucket of its own.
 
 ## The Prefixes Do Not Look Alike
 
-Every client reads the routing prefix from `/v1/config` and puts it in every later
-URL. The two services return very different shapes:
+Every client reads the routing prefix from `/v1/config` and puts it in every later URL. The two services return very different shapes:
 
 | Catalog | Prefix as returned |
 |---|---|
 | Glue | `catalogs/AWS_ACCOUNT_ID` |
 | S3 Tables | `arn%3Aaws%3As3tables%3Aus-east-1%3A...%3Abucket%2Ficeberg-probe` |
 
-Glue returns two path segments. S3 Tables returns a percent-encoded ARN. A client
-that assumes one segment, or that re-encodes what it was handed, produces URLs
-neither service routes.
+Glue returns two path segments. S3 Tables returns a percent-encoded ARN. A client that assumes one segment, or that re-encodes what it was handed, produces URLs neither service routes.
 
 ## The Scores Are Identical
 
@@ -187,11 +163,9 @@ neither service routes.
 | `loadTable` fields present | 26/30 | 27/30 |
 | Endpoints declared in `/v1/config` | none | none |
 
-Read and write surfaces are scored separately rather than summed, and probes whose
-prerequisite failed are excluded rather than counted as failures.
+Read and write surfaces are scored separately rather than summed, and probes whose prerequisite failed are excluded rather than counted as failures.
 
-That table is the least interesting thing in this article. The two implementations
-arrive at the same totals by different routes.
+That table is the least interesting thing in this article. The two implementations arrive at the same totals by different routes.
 
 ## Neither One Tells You What It Supports
 
@@ -201,8 +175,7 @@ The specification lets a server advertise its own surface:
 >
 > — `rest-catalog-open-api.yaml`, `CatalogConfig`
 
-Five of the seven catalogs in the wider comparison publish that array. Neither AWS
-catalog does:
+Five of the seven catalogs in the wider comparison publish that array. Neither AWS catalog does:
 
 ```console
 $ python3 -c "
@@ -215,9 +188,7 @@ aws-glue       declares no endpoints
 aws-s3tables   declares no endpoints
 ```
 
-The field is optional, so this is not a specification violation. It does mean
-capability discovery is unavailable on both, and a client has no way to learn what
-either serves short of probing it — which is what this harness does.
+The field is optional, so this is not a specification violation. It does mean capability discovery is unavailable on both, and a client has no way to learn what either serves short of probing it — which is what this harness does.
 
 ## Thirteen Probes Behave Differently
 
@@ -239,8 +210,7 @@ Of 33 probes, 20 return the same verdict on both and 13 do not.
 | `drop_table_purge` |  400 purge forbidden |  204 |
 | `drop_table` |  204 |  400 purge required |
 
-Neither implements views, but they refuse differently, and one of them renames
-tables while the other does not.
+Neither implements views, but they refuse differently, and one of them renames tables while the other does not.
 
 ## Glue Names the Operation It Is Refusing
 
@@ -253,19 +223,16 @@ $ # POST .../tables/rename against Glue
 HTTP 406  RenameTable endpoint is not supported for Glue Catalog.
 ```
 
-S3 Tables returns a bare XML document with no operation name and no JSON error
-body:
+S3 Tables returns a bare XML document with no operation name and no JSON error body:
 
 ```console
 $ # POST .../views against S3 Tables
 HTTP 404  <UnknownOperationException/>
 ```
 
-Both mean the same thing to a user and not to a program. Glue's `406` with a named
-operation is machine-readable enough to log usefully; the bare exception is not.
+Both mean the same thing to a user and not to a program. Glue's `406` with a named operation is machine-readable enough to log usefully; the bare exception is not.
 
-The exception to S3 Tables' silence is `report_metrics`, which is the one place it
-says what it means:
+The exception to S3 Tables' silence is `report_metrics`, which is the one place it says what it means:
 
 ```console
 $ # POST .../tables/{table}/metrics against S3 Tables
@@ -282,17 +249,11 @@ HTTP 200
 {"Output": {"__type": "com.amazon.coral.service#UnknownOperationException"}, "Version": "1.0"}
 ```
 
-The same body comes back from `report_metrics` and `commit_transaction`. The
-mechanism is the AWS protocol layer answering an operation its front door does not
-route, rather than Glue returning a broken success for an implemented endpoint.
+The same body comes back from `report_metrics` and `commit_transaction`. The mechanism is the AWS protocol layer answering an operation its front door does not route, rather than Glue returning a broken success for an implemented endpoint.
 
-The consequence does not depend on the mechanism. Code that branches on the status
-code sees three endpoints that work, and only code that parses the body finds out
-otherwise. The harness gives these their own verdict rather than scoring them
-`OK`.
+The consequence does not depend on the mechanism. Code that branches on the status code sees three endpoints that work, and only code that parses the body finds out otherwise. The harness gives these their own verdict rather than scoring them `OK`.
 
-Glue's `/v1/config` also advertises `rest-table-scan-enabled: true`, and scan
-planning is one of the three.
+Glue's `/v1/config` also advertises `rest-table-scan-enabled: true`, and scan planning is one of the three.
 
 ## The Drop Requirements Are Opposite
 
@@ -307,15 +268,11 @@ HTTP 400  DropTable operation failed. S3 Tables only supports dropping tables wi
 purge enabled.
 ```
 
-The two products have different storage models, so this is defensible rather than
-a defect — Glue points at a bucket you own, and S3 Tables owns the storage it
-drops. It is still the sharpest example of why "AWS supports the Iceberg REST
-catalog" is not a sentence a client can act on.
+The two products have different storage models, so this is defensible rather than a defect — Glue points at a bucket you own, and S3 Tables owns the storage it drops. It is still the sharpest example of why "AWS supports the Iceberg REST catalog" is not a sentence a client can act on.
 
 ## Neither Supports Multi-Level Namespaces
 
-Both reject the `parent` query parameter on `listNamespaces`, and both say so
-plainly:
+Both reject the `parent` query parameter on `listNamespaces`, and both say so plainly:
 
 ```console
 $ # GET .../namespaces?parent=probe_ns against Glue
@@ -326,45 +283,28 @@ HTTP 400  Multipart namespaces are not supported.
 
 ## Where They Agree
 
-Twenty of the 33 probes return the same verdict, and the agreement is the core of
-the specification. Both serve config, namespace listing and loading, table listing
-and loading, `loadTable` with full snapshot history, and both accept all five
-`updateTable` actions probed — `set-properties`, `remove-properties`,
-`add-schema`, `set-current-schema` and `upgrade-format-version`.
+Twenty of the 33 probes return the same verdict, and the agreement is the core of the specification. Both serve config, namespace listing and loading, table listing and loading, `loadTable` with full snapshot history, and both accept all five `updateTable` actions probed — `set-properties`, `remove-properties`, `add-schema`, `set-current-schema` and `upgrade-format-version`.
 
-Both also return nearly identical `loadTable` documents: 26 of 30 checked
-specification field paths on Glue, 27 on S3 Tables. The single extra on S3 Tables
-is a `config` block. Whatever separates these two, it is not the fidelity of the
-metadata they return.
+Both also return nearly identical `loadTable` documents: 26 of 30 checked specification field paths on Glue, 27 on S3 Tables. The single extra on S3 Tables is a `config` block. Whatever separates these two, it is not the fidelity of the metadata they return.
 
 ## Summary
 
-The goal of this article was to measure what AWS's two Iceberg REST catalog
-implementations actually serve, rather than what "supports the REST catalog"
-implies. The key to the solution was issuing one identical request suite to both
-and storing the raw response for every probe. The comparison results were:
+The goal of this article was to measure what AWS's two Iceberg REST catalog implementations actually serve, rather than what "supports the REST catalog" implies. The key to the solution was issuing one identical request suite to both and storing the raw response for every probe. The comparison results were:
 
 - **Identical totals, thirteen behavioural differences.** Both serve 9 of 15 read
-  probes and 10 of 17 write probes, and 20 of 33 probes agree.
+probes and 10 of 17 write probes, and 20 of 33 probes agree.
 - **Neither publishes an `endpoints` declaration**, so capability discovery is
-  unavailable on both and a client must probe.
+unavailable on both and a client must probe.
 - **Glue answers three unrouted operations with HTTP 200** carrying an
-  `UnknownOperationException`, one of which is the scan planning its own config
-  advertises as enabled.
+`UnknownOperationException`, one of which is the scan planning its own config advertises as enabled.
 - **Neither implements views**, and they refuse differently — Glue with a `406`
-  naming the operation, S3 Tables with a bare `<UnknownOperationException/>`.
+naming the operation, S3 Tables with a bare `<UnknownOperationException/>`.
 - **The drop requirements are opposite.** Glue forbids `purgeRequested=true`, S3
-  Tables requires it.
+Tables requires it.
 - **`rename_table` works on S3 Tables and not on Glue.**
 
-Scope: both catalogs probed once in us-east-1 on 2026-09-03 with account root,
-against one table shape seeded through pyiceberg 0.12.0, covering 25 of the
-specification's 35 operations, 5 of its 25 update actions and 1 of its 8 table
-requirements; neither service exposes a version, so no result here can be tied to
-a release; and the field tier records that a value is present, never that it is
-correct.
+Scope: both catalogs probed once in us-east-1 on 2026-09-03 with account root, against one table shape seeded through pyiceberg 0.12.0, covering 25 of the specification's 35 operations, 5 of its 25 update actions and 1 of its 8 table requirements; neither service exposes a version, so no result here can be tied to a release; and the field tier records that a value is present, never that it is correct.
 
-The strategy for comparing two managed catalogs against one specification was
-validated with an incremental step by step approach.
+The strategy for comparing two managed catalogs against one specification was validated with an incremental step by step approach.
 
 Any opinions in this article are those of the individual author and may not reflect the opinions of AWS.
