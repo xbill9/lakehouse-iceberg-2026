@@ -1,0 +1,15 @@
+Seven Iceberg REST Catalogs: What They Declare, and What They Serve
+
+One request suite against seven Apache Iceberg REST catalog implementations — Polaris, BigLake, Glue, S3 Tables, Unity, Horizon and OneLake — comparing what each catalog declares it supports against what it actually serves.
+
+What is in it:
+
+- Eleven overclaims across four vendors. Endpoints a catalog names in its own /v1/config and then does not serve. Only the open-source control, Apache Polaris, declares honestly.
+- Two of seven publish no declaration at all. Glue and S3 Tables leave a client no way to discover their surface short of probing it.
+- Views are effectively a Polaris-only feature. Six operations, six managed catalogs, zero implementations.
+- "Supports the REST catalog" is true and not very informative. All seven served the core read path. The divergence is in the write surface, in the update actions inside one endpoint, and in operational semantics.
+
+dev.to \(Google Developer Experts\): https://dev.to/gde/seven-iceberg-rest-catalogs-what-they-declare-and-what-they-serve-40oj
+AWS Builder Center: https://builder.aws.com/content/3IsAeGXbtuGMEvyAm1l22zHGc3U/seven-iceberg-rest-catalogs-what-they-declare-and-what-they-serve
+Medium: https://xbill999.medium.com/seven-iceberg-rest-catalogs-what-they-declare-and-what-they-serve-e0d199ff5a69
+Source: https://github.com/xbill9/lakehouse-iceberg-2026

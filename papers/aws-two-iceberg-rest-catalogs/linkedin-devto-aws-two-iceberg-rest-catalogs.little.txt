@@ -1,0 +1,15 @@
+AWS Has Two Iceberg REST Catalogs: What Each One Actually Serves
+
+Glue and S3 Tables both implement the Apache Iceberg REST catalog specification. One identical request suite against both shows the same totals and thirteen behavioural differences, including two that require opposite things of the same drop request.
+
+What is in it:
+
+- Identical totals, thirteen behavioural differences. Both serve 9 of 15 read probes and 10 of 17 write probes, and 20 of 33 probes agree.
+- Neither publishes an endpoints declaration, so capability discovery is unavailable on both and a client must probe.
+- Glue answers three unrouted operations with HTTP 200 carrying an UnknownOperationException, one of which is the scan planning its own config advertises as enabled.
+- Neither implements views, and they refuse differently — Glue with a 406 naming the operation, S3 Tables with a bare \<UnknownOperationException/\>.
+
+dev.to \(AWS Community Builders\): https://dev.to/aws-builders/aws-has-two-iceberg-rest-catalogs-what-each-one-actually-serves-2bob
+AWS Builder Center: https://builder.aws.com/content/3Is77qtI7rNFlnhMn4K2oGRVJAR/aws-has-two-iceberg-rest-catalogs-what-each-one-actually-serves
+Medium: https://xbill999.medium.com/aws-has-two-iceberg-rest-catalogs-what-each-one-actually-serves-528acc26947c
+Source: https://github.com/xbill9/lakehouse-iceberg-2026
