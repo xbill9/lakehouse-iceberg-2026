@@ -14,7 +14,8 @@ the wire and published alongside it.
 |---|---|---|---|
 | 1 | [Seven Iceberg REST Catalogs: What They Declare, and What They Serve](papers/iceberg-rest-catalog-conformance/devto-iceberg-rest-catalog-conformance.md) | dev.to `gde` | draft |
 | 2 | [AWS Has Two Iceberg REST Catalogs: What Each One Actually Serves](papers/aws-two-iceberg-rest-catalogs/devto-aws-two-iceberg-rest-catalogs.md) | dev.to `aws-builders` | draft |
-| 3 | Three clouds' agents, one Iceberg tool — *in progress* | dev.to | drafting |
+| 3 | [One Iceberg Tool, Three Agent Frameworks: What Ports, and What Doesn't](papers/iceberg-agent-three-clouds/devto-iceberg-agent-three-clouds.md) | dev.to `gde` | draft |
+| 4 | Those agents served over A2A, with a coordinator | — | planned |
 
 Each paper directory holds the article, its cover, and an `evidence/` directory
 carrying the artifacts every figure in it traces back to.

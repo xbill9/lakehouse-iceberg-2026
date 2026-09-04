@@ -1,0 +1,26 @@
+# matrix summary, derived from matrix-axis-A.json and matrix-axis-B.json
+# every cell is 3 runs of one question; correctness is checked against
+# ground-truth.txt read directly from each catalog
+
+AXIS A -- catalog fixed (apache-polaris), framework and model vary
+  cell                 runs  correct  snapshot metadata columns  seconds (min/med/max)
+  gcp                  3     3/3      3/3      3/3      3/3      11.3 / 13.4 / 15.1
+  aws                  3     3/3      3/3      3/3      3/3      4.6 / 4.6 / 4.8
+  azure                3     3/3      3/3      3/3      3/3      18.5 / 20.5 / 23.0
+  catalog_calls across all runs: [3] | invented columns: 0
+
+AXIS B -- leg fixed (gcp / ADK / gemini-2.5-flash), catalog varies
+  cell                 runs  correct  snapshot metadata columns  seconds (min/med/max)
+  apache-polaris       3     3/3      3/3      3/3      3/3      12.8 / 13.3 / 13.3
+  google-lakehouse     3     3/3      3/3      3/3      3/3      13.5 / 15.6 / 15.8
+  aws-glue             3     3/3      3/3      3/3      3/3      12.3 / 12.6 / 13.3
+  aws-s3tables         3     3/3      3/3      3/3      3/3      11.5 / 11.7 / 12.4
+  microsoft-onelake    3     3/3      3/3      3/3      3/3      12.1 / 13.0 / 15.0
+  catalog_calls across all runs: [3] | invented columns: 0
+
+total runs: 24
+  correct_row_count    24/24
+  cites_snapshot       24/24
+  cites_metadata       24/24
+  names_all_columns    24/24
+  invented_column      0/24

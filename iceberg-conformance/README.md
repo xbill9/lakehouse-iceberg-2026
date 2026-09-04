@@ -264,18 +264,18 @@ returns `NoSuchNamespaceException`. The docs understate it; the endpoint list
 overstates it. Neither matches behaviour, which is the whole argument for
 measuring rather than citing.
 
-Two caveats kept out of the scoring. `load_credentials` answered in **25.6
-seconds** where every other catalog is sub-second to ~1.5s -- worth a sentence,
-not a verdict. And OneLake surfaces **1 snapshot for 3 loads**: the table is
-Delta virtualised to Iceberg (its properties carry `XTABLE_METADATA` with
-`sourceTableFormat: DELTA`) and is unpartitioned, because the Fabric load-table
-API takes no partition spec. Its snapshot and partition rows are therefore not
-comparable with the other six, which were seeded identically via pyiceberg.
+One caveat kept out of the scoring. OneLake surfaces **1 snapshot for 3 loads**:
+the table is Delta virtualised to Iceberg (its properties carry
+`XTABLE_METADATA` with `sourceTableFormat: DELTA`) and is unpartitioned, because
+the Fabric load-table API takes no partition spec. Its snapshot and partition
+rows are therefore not comparable with the other six, which were seeded
+identically via pyiceberg.
 
-Setup: a Fabric licence is required (a personal MSA cannot hold one -- the work
-tenant was what unblocked this), plus a capacity. The free 60-day trial capacity
-is sufficient; no paid F-SKU is needed. Warehouse and prefix are both
-`<workspaceId>/<lakehouseId>`.
+An earlier draft of this section reported a 25.6-second `load_credentials` on
+OneLake. That figure came from a sweep whose evidence was later overwritten, and
+it is not supported by the evidence in this repository: OneLake's slowest probe
+in the current run is `load_table` at 493 ms, and no probe exceeds one second.
+The claim is withdrawn rather than restated, because no artifact backs it.
 
 ### What OneLake caught in the harness
 
