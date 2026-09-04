@@ -49,11 +49,11 @@ where a figure came from will otherwise name a table it never opened, and those
 two values name an exact immutable version a reader can check.
 
 `iceberg_count_rows` exists because counting by scanning is not counting.
-Measured with instruction v1: asked for a row count, one model called
-`iceberg_scan_table` with `limit=100000` and answered correctly while another
-called it with `limit=1` and answered "at least 1, but likely more". Both used
-the tool as instructed. The question was answerable only by guessing a large
-enough limit, which measures the guess rather than the catalog.
+`iceberg_scan_table` returns at most 100 rows and says so, so counting what it
+returns gives the sample size rather than the table's. Before this tool existed,
+answering "how many rows" required the model to guess a limit large enough to
+cover the table -- which measures the guess, not the catalog. Counting now reads
+`total-records` from the snapshot summary in one metadata call.
 
 ## Running one leg
 
@@ -72,15 +72,19 @@ project for ADK, AWS credentials and Bedrock model access for Strands, and
 
 ## Reading the data is not the same as reading the catalog
 
-Three separate failures during development had the same shape: every metadata
-call succeeded, the data read failed, and the error named something other than
-the cause.
+Three configurations reach the catalog and cannot read the data. Each is
+reproduced deliberately in
+[`../papers/iceberg-agent-three-clouds/evidence/failure-modes.txt`](../papers/iceberg-agent-three-clouds/evidence/failure-modes.txt),
+which shows `iceberg_list_tables` succeeding immediately before
+`iceberg_scan_table` fails, so the catalog is demonstrably reachable in all
+three.
 
-| symptom | cause |
+| configuration | what the data call returns |
 |---|---|
-| `TypeError: __init__() takes exactly 1 positional argument` | no ADLS credential for OneLake |
-| `GetProperties failed for https://onelake.blob.core.windows.net/...` | PyArrow ignores `adls.account-host`; fsspec honours it |
-| `ACCESS_DENIED during HeadObject` on a bucket the caller owns | pyiceberg used the catalog's vended credentials, not local AWS ones |
+| OneLake, no ADLS credential | `TypeError: __init__() takes exactly 1 positional argument (0 given)` |
+| OneLake, ADLS credential but `PyArrowFileIO` | `OSError: GetProperties failed for 'https://onelake.blob.core.windows.net/...'` -- a host that does not exist, because PyArrow ignores `adls.account-host` |
+| Glue, SigV4 for the catalog but no local S3 credentials | `OSError: ... AWS Error ACCESS_DENIED during HeadObject` on a bucket the caller owns outright |
 
 Signing the catalog calls, and being able to read the files the catalog points
-at, are two different credentials. The tool now configures both.
+at, are two different credentials. In each case the error names something other
+than the missing credential. The tool now configures both.

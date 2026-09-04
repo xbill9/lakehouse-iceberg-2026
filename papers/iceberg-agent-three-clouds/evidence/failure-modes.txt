@@ -1,0 +1,30 @@
+# failure modes reproduced deliberately, captured 2026-09-04T14:33:56Z
+# each disables one piece of the tool's storage credential wiring and calls
+# iceberg_scan_table, to show the error that configuration actually produces.
+# Metadata calls are shown succeeding first, which is the point: the catalog
+# is reachable in every case below.
+
+==============================================================================
+A. OneLake, no ADLS credential configured
+==============================================================================
+-- metadata call (iceberg_list_tables):
+dbo.probe_table
+-- data call (iceberg_scan_table):
+CATALOG ERROR while scanning dbo.probe_table: TypeError: __init__() takes exactly 1 positional argument (0 given). Do not guess the answer this call would have given. Say in your answer that this could not be read.
+
+==============================================================================
+B. OneLake, ADLS credential set but PyArrowFileIO instead of fsspec
+==============================================================================
+-- metadata call (iceberg_list_tables):
+dbo.probe_table
+-- data call (iceberg_scan_table):
+CATALOG ERROR while scanning dbo.probe_table: OSError: GetProperties failed for 'https://onelake.blob.core.windows.net/daeb5aeb-8d04-4c52-9281-53e6efee093f@onelake.dfs.fabric.microsoft.com/739f7d11-d9b7-46a5-92eb-c1b6f121adb3/Tables/probe_table/metadata/snap-3346142071915475645-1-c57d915a-341d-472b-8bf7-3f1c2c0c2394.avro'. Cannot initialise an ObjectInp. Do not guess the answer this call would have given. Say in your answer that this could not be read.
+
+==============================================================================
+C. Glue, SigV4 for the catalog but no local S3 credentials
+==============================================================================
+-- metadata call (iceberg_list_tables):
+probe_ns.probe_table
+-- data call (iceberg_scan_table):
+CATALOG ERROR while scanning probe_ns.probe_table: OSError: When reading information for key 'probe_ns/probe_table/metadata/snap-9187553066798777529-0-d45b414c-b580-4434-9da6-ac74ee549e71.avro' in bucket 'aisprint-iceberg-probe-106059658660': AWS Error ACCESS_DENIED during HeadObject operation: No response body.. Do not guess the answer this call would have given. Say in your answer that this could not be read.
+
