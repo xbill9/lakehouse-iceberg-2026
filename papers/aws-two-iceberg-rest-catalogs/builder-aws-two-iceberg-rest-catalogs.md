@@ -26,12 +26,11 @@ the pointer to the current metadata file, and make commits atomic by swapping it
 That is the catalog.
 
 The REST catalog is one HTTP API for that job, so an engine needs one driver
-rather than one per catalog. The specification lives in the Iceberg repository as
-`open-api/rest-catalog-open-api.yaml` and defines 35 operations.
+rather than one per catalog. The specification lives in the Iceberg repository as `rest-catalog-open-api.yaml`, under `open-api/`, and defines 35 operations.
 
 ```console
 $ curl -sL https://raw.githubusercontent.com/apache/iceberg/main/open-api/rest-catalog-open-api.yaml -o irc.yaml
-$ grep -cE '^    (get|post|delete|head|put):' irc.yaml
+$ grep -cE "^    (get|post|delete|head|put):" irc.yaml
 35
 ```
 
