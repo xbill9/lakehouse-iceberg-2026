@@ -1,0 +1,14 @@
+Google is running a Lakehouse/Iceberg content sprint through Sep 30, and the project list is open if anyone else wants to put something in: https://docs.google.com/spreadsheets/d/1SEQFpBPsd5A_Xdohg2XURFhM2k1VJ3OFvYjv3_-frLk/edit
+
+There is a Suggested Projects tab with topics if you want a starting point, and a Project List tab where you add a row. Output can be an article, a notebook or a demo, and you claim GCP credits in the same row. Share the result on social with the AISprint hashtag.
+Mine is submitted. Every vendor with a lakehouse now ships an Iceberg REST catalog and each says it implements the same specification, so I pointed one identical request suite at seven of them on 2026-09-03: BigLake, AWS Glue, AWS S3 Tables, Databricks Unity, Snowflake Horizon, Microsoft OneLake, and a self-hosted Apache Polaris as the control.
+It covers 25 of the specification's 35 operations, and checks three things: whether an endpoint is served, 30 loadTable field paths, and whether the endpoints array a catalog publishes about itself matches what it actually serves. Eleven endpoints are declared and not served across four vendors, and only the open-source control declares accurately. Two of the seven publish no declaration at all, so a client cannot discover their surface without probing it. Views are served by one catalog of the seven. And 24 of 30 loadTable field paths are identical everywhere, which is a null result and worth saying plainly.
+The harness and the anonymised evidence are in the repo, so the verdicts are re-derivable without re-running against a vendor: https://github.com/xbill9/lakehouse-iceberg-2026
+
+Dev.to is here: https://dev.to/gde/seven-iceberg-rest-catalogs-what-they-declare-and-what-they-serve-40oj
+
+Medium is here: https://xbill999.medium.com/seven-iceberg-rest-catalogs-what-they-declare-and-what-they-serve-e0d199ff5a69
+
+Builder Center article is here: https://builder.aws.com/content/3IsAeGXbtuGMEvyAm1l22zHGc3U/seven-iceberg-rest-catalogs-what-they-declare-and-what-they-serve
+
+My LinkedIn post is here: https://www.linkedin.com/posts/xbill_github-xbill9lakehouse-iceberg-2026-measured-activity-7501714514246189057-SYyS

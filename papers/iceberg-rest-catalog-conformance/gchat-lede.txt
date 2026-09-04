@@ -1,0 +1,1 @@
+Google is running a Lakehouse/Iceberg content sprint through Sep 30, and the project list is open if anyone else wants to put something in: https://docs.google.com/spreadsheets/d/1SEQFpBPsd5A_Xdohg2XURFhM2k1VJ3OFvYjv3_-frLk/edit
