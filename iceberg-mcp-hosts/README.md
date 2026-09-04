@@ -1,4 +1,4 @@
-# One Iceberg table, four CLI hosts, three MCP servers
+# One Iceberg table, four MCP servers, three CLI hosts
 
 Supports **paper 4** of the series. The question is what a host can learn about
 the *same* Apache Iceberg table depending on which MCP server it is given, and
