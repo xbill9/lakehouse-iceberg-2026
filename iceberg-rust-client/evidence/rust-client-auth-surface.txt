@@ -1,0 +1,48 @@
+# iceberg-catalog-rest 0.10.1, read from the published crate source on 2026-09-04.
+# Downloaded from static.crates.io and grepped; not read from documentation.
+#
+#   version 0.10.1, published 2026-08-01, repo github.com/apache/iceberg-rust
+#   the 0.8.0 figure in search results is stale (January 2026)
+
+## Auth mechanisms present, by config key in src/
+
+  token                 bearer token, used directly
+  credential            OAuth2 client_credentials
+  oauth2-server-uri     token endpoint for the above
+  scope                 OAuth2 scope
+  header.<name>         arbitrary static request headers
+  extra_headers         same, programmatic
+
+  RestCatalog::regenerate_token() and ::invalidate_token() are public, so token
+  refresh is a first-class operation.
+  StorageCredential { prefix, config } exists, so vended storage credentials
+  from loadTable are modelled.
+
+## What is absent: AWS SigV4
+
+  $ grep -rniE "sigv4|sig_v4|aws|signature|signing" src/ Cargo.toml public-api.txt
+  (no matches)
+
+  Dependencies are async-trait, chrono, http, iceberg, itertools, reqwest,
+  serde, serde_derive, serde_json, tokio, typed-builder, uuid. No AWS SDK, no
+  signing crate.
+
+## Why that matters, stated precisely
+
+Paper 1 measured that AWS Glue and Amazon S3 Tables are SigV4-signed: Glue with
+signing name `glue`, S3 Tables with `s3tables`. A SigV4 signature is computed per
+request over the canonical request, so a STATIC header cannot carry one -- the
+`header.<name>` escape hatch does not close this gap, because the value would
+have to change with every request.
+
+So as shipped, 2 of the 7 catalogs in the conformance set are unreachable
+through this crate without the caller implementing SigV4 and injecting it per
+request through some other layer.
+
+What this is NOT:
+  - not a defect: the REST spec does not require SigV4, and the crate implements
+    what the spec describes
+  - not a claim the catalogs are unreachable from Rust generally: an AWS signing
+    crate plus a custom HTTP layer is an option, and that is a different project
+  - not measured yet: this is a reading of the source. The paper still has to
+    show the failure against a live Glue endpoint rather than infer it.
