@@ -16,7 +16,7 @@ the wire and published alongside it.
 | 2 | [AWS Has Two Iceberg REST Catalogs: What Each One Actually Serves](papers/aws-two-iceberg-rest-catalogs/devto-aws-two-iceberg-rest-catalogs.md) | dev.to `aws-builders`, Builder Center, Medium | published |
 | 3 | [One Iceberg Tool, Three Agent Frameworks: What Ports, and What Doesn't](papers/iceberg-agent-three-clouds/devto-iceberg-agent-three-clouds.md) | dev.to `gde` | measured and written, not yet published |
 | 4 | One Iceberg table, four MCP servers, three CLI hosts ([`iceberg-mcp-hosts/`](iceberg-mcp-hosts/README.md)) | — | scaffolding, nothing run |
-| 5 | What a Rust client can reach, across the same seven catalogs ([`iceberg-rust-client/`](iceberg-rust-client/README.md)) | — | scaffolding, nothing run |
+| 5 | What a Rust client can reach, across the same seven catalogs ([`iceberg-rust-client/`](iceberg-rust-client/README.md)) | — | control column green, no vendor run yet |
 
 Published URLs for each paper are recorded in that paper's `links.txt`.
 
