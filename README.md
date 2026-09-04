@@ -14,7 +14,7 @@ the wire and published alongside it.
 |---|---|---|---|
 | 1 | [Seven Iceberg REST Catalogs: What They Declare, and What They Serve](papers/iceberg-rest-catalog-conformance/devto-iceberg-rest-catalog-conformance.md) | dev.to `gde` | draft |
 | 2 | [AWS Has Two Iceberg REST Catalogs: What Each One Actually Serves](papers/aws-two-iceberg-rest-catalogs/devto-aws-two-iceberg-rest-catalogs.md) | dev.to `aws-builders` | draft |
-| 3 | — | — | planned |
+| 3 | Three clouds' agents, one Iceberg tool — *in progress* | dev.to | drafting |
 
 Each paper directory holds the article, its cover, and an `evidence/` directory
 carrying the artifacts every figure in it traces back to.
@@ -38,6 +38,15 @@ evidence:
 See [`iceberg-conformance/README.md`](iceberg-conformance/README.md) for design
 rules, per-catalog setup, coverage against the spec, the privilege audit and the
 limitations.
+
+### `iceberg-agent/`
+
+Three vendor-native agents — Google ADK, AWS Strands and Microsoft Agent
+Framework — each reading Iceberg through its own cloud's REST catalog, sharing
+one read-only tool implementation. Built on the finding from paper 1 that the
+read surface is the only one all seven catalogs agree on.
+
+See [`iceberg-agent/README.md`](iceberg-agent/README.md).
 
 ## Reproducing
 
