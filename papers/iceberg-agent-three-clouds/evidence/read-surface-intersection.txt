@@ -1,0 +1,22 @@
+# derived 2026-09-04T15:06:30Z from iceberg-conformance/evidence-public/*/evidence.json
+# which READ operations are served by all seven catalogs
+
+read probes total: 16
+served by all seven: 9
+   OK-everywhere  config
+   OK-everywhere  head_namespace
+   OK-everywhere  head_table
+   OK-everywhere  list_namespaces
+   OK-everywhere  list_namespaces_paged
+   OK-everywhere  list_tables
+   OK-everywhere  load_namespace
+   OK-everywhere  load_table
+   OK-everywhere  load_table_snapshots_all
+
+   not-everywhere head_view                  fails on 6: aws-glue,aws-s3tables,databricks-unity,google-lakehouse,microsoft-onelake,snowflake-horizon
+   not-everywhere list_namespaces_parent     fails on 2: aws-glue,aws-s3tables
+   not-everywhere list_views                 fails on 6: aws-glue,aws-s3tables,databricks-unity,google-lakehouse,microsoft-onelake,snowflake-horizon
+   not-everywhere load_credentials           fails on 3: aws-glue,aws-s3tables,google-lakehouse
+   not-everywhere load_view                  fails on 6: aws-glue,aws-s3tables,databricks-unity,google-lakehouse,microsoft-onelake,snowflake-horizon
+   not-everywhere plan_table_scan            fails on 7: apache-polaris,aws-glue,aws-s3tables,databricks-unity,google-lakehouse,microsoft-onelake,snowflake-horizon
+   not-everywhere report_metrics             fails on 3: aws-glue,aws-s3tables,microsoft-onelake
