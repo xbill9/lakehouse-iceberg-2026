@@ -93,10 +93,19 @@ $ ./check-no-identifiers.sh          # run before every push
 clean
 ```
 
-It greps **tracked files** for literal known-real values, so it does not depend
-on guessing the shape of the next identifier. Add a line to it whenever a new
-real value enters the work. `anonymize_evidence.py` now also maps and scans GCP
-project ids and numbers.
+It greps **everything about to be committed** -- tracked, staged, and
+untracked-but-not-ignored -- for literal known-real values, so it does not
+depend on guessing the shape of the next identifier. Add a line to it whenever
+a new real value enters the work. `anonymize_evidence.py` now also maps and
+scans GCP project ids and numbers.
+
+Both of those properties were bugs first, found on 2026-09-04 by testing the
+script instead of reading it. It searched tracked files only, so running it
+before `git add` -- the natural order -- skipped every new file, which is where
+a fresh identifier is most likely to be. And its two generic fallback patterns
+were written with BRE braces and passed to `grep -E`, so neither had ever
+matched anything. **When you change this script, plant a value and watch it
+fail.** A check that cannot fail reads exactly like a check that passes.
 
 ---
 
