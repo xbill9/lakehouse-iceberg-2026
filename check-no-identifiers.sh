@@ -13,22 +13,27 @@
 set -u
 fail=0
 
-# real value                      what it is
-for pair in \
-  "aisprint-491218|GCP project id" \
-  "289270257791|GCP project number" \
-  "xbill@glitnir.com|personal email" \
-; do
-  val="${pair%%|*}"; what="${pair##*|}"
-  hits=$(git grep -c "$val" 2>/dev/null)
+# Values are read from .known-identifiers, which is gitignored. They are NOT
+# inline here: this script is tracked, so a literal would put the very value it
+# is checking for into the repo. That happened -- the first version of this file
+# carried the email and the check failed on itself, after the push.
+LIST=".known-identifiers"
+if [ ! -f "$LIST" ]; then
+  echo "FAIL  $LIST is missing; cannot check. Copy it from a machine that has it."
+  exit 1
+fi
+
+while IFS='|' read -r val what; do
+  case "$val" in ''|\#*) continue ;; esac
+  hits=$(git grep -c -- "$val" 2>/dev/null)
   if [ -n "$hits" ]; then
-    echo "FAIL  $what ($val) is in tracked files:"
+    echo "FAIL  $what is in tracked files:"
     echo "$hits" | sed 's/^/        /'
     fail=1
   else
     echo "ok    no $what in tracked files"
   fi
-done
+done < "$LIST"
 
 # Generic shapes, in case a new real value appears that no line above names.
 for pat in 'projects/[0-9]\{6,\}' 'arn:aws:[a-z0-9-]*:[a-z0-9-]*:[0-9]\{12\}'; do
