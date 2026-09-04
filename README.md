@@ -12,10 +12,13 @@ the wire and published alongside it.
 
 | # | paper | channel | status |
 |---|---|---|---|
-| 1 | [Seven Iceberg REST Catalogs: What They Declare, and What They Serve](papers/iceberg-rest-catalog-conformance/devto-iceberg-rest-catalog-conformance.md) | dev.to `gde` | draft |
-| 2 | [AWS Has Two Iceberg REST Catalogs: What Each One Actually Serves](papers/aws-two-iceberg-rest-catalogs/devto-aws-two-iceberg-rest-catalogs.md) | dev.to `aws-builders` | draft |
-| 3 | [One Iceberg Tool, Three Agent Frameworks: What Ports, and What Doesn't](papers/iceberg-agent-three-clouds/devto-iceberg-agent-three-clouds.md) | dev.to `gde` | draft |
-| 4 | Those agents served over A2A, with a coordinator | — | planned |
+| 1 | [Seven Iceberg REST Catalogs: What They Declare, and What They Serve](papers/iceberg-rest-catalog-conformance/devto-iceberg-rest-catalog-conformance.md) | dev.to `gde`, Builder Center, Medium | published |
+| 2 | [AWS Has Two Iceberg REST Catalogs: What Each One Actually Serves](papers/aws-two-iceberg-rest-catalogs/devto-aws-two-iceberg-rest-catalogs.md) | dev.to `aws-builders`, Builder Center, Medium | published |
+| 3 | [One Iceberg Tool, Three Agent Frameworks: What Ports, and What Doesn't](papers/iceberg-agent-three-clouds/devto-iceberg-agent-three-clouds.md) | dev.to `gde` | measured and written, not yet published |
+| 4 | One Iceberg table, four MCP servers, three CLI hosts ([`iceberg-mcp-hosts/`](iceberg-mcp-hosts/README.md)) | — | scaffolding, nothing run |
+| 5 | What a Rust client can reach, across the same seven catalogs ([`iceberg-rust-client/`](iceberg-rust-client/README.md)) | — | scaffolding, nothing run |
+
+Published URLs for each paper are recorded in that paper's `links.txt`.
 
 Each paper directory holds the article, its cover, and an `evidence/` directory
 carrying the artifacts every figure in it traces back to.
