@@ -1,6 +1,6 @@
 ---
 title: "AWS Has Two Iceberg REST Catalogs: What Each One Actually Serves"
-published: false
+published: true
 description: "Glue and S3 Tables both implement the Apache Iceberg REST catalog specification. One identical request suite against both shows the same totals and thirteen behavioural differences, including two that require opposite things of the same drop request."
 tags: aws, iceberg, lakehouse, dataengineering
 cover_image: https://raw.githubusercontent.com/xbill9/lakehouse-iceberg-2026/main/papers/aws-two-iceberg-rest-catalogs/cover.aa8793f0.jpg
