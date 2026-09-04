@@ -49,8 +49,10 @@ those words.
 
 ## The hosts
 
-Claude Code, Codex, Antigravity and Gemini CLI. Each is configured with the same
-server set and asked the same questions.
+Claude Code, Codex and Antigravity. Each is configured with the same
+server set and asked the same questions. Google's own Gemini CLI is not
+installed on this machine, and the `gemini` command here is a wrapper around
+`agy` -- see `evidence/host-inventory.txt`, which is why the count is three.
 
 ## Status
 
