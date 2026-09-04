@@ -1,0 +1,6 @@
+catalog=apache-polaris table=probe_ns.probe_table
+  rows=11
+  columns=id,ts,payload,region
+  types=id:long,ts:timestamptz,payload:string,region:string
+  snapshot_id=665485744733371229
+  metadata_location=file:/home/xbill/data-sprint/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-d1d68896-6de0-4417-80b8-1cc149ebed7e.metadata.json

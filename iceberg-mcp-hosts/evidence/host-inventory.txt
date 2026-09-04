@@ -1,0 +1,24 @@
+# CLI hosts, verified on 2026-09-04 on this machine.
+
+claude   2.1.261      Claude Code                 /usr/local/bin/claude (or PATH)
+codex    0.152.1      Codex CLI                   codex-cli
+agy      1.1.19       Antigravity CLI             ~/.local/bin/agy  (ELF binary)
+
+## The `gemini` command here is NOT the Google Gemini CLI
+
+    $ cat ~/bin/gemini
+    agy $*
+
+It is a one-line shell wrapper around `agy`, so `gemini` and `agy` are the same
+Antigravity binary -- same version, different name. `agy mcp --help` gives itself
+away by printing "Usage: agy mcp" when invoked as `gemini`. `~/.gemini/` holds an
+`antigravity-cli` directory for the same reason.
+
+Counting both would have put two rows in the matrix that were one host, and any
+difference between them would have been noise reported as a finding. There is no
+control that would have caught it after the fact, because the two rows would
+agree perfectly -- which reads as a result rather than as a duplicate.
+
+So: THREE distinct hosts are available, not four. Google's own Gemini CLI is not
+installed. Either it gets installed and the paper keeps its fourth column, or the
+paper is about three hosts and says so.
