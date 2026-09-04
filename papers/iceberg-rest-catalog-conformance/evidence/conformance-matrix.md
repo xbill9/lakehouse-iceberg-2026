@@ -6,7 +6,7 @@
 | aws-glue | `https://glue.us-east-1.amazonaws.com/iceberg` | sigv4 | `catalogs/106059658660` | 2026-09-03T21:32:06Z |
 | aws-s3tables | `https://s3tables.us-east-1.amazonaws.com/iceberg` | sigv4 | `arn%3Aaws%3As3tables%3Aus-east-1%3A106059658660%3Abucket%2Ficeberg-probe` | 2026-09-03T21:32:09Z |
 | databricks-unity | `https://dbc-731fd292-4c2d.cloud.databricks.com/api/2.1/unity-catalog/iceberg-rest` | bearer_env | `catalogs/workspace` | 2026-09-03T21:32:58Z |
-| google-lakehouse | `https://biglake.googleapis.com/iceberg/v1/restcatalog` | gcloud | `projects/289270257791/catalogs/aisprint-491218-iceberg-probe` | 2026-09-03T21:31:59Z |
+| google-lakehouse | `https://biglake.googleapis.com/iceberg/v1/restcatalog` | gcloud | `projects/GCP_PROJECT_NUMBER/catalogs/GCP_PROJECT-iceberg-probe` | 2026-09-03T21:31:59Z |
 | microsoft-onelake | `https://onelake.table.fabric.microsoft.com/iceberg` | azure_cli | `daeb5aeb-8d04-4c52-9281-53e6efee093f/739f7d11-d9b7-46a5-92eb-c1b6f121adb3` | 2026-09-03T21:32:02Z |
 | snowflake-horizon | `https://yxhtdkw-br89127.snowflakecomputing.com/polaris/api/catalog` | snowflake_keypair | `PROBE_DB` | 2026-09-03T21:32:34Z |
 

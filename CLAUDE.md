@@ -82,6 +82,22 @@ It fails loudly if an identifier survives. Run an **independent** grep for known
 real values afterwards anyway — the residual scanner has missed a GCP project id
 before, because it did not match any of the patterns it looked for.
 
+**That warning was not enough, and the miss happened again.** On 2026-09-04 the
+project id and project number were found in 8 tracked files, 33 hits of them
+inside `evidence-public/`, after the anonymiser had reported clean: it had no
+pattern for either, so its own scan could not see them. The independent grep is
+now a script rather than an instruction:
+
+```console
+$ ./check-no-identifiers.sh          # run before every push
+clean
+```
+
+It greps **tracked files** for literal known-real values, so it does not depend
+on guessing the shape of the next identifier. Add a line to it whenever a new
+real value enters the work. `anonymize_evidence.py` now also maps and scans GCP
+project ids and numbers.
+
 ---
 
 ## Writing the papers

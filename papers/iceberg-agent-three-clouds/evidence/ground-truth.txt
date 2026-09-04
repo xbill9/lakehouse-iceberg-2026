@@ -10,7 +10,7 @@ catalog=google-lakehouse table=probe_ns.probe_table
   rows=11
   columns=id,ts,payload,region
   snapshot_id=6042367411917366632
-  metadata_location=gs://aisprint-491218-iceberg-probe/probe_ns/probe_table/jy3n8ueer5x567uy/metadata/00006-6a99c835-0000-2c3f-a2cd-3c286d4fe366.metadata.json
+  metadata_location=gs://GCP_PROJECT-iceberg-probe/probe_ns/probe_table/jy3n8ueer5x567uy/metadata/00006-6a99c835-0000-2c3f-a2cd-3c286d4fe366.metadata.json
 catalog=aws-glue table=probe_ns.probe_table
   rows=11
   columns=id,ts,payload,region

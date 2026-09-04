@@ -40,7 +40,7 @@
         "headers": {
           "Accept": "application/json",
           "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
-          "x-goog-user-project": "aisprint-491218",
+          "x-goog-user-project": "GCP_PROJECT",
           "Authorization": "<redacted>"
         }
       },
@@ -109,7 +109,7 @@
         "headers": {
           "Accept": "application/json",
           "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
-          "x-goog-user-project": "aisprint-491218",
+          "x-goog-user-project": "GCP_PROJECT",
           "Authorization": "<redacted>"
         }
       },
@@ -158,7 +158,7 @@
         "headers": {
           "Accept": "application/json",
           "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
-          "x-goog-user-project": "aisprint-491218",
+          "x-goog-user-project": "GCP_PROJECT",
           "Authorization": "<redacted>"
         }
       },
@@ -205,7 +205,7 @@
         "headers": {
           "Accept": "application/json",
           "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
-          "x-goog-user-project": "aisprint-491218",
+          "x-goog-user-project": "GCP_PROJECT",
           "Authorization": "<redacted>"
         }
       },
@@ -248,7 +248,7 @@
         "headers": {
           "Accept": "application/json",
           "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
-          "x-goog-user-project": "aisprint-491218",
+          "x-goog-user-project": "GCP_PROJECT",
           "Authorization": "<redacted>"
         }
       },
@@ -297,7 +297,7 @@
         "headers": {
           "Accept": "application/json",
           "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
-          "x-goog-user-project": "aisprint-491218",
+          "x-goog-user-project": "GCP_PROJECT",
           "Authorization": "<redacted>"
         }
       },
@@ -338,7 +338,7 @@
         "headers": {
           "Accept": "application/json",
           "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
-          "x-goog-user-project": "aisprint-491218",
+          "x-goog-user-project": "GCP_PROJECT",
           "Authorization": "<redacted>"
         }
       },
@@ -389,7 +389,7 @@
         "headers": {
           "Accept": "application/json",
           "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
-          "x-goog-user-project": "aisprint-491218",
+          "x-goog-user-project": "GCP_PROJECT",
           "Authorization": "<redacted>"
         }
       },
@@ -684,7 +684,7 @@
         "headers": {
           "Accept": "application/json",
           "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
-          "x-goog-user-project": "aisprint-491218",
+          "x-goog-user-project": "GCP_PROJECT",
           "Authorization": "<redacted>"
         }
       },
@@ -977,7 +977,7 @@
         "headers": {
           "Accept": "application/json",
           "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
-          "x-goog-user-project": "aisprint-491218",
+          "x-goog-user-project": "GCP_PROJECT",
           "Authorization": "<redacted>"
         }
       },
@@ -1018,7 +1018,7 @@
         "headers": {
           "Accept": "application/json",
           "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
-          "x-goog-user-project": "aisprint-491218",
+          "x-goog-user-project": "GCP_PROJECT",
           "Authorization": "<redacted>"
         }
       },
@@ -1066,7 +1066,7 @@
         "headers": {
           "Accept": "application/json",
           "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
-          "x-goog-user-project": "aisprint-491218",
+          "x-goog-user-project": "GCP_PROJECT",
           "Authorization": "<redacted>"
         }
       },
@@ -1119,7 +1119,7 @@
         "headers": {
           "Accept": "application/json",
           "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
-          "x-goog-user-project": "aisprint-491218",
+          "x-goog-user-project": "GCP_PROJECT",
           "Content-Type": "application/json",
           "Authorization": "<redacted>"
         }
@@ -1192,7 +1192,7 @@
         "headers": {
           "Accept": "application/json",
           "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
-          "x-goog-user-project": "aisprint-491218",
+          "x-goog-user-project": "GCP_PROJECT",
           "Content-Type": "application/json",
           "Authorization": "<redacted>"
         }
@@ -1240,7 +1240,7 @@
         "headers": {
           "Accept": "application/json",
           "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
-          "x-goog-user-project": "aisprint-491218",
+          "x-goog-user-project": "GCP_PROJECT",
           "Content-Type": "application/json",
           "Authorization": "<redacted>"
         }
@@ -1292,7 +1292,7 @@
         "headers": {
           "Accept": "application/json",
           "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
-          "x-goog-user-project": "aisprint-491218",
+          "x-goog-user-project": "GCP_PROJECT",
           "Content-Type": "application/json",
           "Authorization": "<redacted>"
         }
@@ -1393,7 +1393,7 @@
         "headers": {
           "Accept": "application/json",
           "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
-          "x-goog-user-project": "aisprint-491218",
+          "x-goog-user-project": "GCP_PROJECT",
           "Content-Type": "application/json",
           "Authorization": "<redacted>"
         }
@@ -1529,7 +1529,7 @@
         "headers": {
           "Accept": "application/json",
           "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
-          "x-goog-user-project": "aisprint-491218",
+          "x-goog-user-project": "GCP_PROJECT",
           "Content-Type": "application/json",
           "Authorization": "<redacted>"
         }
@@ -1670,7 +1670,7 @@
         "headers": {
           "Accept": "application/json",
           "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
-          "x-goog-user-project": "aisprint-491218",
+          "x-goog-user-project": "GCP_PROJECT",
           "Content-Type": "application/json",
           "Authorization": "<redacted>"
         }
@@ -1843,7 +1843,7 @@
         "headers": {
           "Accept": "application/json",
           "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
-          "x-goog-user-project": "aisprint-491218",
+          "x-goog-user-project": "GCP_PROJECT",
           "Content-Type": "application/json",
           "Authorization": "<redacted>"
         }
@@ -2017,7 +2017,7 @@
         "headers": {
           "Accept": "application/json",
           "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
-          "x-goog-user-project": "aisprint-491218",
+          "x-goog-user-project": "GCP_PROJECT",
           "Content-Type": "application/json",
           "Authorization": "<redacted>"
         }
@@ -2195,7 +2195,7 @@
         "headers": {
           "Accept": "application/json",
           "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
-          "x-goog-user-project": "aisprint-491218",
+          "x-goog-user-project": "GCP_PROJECT",
           "Content-Type": "application/json",
           "Authorization": "<redacted>"
         }
@@ -2384,7 +2384,7 @@
         "headers": {
           "Accept": "application/json",
           "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
-          "x-goog-user-project": "aisprint-491218",
+          "x-goog-user-project": "GCP_PROJECT",
           "Content-Type": "application/json",
           "Authorization": "<redacted>"
         }
@@ -2439,7 +2439,7 @@
         "headers": {
           "Accept": "application/json",
           "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
-          "x-goog-user-project": "aisprint-491218",
+          "x-goog-user-project": "GCP_PROJECT",
           "Content-Type": "application/json",
           "Authorization": "<redacted>"
         }
@@ -2481,7 +2481,7 @@
         "headers": {
           "Accept": "application/json",
           "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
-          "x-goog-user-project": "aisprint-491218",
+          "x-goog-user-project": "GCP_PROJECT",
           "Authorization": "<redacted>"
         }
       },
@@ -2521,7 +2521,7 @@
         "headers": {
           "Accept": "application/json",
           "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
-          "x-goog-user-project": "aisprint-491218",
+          "x-goog-user-project": "GCP_PROJECT",
           "Authorization": "<redacted>"
         }
       },
@@ -2604,7 +2604,7 @@
         "headers": {
           "Accept": "application/json",
           "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
-          "x-goog-user-project": "aisprint-491218",
+          "x-goog-user-project": "GCP_PROJECT",
           "Content-Type": "application/json",
           "Authorization": "<redacted>"
         }
@@ -2653,7 +2653,7 @@
         "headers": {
           "Accept": "application/json",
           "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
-          "x-goog-user-project": "aisprint-491218",
+          "x-goog-user-project": "GCP_PROJECT",
           "Authorization": "<redacted>"
         }
       },
@@ -2700,7 +2700,7 @@
         "headers": {
           "Accept": "application/json",
           "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
-          "x-goog-user-project": "aisprint-491218",
+          "x-goog-user-project": "GCP_PROJECT",
           "Authorization": "<redacted>"
         }
       },
@@ -2751,7 +2751,7 @@
         "headers": {
           "Accept": "application/json",
           "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
-          "x-goog-user-project": "aisprint-491218",
+          "x-goog-user-project": "GCP_PROJECT",
           "Content-Type": "application/json",
           "Authorization": "<redacted>"
         }
@@ -2812,7 +2812,7 @@
         "headers": {
           "Accept": "application/json",
           "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
-          "x-goog-user-project": "aisprint-491218",
+          "x-goog-user-project": "GCP_PROJECT",
           "Content-Type": "application/json",
           "Authorization": "<redacted>"
         }
@@ -2853,7 +2853,7 @@
         "headers": {
           "Accept": "application/json",
           "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
-          "x-goog-user-project": "aisprint-491218",
+          "x-goog-user-project": "GCP_PROJECT",
           "Authorization": "<redacted>"
         }
       },
@@ -2900,7 +2900,7 @@
         "headers": {
           "Accept": "application/json",
           "User-Agent": "iceberg-conformance-probe/0.1 (+sprint-2026)",
-          "x-goog-user-project": "aisprint-491218",
+          "x-goog-user-project": "GCP_PROJECT",
           "Authorization": "<redacted>"
         }
       },

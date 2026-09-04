@@ -16,6 +16,6 @@ The table has the following columns:
 *   `payload`: string
 *   `region`: string
 
-This information was retrieved from snapshot ID `6042367411917366632` at metadata location `gs://aisprint-491218-iceberg-probe/probe_ns/probe_table/jy3n8ueer5x567uy/metadata/00006-6a99c835-0000-2c3f-a2cd-3c286d4fe366.metadata.json`.
+This information was retrieved from snapshot ID `6042367411917366632` at metadata location `gs://GCP_PROJECT-iceberg-probe/probe_ns/probe_table/jy3n8ueer5x567uy/metadata/00006-6a99c835-0000-2c3f-a2cd-3c286d4fe366.metadata.json`.
 
 catalog calls: 3 of 8
