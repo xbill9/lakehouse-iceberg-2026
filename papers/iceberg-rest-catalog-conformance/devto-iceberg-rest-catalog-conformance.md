@@ -1,6 +1,6 @@
 ---
 title: "Seven Iceberg REST Catalogs: What They Declare, and What They Serve"
-published: false
+published: true
 description: "One request suite against seven Apache Iceberg REST catalog implementations — Polaris, BigLake, Glue, S3 Tables, Unity, Horizon and OneLake — comparing what each catalog declares it supports against what it actually serves."
 tags: iceberg, lakehouse, dataengineering, googlecloud
 cover_image: https://raw.githubusercontent.com/xbill9/lakehouse-iceberg-2026/main/papers/iceberg-rest-catalog-conformance/cover.99b538a5.jpg
