@@ -72,7 +72,7 @@ catalog.
 
 The Iceberg REST catalog replaces that with one HTTP API. A client speaks HTTP to
 a URL and the vendor implements the endpoints behind it. The specification lives
-in the Iceberg repository as `open-api/rest-catalog-open-api.yaml`.
+in the Iceberg repository as `rest-catalog-open-api.yaml`, under `open-api/`.
 
 ```console
 $ curl -sL -o irc.yaml https://raw.githubusercontent.com/apache/iceberg/main/open-api/rest-catalog-open-api.yaml
