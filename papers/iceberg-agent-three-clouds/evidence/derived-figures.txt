@@ -1,0 +1,14 @@
+# Figures in the article that are arithmetic on measured values rather than
+# measurements themselves. Each line gives the operands, the source artifact
+# they were read from, and the result as it appears in the text.
+#
+# Recorded 2026-09-07. Nothing here was measured directly; every operand is a
+# median from matrix-summary.txt, which is itself derived from
+# matrix-axis-A.json and matrix-axis-B.json.
+
+latency spread, fastest framework median to slowest
+  source    matrix-summary.txt, AXIS A (catalog fixed at apache-polaris)
+  operands  azure median 20.5s / aws median 4.6s
+  result    4.4565...  -> quoted as 4.46x
+  note      medians, not extremes. The max-to-min ratio over the same cells is
+            23.0 / 4.6 = 5.0x, which is NOT the figure in the article.

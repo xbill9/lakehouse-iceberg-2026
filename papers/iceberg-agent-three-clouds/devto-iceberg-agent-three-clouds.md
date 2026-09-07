@@ -14,8 +14,8 @@ read from the catalog itself.
 
 https://github.com/xbill9/lakehouse-iceberg-2026
 
-An earlier article measured seven Iceberg REST catalogs against the
-specification. Nine read operations are served by all seven -- config, namespace
+An [earlier article](https://dev.to/gde/seven-iceberg-rest-catalogs-what-they-declare-and-what-they-serve-40oj)
+measured seven Iceberg REST catalogs against the specification. Nine read operations are served by all seven -- config, namespace
 listing and loading, table listing and loading, and their HEAD forms -- while
 views, scan planning and credential vending are not. This one asks the obvious
 follow-up: if an agent restricts itself to the nine, is it portable?
@@ -239,7 +239,8 @@ Every run used exactly three catalog calls: list, describe, count.
 
 All three frameworks reach the same correct answer with the same call pattern.
 What separates them is latency, and the separation is clean — **4.46x from the
-fastest median to the slowest**, with no overlap between any pair. AWS's slowest
+fastest median to the slowest** (20.5s / 4.6s, arithmetic on the medians below),
+with no overlap between any pair. AWS's slowest
 run (4.8s) is faster than Google's fastest (11.3s), and Google's slowest (15.1s)
 is faster than Azure's fastest (18.5s).
 
