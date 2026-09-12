@@ -31,7 +31,8 @@ They regenerate.
 | | for | note |
 |---|---|---|
 | Docker | the Polaris control | the only prerequisite for a green control column |
-| Python 3 | everything | `pip install -r iceberg-conformance/requirements.txt` -- requests, PyYAML, botocore |
+| Python 3 | everything | `pip install -r iceberg-conformance/requirements.txt` -- requests, PyYAML, botocore, and pyiceberg with the `pyarrow` and `pyiceberg-core` extras, which only `seed_table.py` uses |
+| Agent frameworks | paper 3 | `pip install -r iceberg-agent/requirements.txt` -- ADK, Strands and Agent Framework, 104 packages into a clean venv in 20s; that file says why two of its lines name sub-packages rather than the one Microsoft advertises |
 | Rust | paper 5 | built and run on 1.98.0; `Cargo.lock` is committed, so the dependency set is pinned |
 | `gcloud` | BigLake | both `auth login` and `auth application-default login`: the token reads the catalog, ADC writes the data files |
 | `az` | OneLake | `az login` on a work or school account |
@@ -72,6 +73,40 @@ failed attempt.
 
 A red cell in the control column is this harness's bug, not a finding. That is
 what the control is for.
+
+## Then the agent legs
+
+Paper 3's three legs share one tool and differ only in framework, so each one is
+worth proving against the local control before it is pointed at a cloud. That is
+what `--catalog` is for.
+
+```console
+$ cd iceberg-agent
+$ python3 -m venv .venv && . .venv/bin/activate      # see requirements.txt for why
+$ pip install -r ../iceberg-conformance/requirements.txt -r requirements.txt
+$ export PYTHONPATH=../iceberg-conformance
+$ export ICEBERG_CATALOGS_FILE=../iceberg-conformance/catalogs.yaml
+$ python3 run_once.py gcp "How many rows are in the probe table?" --catalog apache-polaris
+```
+
+A leg is standing up when the answer carries the row count *and* the snapshot id
+it read, and the stamped header shows a non-zero `catalog_calls`. An answer with
+`catalog_calls=0` is the model reciting, not the catalog.
+
+Each leg then needs its own model reachable, which is separate from the catalog
+credential and fails differently:
+
+| leg | model | what it needs beyond the catalog |
+|---|---|---|
+| `gcp` | `gemini-2.5-flash` | `GOOGLE_GENAI_USE_VERTEXAI`, `GOOGLE_CLOUD_PROJECT`, `GOOGLE_CLOUD_LOCATION` |
+| `aws` | `us.amazon.nova-micro-v1:0` | Bedrock model access in `AWS_REGION`, and `botocore[crt]` |
+| `azure` | `gpt-5-mini` | `FOUNDRY_PROJECT_ENDPOINT`, and a credential `DefaultAzureCredential` can find |
+
+The `botocore[crt]` line is not padding. A machine authenticated with `aws login`
+resolves credentials through the login provider, which is CRT-backed; the AWS CLI
+ships its own CRT, so `aws sts get-caller-identity` succeeds while the leg dies
+in `botocore` with `MissingDependencyException` before its first catalog call.
+The shell looks authenticated and only Python is not.
 
 ## Then the Rust client
 

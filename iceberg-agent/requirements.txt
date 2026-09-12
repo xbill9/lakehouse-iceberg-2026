@@ -1,0 +1,51 @@
+# The three agent legs. `../iceberg-conformance/requirements.txt` is a
+# prerequisite, not a duplicate: the tool imports `probe.auth` from there rather
+# than reimplementing six credential flows, and pyiceberg reads the tables.
+
+google-adk>=2.8                 # gcp leg, ADK on Gemini
+strands-agents>=1.55            # aws leg, Strands on Bedrock
+agent-framework-core>=1.17      # azure leg, the `agent_framework` package itself
+agent-framework-foundry>=1.12   # azure leg, FoundryChatClient
+azure-identity>=1.25            # azure leg, DefaultAzureCredential
+
+# Not a transitive dependency, and the failure names something else entirely.
+# The AWS credential chain on a machine authenticated with `aws login` goes
+# through the login credential provider, which is CRT-backed. Without the extra
+# the leg dies before the first catalog call with MissingDependencyException,
+# while `aws sts get-caller-identity` still succeeds -- the CLI ships its own
+# CRT, so the shell looks authenticated and only Python does not.
+botocore[crt]>=1.43
+
+# `agent-framework-core`, not `agent-framework`. The meta package depends on
+# `agent-framework-core[all]` -- every connector Microsoft ships, Copilot Studio,
+# Cosmos, Azure AI Search, Azure Functions -- and none of them is reachable from
+# this leg. It is also the whole of why this file was briefly unusable: with the
+# meta package, pip resolved for 1445s on this machine's system interpreter and
+# then gave up with `error: resolution-too-deep`. With these two lines instead,
+# the same interpreter resolves in 1s. Core carries the `agent_framework`
+# package, but `agent_framework.foundry` in it is only a shim -- FoundryChatClient
+# really lives in the separate `agent_framework_foundry` distribution -- so both
+# lines are load-bearing and neither is the meta package.
+
+# On opentelemetry, nothing needs pinning, and the version this resolves to was
+# measured rather than assumed. A fresh venv takes the conformance requirements
+# and this file in 20s, 104 packages, `pip check` green, opentelemetry at 1.42.1,
+# and all three frameworks importing. A `--dry-run` against an interpreter
+# already holding google-api-core 2.36 resolves to the same 1.42.1 in 1s.
+#
+# That interpreter does report one advisory conflict afterwards, and it is worth
+# recognising rather than chasing: google-api-core declares opentelemetry
+# >=1.44.0 while google-adk 2.8.0 declares <=1.42.1. Nothing in this file pulls
+# google-api-core in, so the contradiction is the surrounding environment's and
+# not this dependency set's. It also blocks nothing -- the gcp and aws legs were
+# run against the Polaris control at 1.42.1 and again at 1.44.0, and answered
+# correctly on both. Use a venv and it does not arise.
+
+# The azure leg is INSTALLED BUT UNVERIFIED here. `agent_framework`,
+# `agent_framework.foundry` and `azure.identity` all import, and that is the
+# whole of what has been checked. Running it needs FOUNDRY_PROJECT_ENDPOINT and
+# a credential DefaultAzureCredential can find, which on this machine means the
+# `az` CLI, which is not installed. Without the endpoint the leg raises
+# KeyError before it builds an agent, so nothing downstream of that -- the
+# framework's tool binding, the shared instruction, the budget -- has been
+# exercised on this machine.

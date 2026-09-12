@@ -29,3 +29,6 @@ iceberg-agent/None/
 
 # real values for check-no-identifiers.sh — never commit
 .known-identifiers
+
+# SETUP.md has the agent legs install into a venv here.
+.venv/

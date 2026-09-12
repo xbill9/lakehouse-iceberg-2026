@@ -23,19 +23,31 @@ set -euo pipefail
 WH="$(cd "$(dirname "$0")" && pwd)/.warehouse"
 BASE=http://localhost:8181
 CATALOG=quickstart_catalog
+# One source of truth: these bootstrap the container, mint the admin token, and
+# are exported for the seed step below, which reaches Polaris as a client and so
+# needs them in the environment exactly as the sweep does.
+CLIENT_ID=root
+CLIENT_SECRET=s3cr3t
+export POLARIS_CLIENT_ID="$CLIENT_ID" POLARIS_CLIENT_SECRET="$CLIENT_SECRET"
 
 docker rm -f polaris >/dev/null 2>&1 || true
+# The mkdir comes first: a bind mount whose host directory does not exist yet is
+# created by Docker owned by root, and the chmod below then fails for the rest of
+# time -- which is what a fresh clone hits, since .warehouse is gitignored. The
+# chown repairs a directory already left in that state.
+mkdir -p "$WH"
 # Anything left from a run as the image's own uid is not ours to delete.
 docker run --rm --user 0:0 -v "$WH:/wh" alpine:latest \
-  sh -c 'rm -rf /wh/* /wh/.[!.]* 2>/dev/null || true' >/dev/null 2>&1 || true
-mkdir -p "$WH" && chmod 777 "$WH"
+  sh -c "rm -rf /wh/* /wh/.[!.]* 2>/dev/null || true; chown $(id -u):$(id -g) /wh" \
+  >/dev/null 2>&1 || true
+chmod 777 "$WH"
 
 docker run -d --name polaris -p 8181:8181 -p 8182:8182 \
   --user "$(id -u):$(id -g)" \
   -v /etc/passwd:/etc/passwd:ro -v /etc/group:/etc/group:ro \
   -v "$WH:$WH" \
   -e HADOOP_USER_NAME="$(id -un)" \
-  -e POLARIS_BOOTSTRAP_CREDENTIALS=POLARIS,root,s3cr3t \
+  -e POLARIS_BOOTSTRAP_CREDENTIALS="POLARIS,$CLIENT_ID,$CLIENT_SECRET" \
   -e JAVA_OPTS_APPEND="-Dpolaris.features.\"ALLOW_INSECURE_STORAGE_TYPES\"=true -Dpolaris.features.\"SUPPORTED_CATALOG_STORAGE_TYPES\"=[\"FILE\"] -Dpolaris.readiness.ignore-severe-issues=true -Dpolaris.features.\"DROP_WITH_PURGE_ENABLED\"=true" \
   apache/polaris:latest >/dev/null
 
@@ -46,7 +58,7 @@ for i in $(seq 1 60); do
 done
 
 TOK=$(curl -s -X POST $BASE/api/catalog/v1/oauth/tokens \
-  -d grant_type=client_credentials -d client_id=root -d client_secret=s3cr3t \
+  -d grant_type=client_credentials -d client_id="$CLIENT_ID" -d client_secret="$CLIENT_SECRET" \
   -d scope=PRINCIPAL_ROLE:ALL | python3 -c "import sys,json;print(json.load(sys.stdin)['access_token'])")
 
 curl -s -o /dev/null -w "create catalog : HTTP %{http_code}\n" -X POST $BASE/api/management/v1/catalogs \
@@ -69,5 +81,5 @@ echo "--- seeding control table ---"
 python3 "$(dirname "$0")/seed_table.py" --catalog apache-polaris
 echo
 echo "control catalog ready. Run the harness with:"
-echo "  export POLARIS_CLIENT_ID=root POLARIS_CLIENT_SECRET=s3cr3t"
+echo "  export POLARIS_CLIENT_ID=$CLIENT_ID POLARIS_CLIENT_SECRET=$CLIENT_SECRET"
 echo "  python3 run.py --only apache-polaris --allow-writes"
