@@ -370,7 +370,12 @@ the two. It is ten runs each, against a noise figure of 0.26 seconds
 between sittings.</p>
 <p>Agent Framework was not run on another model, so its 15.45-second
 median in Test 1 describes Agent Framework with <code>gpt-5-mini</code>,
-not Agent Framework alone.</p>
+not Agent Framework alone. That model may not be a free choice. In <a
+href="https://dev.to/gde/three-clouds-one-brief-what-actually-differs-between-adk-strands-and-agent-framework-2kgc">an
+earlier build</a>, <code>store=False</code> -- which keeps the
+conversation from being stored server-side -- made the framework request
+encrypted reasoning content, which a non-reasoning model rejected. This
+leg sets <code>store=False</code> too; that was not re-tested here.</p>
 <h4 id="test-4-reading-the-real-data">Test 4: Reading the Real Data</h4>
 <p>Tests 1 to 3 ask a question the agent's metadata tools can answer:
 the row count lives in the snapshot summary and the columns in the
@@ -496,37 +501,29 @@ the <code>az</code> CLI -- the slowest first sign-in of the three.</li>
 </ul>
 <h4 id="what-you-can-see-while-it-runs">What You Can See While It
 Runs</h4>
-<p>The table is what each framework shows <strong>by default, as this
-harness runs it</strong>, not what each one can show. Strands goes quiet
-with <code>callback_handler=None</code>, ADK's events are visible only
-because the harness reads them, and Agent Framework has middleware and
-OpenTelemetry instrumentation that this harness does not turn on.</p>
+<p>Two things differ here, and both mattered in this project.</p>
+<p><strong>Whether you can see which tools the agent called.</strong>
+ADK hands every tool call back to your code as an event, and Strands
+prints a <code>Tool #1</code>, <code>Tool #2</code> line as each one
+runs, so for both it could be confirmed from the captures that they
+scanned the data in Test 4. Agent Framework, out of the box, shows only
+the final answer, so its reading of OneLake had to be shown from the
+values in its answers instead. It can report its tool calls through
+middleware or OpenTelemetry, which were not turned on here.</p>
+<p><strong>Whether the model's reasoning ends up inside the
+answer.</strong> Nova Micro writes <code>&lt;thinking&gt;</code> text,
+and Strands passes it through as part of the answer. Anything that reads
+agent output automatically -- a scorer, a pipeline, another agent -- can
+mistake it for the answer, because a number that appears only in the
+reasoning looks like a stated result. The scorer here removes
+<code>&lt;thinking&gt;</code> blocks before checking. Gemini under the
+same Strands agent produced none, so this comes from the model, not the
+framework.</p>
 <p><img src="https://raw.githubusercontent.com/xbill9/lakehouse-iceberg-2026/main/papers/iceberg-agent-three-clouds/medium/img/devto-iceberg-agent-three-clouds-table-7.png"
-alt="Table: framework / model, tool calls visible, answer printed twice, model reasoning visible, median answer" /></p>
-<p><strong>ADK reports, and does not print.</strong> Each tool call
-arrives as an event carrying its name and arguments. Nothing reaches the
-terminal unless you print it.</p>
-<p><strong>Strands prints for you.</strong> An agent built without a
-<code>callback_handler</code> gets a
-<code>PrintingCallbackHandler</code>, which streams the model's text and
-a <code>Tool #n</code> line to stdout. The answer appears once while it
-streams and again when the result is printed, in all forty Strands runs
-on both models, which puts it on the framework. The
-<code>&lt;thinking&gt;</code> blocks are the model's: they appeared in
-all thirty Nova Micro runs and in none of the ten where Strands ran
-Gemini.</p>
-<p><strong>Agent Framework, run this way, returns the reply and nothing
-else.</strong> Its answers were also the longest, and often restated the
-table's description before giving the count. With one model on this
-framework, that cannot be split between Agent Framework and
-<code>gpt-5-mini</code>.</p>
-<p>Agent Framework on <code>gpt-5-mini</code> may not be a free model
-choice. In <a
-href="https://dev.to/gde/three-clouds-one-brief-what-actually-differs-between-adk-strands-and-agent-framework-2kgc">an
-earlier build</a>, <code>store=False</code> -- which keeps the
-conversation from being stored server-side -- made the framework request
-encrypted reasoning content, which a non-reasoning model rejected. This
-leg sets <code>store=False</code> too; that was not re-tested here.</p>
+alt="Table: framework / model, shows each tool call, reasoning inside the answer" /></p>
+<p>Strands also streams every answer to the terminal as it is written,
+so code that prints the result shows it twice;
+<code>callback_handler=None</code> turns that off.</p>
 <h4 id="storage-wiring-per-catalog">Storage Wiring Per Catalog</h4>
 <p>Three configurations reach the catalog and cannot read the data. Each
 is reproduced in the evidence with <code>iceberg_list_tables</code>
