@@ -46,9 +46,9 @@ takes a chat client object and calls the system prompt `instructions`.
 
 The scan computes counts and ranges so the model never does arithmetic over rows
 in its head. Measured on 2026-09-15 with the earlier scan, which returned rows
-only: Nova Micro, left to count the scanned rows, said how many ids were 10 or more
-correctly in 3 of 10 agent runs, and in 1 of 20 direct calls holding the agent's
-instruction and the 11 rows. Given the filter, every setup answered 10 of 10.
+only. Axis E runs every setup both ways: left to count the rows, Gemini under ADK
+and Strands and `gpt-5-mini` were right in 10 of 10 runs and Nova Micro in 0 of 10;
+with the filter, every setup was right in 10 of 10.
 
 Nova runs with the decoding Amazon documents for Nova tool use (temperature 0,
 topK 1). With default decoding it ended the loop before its filter call in 2 of 10
@@ -147,7 +147,8 @@ $ python3 run_matrix.py --axis A --repeat 10
 $ python3 run_matrix.py --axis B --repeat 10
 $ python3 run_matrix.py --axis C --repeat 10  # model fixed, framework varies: Strands on Gemini is the crossover
 $ python3 run_matrix.py --axis D --repeat 10  # each leg on its own cloud's catalog, a question only a scan answers
-$ python3 run_matrix.py --axis E --repeat 10  # the Axis D question for all four cells on the local control
+$ python3 run_matrix.py --axis E --repeat 10  # the Axis D question for all four cells on the control, each also rows-only
+$ python3 run_matrix.py --axis F --repeat 10  # Nova Micro on Axis A's question, with and without its tool-use decoding
 $ python3 capture_runs.py                  # each leg against its own cloud's catalog
 $ python3 failure_modes.py
 $ python3 nova_diagnosis.py                # Nova Micro's Test 5 count, from its diagnostic captures

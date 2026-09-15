@@ -1,4 +1,4 @@
-# axis=D leg=aws catalog=aws-glue run=6 elapsed_s=7.8 captured=2026-09-15T20:33:32Z
+# axis=D leg=aws catalog=aws-glue run=6 elapsed_s=7.7 captured=2026-09-15T21:16:24Z
 
 cloud=aws model=us.amazon.nova-micro-v1:0 catalog=aws-glue
 question: What is the largest id in the probe table, and how many of its rows have an id of 10 or more? Cite the exact table version you read.
@@ -29,6 +29,42 @@ The largest id in the table "probe_ns.probe_table" is 23, cited from snapshot-id
 The largest id in the table "probe_ns.probe_table" is 23, cited from snapshot-id 9187553066798777529. There are exactly 8 rows where the id is 10 or more, also cited from snapshot-id 9187553066798777529.
 
 catalog calls: 5 of 8
-agent seconds: 6.28 | tool seconds: 2.04
+agent seconds: 6.35 | tool seconds: 2.07
 tokens: input=12622 output=627 reasoning=None model_calls=6
-warm-up seconds: 1.00
+warm-up seconds: 0.81
+[tool-trace] failed(while="where 'id IS NOT NULL ORDER BY id DESC LIMIT 1'")
+FILTER NOT UNDERSTOOD: `where` takes a row filter only, such as "id >= 10" -- no ORDER BY, LIMIT or functions (Expected end of text, found 'ORDER'  (at char 15), (line:1, col:16)). For a largest or smallest value, call this again without that clause and read the MIN and MAX lines, which are exact over every matching row.
+[/tool-trace]
+[tool-trace] iceberg_scan_table(table='probe_ns.probe_table', columns='', where='id IS NOT NULL', limit=20)
+id | ts | payload | region
+0 | 2026-09-01 00:00:00+00:00 | row-0-0 | None
+2 | 2026-09-01 02:00:00+00:00 | row-0-2 | None
+3 | 2026-09-01 03:00:00+00:00 | row-0-3 | None
+20 | 2026-09-01 00:00:00+00:00 | row-2-0 | None
+21 | 2026-09-01 01:00:00+00:00 | row-2-1 | None
+22 | 2026-09-01 02:00:00+00:00 | row-2-2 | None
+23 | 2026-09-01 03:00:00+00:00 | row-2-3 | None
+10 | 2026-09-02 00:00:00+00:00 | row-1-0 | None
+11 | 2026-09-02 01:00:00+00:00 | row-1-1 | None
+12 | 2026-09-02 02:00:00+00:00 | row-1-2 | None
+13 | 2026-09-02 03:00:00+00:00 | row-1-3 | None
+
+11 of 11 row(s) shown, read from snapshot-id 9187553066798777529
+COUNT: exactly 11 row(s) match `id IS NOT NULL` in snapshot-id 9187553066798777529. Exact, over the whole table.
+MIN and MAX of id over those 11 row(s): 0 and 23. Exact.
+[/tool-trace]
+[tool-trace] iceberg_scan_table(table='probe_ns.probe_table', columns='', where='id >= 10', limit=20)
+id | ts | payload | region
+20 | 2026-09-01 00:00:00+00:00 | row-2-0 | None
+21 | 2026-09-01 01:00:00+00:00 | row-2-1 | None
+22 | 2026-09-01 02:00:00+00:00 | row-2-2 | None
+23 | 2026-09-01 03:00:00+00:00 | row-2-3 | None
+10 | 2026-09-02 00:00:00+00:00 | row-1-0 | None
+11 | 2026-09-02 01:00:00+00:00 | row-1-1 | None
+12 | 2026-09-02 02:00:00+00:00 | row-1-2 | None
+13 | 2026-09-02 03:00:00+00:00 | row-1-3 | None
+
+8 of 8 row(s) shown, read from snapshot-id 9187553066798777529
+COUNT: exactly 8 row(s) match `id >= 10` in snapshot-id 9187553066798777529. Exact, over the whole table.
+MIN and MAX of id over those 8 row(s): 10 and 23. Exact.
+[/tool-trace]

@@ -87,6 +87,12 @@ SUPERSEDED = [
 #: Archived single-axis runs, published under superseded-runs/<name>/ with their
 #: re-scored rows. Kept for the same reason as the complete runs above.
 SUPERSEDED_D = [
+    ("run7-untraced-no-variants", [
+        "# Axes D and E at ten repeats per cell, captured 2026-09-15, SUPERSEDED and kept.",
+        "# Same harness as the published run, but the captures did not record tool calls,",
+        "# so which filter each agent used was on record only for ADK, and Axis E had no",
+        "# rows-only or Nova default-decoding cells. Both axes were re-run with tool traces",
+        "# and those cells, and scored with scorer v7. Re-scored below, not changed."]),
     ("run6-sample-note-no-filter", [
         "# Axes D and E at ten repeats per cell, captured 2026-09-15, SUPERSEDED and kept",
         "# beside the same run's Axes A to C; why is under that run above."]),
@@ -163,8 +169,9 @@ def rescore(base: str, axis: str, truth: dict, timed: bool) -> tuple:
                             % (stored["capture"], stored["model"], model))
         rows.append(dict(stored, **fresh, agent_s=agent_s, tool_s=tool_s, model=model,
                          answered=answered, **token_fields(body),
-                         cell="%s / %s%s" % (FRAMEWORK[stored["leg"]], model,
-                                              " on %s" % stored["catalog"] if axis in "DE" else "")))
+                         cell="%s / %s%s%s" % (FRAMEWORK[stored["leg"]], model,
+                                                " on %s" % stored["catalog"] if axis in "DE" else "",
+                                                " [%s]" % stored["variant"] if stored.get("variant") else "")))
     return data, rows, problems, bodies
 
 
@@ -224,7 +231,7 @@ def cell_line(name: str, runs: list, width: int = 20) -> str:
 
 
 def summary(a_rows: list, b_rows: list, repeat: int, c_rows: list = (), d_rows: list = (),
-            truth: dict = None, e_rows: list = ()) -> str:
+            truth: dict = None, e_rows: list = (), f_rows: list = ()) -> str:
     head = ("  cell                 runs  failed correct  snapshot metadata columns  "
             "answer s (min/med/max)  iqr (p25-p75)  process-med tool-med")
     tail = lambda rs: ("  catalog_calls across all runs: %s | invented columns: %d"  # noqa: E731
@@ -287,6 +294,13 @@ def summary(a_rows: list, b_rows: list, repeat: int, c_rows: list = (), d_rows: 
                             frac("cites_snapshot"), min(t), med(t), max(t), p25, p75,
                             med(r["tool_s"] for r in ok),
                             sorted({r["catalog_calls"] for r in ok}), n - len(ok)))
+        lines.append("  [rows-only]: the v1 scan, rows and no computed count, so the model counts."
+                     " [provider-decoding]: Nova Micro with no decoding fields sent.")
+    if f_rows:
+        lines += ["", "AXIS F -- Nova Micro on %s, Axis A's question, with and without its tool-use decoding"
+                  % AXIS_A_CATALOG, head.replace("cell                ", "framework / model".ljust(58))]
+        lines += [cell_line(k, v, 58) for k, v in cells(f_rows, "cell").items()]
+        lines.append(tail(f_rows))
     if truth:
         lines += ["", "ground truth: snapshot total-records against a full scan of the data files"]
         lines += ["  %-20s total-records=%s scanned=%s agree=%s"
@@ -414,6 +428,32 @@ def self_test(truth: dict) -> None:
                      ("correct_max_id", "correct_count", "cites_snapshot") if not right[k]]
         failures += ["scan scorer, swapped answer: " + k for k in
                      ("correct_max_id", "correct_count") if swapped[k]]
+        # Scorer v7: the last stated value decides. A right value on the way to a
+        # different final one must fail; a table total beside a right count must not.
+        wrong_last = score_scan(wrap % ("The largest id is %s and %s rows have an id of 10 or more. "
+                                        "Checking again: the largest id is %d, and %d rows have an "
+                                        "id of 10 or more." % (mx, n, int(mx) - 2, int(n) + 3)), t)
+        with_total = score_scan(wrap % ("Of the %s rows, those with an id of 10 or more number %s, "
+                                        "and the largest id is %s." % (t["rows"], n, mx)), t)
+        failures += ["scan scorer, right value then a different final one: " + k for k in
+                     ("correct_max_id", "correct_count") if wrong_last[k]]
+        failures += ["scan scorer, table total beside the count: " + k for k in
+                     ("correct_max_id", "correct_count") if not with_total[k]]
+        # Real phrasings from the published captures that a first v7 draft scored
+        # wrong: the largest id on the line above the count, and the ids listed after it.
+        for label, text in (
+                ("max above count", "- Largest id in the table: %s.\n- Number of rows with id >= 10: %s."
+                 % (mx, n)),
+                ("ids listed after count", "The largest `id` in the table is %s.\nThere are %s rows "
+                 "with an `id` of 10 or more (20, 21, 22, 23, 10, 11, 12, 13)." % (mx, n)),
+                ("long gap before 10 or more", "The largest `id` is %s.\nThere are %s rows in the "
+                 "`probe_ns.probe_table` that have an `id` of 10 or more." % (mx, n)),
+                ("parenthetical before the count", "- Largest id in the table (snapshot shown "
+                 "above): %s.\n- Number of rows with id >= 10 (same snapshot and metadata): %s."
+                 % (mx, n))):
+            real = score_scan(wrap % text, t)
+            failures += ["scan scorer, real phrasing (%s): %s" % (label, k) for k in
+                         ("correct_max_id", "correct_count") if not real[k]]
     if failures:
         sys.exit("scorer self-test failed, evidence NOT published: %s" % failures)
 
@@ -666,7 +706,7 @@ def main() -> None:
     a_data, a_rows, a_bad, a_bodies = rescore(RAW, "A", truth, timed=True)
     b_data, b_rows, b_bad, b_bodies = rescore(RAW, "B", truth, timed=True)
     axes = [(a_data, a_bodies), (b_data, b_bodies)]
-    c_rows, c_bad, d_rows, d_bad, e_rows, e_bad = [], [], [], [], [], []
+    c_rows, c_bad, d_rows, d_bad, e_rows, e_bad, f_rows, f_bad = [], [], [], [], [], [], [], []
     if os.path.exists(os.path.join(RAW, "matrix-axis-C.json")):
         c_data, c_rows, c_bad, c_bodies = rescore(RAW, "C", truth, timed=True)
         axes.append((c_data, c_bodies))
@@ -676,7 +716,10 @@ def main() -> None:
     if os.path.exists(os.path.join(RAW, "matrix-axis-E.json")):
         e_data, e_rows, e_bad, e_bodies = rescore(RAW, "E", truth, timed=True)
         axes.append((e_data, e_bodies))
-    bad = a_bad + b_bad + c_bad + d_bad + e_bad + verify_single_legs(truth)
+    if os.path.exists(os.path.join(RAW, "matrix-axis-F.json")):
+        f_data, f_rows, f_bad, f_bodies = rescore(RAW, "F", truth, timed=True)
+        axes.append((f_data, f_bodies))
+    bad = a_bad + b_bad + c_bad + d_bad + e_bad + f_bad + verify_single_legs(truth)
     if bad:
         print("\n".join("   !! " + p for p in bad))
         sys.exit("\nevidence NOT published: re-scoring disagrees with the runner")
@@ -697,8 +740,9 @@ def main() -> None:
     texts["derived-figures.txt"] += crossover(answered(c_rows))
     texts["derived-figures.txt"] += noise_across_tests(a_rows, b_rows, c_rows)
     texts["derived-figures.txt"] += token_section(
-        [("A", a_rows), ("B", b_rows), ("C", c_rows), ("D", d_rows), ("E", e_rows)])
-    texts["matrix-summary.txt"] = summary(a_rows, b_rows, a_data["repeat"], c_rows, d_rows, truth, e_rows)
+        [("A", a_rows), ("B", b_rows), ("C", c_rows), ("D", d_rows), ("E", e_rows), ("F", f_rows)])
+    texts["matrix-summary.txt"] = summary(a_rows, b_rows, a_data["repeat"], c_rows, d_rows, truth,
+                                          e_rows, f_rows)
 
     combined = "".join(texts.values())
     # BUCKET_RE reads abfss://<workspace-guid>@onelake.dfs... as one bucket name,

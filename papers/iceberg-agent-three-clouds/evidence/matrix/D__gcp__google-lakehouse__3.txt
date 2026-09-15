@@ -1,19 +1,35 @@
-# axis=D leg=gcp catalog=google-lakehouse run=3 elapsed_s=18.0 captured=2026-09-15T20:30:27Z
+# axis=D leg=gcp catalog=google-lakehouse run=3 elapsed_s=17.5 captured=2026-09-15T21:13:42Z
 
 cloud=gcp model=gemini-2.5-flash catalog=google-lakehouse
 question: What is the largest id in the probe table, and how many of its rows have an id of 10 or more? Cite the exact table version you read.
 
    -> tool: iceberg_list_tables()
    -> tool: iceberg_describe_table(table='probe_ns.probe_table')
-   -> tool: iceberg_scan_table(table='probe_ns.probe_table', limit=1, columns='id')
-   -> tool: iceberg_scan_table(limit=1, where='id >= 10', table='probe_ns.probe_table')
+   -> tool: iceberg_scan_table(limit=1, columns='id', table='probe_ns.probe_table')
+   -> tool: iceberg_scan_table(columns='id', limit=1, where='id >= 10', table='probe_ns.probe_table')
 
 <!-- cloud=gcp model=gemini-2.5-flash catalog=google-lakehouse instruction=v3 catalog_calls=4 -->
-The largest `id` in the `probe_ns.probe_table` table is 23. There are 8 rows in the table that have an `id` of 10 or more.
+The largest `id` in the `probe_ns.probe_table` is 23. There are 8 rows in the `probe_ns.probe_table` with an `id` of 10 or more.
 
-These figures were read from snapshot ID `6042367411917366632`, with metadata located at `gs://bucket-0001/probe_ns/probe_table/jy3n8ueer5x567uy/metadata/00006-guid-0002.metadata.json`.
+These figures are from snapshot-id `6042367411917366632` of the table, located at `gs://bucket-0001/probe_ns/probe_table/jy3n8ueer5x567uy/metadata/00006-guid-0002.metadata.json`.
 
 catalog calls: 4 of 8
-agent seconds: 13.63 | tool seconds: 5.13
-tokens: input=5630 output=222 reasoning=900 model_calls=4
-warm-up seconds: 3.20
+agent seconds: 13.07 | tool seconds: 5.26
+tokens: input=5350 output=232 reasoning=846 model_calls=4
+warm-up seconds: 3.15
+[tool-trace] iceberg_scan_table(table='probe_ns.probe_table', columns='id', where='', limit=1)
+id
+0
+
+1 of 11 row(s) shown, read from snapshot-id 6042367411917366632
+COUNT: exactly 11 row(s) are in the table in snapshot-id 6042367411917366632. Exact, over the whole table.
+MIN and MAX of id over those 11 row(s): 0 and 23. Exact.
+[/tool-trace]
+[tool-trace] iceberg_scan_table(table='probe_ns.probe_table', columns='id', where='id >= 10', limit=1)
+id
+20
+
+1 of 8 row(s) shown, read from snapshot-id 6042367411917366632
+COUNT: exactly 8 row(s) match `id >= 10` in snapshot-id 6042367411917366632. Exact, over the whole table.
+MIN and MAX of id over those 8 row(s): 10 and 23. Exact.
+[/tool-trace]

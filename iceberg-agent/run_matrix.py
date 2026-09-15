@@ -13,6 +13,9 @@ So this runs four axes separately:
   axis B   leg fixed, catalogs vary      -> isolates the catalog
   axis C   model fixed, framework varies -> separates framework from model
   axis D   each leg on its own catalog, a question only a data scan answers
+  axis E   axis D's question for every framework and model on one table, and each
+           with the rows-only scan, so counting in the engine and in the model compare
+  axis F   axis A's question for Nova Micro with and without its tool-use decoding
 
 with repetition in both, and scores every answer against ground truth read from
 the catalog itself rather than through any agent.
@@ -65,7 +68,19 @@ AXIS_D_CELLS = [("gcp", "google-lakehouse"), ("aws", "aws-glue"),
 #: smaller (4 of 6 ids to count, against 8 of 11), so its correctness column is
 #: not like-for-like. Axis E is -- and with Strands on Gemini beside Strands on
 #: Nova Micro, a miscount can be put on the framework or on the model.
-AXIS_E_CELLS = [("gcp", None), ("aws", "gemini-2.5-flash"), ("aws", None), ("azure", None)]
+#: A variant is one environment change on a cell, named in its capture and label.
+#: rows-only restores the v1 scan -- rows and no computed count -- so the model has to
+#: count them itself. provider-decoding sends Nova Micro no decoding fields at all.
+VARIANTS = {"rows-only": {"ICEBERG_SCAN_FILTER": "0"},
+            "provider-decoding": {"ICEBERG_DECODING": "provider"}}
+E_SETUPS = [("gcp", None), ("aws", "gemini-2.5-flash"), ("aws", None), ("azure", None)]
+AXIS_E_CELLS = ([(leg, model, None) for leg, model in E_SETUPS]
+                + [(leg, model, "rows-only") for leg, model in E_SETUPS]
+                + [("aws", None, "provider-decoding")])
+#: Axis F: Axis A's question for Nova Micro as published (Amazon's tool-use decoding)
+#: and at Bedrock's defaults, in one sitting, so the decoding's effect on the Axis A
+#: and C timings is measured rather than assumed.
+AXIS_F_CELLS = [("aws", None, None), ("aws", None, "provider-decoding")]
 TOKENS = re.compile(r"tokens: input=(\S+) output=(\S+) reasoning=(\S+) model_calls=(\S+)")
 
 
@@ -116,7 +131,14 @@ def ground_truth() -> dict:
 #: snapshot-id 5653331815319537848, is 11." put the snapshot id between the word
 #: and the count, and v4 marked a correct answer wrong. It also ended "is 11.",
 #: and a full stop after the count was read as a decimal point.
-SCORER_VERSION = 6
+#: v6 (2026-09-15) pairs values across blanked citations and markdown emphasis.
+#: v7 (2026-09-15) scores the answer's LAST statement of a count or largest id, so a
+#: right number mentioned on the way cannot pass a different final one. Answers now
+#: span the whole turn, which makes that possible.
+#: v8 (2026-09-15) allows 60 characters on one line between "10 or more" and the
+#: count, not 30. MEASURED on Axis E: "Number of rows with id >= 10 (same snapshot
+#: and metadata): 8." put 31 between them, and v7 marked a correct count wrong.
+SCORER_VERSION = 8
 #: Recorded in every matrix file, so an archived run says which harness produced it.
 SCAN_TOOL = "v2: filters in the engine; exact COUNT, MIN and MAX over every matching row"
 DECODING = "provider defaults; Nova greedy (temperature 0, topK 1) per Amazon's tool-use guidance"
@@ -167,15 +189,40 @@ def score_scan(body: str, truth: dict) -> dict:
         r"%s\D{0,15}\brows?\b" % n,                  # 8 rows
         r"%s\s+of\s+(?:the\s+)?\d+\s+rows?\b" % n,   # 8 of the 11 rows
         r"%s\D{0,40}%s" % (n, AT_LEAST_10),            # 8 rows have an id of 10 or more
-        r"%s\D{0,30}%s" % (AT_LEAST_10, n),            # 10 or more: 8
+        # 60 on one line, not 30: "id >= 10 (same snapshot and metadata): 8" is 31.
+        r"%s[^\d\n]{0,60}%s" % (AT_LEAST_10, n),       # 10 or more: 8
     ]
+    # The last value the answer states, from phrasings that can only be the filtered
+    # count: "8 of the 11 rows", "8 rows ... 10 or more" on one line, "10 or more: 8",
+    # and "the largest id is 23". A right value that is not the last one fails.
+    # Tight on purpose. A first draft took any number within 40 characters of "10 or
+    # more" and, on the published captures, read the largest id on the line above
+    # ("23.\n- Number of rows with id >= 10: 8") and a list of the ids ("10 or more
+    # (20, 21, ...)") as final counts -- three correct answers scored wrong.
+    num = r"(?<![\w.-])(\d+|%s)(?![\w-]|\.\d)" % "|".join(NUMBER_WORDS)
+    as_digits = lambda s: s if s.isdigit() else str(NUMBER_WORDS.index(s.lower()))  # noqa: E731
+
+    def last_stated(patterns):
+        found = [(m.end(), as_digits(m.group(1))) for p in patterns
+                 for m in re.finditer(p, paired, re.I)]
+        return max(found)[1] if found else None
+
+    last_count = last_stated([r"%s\s+of\s+(?:the\s+)?\d+\s+rows?\b" % num,
+                              r"%s\s+rows?\b[^\d\n]{0,60}%s" % (num, AT_LEAST_10),
+                              r"%s\)?\s*(?:\([^()\d\n]{0,40}\))?\s*"
+                              r"(?::|=|is|was|are|equals|number|total|count)\s*%s"
+                              % (AT_LEAST_10, num)])
+    last_max = last_stated([r"\b(?:largest|maximum|highest|max|biggest|greatest)\s+(?:id\s+)?"
+                            r"(?:is|was|=|:|equals)\s+%s" % num])
     return {
         "correct_max_id": bool(re.search(
             # 150, not 60: "The largest id found in the sample from the "probe_ns.probe_table"
             # is **23**" puts 62 characters between the two, and a blanked citation
             # adds more. The \D span, not the width, is what rejects a swapped answer.
-            r"\b(?:largest|maximum|highest|max|biggest|greatest)\b\D{0,150}%s" % mx, paired, re.I)),
-        "correct_count": any(re.search(p, paired, re.I) for p in count_patterns),
+            r"\b(?:largest|maximum|highest|max|biggest|greatest)\b\D{0,150}%s" % mx, paired, re.I))
+            and last_max in (None, truth["max_id"]),
+        "correct_count": any(re.search(p, paired, re.I) for p in count_patterns)
+            and last_count in (None, truth["ids_at_least_10"]),
         "cites_snapshot": truth["snapshot_id"] in answer,
         "catalog_calls": int(header.group(1)) if header else None,
     }
@@ -202,11 +249,20 @@ def score(body: str, truth: dict) -> dict:
 
 
 def one_run(axis: str, leg: str, catalog: str, index: int, model: str = None,
-            question: str = QUESTION, warm: bool = True) -> dict:
-    env = {k: v for k, v in os.environ.items() if not k.startswith("ICEBERG_MODEL")}
+            question: str = QUESTION, warm: bool = True, variant: str = None) -> dict:
+    # Nothing diagnostic leaks in from the shell: a cell's settings are its model and
+    # its variant, and nothing else.
+    env = {k: v for k, v in os.environ.items() if not k.startswith((
+        "ICEBERG_MODEL", "ICEBERG_SCAN_FILTER", "ICEBERG_DECODING", "ICEBERG_TEMPERATURE",
+        "ICEBERG_TOP_K", "ICEBERG_SCAN_DOC", "ICEBERG_TOOL_TRACE"))}
     env["ICEBERG_CATALOG"] = catalog
     if model:
         env["ICEBERG_MODEL_" + leg.upper()] = model
+    env.update(VARIANTS.get(variant) or {})
+    if axis in "DE":
+        # Every tool call and its result go into the capture, so the filter an agent
+        # used is on record for every framework -- Agent Framework logs no tool calls.
+        env["ICEBERG_TOOL_TRACE"] = "1"
     started = time.time()
     proc = subprocess.run(
         [sys.executable, os.path.join(HERE, "run_once.py"), leg, question,
@@ -217,7 +273,8 @@ def one_run(axis: str, leg: str, catalog: str, index: int, model: str = None,
     # The axis is in the name because both axes run gcp on the control. Without
     # it Axis B's captures overwrote Axis A's, and three published rows were left
     # with no capture behind them (found 2026-09-14).
-    cell = leg if not model else "%s__%s" % (leg, re.sub(r"[^\w.-]", "-", model))
+    cell = "__".join([leg] + ([re.sub(r"[^\w.-]", "-", model)] if model else [])
+                     + ([variant] if variant else []))
     path = os.path.join(RAW, "matrix", "%s__%s__%s__%d.txt" % (axis, cell, catalog, index))
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w") as handle:
@@ -227,7 +284,7 @@ def one_run(axis: str, leg: str, catalog: str, index: int, model: str = None,
         handle.write(body)
     timing = re.search(r"agent seconds: ([\d.]+) \| tool seconds: ([\d.]+)", body)
     return {"leg": leg, "catalog": catalog, "run": index, "scorer": SCORER_VERSION,
-            **({"model": model} if model else {}),
+            **({"model": model} if model else {}), **({"variant": variant} if variant else {}),
             "elapsed_s": elapsed, "capture": os.path.basename(path), "body": body,
             "agent_s": float(timing.group(1)) if timing else None,
             "tool_s": float(timing.group(2)) if timing else None, **token_fields(body)}
@@ -235,7 +292,7 @@ def one_run(axis: str, leg: str, catalog: str, index: int, model: str = None,
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--axis", choices=["A", "B", "C", "D", "E"], required=True)
+    ap.add_argument("--axis", choices=["A", "B", "C", "D", "E", "F"], required=True)
     ap.add_argument("--repeat", type=int, default=3)
     ap.add_argument("--leg", default=AXIS_B_LEG)
     ap.add_argument("--no-warm", action="store_true", help="time sign-in inside the answer")
@@ -245,15 +302,17 @@ def main() -> None:
 
     truth = ground_truth()
     if args.axis == "A":
-        cells = [(leg, AXIS_A_CATALOG, None) for leg in LEGS]
+        cells = [(leg, AXIS_A_CATALOG, None, None) for leg in LEGS]
     elif args.axis == "B":
-        cells = [(args.leg, cat, None) for cat in CATALOGS]
+        cells = [(args.leg, cat, None, None) for cat in CATALOGS]
     elif args.axis == "C":
-        cells = [(leg, AXIS_A_CATALOG, model) for leg, model in AXIS_C_CELLS]
+        cells = [(leg, AXIS_A_CATALOG, model, None) for leg, model in AXIS_C_CELLS]
     elif args.axis == "D":
-        cells = [(leg, cat, None) for leg, cat in AXIS_D_CELLS]
+        cells = [(leg, cat, None, None) for leg, cat in AXIS_D_CELLS]
+    elif args.axis == "E":
+        cells = [(leg, AXIS_A_CATALOG, model, v) for leg, model, v in AXIS_E_CELLS]
     else:
-        cells = [(leg, AXIS_A_CATALOG, model) for leg, model in AXIS_E_CELLS]
+        cells = [(leg, AXIS_A_CATALOG, model, v) for leg, model, v in AXIS_F_CELLS]
     question, scorer = (SCAN_QUESTION, score_scan) if args.axis in "DE" else (QUESTION, score)
 
     # Rounds, not blocks: one run of every cell per round, in a shuffled order, so
@@ -264,15 +323,16 @@ def main() -> None:
     for index in range(1, args.repeat + 1):
         round_cells = list(cells)
         rng.shuffle(round_cells)
-        for leg, catalog, model in round_cells:
-            row = one_run(args.axis, leg, catalog, index, model, question, not args.no_warm)
+        for leg, catalog, model, variant in round_cells:
+            row = one_run(args.axis, leg, catalog, index, model, question, not args.no_warm, variant)
             row.update(scorer(row.pop("body"), truth[catalog]))
             row["answered"] = row["catalog_calls"] is not None
             results.append(row)
             checks = " ".join("%s=%s" % (k, "ok" if v else "NO") for k, v in row.items()
                               if k.startswith(("correct_", "cites_", "names_")))
             print("  %-6s %-26s %-19s run %d  %5ss  agent=%ss tool=%ss  %s calls=%s"
-                  % (leg, model or "", catalog, index, row["elapsed_s"], row["agent_s"],
+                  % (leg, " ".join(x for x in (model, variant) if x), catalog, index,
+                     row["elapsed_s"], row["agent_s"],
                      row["tool_s"], checks, row["catalog_calls"]), flush=True)
 
     out = os.path.join(RAW, "matrix-axis-%s.json" % args.axis)

@@ -1,7 +1,7 @@
 ---
 title: "Four Iceberg Tools, Three Agent Frameworks: What Ports, and What Doesn't"
 published: false
-description: "Four read-only Apache Iceberg tools bound into Google ADK, AWS Strands and Microsoft Agent Framework, run against five catalogs, 180 timed runs. Building the agent ports and running it does not; speed follows the model and how much it writes; the storage wiring under the tools is the per-cloud work."
+description: "Four read-only Apache Iceberg tools bound into Google ADK, AWS Strands and Microsoft Agent Framework, run against five catalogs, 250 timed runs. Building the agent ports and running it does not; speed follows the model and how much it writes; the storage wiring under the tools is the per-cloud work."
 tags: iceberg, aiagents, lakehouse, dataengineering
 cover_image: https://raw.githubusercontent.com/xbill9/lakehouse-iceberg-2026/main/papers/iceberg-agent-three-clouds/cover.30ed1e97.jpg
 ---
@@ -50,18 +50,18 @@ Nova Micro. Per 100 generated tokens the three take 0.58 to 0.90 seconds.
 
 **The framework adds a smaller, steady cost.** Running the same Gemini model,
 Strands took longer than ADK on both questions asked: 1.43x at the median on the
-simple question, and 11.21 against 8.33 seconds on the data question.
+simple question, and 10.84 against 8.19 seconds on the data question.
 
 **The per-cloud work is the storage wiring.** The tools bind unchanged, but reading
 a catalog's files needs different configuration for OneLake, Glue and S3 Tables --
 and when it is wrong, the catalog still answers while the data read fails with an
 error that names something else.
 
-**Once the engine does the arithmetic, every agent answers correctly.** Each agent
-read its own cloud's data, and on the same 11-row table all four setups gave the
-largest id and the filtered count in all ten runs. The scan filters in PyIceberg
-and returns an exact count. Given the agent's instruction and the scanned rows and
-asked to count the ids itself, Nova Micro was right in 1 of 20 direct calls.
+**Every agent read its cloud's data, and one model could not count what it read.**
+When the scan returned rows and left the counting to the model, Gemini under both
+frameworks and `gpt-5-mini` counted correctly in all ten runs; Nova Micro, in none.
+When the scan filtered in PyIceberg and returned the count, all four setups were right
+in all ten runs.
 
 ## What Is Apache Iceberg, and Why Does It Matter?
 
@@ -119,11 +119,11 @@ Each test changes one thing and holds the rest still:
 
 | test | what changes | what stays the same | what it answers | evidence files |
 |---|---|---|---|---|
-| **Test 1** | framework and model together | the catalog: Polaris | how the three agents compare | Axis A |
+| **Test 1** | framework and model together | the catalog: Polaris | how the three agents compare | Axis A, and Axis F for Nova's decoding |
 | **Test 2** | the catalog | the agent: ADK on Gemini | whether the catalog changes anything | Axis B |
 | **Test 3** | framework or model, one at a time | the catalog: Polaris | which a speed difference belongs to | Axis C |
 | **Test 4** | a data question, each agent on its own cloud | the question | whether each agent reads its cloud's files | Axis D |
-| **Test 5** | the same data question, all four setups | the table: Polaris | who can count, like for like | Axis E |
+| **Test 5** | the same data question, all four setups, counted by the engine or by the model | the table: Polaris | who answers correctly, like for like | Axis E |
 
 **Ten runs per cell, in shuffled rounds** from a fixed seed, so a slow patch on an
 endpoint lands across cells. Separation is judged on the middle half of each cell's
@@ -145,9 +145,11 @@ tokens generated, output plus reasoning.
 the answer text alone, with any `<thinking>` blocks removed. The row count must sit
 beside "rows", each column must appear as a whole word, and the snapshot id and
 metadata location must appear exactly. Ground truth also scans every data file, and
-the row counts agree with each snapshot's summary on all five catalogs. Before
-anything is published, the scorer must fail a planted answer that holds the right
-numbers without stating them.
+the row counts agree with each snapshot's summary on all five catalogs. An answer's
+last stated count or largest id is the one scored, so a right number mentioned on
+the way to a different final one fails. Before anything is published, the scorer
+must fail planted answers that hold the right numbers without stating them, or
+state them and then a different one.
 
 ## Test 1: The Three Agents, Side by Side
 
@@ -156,7 +158,10 @@ lists Nova Micro as text in, text out, where Nova Lite and Pro also take images 
 video. Gemini and `gpt-5-mini` ran at their defaults, with no temperature, thinking
 budget or reasoning effort set. Nova Micro ran with the greedy decoding Amazon
 [recommends for Nova tool use](https://docs.aws.amazon.com/nova/latest/userguide/prompting-tool-troubleshooting.html),
-temperature 0 and topK 1.
+temperature 0 and topK 1. On this question that setting changes nothing measurable:
+in a separate sitting of ten runs each, Nova Micro passed every check both ways, at a
+median of 3.31 seconds with it and 3.27 at Bedrock's defaults, with the middle
+halves overlapping (evidence files: Axis F).
 
 | leg | framework and model | runs passing every check | answer seconds min/med/max | tokens generated |
 |---|---|---|---|---|
@@ -193,8 +198,9 @@ The catalog shows up in the tool column: 0.12 seconds against Polaris, 0.49 to 2
 against the managed four. In total answer time all four sit above Polaris, medians
 6.09 to 7.50 seconds against 4.50, with no overlap in the middle half of their runs.
 The slowest run, 50.96 seconds on OneLake, spent 44.88 of them in the tools. That is
-distance from this machine as much as the service, and not a ranking. OneLake's table holds 6 rows and 3 columns, loaded
-through the Fabric API; each answer is scored against its own catalog.
+distance from this machine as much as the service, and not a ranking. OneLake's
+table holds 6 rows and 3 columns, loaded through the Fabric API; each answer is
+scored against its own catalog.
 
 ## Test 3: Framework or Model?
 
@@ -240,34 +246,42 @@ maximum over every matching row, so no model counts rows in its head.
 | Strands / Nova Micro on Glue | 10/10 | 10/10 | 6.31 | 2.08 |
 | Agent Framework / `gpt-5-mini` on OneLake | 10/10 | 10/10 | 25.00 | 4.66 |
 
-Every agent read its data: ADK and Strands log each scan, and Agent Framework's
-answers name values no metadata tool returns. But these cells are not like for
-like -- different catalogs, regions, and a smaller OneLake table -- so correctness
-is compared in Test 5.
+Every agent read its data: the tools record each call, and every one of the thirty
+captures shows a scan with a filter. These cells are not like for like --
+different catalogs, regions, and a smaller OneLake table -- so correctness is
+compared in Test 5.
 
 ## Test 5: The Same Data Question, Like for Like
 
-All four setups, the same 11-row Polaris table, ten runs each.
+All four setups, the same 11-row Polaris table, ten runs each -- twice. Once with the
+published scan, which filters in PyIceberg and returns an exact count, minimum and
+maximum; once with a scan that returns the rows only, so the model has to count them.
 
-| framework / model | largest id | rows with id of 10 or more | median answer seconds | tokens generated |
-|---|---|---|---|---|
-| ADK / `gemini-2.5-flash` | 10/10 | 10/10 | 8.33 | 1051 |
-| Strands / `gemini-2.5-flash` | 10/10 | 10/10 | 11.21 | 1119 |
-| Strands / `us.amazon.nova-micro-v1:0` | 10/10 | 10/10 | 3.73 | 540 |
-| Agent Framework / `gpt-5-mini` | 10/10 | 10/10 | 20.69 | 2527.5 |
+| framework / model | who counts | largest id | rows with id of 10 or more | median answer seconds | tokens generated |
+|---|---|---|---|---|---|
+| ADK / `gemini-2.5-flash` | the engine | 10/10 | 10/10 | 8.19 | 1004.5 |
+| ADK / `gemini-2.5-flash` | the model | 10/10 | 10/10 | 10.44 | 1346 |
+| Strands / `gemini-2.5-flash` | the engine | 10/10 | 10/10 | 10.84 | 1037.5 |
+| Strands / `gemini-2.5-flash` | the model | 10/10 | 10/10 | 12.00 | 1361.5 |
+| Strands / `us.amazon.nova-micro-v1:0` | the engine | 10/10 | 10/10 | 3.61 | 540 |
+| Strands / `us.amazon.nova-micro-v1:0` | the model | 10/10 | 0/10 | 3.45 | 513 |
+| Agent Framework / `gpt-5-mini` | the engine | 10/10 | 10/10 | 20.58 | 2776 |
+| Agent Framework / `gpt-5-mini` | the model | 10/10 | 10/10 | 19.00 | 2472 |
 
-**Counting belongs in the engine, not the model.** Every setup filtered with the
-scan and quoted the count it returned. The same question failed when the model had
-to count. As an agent on a scan that returned rows only, Nova Micro was right in 3
-of 10 runs. Called directly with the agent's instruction and the 11 scanned rows, it
-was right in 1 of 20; with the ids alone and no instruction, in 8 of 10 -- so the
-count depended on what else was in the prompt. With the filter but its default
-decoding, it skipped the filter call in two runs and was right in 8 of 10. Every
-measurement is in `nova-diagnosis.txt`.
+Every capture records the tool calls, so which scan each answer used is on record:
+all forty engine runs filtered, and no rows-only run could.
 
-**The framework cost shows again.** On the same model, Strands took 11.21 seconds at
-the median against ADK's 8.33, and 0.97 seconds per 100 generated tokens against
-ADK's 0.80 -- slower, as it was in Test 3.
+**The miscount is Nova Micro's, and the engine removes it.** Gemini under both
+frameworks and `gpt-5-mini` counted eleven ids correctly in every run. Nova Micro
+read every row and found the largest id every time, and counted wrong every time.
+With the count returned by the engine it was right in all ten. That result also
+depends on its decoding: at Bedrock's defaults, with the same scan, it skipped the
+filter call in two runs and was right in 7 of 10. The runs that separate the prompt,
+the scan output and the decoding are in `nova-diagnosis.txt`.
+
+**The framework cost shows again.** On the same model with the same scan, Strands took
+10.84 seconds at the median against ADK's 8.19, and 1.06 seconds per 100 generated
+tokens against ADK's 0.81 -- slower, as it was in Test 3.
 
 ## How Are the Three Agents Different?
 
@@ -291,7 +305,7 @@ works without it -- and `DefaultAzureCredential` for Agent Framework, the slowes
 first sign-in of the three.
 
 **Reading the answer** is where a data agent can quietly mislead the code around
-it. Three questions matter, and the frameworks answer them differently:
+it. Four questions matter, and the frameworks answer them differently:
 
 | framework / model | can you see which tools it called? | does reasoning land in the answer text? |
 |---|---|---|
@@ -300,7 +314,7 @@ it. Three questions matter, and the frameworks answer them differently:
 | Strands / `us.amazon.nova-micro-v1:0` | yes -- a `Tool #n` line is printed per call | yes, every time |
 | Agent Framework / `gpt-5-mini` | no, unless middleware or OpenTelemetry is switched on | no |
 
-That held in every captured run: all 90 ADK runs, all 60 Strands runs and all 30
+That held in every captured run: all 100 ADK runs, all 110 Strands runs and all 40
 Agent Framework runs.
 
 - **Can you prove what the agent read?** For an agent answering from company data,
@@ -320,10 +334,10 @@ Agent Framework runs.
   cover the whole turn; for Strands, collect the text of every assistant message
   added to `agent.messages`.
 - **Is the text intact?** Strands' `str(result)` puts a line break after every text
-  block, and its Gemini provider can split one answer into several blocks. In an
-  earlier run of Test 5 that turned three answers' "23" into "2", newline, "3" and
-  similar -- a correct answer that reads as wrong. Join the text blocks in
-  `result.message["content"]` directly instead.
+  block, and its Gemini provider can split one answer into several blocks. Read
+  through `str(result)`, three of ten Strands-on-Gemini answers to the Test 5
+  question had "23" as "2", newline, "3" or similar -- a correct answer that reads as
+  wrong. Join each message's text blocks with nothing between them.
 
 Strands also streams every answer to the terminal, so code that prints the result
 shows it twice; `callback_handler=None` turns that off.
@@ -440,7 +454,8 @@ out. Then capture ground truth, run the tests and publish:
 
 ```console
 $ python3 capture_ground_truth.py
-$ for t in A B C D E; do python3 run_matrix.py --axis $t --repeat 10; done
+$ for t in A B C D E F; do python3 run_matrix.py --axis $t --repeat 10; done
+$ python3 capture_runs.py && python3 failure_modes.py && python3 nova_diagnosis.py
 $ python3 publish_evidence.py && (cd .. && ./check-no-identifiers.sh)
 ```
 
@@ -464,15 +479,17 @@ unchanged, and five tests that each move one thing. The results were:
   model on both questions, and slower per generated token on both.
 - **The per-cloud work is storage wiring.** Once written, every agent read its
   cloud's data files.
-- **Let the engine count.** With the count computed by the scan, every setup
-  answered the data question correctly in every run, and every run of the simple
-  question named every column and cited the exact table version. Left to count the
-  scanned rows itself, Nova Micro was right in 3 of 10 agent runs.
+- **Correctness is the model's, and the engine can carry it.** Left to count eleven
+  ids, three setups were right in every run and Nova Micro in none; with the count
+  computed by the scan, all four were right in every run. Every run of the simple
+  question named every column and cited the exact table version.
 
 Scope:
 
 - One machine, 2026-09-15, every model at its defaults except Nova Micro, which ran
-  with Amazon's recommended tool-use decoding; 180 timed runs, ten per
+  with Amazon's recommended tool-use decoding -- the same speed on the simple question,
+  and the difference between 7 and 10 correct counts on the data question; 250 timed
+  runs, ten per
   cell, warm, in shuffled rounds. Enough to see separation, not to estimate rates.
 - Agent Framework ran only `gpt-5-mini`. The model comparison in Test 3 also changes
   provider and region.
@@ -492,10 +509,10 @@ results change where to spend effort:
   observability -- not for speed. Its cost is real but small, and it was never the
   biggest number on the page.
 - **Choosing a model?** It sets most of the latency, mostly through how much it
-  writes. Do not make it do arithmetic over rows: the smallest model here counted the
-  scanned rows correctly in 3 of 10 agent runs, and in every run once the tool
-  returned the count. Put aggregation in the engine, and read the model's documented settings --
-  Nova's tool-use decoding is one line.
+  writes. The larger models counted rows correctly by themselves; the smallest
+  counted them wrong in every run, and right in every run once the tool returned the
+  count. Put aggregation in the engine, and read the model's documented settings --
+  Nova's tool-use decoding moved it from 7 of 10 to 10 of 10.
 - **Planning a move between clouds?** Budget for the storage wiring under the tools,
   not for the agent code. Expect misleading errors the first time, and test file
   access directly, not only catalog calls.

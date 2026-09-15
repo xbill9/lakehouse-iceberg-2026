@@ -6,11 +6,11 @@
 ## 1. Nova Micro called directly (Bedrock Converse, no agent): how many ids are 10 or more
    8 of 10 right   ids inline, no system prompt
    4 of 10 right   ids inline, list them first
-   8 of 10 right   ids inline, yes or no per id
+   4 of 10 right   ids inline, yes or no per id
    7 of 10 right   scan text as the agent saw it, false SAMPLE note included
    6 of 10 right   scan text, SAMPLE note removed
    6 of 10 right   scan text, id column only
-   2 of 10 right   scan text with note, agent instruction as system prompt
+   1 of 10 right   scan text with note, agent instruction as system prompt
    2 of 10 right   scan text, agent instruction as system prompt
    2 of 10 right   agent instruction, whole
    5 of 10 right   agent instruction without 'four'
@@ -22,7 +22,7 @@
    4 of 20 right   instruction, table sorted by id
    4 of 20 right   instruction, table with ids 10 to 13 first
    1 of 20 right   instruction, full table
-   8 of 20 right   instruction, id column only
+   7 of 20 right   instruction, id column only
    5 of 20 right   instruction, ids as a comma list
    6 of 20 right   instruction, full table, temperature 0 topK 1
    6 of 20 right   instruction, id column, temperature 0 topK 1

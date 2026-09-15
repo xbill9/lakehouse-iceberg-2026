@@ -1,30 +1,56 @@
-# axis=D leg=azure catalog=microsoft-onelake run=7 elapsed_s=49.8 captured=2026-09-15T20:35:13Z
+# axis=D leg=azure catalog=microsoft-onelake run=7 elapsed_s=46.6 captured=2026-09-15T21:17:54Z
 
 cloud=azure model=gpt-5-mini catalog=microsoft-onelake
 question: What is the largest id in the probe table, and how many of its rows have an id of 10 or more? Cite the exact table version you read.
 
 
 <!-- cloud=azure model=gpt-5-mini catalog=microsoft-onelake instruction=v3 catalog_calls=4 -->
-Tables found:
+Tables in the catalog:
 - dbo.probe_table
 
-Table I used (description):
-- table: dbo.probe_table
-- format-version: 2
-- columns: id (int), ts (timestamptz), payload (string)
-- partitioning: unpartitioned
+Description of the table I read (dbo.probe_table):
+- columns: id int optional, ts timestamptz optional, payload string optional
+- partitioning: (unpartitioned)
 - metadata-location: abfss://guid-0005@onelake.dfs.fabric.microsoft.com/guid-0006/Tables/probe_table/metadata/v3.metadata.json
-- current-snapshot-id: 3346142071915475645
+- snapshot id: 3346142071915475645
 
-Results (from scans of the same snapshot above):
-- Largest id: 21.
-  - From scan of all rows: COUNT: exactly 6 rows; MIN(id)=0 and MAX(id)=21. Read from snapshot-id 3346142071915475645.
-- Number of rows with id >= 10: exactly 4 rows.
-  - From scan with where id >= 10: COUNT: exactly 4 rows; MIN(id)=10 and MAX(id)=21. Read from snapshot-id 3346142071915475645.
+Findings (from scans of that snapshot):
+- Largest id in the table: 21.
+  - From the full-table scan: "MIN and MAX of id over those 6 row(s): 0 and 21. Exact."
+  - Full-table scan count: "COUNT: exactly 6 row(s) are in the table in snapshot-id 3346142071915475645. Exact, over the whole table."
 
-Cited table version: metadata-location and snapshot-id shown above (metadata-location: abfss://bucket-0003/v3.metadata.json, snapshot-id: 3346142071915475645).
+- Number of rows with id >= 10: 4.
+  - From the filtered scan (id >= 10): "MIN and MAX of id over those 4 row(s): 10 and 21. Exact."
+  - Filtered scan count: "COUNT: exactly 4 row(s) match `id >= 10` in snapshot-id 3346142071915475645. Exact, over the whole table."
+
+All figures above come from dbo.probe_table at metadata-location
+abfss://guid-0005@onelake.dfs.fabric.microsoft.com/guid-0006/Tables/probe_table/metadata/v3.metadata.json (snapshot-id 3346142071915475645).
 
 catalog calls: 4 of 8
-agent seconds: 24.81 | tool seconds: 4.31
-tokens: input=5977 output=1784 reasoning=1216 model_calls=None
-warm-up seconds: 23.74
+agent seconds: 26.18 | tool seconds: 4.76
+tokens: input=5182 output=2083 reasoning=1408 model_calls=None
+warm-up seconds: 19.09
+[tool-trace] iceberg_scan_table(table='dbo.probe_table', columns='id', where='', limit=20)
+id
+0
+1
+20
+21
+10
+11
+
+6 of 6 row(s) shown, read from snapshot-id 3346142071915475645
+COUNT: exactly 6 row(s) are in the table in snapshot-id 3346142071915475645. Exact, over the whole table.
+MIN and MAX of id over those 6 row(s): 0 and 21. Exact.
+[/tool-trace]
+[tool-trace] iceberg_scan_table(table='dbo.probe_table', columns='id', where='id >= 10', limit=20)
+id
+20
+21
+10
+11
+
+4 of 4 row(s) shown, read from snapshot-id 3346142071915475645
+COUNT: exactly 4 row(s) match `id >= 10` in snapshot-id 3346142071915475645. Exact, over the whole table.
+MIN and MAX of id over those 4 row(s): 10 and 21. Exact.
+[/tool-trace]

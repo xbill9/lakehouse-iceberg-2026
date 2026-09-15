@@ -1,0 +1,29 @@
+# axis=D leg=azure catalog=microsoft-onelake run=9 elapsed_s=34.0 captured=2026-09-15T20:37:08Z
+
+cloud=azure model=gpt-5-mini catalog=microsoft-onelake
+question: What is the largest id in the probe table, and how many of its rows have an id of 10 or more? Cite the exact table version you read.
+
+
+<!-- cloud=azure model=gpt-5-mini catalog=microsoft-onelake instruction=v3 catalog_calls=4 -->
+Tables in the catalog:
+- dbo.probe_table
+
+Description of the table I used (dbo.probe_table):
+- Columns (from describe): id int, ts timestamptz, payload string
+- Partitioning: unpartitioned
+- metadata-location: abfss://guid-0005@onelake.dfs.fabric.microsoft.com/guid-0006/Tables/probe_table/metadata/v3.metadata.json
+- snapshot-id: 3346142071915475645
+
+Answers (figures quoted are from the table version above):
+- Largest id: 21. (This comes from a scan of dbo.probe_table on metadata-location abfss://guid-0005@onelake.dfs.fabric.microsoft.com/guid-0006/Tables/probe_table/metadata/v3.metadata.json, snapshot-id 3346142071915475645.)
+- Number of rows with id >= 10: 4. (Exact count on the same table version: metadata-location abfss://guid-0005@onelake.dfs.fabric.microsoft.com/guid-0006/Tables/probe_table/metadata/v3.metadata.json, snapshot-id 3346142071915475645.)
+
+Sources:
+- iceberg_list_tables returned: dbo.probe_table
+- iceberg_describe_table for dbo.probe_table (metadata-location and snapshot-id quoted above)
+- iceberg_scan_table (id column) showed MAX(id)=21 and COUNT=6 for the table snapshot 3346142071915475645, and showed COUNT=4 for the predicate id >= 10 on the same snapshot.
+
+catalog calls: 4 of 8
+agent seconds: 24.49 | tool seconds: 6.13
+tokens: input=7617 output=1477 reasoning=768 model_calls=None
+warm-up seconds: 8.31
