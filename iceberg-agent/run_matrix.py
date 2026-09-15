@@ -89,14 +89,20 @@ def ground_truth() -> dict:
 #: MEASURED on Axis D's first run: 'The largest id in the "probe_ns.probe_table" is
 #: 23.' put 36 characters between the word and the value, and v2 marked a correct
 #: answer wrong. Axes A to C score identically under v2 and v3.
-SCORER_VERSION = 3
+#: v4 (2026-09-15) scores the answer with any <thinking>...</thinking> blocks
+#: removed. Strands prints Nova Micro's reasoning inside the final answer, so a
+#: value that appeared only in the reasoning could pass a check. MEASURED on Axis
+#: D: one Strands answer stated in its visible text that it "cannot confirm this
+#: as the largest 'id' in the table", and passed the max-id check on its
+#: <thinking> block alone.
+SCORER_VERSION = 4
 ANSWER = re.compile(r"<!-- cloud=.*?-->\n(.*?)\ncatalog calls:", re.S)
 
 
 def answer_of(body: str) -> str:
     """The text after the stamped header -- not the question, the thinking or the tool log."""
     m = ANSWER.search(body)
-    return m.group(1) if m else ""
+    return re.sub(r"<thinking>.*?</thinking>", "", m.group(1), flags=re.S) if m else ""
 
 
 def word(name: str, text: str) -> bool:

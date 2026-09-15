@@ -229,6 +229,21 @@ def catalog():
     return _catalog
 
 
+def _trace(name: str, args: dict, result: str) -> str:
+    """Opt-in diagnostics: ICEBERG_TOOL_TRACE=1 prints each call's arguments and
+    what the model was handed, so a capture shows what an agent actually saw on
+    frameworks that do not log their tool calls. Off by default; the published
+    matrix runs did not use it."""
+    if os.getenv("ICEBERG_TOOL_TRACE"):
+        import sys as _sys
+        lines = result.splitlines()
+        shown = lines if len(lines) <= 30 else lines[:30] + ["... (%d more lines)" % (len(lines) - 30)]
+        print("[tool-trace] %s(%s)\n%s\n[/tool-trace]"
+              % (name, ", ".join("%s=%r" % kv for kv in args.items()), "\n".join(shown)),
+              file=_sys.stderr, flush=True)
+    return result
+
+
 def _fail(what: str, exc: Exception) -> str:
     """Report a failure to the model instead of raising it.
 
@@ -400,7 +415,8 @@ async def iceberg_scan_table(table: str, columns: str = "",
                 "If you were asked how many rows the table has, say you sampled "
                 "%d and could not count the whole table."
                 % (capped, capped))
-        return "\n".join(out)
+        return _trace("iceberg_scan_table",
+                      {"table": table, "columns": columns, "limit": limit}, "\n".join(out))
     except Exception as exc:  # noqa: BLE001
         return _fail("scanning %s" % table, exc)
     finally:

@@ -33,7 +33,7 @@ AXIS D -- each leg on its own cloud's catalog, a question only a data scan answe
   question: What is the largest id in the probe table, and how many of its rows have an id of 10 or more? Cite the exact table version you read.
   framework / model on catalog                               runs  max id   count>=10 snapshot answer s (min/med/max)  tool-med calls
   ADK / gemini-2.5-flash on google-lakehouse                 3     3/3      3/3       3/3      12.84 / 14.82 / 15.76    3.81    [3, 4]
-  Strands / us.amazon.nova-micro-v1:0 on aws-glue            3     3/3      0/3       3/3       5.56 /  5.97 /  6.53    2.21    [3, 4]
+  Strands / us.amazon.nova-micro-v1:0 on aws-glue            3     2/3      0/3       3/3       5.56 /  5.97 /  6.53    2.21    [3, 4]
   Agent Framework / gpt-5-mini on microsoft-onelake          3     3/3      3/3       3/3      24.08 / 26.05 / 65.90    6.10    [3, 4]
   expected: aws-glue max_id=23 count>=10=8; google-lakehouse max_id=23 count>=10=8; microsoft-onelake max_id=21 count>=10=4
 
@@ -52,6 +52,7 @@ total runs, axes A and B: 24
   invented_column      0/24
   axis C runs: 9 (reported separately; it measures a different question)
 
-# scored with scorer v3 (answer text only, count beside 'rows', whole-word
+# scored with scorer v4 (answer text only, count beside 'rows', whole-word
 # columns). Runs recorded under an older scorer and re-scored:
+#   D__aws__aws-glue__2.txt: correct_max_id stored True, re-scored False (paper3-raw)
 #   D__aws__aws-glue__3.txt: correct_max_id stored False, re-scored True (axis-d-run1-instruction-v2)
