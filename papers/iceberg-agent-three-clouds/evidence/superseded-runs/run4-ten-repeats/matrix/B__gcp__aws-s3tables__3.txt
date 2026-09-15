@@ -1,0 +1,23 @@
+# axis=B leg=gcp catalog=aws-s3tables run=3 elapsed_s=9.5 captured=2026-09-15T13:48:11Z
+
+cloud=gcp model=gemini-2.5-flash catalog=aws-s3tables
+question: How many rows are in the probe table, and what columns does it have? Cite the exact table version you read.
+
+   -> tool: iceberg_list_tables()
+   -> tool: iceberg_describe_table(table='probe_ns.probe_table')
+   -> tool: iceberg_count_rows(table='probe_ns.probe_table')
+
+<!-- cloud=gcp model=gemini-2.5-flash catalog=aws-s3tables instruction=v3 catalog_calls=3 -->
+The `probe_ns.probe_table` table has 11 rows. This count is exact for snapshot ID 2606005059456881273.
+
+The table has the following columns:
+*   `id`: long
+*   `ts`: timestamptz
+*   `payload`: string
+*   `region`: string
+
+The exact table version read for this information is identified by metadata-location `s3://managed-bucket-0001/metadata/00006-guid-0004.metadata.json` and snapshot-id `2606005059456881273`.
+
+catalog calls: 3 of 8
+agent seconds: 5.44 | tool seconds: 0.43
+warm-up seconds: 2.86

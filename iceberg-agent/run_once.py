@@ -44,11 +44,18 @@ async def run_gcp(agent, question: str) -> str:
     session = await runner.session_service.create_session(
         app_name="iceberg-agent", user_id="probe")
     out = []
+    usage = {"input": 0, "output": 0, "reasoning": 0, "model_calls": 0}
     async for event in runner.run_async(
         user_id="probe",
         session_id=session.id,
         new_message=types.Content(role="user", parts=[types.Part(text=question)]),
     ):
+        meta = getattr(event, "usage_metadata", None)
+        if meta and not getattr(event, "partial", False):
+            usage["input"] += meta.prompt_token_count or 0
+            usage["output"] += meta.candidates_token_count or 0
+            usage["reasoning"] += meta.thoughts_token_count or 0
+            usage["model_calls"] += 1
         if event.content and event.content.parts:
             for part in event.content.parts:
                 if getattr(part, "function_call", None):
@@ -58,19 +65,33 @@ async def run_gcp(agent, question: str) -> str:
                                   (part.function_call.args or {}).items())), flush=True)
                 elif getattr(part, "text", None):
                     out.append(part.text)
-    return "\n".join(out).strip()
+    return "\n".join(out).strip(), usage
 
 
 async def run_aws(agent, question: str) -> str:
     """Strands calls the agent directly."""
     result = agent(question)
-    return str(result)
+    used = result.metrics.accumulated_usage
+    # Not str(result): AgentResult.__str__ appends "\n" after every text block, and
+    # Strands' Gemini provider can return one answer as several blocks, so a number
+    # split across two blocks comes back as "2\n3". MEASURED 2026-09-15: 3 of 10
+    # Strands-on-Gemini answers in Axis E had a line break inside a word or number
+    # that the model had streamed whole, and none in any other framework or model.
+    blocks = [b.get("text", "") for b in (result.message or {}).get("content", [])
+              if isinstance(b, dict) and "text" in b]
+    text = "".join(blocks) if blocks else str(result)
+    return text, {"input": used.get("inputTokens"), "output": used.get("outputTokens"),
+                         "reasoning": None, "model_calls": result.metrics.cycle_count}
 
 
 async def run_azure(agent, question: str) -> str:
     """Agent Framework awaits the agent."""
     reply = await agent.run(question)
-    return str(reply)
+    used = reply.usage_details or {}
+    return str(reply), {"input": used.get("input_token_count"),
+                        "output": used.get("output_token_count"),
+                        "reasoning": used.get("reasoning_output_token_count"),
+                        "model_calls": None}
 
 
 RUNNERS = {"gcp": run_gcp, "aws": run_aws, "azure": run_azure}
@@ -117,10 +138,13 @@ def main() -> None:
         warm_seconds = time.monotonic() - warm_started
         if isinstance(getattr(agent, "messages", None), list):
             agent.messages.clear()      # Strands keeps the conversation on the agent
+        if hasattr(agent, "event_loop_metrics"):
+            from strands.telemetry.metrics import EventLoopMetrics
+            agent.event_loop_metrics = EventLoopMetrics()   # and its token counters
         iceberg_tool.reset_budget()
 
     started = time.monotonic()
-    answer = asyncio.run(RUNNERS[args.cloud](agent, args.question))
+    answer, usage = asyncio.run(RUNNERS[args.cloud](agent, args.question))
     agent_seconds = time.monotonic() - started
 
     print("\n" + common.header(args.cloud, model, catalog, iceberg_tool.catalog_count()))
@@ -132,6 +156,10 @@ def main() -> None:
     # the model and the framework.
     print("agent seconds: %.2f | tool seconds: %.2f"
           % (agent_seconds, iceberg_tool.catalog_seconds()))
+    # Output length drives answer time, so every answer records it. A framework
+    # that does not report a figure prints None rather than a guess.
+    print("tokens: input=%s output=%s reasoning=%s model_calls=%s"
+          % (usage["input"], usage["output"], usage["reasoning"], usage["model_calls"]))
     if warm_seconds is not None:
         print("warm-up seconds: %.2f" % warm_seconds)
 

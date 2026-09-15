@@ -1,66 +1,58 @@
 Background for a LinkedIn post about "Four Iceberg Tools, Three Agent Frameworks".
 Plain text on purpose: LinkedIn renders no markdown. Figures are from
-evidence/matrix-summary.txt and evidence/derived-figures.txt, measured 2026-09-15.
+evidence/matrix-summary.txt and evidence/derived-figures.txt, measured 2026-09-15,
+ten runs per cell, 180 timed runs.
 
 
 THE SETUP
 
-Companies keep big tables of data - spreadsheets with millions of rows - in a
-standard format called Apache Iceberg. The point of a standard format is that any
-tool can read it, whichever cloud it lives on.
+Companies keep big tables of data in a standard format called Apache Iceberg, so
+that any tool on any cloud can read the same data.
 
-Each big cloud (Google, Amazon, Microsoft) now also sells its own toolkit for
-building AI agents: chatbots that can go and look things up for you.
+Each big cloud (Google, Amazon, Microsoft) also sells its own toolkit for building
+AI agents: helpers that go and look things up for you.
 
 
 THE QUESTION
 
-If I build an AI helper that answers questions about my data, and I build it with
-Google's toolkit, can I move it to Amazon or Microsoft without starting over?
+If I build an AI helper that answers questions about my data with Google's toolkit,
+can I move it to Amazon or Microsoft without starting over?
 
 
 WHAT I BUILT
 
-One small AI helper whose only job is to answer questions about a data table. It
-has four tools - basically four buttons it can press: list the tables, describe
-one, count its rows, and read its rows.
+One small AI helper with four tools: list the tables, describe one, count its rows,
+read its rows. Then I built it three times -- Google ADK, AWS Strands, Microsoft
+Agent Framework -- with the same tools and instructions. Only the toolkit and the AI
+model underneath change.
 
-Then I built that same helper three times, once with each company's toolkit:
-Google ADK, AWS Strands and Microsoft Agent Framework. The buttons and the
-instructions are identical. Only the toolkit and the AI model underneath change.
-
-
-WHAT I MEASURED
-
-I asked all three the same questions, three times each, and checked:
-- Did it get the right answer? I look up the real answer myself, straight from the
-  data, with no AI involved.
-- Did it say where the answer came from? Every answer has to name the exact version
-  of the table it read, so anyone can check it.
-- How long did it take?
+Every answer is checked against the real data, with no AI involved, and every
+answer has to name the exact version of the table it read.
 
 
 WHAT I FOUND
 
-- The code barely changes between toolkits: a few lines of setup differ.
-- Answers took about 4x longer on the slowest helper than the fastest. When I swapped
-  models inside the same toolkit, the AI model (and the endpoint serving it) decided
-  the speed, not the toolkit.
-- They behave differently while working: one shows each button it presses, one
-  prints every answer twice, one only shows the final answer.
-- The hard part is not the AI. It is the plumbing underneath: each cloud needs
-  different settings and credentials just to open the data files. That is the part
-  that does not move between clouds.
-- Once that plumbing is written, it works. Asked a question that forces them to open
-  the data files on their own cloud, all three helpers read their data. Google's and
-  Microsoft's answered correctly every time; Amazon's found the largest value every
-  time but miscounted rows every time.
+- The code that builds the helper barely changes. Running it does: calling it,
+  signing in and reading its answer are different jobs in each toolkit.
+- Speed follows the AI model, and mostly how much it writes. The slowest helper
+  took about 4x as long as the fastest, but it also wrote about 3x as much text.
+- The toolkit can matter too, but not consistently: on one question Strands was
+  about 40% slower than Google's toolkit running the same model; on another they
+  were level.
+- The real per-cloud work is the plumbing that opens the data files. Each cloud
+  needs different settings, and when they are wrong the error message points
+  somewhere else.
+- Once that plumbing is set up, every helper read its cloud's data. On the same
+  table, every setup counted correctly except one: the smallest model, Amazon's Nova
+  Micro, got the count right once in ten tries. The same Strands helper running
+  Google's Gemini got it right every time -- so that is the model, not the toolkit.
 
 
 WHY SO CAREFUL
 
-Articles that compare cloud companies get picked apart. So every number in the
-article is produced by a script from saved results, every answer is checked against
-the data itself, and anyone can re-run the whole thing from the repo.
+Articles that compare cloud companies get picked apart. So every number is produced
+by a script from saved results, each test changes one thing at a time, every answer
+is checked against the data itself, and anyone can re-run the whole thing from the
+repo.
 
 https://github.com/xbill9/lakehouse-iceberg-2026

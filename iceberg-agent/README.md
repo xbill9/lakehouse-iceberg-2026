@@ -115,16 +115,20 @@ into `derived-figures.txt`:
 ```console
 $ cd ../iceberg-conformance/evidence/paper3-raw && mkdir runN-<label> && cp -a matrix matrix-axis-*.json *.txt runN-<label>/ && cd -
 $ python3 capture_ground_truth.py          # read each catalog directly; also environment.txt
-$ python3 run_matrix.py --axis A --repeat 3
-$ python3 run_matrix.py --axis B --repeat 3
-$ python3 run_matrix.py --axis C --repeat 3  # model fixed, framework varies: Strands on Gemini is the crossover
+$ python3 run_matrix.py --axis A --repeat 10
+$ python3 run_matrix.py --axis B --repeat 10
+$ python3 run_matrix.py --axis C --repeat 10  # model fixed, framework varies: Strands on Gemini is the crossover
+$ python3 run_matrix.py --axis D --repeat 10  # each leg on its own cloud's catalog, a question only a scan answers
+$ python3 run_matrix.py --axis E --repeat 10  # the Axis D question for all four cells on the local control
 $ python3 capture_runs.py                  # each leg against its own cloud's catalog
 $ python3 failure_modes.py
 $ python3 publish_evidence.py              # re-score, summarise, anonymise, publish
 ```
 
-Run the two axes alone. Their latencies are published, and anything else
-running on the machine or against the same model endpoints is in them.
+Run each axis alone. Their latencies are published, and anything else running on
+the machine or against the same model endpoints is in them. `run_matrix.py` warms
+every run before timing it (`--no-warm` to include sign-in), shuffles cell order
+per round from a fixed seed, and records each answer's tokens and model calls.
 
 `publish_evidence.py` re-scores every capture from its body rather than trusting
 the runner, and refuses to publish if the two disagree. It exists because the

@@ -1,30 +1,32 @@
-# axis=D leg=azure catalog=microsoft-onelake run=6 elapsed_s=42.1 captured=2026-09-15T14:05:18Z
+# axis=D leg=azure catalog=microsoft-onelake run=6 elapsed_s=33.3 captured=2026-09-15T16:57:08Z
 
 cloud=azure model=gpt-5-mini catalog=microsoft-onelake
 question: What is the largest id in the probe table, and how many of its rows have an id of 10 or more? Cite the exact table version you read.
 
 
 <!-- cloud=azure model=gpt-5-mini catalog=microsoft-onelake instruction=v3 catalog_calls=4 -->
-Tables in the catalog
+Tables found:
 - dbo.probe_table
 
-Table I used (description)
-- table: dbo.probe_table
-- columns: id (int), ts (timestamptz), payload (string)
-- partitioned by: (unpartitioned)
+Description of the table I used (output of iceberg_describe_table):
+- columns: id int, ts timestamptz, payload string
+- partitioning: unpartitioned
 - metadata-location: abfss://guid-0005@onelake.dfs.fabric.microsoft.com/guid-0006/Tables/probe_table/metadata/v3.metadata.json
 - current-snapshot-id: 3346142071915475645
 
-What I read
-- iceberg_count_rows returned: 6 rows (exact for snapshot-id 3346142071915475645).
-- iceberg_scan_table (column id) returned these 6 id values (all rows of the snapshot): 0, 1, 20, 21, 10, 11. The scan reported it read all 6 rows from snapshot-id 3346142071915475645.
+What I read and the results:
+- I counted the table using iceberg_count_rows: 6 rows (snapshot-id 3346142071915475645).
+- I scanned the id column and read all 6 rows from snapshot 3346142071915475645 (the scan reported COMPLETE for that snapshot).
 
-Answers (exact for the table version cited above)
-- Largest id: 21
-- Number of rows with id >= 10: 4
+From that snapshot (metadata-location quoted above, snapshot-id 3346142071915475645):
+- Largest id = 21.
+- Number of rows with id >= 10 = 4.
 
-All figures above are exact for metadata-location abfss://guid-0005@onelake.dfs.fabric.microsoft.com/guid-0006/Tables/probe_table/metadata/v3.metadata.json and snapshot-id 3346142071915475645.
+All figures above are exact for the snapshot identified by:
+metadata-location = abfss://guid-0005@onelake.dfs.fabric.microsoft.com/guid-0006/Tables/probe_table/metadata/v3.metadata.json
+snapshot-id = 3346142071915475645.
 
 catalog calls: 4 of 8
-agent seconds: 28.37 | tool seconds: 5.00
-warm-up seconds: 12.44
+agent seconds: 22.73 | tool seconds: 4.44
+tokens: input=7347 output=1675 reasoning=1088 model_calls=None
+warm-up seconds: 9.30

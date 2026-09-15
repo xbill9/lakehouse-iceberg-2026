@@ -1,4 +1,4 @@
-# axis=C leg=aws catalog=apache-polaris run=5 elapsed_s=8.9 captured=2026-09-15T13:56:57Z
+# axis=C leg=aws catalog=apache-polaris run=5 elapsed_s=13.1 captured=2026-09-15T17:19:36Z
 
 cloud=aws model=gemini-2.5-flash catalog=apache-polaris
 question: How many rows are in the probe table, and what columns does it have? Cite the exact table version you read.
@@ -9,26 +9,25 @@ Tool #1: iceberg_list_tables
 Tool #2: iceberg_describe_table
 
 Tool #3: iceberg_count_rows
-The `probe_ns.probe_table` contains 11 rows, from the snapshot summary (total-records) of snapshot-id aws-account-00029537848. This is exact for that snapshot. The table has the following columns:
+The `probe_ns.probe_table` table has 11 rows, which is exact for snapshot ID `aws-account-00029537848`. The table columns are:
 
-*   `id`: long, required
-*   `ts`: timestamptz, optional
-*   `payload`: string, optional
-*   `region`: string, optional
+*   `id`: long
+*   `ts`: timestamptz
+*   `payload`: string
+*   `region`: string
 
-This information is from metadata-location: file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json and current-snapshot-id: aws-account-00029537848.
+The table version read for this information is identified by metadata location `file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json` and snapshot ID `aws-account-00029537848`.
 <!-- cloud=aws model=gemini-2.5-flash catalog=apache-polaris instruction=v3 catalog_calls=3 -->
-The `probe_ns.probe_table` contains 11 rows, from the snapshot summary (total-records) of snapshot-
-id aws-account-00029537848. This is exact for that snapshot. The table has the following columns:
+The `probe_ns.probe_table` table has 11 rows, which is exact for snapshot ID `aws-account-00029537848`. The table columns are:
 
-*   `id`: long, required
-*   `ts`: timestamptz, optional
-*   `payload`: string, optional
-*   `region`: string, optional
+*   `id`: long
+*   `ts`: timestamptz
+*   `payload`: string
+*   `region`: string
 
-This information is from metadata-location: file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json and current-snapshot-id: aws-account-00029537848.
-
+The table version read for this information is identified by metadata location `file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json` and snapshot ID `aws-account-00029537848`.
 
 catalog calls: 3 of 8
-agent seconds: 6.85 | tool seconds: 0.13
-warm-up seconds: 1.27
+agent seconds: 10.95 | tool seconds: 0.11
+tokens: input=3100 output=611 reasoning=None model_calls=4
+warm-up seconds: 1.26

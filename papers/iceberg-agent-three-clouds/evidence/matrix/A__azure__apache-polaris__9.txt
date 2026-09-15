@@ -1,4 +1,4 @@
-# axis=A leg=azure catalog=apache-polaris run=9 elapsed_s=31.4 captured=2026-09-15T13:44:22Z
+# axis=A leg=azure catalog=apache-polaris run=9 elapsed_s=23.1 captured=2026-09-15T16:36:53Z
 
 cloud=azure model=gpt-5-mini catalog=apache-polaris
 question: How many rows are in the probe table, and what columns does it have? Cite the exact table version you read.
@@ -8,20 +8,24 @@ question: How many rows are in the probe table, and what columns does it have? C
 Tables in the catalog
 - probe_ns.probe_table
 
-Description of the table I used (probe_ns.probe_table)
+Table I used (description)
+- Name: probe_ns.probe_table
+- Format version: 2
 - Columns:
-  - id               long           required
-  - ts               timestamptz    optional
-  - payload          string         optional
-  - region           string         optional
+  - id — long — required
+  - ts — timestamptz — optional
+  - payload — string — optional
+  - region — string — optional
 - Partitioning: ts_day
-- metadata-location: "file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json"
+- snapshots: 4
 - current-snapshot-id: aws-account-00029537848
+- metadata-location: file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json
 
-Row count
-- Exact row count: 11 rows.
-- This count is exact for snapshot-id aws-account-00029537848 (metadata-location quoted above).
+Exact row count
+- probe_ns.probe_table contains 11 rows (exact for snapshot-id aws-account-00029537848).
+- Citation for figures above: metadata-location file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json, snapshot-id aws-account-00029537848.
 
 catalog calls: 3 of 8
-agent seconds: 13.72 | tool seconds: 0.02
-warm-up seconds: 16.43
+agent seconds: 12.49 | tool seconds: 0.12
+tokens: input=4325 output=943 reasoning=448 model_calls=None
+warm-up seconds: 9.28

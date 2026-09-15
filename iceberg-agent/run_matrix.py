@@ -60,6 +60,21 @@ SCAN_QUESTION = ("What is the largest id in the probe table, and how many of its
                  "rows have an id of 10 or more? Cite the exact table version you read.")
 AXIS_D_CELLS = [("gcp", "google-lakehouse"), ("aws", "aws-glue"),
                 ("azure", "microsoft-onelake")]
+#: Axis E: Axis D's data question for every framework and model, on the same
+#: local table. Axis D's legs read different catalogs, and OneLake's table is
+#: smaller (4 of 6 ids to count, against 8 of 11), so its correctness column is
+#: not like-for-like. Axis E is -- and with Strands on Gemini beside Strands on
+#: Nova Micro, a miscount can be put on the framework or on the model.
+AXIS_E_CELLS = [("gcp", None), ("aws", "gemini-2.5-flash"), ("aws", None), ("azure", None)]
+TOKENS = re.compile(r"tokens: input=(\S+) output=(\S+) reasoning=(\S+) model_calls=(\S+)")
+
+
+def token_fields(body: str) -> dict:
+    """Tokens and model calls from a capture's tokens line; None where absent."""
+    m = TOKENS.search(body)
+    as_int = lambda v: None if v in ("None", "n/a") else int(v)  # noqa: E731
+    keys = ("input_tokens", "output_tokens", "reasoning_tokens", "model_calls")
+    return dict(zip(keys, (as_int(v) for v in m.groups()))) if m else dict.fromkeys(keys)
 CATALOGS = ["apache-polaris", "google-lakehouse", "aws-glue",
             "aws-s3tables", "microsoft-onelake"]
 LEGS = ["gcp", "aws", "azure"]
@@ -202,12 +217,12 @@ def one_run(axis: str, leg: str, catalog: str, index: int, model: str = None,
             **({"model": model} if model else {}),
             "elapsed_s": elapsed, "capture": os.path.basename(path), "body": body,
             "agent_s": float(timing.group(1)) if timing else None,
-            "tool_s": float(timing.group(2)) if timing else None}
+            "tool_s": float(timing.group(2)) if timing else None, **token_fields(body)}
 
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--axis", choices=["A", "B", "C", "D"], required=True)
+    ap.add_argument("--axis", choices=["A", "B", "C", "D", "E"], required=True)
     ap.add_argument("--repeat", type=int, default=3)
     ap.add_argument("--leg", default=AXIS_B_LEG)
     ap.add_argument("--no-warm", action="store_true", help="time sign-in inside the answer")
@@ -222,9 +237,11 @@ def main() -> None:
         cells = [(args.leg, cat, None) for cat in CATALOGS]
     elif args.axis == "C":
         cells = [(leg, AXIS_A_CATALOG, model) for leg, model in AXIS_C_CELLS]
-    else:
+    elif args.axis == "D":
         cells = [(leg, cat, None) for leg, cat in AXIS_D_CELLS]
-    question, scorer = (SCAN_QUESTION, score_scan) if args.axis == "D" else (QUESTION, score)
+    else:
+        cells = [(leg, AXIS_A_CATALOG, model) for leg, model in AXIS_E_CELLS]
+    question, scorer = (SCAN_QUESTION, score_scan) if args.axis in "DE" else (QUESTION, score)
 
     # Rounds, not blocks: one run of every cell per round, in a shuffled order, so
     # drift in endpoint load across a long sitting spreads over every cell instead

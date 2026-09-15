@@ -1,21 +1,18 @@
-# axis=D leg=gcp catalog=google-lakehouse run=6 elapsed_s=18.3 captured=2026-09-15T14:05:49Z
+# axis=D leg=gcp catalog=google-lakehouse run=6 elapsed_s=17.6 captured=2026-09-15T16:57:34Z
 
 cloud=gcp model=gemini-2.5-flash catalog=google-lakehouse
 question: What is the largest id in the probe table, and how many of its rows have an id of 10 or more? Cite the exact table version you read.
 
    -> tool: iceberg_list_tables()
    -> tool: iceberg_describe_table(table='probe_ns.probe_table')
-   -> tool: iceberg_count_rows(table='probe_ns.probe_table')
-   -> tool: iceberg_scan_table(columns='id', limit=11, table='probe_ns.probe_table')
+   -> tool: iceberg_scan_table(table='probe_ns.probe_table', columns='id', limit=10000)
 
-<!-- cloud=gcp model=gemini-2.5-flash catalog=google-lakehouse instruction=v3 catalog_calls=4 -->
-The table `probe_ns.probe_table` has an `id` column.
-The largest `id` in the `probe_ns.probe_table` is 23, and 8 of its rows have an `id` of 10 or more.
+<!-- cloud=gcp model=gemini-2.5-flash catalog=google-lakehouse instruction=v3 catalog_calls=3 -->
+The largest `id` in the `probe_ns.probe_table` is 23. There are 8 rows in the table with an `id` of 10 or more.
 
-These figures are exact for the table version identified by:
-- `metadata-location`: `gs://bucket-0001/probe_ns/probe_table/jy3n8ueer5x567uy/metadata/00006-guid-0002.metadata.json`
-- `snapshot-id`: `6042367411917366632`
+This information is derived from snapshot-id 6042367411917366632, from the table located at gs://bucket-0001/probe_ns/probe_table/jy3n8ueer5x567uy/metadata/00006-guid-0002.metadata.json.
 
-catalog calls: 4 of 8
-agent seconds: 13.77 | tool seconds: 3.73
-warm-up seconds: 3.20
+catalog calls: 3 of 8
+agent seconds: 13.11 | tool seconds: 3.50
+tokens: input=4751 output=199 reasoning=1237 model_calls=4
+warm-up seconds: 3.28

@@ -1,0 +1,24 @@
+# axis=C leg=gcp catalog=apache-polaris run=8 elapsed_s=9.2 captured=2026-09-15T16:50:04Z
+
+cloud=gcp model=gemini-2.5-flash catalog=apache-polaris
+question: How many rows are in the probe table, and what columns does it have? Cite the exact table version you read.
+
+   -> tool: iceberg_list_tables()
+   -> tool: iceberg_describe_table(table='probe_ns.probe_table')
+   -> tool: iceberg_count_rows(table='probe_ns.probe_table')
+
+<!-- cloud=gcp model=gemini-2.5-flash catalog=apache-polaris instruction=v3 catalog_calls=3 -->
+The `probe_ns.probe_table` contains 11 rows, from the snapshot summary (total-records) of snapshot-id aws-account-00029537848, which is exact for that snapshot.
+
+The table has the following columns:
+*   `id` (type: long)
+*   `ts` (type: timestamptz)
+*   `payload` (type: string)
+*   `region` (type: string)
+
+The exact table version read for this information is identified by metadata-location: file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json and current-snapshot-id: aws-account-00029537848.
+
+catalog calls: 3 of 8
+agent seconds: 5.31 | tool seconds: 0.11
+tokens: input=4391 output=268 reasoning=480 model_calls=4
+warm-up seconds: 2.66

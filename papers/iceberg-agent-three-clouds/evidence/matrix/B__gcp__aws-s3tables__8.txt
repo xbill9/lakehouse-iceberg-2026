@@ -1,4 +1,4 @@
-# axis=B leg=gcp catalog=aws-s3tables run=8 elapsed_s=10.8 captured=2026-09-15T13:52:26Z
+# axis=B leg=gcp catalog=aws-s3tables run=8 elapsed_s=10.5 captured=2026-09-15T16:44:47Z
 
 cloud=gcp model=gemini-2.5-flash catalog=aws-s3tables
 question: How many rows are in the probe table, and what columns does it have? Cite the exact table version you read.
@@ -8,16 +8,17 @@ question: How many rows are in the probe table, and what columns does it have? C
    -> tool: iceberg_count_rows(table='probe_ns.probe_table')
 
 <!-- cloud=gcp model=gemini-2.5-flash catalog=aws-s3tables instruction=v3 catalog_calls=3 -->
-The table `probe_ns.probe_table` has 11 rows, from snapshot-id 2606005059456881273.
+The `probe_ns.probe_table` has 11 rows, from the snapshot summary (total-records) of snapshot-id `2606005059456881273` (metadata-location: `s3://managed-bucket-0001/metadata/00006-guid-0004.metadata.json`).
 
-It has the following columns:
-*   `id` (long, required)
-*   `ts` (timestamptz, optional)
-*   `payload` (string, optional)
-*   `region` (string, optional)
+The columns in `probe_ns.probe_table` are:
+*   `id`: long, required
+*   `ts`: timestamptz, optional
+*   `payload`: string, optional
+*   `region`: string, optional
 
-This information was read from metadata-location `s3://managed-bucket-0001/metadata/00006-guid-0004.metadata.json` at snapshot-id `2606005059456881273`.
+This column information is from snapshot-id `2606005059456881273` (metadata-location: `s3://managed-bucket-0001/metadata/00006-guid-0004.metadata.json`).
 
 catalog calls: 3 of 8
-agent seconds: 6.83 | tool seconds: 0.58
-warm-up seconds: 2.72
+agent seconds: 6.60 | tool seconds: 0.49
+tokens: input=4648 output=381 reasoning=607 model_calls=4
+warm-up seconds: 2.62

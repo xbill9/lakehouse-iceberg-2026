@@ -37,7 +37,8 @@ sys.path.insert(0, os.path.join(ROOT, "iceberg-conformance"))
 
 import anonymize_evidence as anon  # noqa: E402
 from run_matrix import (AXIS_A_CATALOG, AXIS_B_LEG, FRAMEWORK, LEGS, RAW,  # noqa: E402
-                        SCAN_QUESTION, SCORER_VERSION, ground_truth, score, score_scan)
+                        SCAN_QUESTION, SCORER_VERSION, ground_truth, score, score_scan,
+                        token_fields)
 
 #: Fields whose score moved because a run was recorded under an older scorer.
 #: Disclosed in matrix-summary.txt rather than refused: the capture is the
@@ -65,10 +66,25 @@ SUPERSEDED = [
         "# kept. It timed sign-in inside each answer and ran cells in blocks; the",
         "# published run warms each process first and runs cells in shuffled rounds,",
         "# ten repeats per cell."]),
+    ("run4-ten-repeats", True, [
+        "# a complete run at ten repeats per cell, captured 2026-09-15, SUPERSEDED and",
+        "# kept. It did not record tokens or model calls, and had no Axis E; the",
+        "# published run records both and runs Axis E alongside."]),
 ]
 #: Archived single-axis runs, published under superseded-runs/<name>/ with their
 #: re-scored rows. Kept for the same reason as the complete runs above.
 SUPERSEDED_D = [
+    ("run5-strands-str-join", [
+        "# Axes C and E, captured 2026-09-15, SUPERSEDED and kept. The harness read",
+        "# Strands answers with str(AgentResult), which puts a line break after every",
+        "# text block; Strands' Gemini provider returns some answers as several blocks,",
+        "# so a line break could land inside a word or number -- one of them inside the",
+        "# largest id. The count below is generated from the captures. The harness now",
+        "# joins the text blocks directly and both axes were re-run. Re-scored below,",
+        "# not changed."]),
+    ("run4-ten-repeats", [
+        "# Axis D at ten repeats per cell, captured 2026-09-15, SUPERSEDED and kept",
+        "# beside the ten-repeat run of Axes A to C."]),
     ("run3-three-repeats", [
         "# Axis D at three repeats per cell, captured 2026-09-15, SUPERSEDED and kept",
         "# beside the three-repeat run of Axes A and B."]),
@@ -105,7 +121,7 @@ def rescore(base: str, axis: str, truth: dict, timed: bool) -> tuple:
         with open(os.path.join(base, "matrix", stored["capture"])) as handle:
             body = handle.read()
         bodies[stored["capture"]] = body
-        fresh = (score_scan if axis == "D" else score)(body, truth[stored["catalog"]])
+        fresh = (score_scan if axis in "DE" else score)(body, truth[stored["catalog"]])
         answered = fresh["catalog_calls"] is not None
         older = stored.get("scorer", 1) != SCORER_VERSION
         for key, value in fresh.items():
@@ -130,9 +146,9 @@ def rescore(base: str, axis: str, truth: dict, timed: bool) -> tuple:
             problems.append("%s: runner asked for %s, answer header says %s"
                             % (stored["capture"], stored["model"], model))
         rows.append(dict(stored, **fresh, agent_s=agent_s, tool_s=tool_s, model=model,
-                         answered=answered,
+                         answered=answered, **token_fields(body),
                          cell="%s / %s%s" % (FRAMEWORK[stored["leg"]], model,
-                                              " on %s" % stored["catalog"] if axis == "D" else "")))
+                                              " on %s" % stored["catalog"] if axis in "DE" else "")))
     return data, rows, problems, bodies
 
 
@@ -192,7 +208,7 @@ def cell_line(name: str, runs: list, width: int = 20) -> str:
 
 
 def summary(a_rows: list, b_rows: list, repeat: int, c_rows: list = (), d_rows: list = (),
-            truth: dict = None) -> str:
+            truth: dict = None, e_rows: list = ()) -> str:
     head = ("  cell                 runs  failed correct  snapshot metadata columns  "
             "answer s (min/med/max)  iqr (p25-p75)  process-med tool-med")
     tail = lambda rs: ("  catalog_calls across all runs: %s | invented columns: %d"  # noqa: E731
@@ -238,6 +254,23 @@ def summary(a_rows: list, b_rows: list, repeat: int, c_rows: list = (), d_rows: 
             lines.append("  expected: " + "; ".join(
                 "%s max_id=%s count>=10=%s" % (c, truth[c]["max_id"], truth[c]["ids_at_least_10"])
                 for c in sorted({r["catalog"] for r in d_rows})))
+    if e_rows:
+        lines += ["", "AXIS E -- every framework and model on %s, the same data question" % AXIS_A_CATALOG,
+                  "  question: %s" % SCAN_QUESTION,
+                  "  %-58s %-5s %-8s %-9s %-8s %-23s %-8s %s"
+                  % ("framework / model on catalog", "runs", "max id", "count>=10", "snapshot",
+                     "answer s (min/med/max)", "tool-med", "calls")]
+        for key, runs in cells(e_rows, "cell").items():
+            n = len(runs)
+            frac = lambda f: "%d/%d" % (sum(bool(r[f]) for r in runs), n)  # noqa: E731
+            ok = answered(runs)
+            t = [secs(r) for r in ok]
+            p25, p75 = quartiles(t)
+            lines.append("  %-58s %-5d %-8s %-9s %-8s %5.2f / %5.2f / %5.2f  iqr %5.2f-%5.2f  %5.2f    %s  failed %d"
+                         % (key, n, frac("correct_max_id"), frac("correct_count"),
+                            frac("cites_snapshot"), min(t), med(t), max(t), p25, p75,
+                            med(r["tool_s"] for r in ok),
+                            sorted({r["catalog_calls"] for r in ok}), n - len(ok)))
     if truth:
         lines += ["", "ground truth: snapshot total-records against a full scan of the data files"]
         lines += ["  %-20s total-records=%s scanned=%s agree=%s"
@@ -454,26 +487,114 @@ def crossover(c_rows: list) -> str:
     return "\n".join(lines) + "\n"
 
 
+def token_breaks(body: str) -> list:
+    """Line breaks inside a word or number that the model did not stream: the
+    answer has "2\n3" where the streamed copy printed before the header has "23"."""
+    answer = re.search(r"<!-- cloud=.*?-->\n(.*?)\ncatalog calls:", body, re.S)
+    answer = answer.group(1) if answer else ""
+    streamed = body.split("<!-- cloud=")[0]
+    found = []
+    for mt in re.finditer(r"(?<=\w)\n(?=\w)", answer):
+        i = mt.start()
+        joined = answer[max(0, i - 12):i] + answer[i + 1:i + 13]
+        if "\n" not in joined and joined in streamed:
+            found.append(answer[max(0, i - 15):i + 12])
+    return found
+
+
 def superseded_d(truth: dict) -> dict:
     texts = {}
     for name, header in SUPERSEDED_D:
         base = os.path.join(RAW, name)
         if not os.path.isdir(base):
             continue
-        _, rows, problems, bodies = rescore(base, "D", truth, timed=True)
-        if problems:
-            sys.exit("%s re-scoring disagrees:\n%s" % (name, "\n".join(problems)))
+        # Axis C of a complete archived run is already published by superseded().
+        covered = "C" if name in {n for n, _, _ in SUPERSEDED} else ""
+        axes_here = [x for x in "CDE" if x not in covered
+                     and os.path.exists(os.path.join(base, "matrix-axis-%s.json" % x))]
+        rows, bodies = [], {}
+        for axis in axes_here:
+            _, axis_rows, problems, axis_bodies = rescore(base, axis, truth, timed=True)
+            if problems:
+                sys.exit("%s re-scoring disagrees:\n%s" % (name, "\n".join(problems)))
+            rows += [dict(r, axis=axis) for r in axis_rows]
+            bodies.update(axis_bodies)
         lines = header + ["", "  %-40s %-6s %-6s %-9s %-6s %s"
                           % ("capture", "max id", "count", "snapshot", "calls", "answer s")]
         for r in rows:
+            if r["axis"] == "C":
+                ok = all(r[k] for k in ("correct_row_count", "cites_snapshot",
+                                        "cites_metadata", "names_all_columns"))
+                lines.append("  %-40s %-22s %-6s %.2f"
+                             % (r["capture"], "correct" if ok else "WRONG",
+                                r["catalog_calls"], secs(r)))
+                continue
             lines.append("  %-40s %-6s %-6s %-9s %-6s %.2f"
                          % (r["capture"], "ok" if r["correct_max_id"] else "WRONG",
                             "ok" if r["correct_count"] else "WRONG",
                             "ok" if r["cites_snapshot"] else "WRONG", r["catalog_calls"], secs(r)))
-        texts["superseded-runs/%s/README-axis-D.txt" % name] = "\n".join(lines) + "\n"
+        broken = sorted((c, token_breaks(b)) for c, b in bodies.items() if "__aws__" in c)
+        broken = [(c, b) for c, b in broken if b]
+        strands = [c for c in bodies if "__aws__" in c]
+        lines += ["", "Strands answers with a line break inside a word or number the model streamed"
+                  " whole: %d of %d" % (len(broken), len(strands))]
+        lines += ["  %-55s %r" % (c, b[0]) for c, b in broken]
+        texts["superseded-runs/%s/README-axis-%s.txt" % (name, "".join(axes_here))] = "\n".join(lines) + "\n"
         for capture, body in bodies.items():
             texts["superseded-runs/%s/matrix/%s" % (name, capture)] = body
     return texts
+
+
+def token_section(named: list) -> str:
+    """Tokens and model calls per answer. Output length drives answer time, so a
+    speed difference between cells is read beside it. None where a framework does
+    not report a figure (Agent Framework does not report model calls)."""
+    lines = ["", "tokens and model calls per answer, medians over answered runs",
+             "  frameworks report reasoning differently: ADK and Agent Framework separate it,",
+             "  Strands' Gemini provider folds it into output. 'generated' is output plus",
+             "  reasoning, the figure comparable across all four, and the per-100 column uses it.",
+             "  %-6s %-58s %-7s %-7s %-9s %-9s %-11s %s"
+             % ("axis", "cell", "input", "output", "reasoning", "generated", "model calls",
+                "answer s per 100 generated tokens")]
+    for axis, rows in named:
+        for key, runs in cells(answered(rows), "cell").items():
+            def m(field):
+                vals = [r[field] for r in runs if r.get(field) is not None]
+                return med(vals) if vals else None
+            gen = [r["output_tokens"] + (r.get("reasoning_tokens") or 0)
+                   for r in runs if r.get("output_tokens") is not None]
+            per = [secs(r) / (r["output_tokens"] + (r.get("reasoning_tokens") or 0)) * 100
+                   for r in runs if r.get("output_tokens")]
+            fmt = lambda v: "n/a" if v is None else ("%d" % v if float(v).is_integer() else "%.1f" % v)  # noqa: E731
+            lines.append("  %-6s %-58s %-7s %-7s %-9s %-9s %-11s %s"
+                         % (axis, key, fmt(m("input_tokens")), fmt(m("output_tokens")),
+                            fmt(m("reasoning_tokens")), fmt(med(gen) if gen else None),
+                            fmt(m("model_calls")), "%.2f" % med(per) if per else "n/a"))
+    return "\n".join(lines) + "\n"
+
+
+def noise_across_tests(a_rows: list, b_rows: list, c_rows: list) -> str:
+    """The same cell measured in more than one test, in separate sittings. The
+    spread of its medians is the run-to-run variation a comparison has to clear."""
+    groups = [
+        ("ADK / gemini-2.5-flash on %s" % AXIS_A_CATALOG, [
+            ("Axis A", [r for r in a_rows if r["leg"] == "gcp"]),
+            ("Axis B", [r for r in b_rows if r["catalog"] == AXIS_A_CATALOG]),
+            ("Axis C", [r for r in c_rows if r["leg"] == "gcp"])]),
+        ("Strands / us.amazon.nova-micro-v1:0 on %s" % AXIS_A_CATALOG, [
+            ("Axis A", [r for r in a_rows if r["leg"] == "aws"]),
+            ("Axis C", [r for r in c_rows if r["leg"] == "aws" and "nova" in r["model"]])]),
+    ]
+    lines = ["", "the same cell measured in more than one test (separate sittings), answer medians"]
+    for label, parts in groups:
+        mids = [(name, med(secs(r) for r in answered(rows))) for name, rows in parts if answered(rows)]
+        if len(mids) < 2:
+            continue
+        values = [v for _, v in mids]
+        lines.append("  %-45s %s   spread %.2fs"
+                     % (label, "  ".join("%s %.2fs" % (n, v) for n, v in mids),
+                        max(values) - min(values)))
+    return "\n".join(lines) + "\n"
 
 
 def replication(history: list) -> str:
@@ -529,14 +650,17 @@ def main() -> None:
     a_data, a_rows, a_bad, a_bodies = rescore(RAW, "A", truth, timed=True)
     b_data, b_rows, b_bad, b_bodies = rescore(RAW, "B", truth, timed=True)
     axes = [(a_data, a_bodies), (b_data, b_bodies)]
-    c_rows, c_bad, d_rows, d_bad = [], [], [], []
+    c_rows, c_bad, d_rows, d_bad, e_rows, e_bad = [], [], [], [], [], []
     if os.path.exists(os.path.join(RAW, "matrix-axis-C.json")):
         c_data, c_rows, c_bad, c_bodies = rescore(RAW, "C", truth, timed=True)
         axes.append((c_data, c_bodies))
     if os.path.exists(os.path.join(RAW, "matrix-axis-D.json")):
         d_data, d_rows, d_bad, d_bodies = rescore(RAW, "D", truth, timed=True)
         axes.append((d_data, d_bodies))
-    bad = a_bad + b_bad + c_bad + d_bad + verify_single_legs(truth)
+    if os.path.exists(os.path.join(RAW, "matrix-axis-E.json")):
+        e_data, e_rows, e_bad, e_bodies = rescore(RAW, "E", truth, timed=True)
+        axes.append((e_data, e_bodies))
+    bad = a_bad + b_bad + c_bad + d_bad + e_bad + verify_single_legs(truth)
     if bad:
         print("\n".join("   !! " + p for p in bad))
         sys.exit("\nevidence NOT published: re-scoring disagrees with the runner")
@@ -554,8 +678,11 @@ def main() -> None:
     texts.update(old_texts)
     texts.update(superseded_d(truth))
     texts["derived-figures.txt"] += replication(history + [("published run", a_rows, b_rows)])
-    texts["derived-figures.txt"] += crossover(c_rows)
-    texts["matrix-summary.txt"] = summary(a_rows, b_rows, a_data["repeat"], c_rows, d_rows, truth)
+    texts["derived-figures.txt"] += crossover(answered(c_rows))
+    texts["derived-figures.txt"] += noise_across_tests(a_rows, b_rows, c_rows)
+    texts["derived-figures.txt"] += token_section(
+        [("A", a_rows), ("B", b_rows), ("C", c_rows), ("D", d_rows), ("E", e_rows)])
+    texts["matrix-summary.txt"] = summary(a_rows, b_rows, a_data["repeat"], c_rows, d_rows, truth, e_rows)
 
     combined = "".join(texts.values())
     # BUCKET_RE reads abfss://<workspace-guid>@onelake.dfs... as one bucket name,

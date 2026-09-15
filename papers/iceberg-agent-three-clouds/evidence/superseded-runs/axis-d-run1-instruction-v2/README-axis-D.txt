@@ -17,3 +17,5 @@
   D__azure__microsoft-onelake__1.txt       ok     ok     ok        4      26.79
   D__azure__microsoft-onelake__2.txt       ok     ok     ok        4      33.08
   D__azure__microsoft-onelake__3.txt       ok     ok     ok        4      36.11
+
+Strands answers with a line break inside a word or number the model streamed whole: 0 of 3

@@ -1,4 +1,4 @@
-# axis=D leg=azure catalog=microsoft-onelake run=10 elapsed_s=47.7 captured=2026-09-15T14:09:58Z
+# axis=D leg=azure catalog=microsoft-onelake run=10 elapsed_s=46.4 captured=2026-09-15T17:01:41Z
 
 cloud=azure model=gpt-5-mini catalog=microsoft-onelake
 question: What is the largest id in the probe table, and how many of its rows have an id of 10 or more? Cite the exact table version you read.
@@ -8,19 +8,26 @@ question: What is the largest id in the probe table, and how many of its rows ha
 Tables found:
 - dbo.probe_table
 
-Describing the table I used:
-- table: dbo.probe_table
-- columns: id (int), ts (timestamptz), payload (string)
+I will use: dbo.probe_table
+Description (as returned):
+- columns: id int, ts timestamptz, payload string
 - partitioning: unpartitioned
 - metadata-location: abfss://guid-0005@onelake.dfs.fabric.microsoft.com/guid-0006/Tables/probe_table/metadata/v3.metadata.json
-- snapshot-id: 3346142071915475645
+- current-snapshot-id: 3346142071915475645
 
-Results (all figures come from the table snapshot above — metadata-location and snapshot-id quoted):
-- Largest id: 21. (Read from dbo.probe_table, metadata-location and snapshot-id above.)
-- Number of rows with id >= 10: 4 rows (the ids meeting this are 20, 21, 10, 11). (Same snapshot: metadata-location and snapshot-id above.)
+What I read:
+- Exact row count (iceberg_count_rows): 6 rows (snapshot-id 3346142071915475645).
+- I scanned the table (iceberg_scan_table, columns=id) and read all 6 rows from snapshot-id 3346142071915475645. The returned id values were: 0, 1, 20, 21, 10, 11. The scan reported COMPLETE (all rows of that snapshot) for snapshot-id 3346142071915475645.
 
-For completeness: iceberg_count_rows returned an exact total of 6 rows for snapshot-id 3346142071915475645.
+Answers (for the exact table version cited above):
+- Largest id: 21.
+- Number of rows with id >= 10: 4.
+
+All figures above are from the table version with metadata-location
+abfss://guid-0005@onelake.dfs.fabric.microsoft.com/guid-0006/Tables/probe_table/metadata/v3.metadata.json
+and snapshot-id 3346142071915475645.
 
 catalog calls: 4 of 8
-agent seconds: 24.67 | tool seconds: 3.64
-warm-up seconds: 21.73
+agent seconds: 25.38 | tool seconds: 3.16
+tokens: input=7506 output=1736 reasoning=1024 model_calls=None
+warm-up seconds: 19.77

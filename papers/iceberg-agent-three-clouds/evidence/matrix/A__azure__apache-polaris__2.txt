@@ -1,30 +1,31 @@
-# axis=A leg=azure catalog=apache-polaris run=2 elapsed_s=43.0 captured=2026-09-15T13:39:01Z
+# axis=A leg=azure catalog=apache-polaris run=2 elapsed_s=37.2 captured=2026-09-15T16:32:25Z
 
 cloud=azure model=gpt-5-mini catalog=apache-polaris
 question: How many rows are in the probe table, and what columns does it have? Cite the exact table version you read.
 
 
 <!-- cloud=azure model=gpt-5-mini catalog=apache-polaris instruction=v3 catalog_calls=3 -->
-Tables found:
+Tables in the catalog (from iceberg_list_tables):
 - probe_ns.probe_table
 
-Describing the table I used (probe_ns.probe_table)
-- Columns:
-  - id (long, required)
-  - ts (timestamptz, optional)
-  - payload (string, optional)
-  - region (string, optional)
-- Partitioning: ts_day
-- Format version: 2
+I will use probe_ns.probe_table. Description (from iceberg_describe_table):
+- format-version: 2
+- columns:
+  - id               long           required
+  - ts               timestamptz    optional
+  - payload          string         optional
+  - region           string         optional
+- partitioned by: ts_day
+- snapshots: 4
+- current-snapshot-id: aws-account-00029537848
+- metadata-location: "file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json"
 
-Exact table version (from iceberg_describe_table):
-- metadata-location: file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json
-- snapshot id: aws-account-00029537848
+Exact row count (from iceberg_count_rows):
+- 11 rows — this count is exact for snapshot-id aws-account-00029537848.
 
-Row count
-- Exact number of rows (for the snapshot above): 11 rows.
-  (This count comes from the table snapshot summary for snapshot-id aws-account-00029537848; it is exact for that snapshot.)
+Citations for figures above: metadata-location "file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json" and snapshot-id aws-account-00029537848.
 
 catalog calls: 3 of 8
-agent seconds: 19.98 | tool seconds: 0.02
-warm-up seconds: 21.80
+agent seconds: 15.16 | tool seconds: 0.02
+tokens: input=4209 output=913 reasoning=448 model_calls=None
+warm-up seconds: 20.75

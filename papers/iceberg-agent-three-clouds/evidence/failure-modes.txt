@@ -1,4 +1,4 @@
-# failure modes reproduced deliberately, captured 2026-09-15T14:10:59Z
+# failure modes reproduced deliberately, captured 2026-09-15T17:14:54Z
 # each changes one piece of the tool's storage wiring and calls
 # iceberg_scan_table, to show what that configuration actually produces.
 # Metadata calls are shown succeeding first, which is the point: the catalog
