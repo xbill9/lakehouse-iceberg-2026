@@ -346,12 +346,13 @@ ran at their defaults, with no temperature, thinking budget or reasoning
 effort set. Nova Micro ran with the greedy decoding Amazon <a
 href="https://docs.aws.amazon.com/nova/latest/userguide/prompting-tool-troubleshooting.html">recommends
 for Nova tool use</a>, temperature 0 and topK 1. That decoding is
-deterministic: Nova Micro returned the same answer, word for word, in
-all ten runs, so its 10/10 below is one answer that passed, and its
-timings are ten measurements of it. At Bedrock's defaults, in a separate
-sitting, its ten runs gave ten different answers and all ten passed
-every check, at a median of 3.27 seconds against 3.31 with greedy
-decoding, the middle halves overlapping (evidence files: Axis F).</p>
+deterministic, and it matters for reading every Nova row in this
+article: its ten runs return one answer, word for word, so a Nova score
+is one answer repeated while its timings are ten real measurements. Run
+at Bedrock's defaults instead, in a separate sitting, Nova Micro gave
+ten different answers, passed every check in all ten, and took 3.27
+seconds at the median against 3.31 with greedy decoding (evidence files:
+Axis F).</p>
 <p><img src="https://raw.githubusercontent.com/xbill9/lakehouse-iceberg-2026/main/papers/iceberg-agent-three-clouds/medium/img/devto-iceberg-agent-three-clouds-table-2.png"
 alt="Table: leg, framework and model, runs passing every check, answer seconds min/med/max, tokens generated" /></p>
 <p>All three answer with the same three calls -- list, describe, count.
@@ -386,8 +387,7 @@ API; each answer is scored against its own catalog.</p>
 <p>Strands, unchanged except for its model object, runs
 <code>gemini-2.5-flash</code> through Vertex AI beside ADK on the same
 model and endpoint, and beside itself on Nova Micro. All thirty runs
-passed every check; the ten Nova Micro runs were one answer, repeated,
-as in Test 1.</p>
+passed every check.</p>
 <p><img src="https://raw.githubusercontent.com/xbill9/lakehouse-iceberg-2026/main/papers/iceberg-agent-three-clouds/medium/img/devto-iceberg-agent-three-clouds-table-4.png"
 alt="Table: framework, model, answer seconds min/med/max, middle half of runs, tokens generated" /></p>
 <p><strong>Swapping the model</strong> under Strands moved the median
@@ -422,25 +422,22 @@ rows in its head.</p>
 alt="Table: agent and catalog, largest id, rows with id of 10 or more, median answer seconds, median seconds in tools" /></p>
 <p>Every agent read its data: the tools print each call they receive,
 whatever the framework, and every one of the thirty captures shows a
-scan with a filter. Nova Micro's ten runs returned the same text word
-for word, so that row is one answer that passed, ten times over. These
-cells are not like for like -- different catalogs, regions, and a
-smaller OneLake table -- so correctness is compared in Test 5.</p>
+scan with a filter. These cells are not like for like -- different
+catalogs, regions, and a smaller OneLake table -- so correctness is
+compared in Test 5.</p>
 <h4 id="test-5-the-same-data-question-like-for-like">Test 5: The Same
 Data Question, Like for Like</h4>
 <p>All four setups, the same 11-row Polaris table, ten runs each --
 twice. Once with the published scan, which filters in PyIceberg and
 returns an exact count, minimum and maximum; once with a scan that
-returns the rows only, so the model has to count them. Nova Micro also
-runs both ways at Bedrock's default decoding, because its greedy cells
-repeat one answer.</p>
+returns the rows only, so the model has to count them.</p>
 <p><img src="https://raw.githubusercontent.com/xbill9/lakehouse-iceberg-2026/main/papers/iceberg-agent-three-clouds/medium/img/devto-iceberg-agent-three-clouds-table-6.png"
 alt="Table: framework / model, who counts, largest id, rows with id of 10 or more, median answer seconds, tokens generated" /></p>
-<p>"Same answer" marks the cells where all ten runs returned identical
-text: greedy decoding is deterministic, so those scores are one answer
-repeated, and the rows below them run the same question at Bedrock's
-defaults. Every capture records the tool calls, so which scan each
-answer used is on record: all fifty engine runs filtered, and no
+<p>Nova Micro runs at Bedrock's defaults in this table, so its ten runs
+are ten different answers rather than one repeated. With greedy decoding
+it ran both ways too: the engine's count right in all ten, and its own
+count 6 in all ten. Every capture records the tool calls, so which scan
+each answer used is on record: all fifty engine runs filtered, and no
 rows-only run could.</p>
 <p>Counting by reading only works on a table this small. The rows-only
 scan returns at most 100 rows, so on a real table no model can count
@@ -448,14 +445,12 @@ what it cannot see. Whatever the model, the count belongs in the
 engine.</p>
 <p><strong>The miscount is Nova Micro's, and the engine removes
 it.</strong> Gemini under both frameworks and <code>gpt-5-mini</code>
-counted eleven ids correctly in every run. Nova Micro's greedy answer
-read all eleven rows and gave the count as 6. At Bedrock's defaults its
-ten answers gave ten different texts and one right count; nine of those
-runs read every row, and eight of the nine still counted wrong. The
-wrong answers said 4, 5, 7 and 11, and one gave no count. With the count
-returned by the engine it was right in every run both ways. The runs
-that separate the prompt, the scan output and the decoding are in
-<code>nova-diagnosis.txt</code>.</p>
+counted eleven ids correctly in every run. Nova Micro got it right once
+in ten. It was not failing to read: nine of those ten runs scanned every
+row, and eight of the nine still counted wrong, answering 4, 5, 7 or 11,
+and one declined to answer. With the count returned by the engine it was
+right in every run both ways. The runs that separate the prompt, the
+scan output and the decoding are in <code>nova-diagnosis.txt</code>.</p>
 <p><strong>The framework cost shows again, smaller.</strong> On the same
 model with the same scan, Strands took 10.46 seconds at the median
 against ADK's 9.13 -- only just above the 1.12-second noise -- and 1.03
@@ -679,10 +674,11 @@ table version.</li>
 rounds. Enough to see separation, not to estimate rates.</li>
 <li>Every model ran at its defaults except Nova Micro, which ran with
 Amazon's recommended tool-use decoding. That decoding is deterministic:
-each greedy Nova cell returned one answer, word for word, in all ten
-runs, so its correctness is one sample and its timing is ten. Tests 1
-and 5 show Nova at Bedrock's defaults beside it; its Test 3 and Test 4
-cells are greedy only.</li>
+a Nova cell returns one answer, word for word, in all ten runs, so its
+correctness is one sample and its timing is ten. That applies to the
+Nova rows in Tests 1, 3 and 4. Test 5's table runs Nova at Bedrock's
+defaults instead, where ten runs are ten answers, and Axis F runs Test
+1's question both ways.</li>
 <li>Agent Framework ran only <code>gpt-5-mini</code>. The model
 comparison in Test 3 also changes provider and region.</li>
 <li>Polaris is local and the managed catalogs are in different regions,
