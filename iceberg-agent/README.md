@@ -70,6 +70,16 @@ Each leg needs its own cloud configured: `GOOGLE_GENAI_USE_VERTEXAI` and a
 project for ADK, AWS credentials and Bedrock model access for Strands, and
 `FOUNDRY_PROJECT_ENDPOINT` for Agent Framework.
 
+The Foundry endpoint is the project's `AI Foundry API` endpoint, which the Azure
+management API returns:
+
+```console
+$ ID=$(az cognitiveservices account show -n <resource> -g <resource-group> --query id -o tsv)
+$ az rest --method get --url "https://management.azure.com$ID/projects?api-version=2025-06-01" \
+    --query "value[0].properties.endpoints.\"AI Foundry API\"" -o tsv
+https://<resource>.services.ai.azure.com/api/projects/<project>
+```
+
 ## Reading the data is not the same as reading the catalog
 
 Three configurations reach the catalog and cannot read the data. Each is

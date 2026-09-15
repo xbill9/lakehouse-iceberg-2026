@@ -42,9 +42,10 @@ three agents are 4.04x apart at the median (13.25s against 3.28s), with no overl
 in the middle half of their runs. But `gpt-5-mini` generates far more tokens than
 Nova Micro. Per 100 generated tokens the three take 0.67 to 0.98 seconds.
 
-**The framework effect depends on the question.** On a simple question, Strands
-was 1.42x slower than ADK on the same Gemini model, at the same token count. On a
-question that requires reading the data, the two were level.
+**The framework adds a smaller, steady cost.** Running the same Gemini model,
+Strands took longer than ADK per generated token on both questions asked. On the
+simple question that showed as a 1.42x gap in answer time; on the data question
+ADK wrote more, and the two totals came out level.
 
 **The per-cloud work is the storage wiring.** The tools bind unchanged, but reading
 a catalog's files needs different configuration for OneLake, Glue and S3 Tables --
@@ -181,7 +182,8 @@ ADK on Gemini against five catalogs, ten runs each. Every run passed every check
 | microsoft-onelake | 6.36 / 7.51 / 16.93 | 1.79 |
 
 The catalog shows up in the tool column: 0.14 seconds against Polaris, 0.49 to 1.79
-against the managed four. That is distance from this machine as much as the
+against the managed four. In total answer time, only BigLake and OneLake sit clearly
+above Polaris; S3 Tables and Glue are within the 0.95-second noise. That is distance from this machine as much as the
 service, and not a ranking. OneLake's table holds 6 rows and 3 columns, loaded
 through the Fabric API; each answer is scored against its own catalog.
 
@@ -203,8 +205,9 @@ Bedrock in `us-east-1`.
 
 **Swapping the framework** under Gemini moved it 1.42x (2.60 seconds), with no
 overlap and the same number of tokens generated -- and Strands made no more model
-calls than ADK. On this question the gap is the framework's handling of each call,
-and it clears the 0.95-second noise. On the data question in Test 5 it disappears.
+calls than ADK. The gap is the framework's handling of each call, and it clears the
+0.95-second noise. Per 100 generated tokens, Strands took 1.12 seconds against
+ADK's 0.87.
 
 Agent Framework ran only `gpt-5-mini`, so its figures describe that pairing. In
 [an earlier build](https://dev.to/gde/three-clouds-one-brief-what-actually-differs-between-adk-strands-and-agent-framework-2kgc),
@@ -246,9 +249,10 @@ All four setups, the same 11-row Polaris table, ten runs each.
 runs on Gemini, and in one on Nova Micro. Its wrong answers gave counts such as 5 and
 11, or said it could not count.
 
-**The framework gap from Test 3 is gone.** ADK and Strands on Gemini are level here
-(12.36s against 12.16s, with overlapping middle halves), so that 1.42x is not a
-constant cost of either framework.
+**The framework cost is still there, hidden by length.** ADK and Strands on Gemini
+finish level (12.36s against 12.16s), but ADK generated more tokens. Per 100
+generated tokens Strands took 0.93 seconds against ADK's 0.77 -- slower, as it was in
+Test 3.
 
 ## How Are the Three Agents Different?
 
@@ -271,29 +275,36 @@ chain for Strands -- which needs `botocore[crt]` after `aws login`, while the CL
 works without it -- and `DefaultAzureCredential` for Agent Framework, the slowest
 first sign-in of the three.
 
-**Reading the answer** is where the traps are:
+**Reading the answer** is where a data agent can quietly mislead the code around
+it. Three questions matter, and the frameworks answer them differently:
 
-| framework / model | shows each tool call | reasoning inside the answer |
+| framework / model | can you see which tools it called? | does reasoning land in the answer text? |
 |---|---|---|
-| ADK / `gemini-2.5-flash` | 90/90 | 0/90 |
-| Strands / `gemini-2.5-flash` | 20/20 | 0/20 |
-| Strands / `us.amazon.nova-micro-v1:0` | 40/40 | 40/40 |
-| Agent Framework / `gpt-5-mini` | 0/30 | 0/30 |
+| ADK / `gemini-2.5-flash` | yes -- each call is an event your code receives | no |
+| Strands / `gemini-2.5-flash` | yes -- a `Tool #n` line is printed per call | no |
+| Strands / `us.amazon.nova-micro-v1:0` | yes -- a `Tool #n` line is printed per call | yes, every time |
+| Agent Framework / `gpt-5-mini` | no, unless middleware or OpenTelemetry is switched on | no |
 
-- **Tool calls.** ADK returns each call as an event and Strands prints a `Tool #n`
-  line; Agent Framework shows only the final answer unless middleware or
-  OpenTelemetry is switched on. Without them, what an agent read can only be
-  inferred from what it said.
-- **Reasoning in the answer.** Nova Micro's `<thinking>` text arrives inside the
-  answer on Strands. Anything that reads output automatically can take a number
-  from the reasoning as the result.
-- **Text blocks joined with line breaks.** Strands' `str(result)` adds a line break
-  after every text block, and its Gemini provider can split one answer into several
-  blocks. In an earlier run of Test 5, three Strands-on-Gemini answers came back
-  with breaks inside a word or number -- "23" as "2", newline, "3" -- and none of
-  its Nova Micro answers did. Join `result.message["content"]` text blocks directly.
-- **Printing.** Strands also streams every answer to the terminal, so printing the
-  result shows it twice; `callback_handler=None` turns that off.
+That held in every captured run: all 90 ADK runs, all 60 Strands runs and all 30
+Agent Framework runs.
+
+- **Can you prove what the agent read?** For an agent answering from company data,
+  the tool calls are the audit trail. With ADK and Strands every scan in Test 4 is
+  on record. With Agent Framework out of the box, the only evidence it read
+  OneLake is that its answers contain values no metadata tool returns -- an
+  inference, not a log.
+- **Is the answer text only the answer?** Nova Micro writes `<thinking>` text, and
+  Strands passes it through inside the answer. A dashboard, a pipeline or another
+  agent that reads the output can take a number from the model's scratch work as
+  its result. Strip `<thinking>` blocks before using the text.
+- **Is the text intact?** Strands' `str(result)` puts a line break after every text
+  block, and its Gemini provider can split one answer into several blocks. In an
+  earlier run of Test 5 that turned three answers' "23" into "2", newline, "3" and
+  similar -- a correct answer that reads as wrong. Join the text blocks in
+  `result.message["content"]` directly instead.
+
+Strands also streams every answer to the terminal, so code that prints the result
+shows it twice; `callback_handler=None` turns that off.
 
 ## Storage Wiring Per Catalog
 
@@ -332,9 +343,9 @@ catalogs, and scores answers against ground truth.
 - **Framework benchmarks.** [LaunchDarkly](https://launchdarkly.com/docs/tutorials/agent-graph-experiments)
   ran LangGraph, Strands, the OpenAI Agents SDK and ADK on one agent graph with the
   model pinned, over 36 runs with an LLM judge: Strands was fastest, and most
-  differences were "within a few percent". Here the framework gap was 1.42x on one
-  question and absent on another -- both results say framework cost is small next to
-  the model, and not a constant.
+  differences were "within a few percent". Here Strands was slower than ADK per generated
+  token on both questions, 1.42x in answer time on one and level on the other --
+  both results say framework cost is small next to the model.
 - **Data-agent benchmarks.** [DAB](https://arxiv.org/abs/2603.20576),
   [FDABench](https://arxiv.org/abs/2509.02473) and
   [KramaBench](https://arxiv.org/abs/2506.06541) measure answer correctness over
@@ -377,6 +388,9 @@ $ export POLARIS_CLIENT_ID=root POLARIS_CLIENT_SECRET=s3cr3t AWS_REGION=us-east-
 $ export GOOGLE_GENAI_USE_VERTEXAI=true GOOGLE_CLOUD_LOCATION=us-central1 GOOGLE_CLOUD_PROJECT=<your-project>
 $ export FOUNDRY_PROJECT_ENDPOINT=https://<resource>.services.ai.azure.com/api/projects/<project>
 ```
+
+The README shows how to find the Foundry project endpoint from the Azure
+management API.
 
 Two things that fail quietly: install `agent-framework-core` and
 `agent-framework-foundry`, not the `agent-framework` meta package, which failed to
@@ -424,8 +438,9 @@ unchanged, and five tests that each move one thing. The results were:
   reading the answer differ per framework, with real traps in the last.
 - **Speed follows the model and how much it writes.** 4.04x between the agents as
   shipped, 0.67 to 0.98 seconds per 100 generated tokens.
-- **Framework cost is real but not constant.** Strands was 1.42x slower than ADK on
-  one question at equal tokens, and level on another.
+- **Framework cost is smaller and steady.** Strands was slower than ADK per
+  generated token on both questions; how much that shows in total time depends on
+  how much the model writes.
 - **The per-cloud work is storage wiring.** Once written, every agent read its
   cloud's data files.
 - **Correctness belongs to the model.** On the same table, every setup counted the
@@ -444,6 +459,29 @@ Scope:
   start. Cost was not measured.
 - Earlier runs are published under `evidence/superseded-runs/`, re-scored by the
   same checks.
+
+## Why Does This Matter?
+
+If you are building an agent that answers questions from lakehouse data, these
+results change where to spend effort:
+
+- **Choosing a framework?** Choose it for how it fits your code, your cloud and your
+  observability -- not for speed. Its cost is real but small, and it was never the
+  biggest number on the page.
+- **Choosing a model?** It sets most of the latency, mostly through how much it
+  writes, and it decides whether answers are right. The smallest model here usually
+  found the largest value but rarely counted rows correctly, from data it had in
+  hand. Test the model
+  on your own aggregation questions before trusting it with them.
+- **Planning a move between clouds?** Budget for the storage wiring under the tools,
+  not for the agent code. Expect misleading errors the first time, and test file
+  access directly, not only catalog calls.
+- **Putting an agent into production?** Keep the tool calls as an audit trail, strip
+  model reasoning out of answers before anything else reads them, read the answer
+  text carefully, and have every answer cite the exact table version it came from --
+  so that a wrong answer can be caught and checked against the same data.
+
+The catalog layer really is portable. The work is in what sits around it.
 
 The strategy for using one shared set of Iceberg tools across three agent
 frameworks was validated with an incremental step by step approach.
