@@ -1,28 +1,27 @@
-# captured 2026-09-15T01:14:38Z by run_once.py on this machine
+# captured 2026-09-15T14:13:26Z by run_once.py on this machine
 # command: python3 run_once.py azure "How many rows are in the probe table, and what columns does it have? Cite the exact table version you read."
 
 cloud=azure model=gpt-5-mini catalog=microsoft-onelake
 question: How many rows are in the probe table, and what columns does it have? Cite the exact table version you read.
 
 
-<!-- cloud=azure model=gpt-5-mini catalog=microsoft-onelake instruction=v2 catalog_calls=3 -->
-Tables in the catalog (listed first)
+<!-- cloud=azure model=gpt-5-mini catalog=microsoft-onelake instruction=v3 catalog_calls=3 -->
+Tables in the catalog
 - dbo.probe_table
 
-I will use: dbo.probe_table
-Description (exact version read)
-- format-version: 2
-- columns:
-  - id — int (optional)
-  - ts — timestamptz (optional)
-  - payload — string (optional)
-- partitioning: unpartitioned
+Table I used (description)
+- Table: dbo.probe_table
+- Format version: 2
+- Columns:
+  - id (int, optional)
+  - ts (timestamptz, optional)
+  - payload (string, optional)
+- Partitioning: unpartitioned
 - metadata-location: abfss://guid-0005@onelake.dfs.fabric.microsoft.com/guid-0006/Tables/probe_table/metadata/v3.metadata.json
 - current-snapshot-id: 3346142071915475645
 
 Row count
-- Exact number of rows: 6 rows.
-- This count is exact for the table version identified above (metadata-location and snapshot id quoted). The count was taken from the snapshot summary (total-records) for snapshot-id 3346142071915475645.
+- Exact rows: 6 rows. This count is from iceberg_count_rows for dbo.probe_table and is exact for snapshot-id 3346142071915475645 (metadata-location quoted above).
 
 catalog calls: 3 of 8
-agent seconds: 19.35 | tool seconds: 3.43
+agent seconds: 39.85 | tool seconds: 24.89

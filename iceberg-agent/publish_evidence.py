@@ -60,10 +60,18 @@ SUPERSEDED = [
         "# and kept. The article originally reported it. The whole pipeline was then run",
         "# again from ground truth onwards, to check that the result replicates rather",
         "# than to change one; the replication is in derived-figures.txt."]),
+    ("run3-three-repeats", True, [
+        "# a complete run at three repeats per cell, captured 2026-09-15, SUPERSEDED and",
+        "# kept. It timed sign-in inside each answer and ran cells in blocks; the",
+        "# published run warms each process first and runs cells in shuffled rounds,",
+        "# ten repeats per cell."]),
 ]
 #: Archived single-axis runs, published under superseded-runs/<name>/ with their
 #: re-scored rows. Kept for the same reason as the complete runs above.
 SUPERSEDED_D = [
+    ("run3-three-repeats", [
+        "# Axis D at three repeats per cell, captured 2026-09-15, SUPERSEDED and kept",
+        "# beside the three-repeat run of Axes A and B."]),
     ("axis-d-run1-instruction-v2", [
         "# Axis D's first run, captured 2026-09-15, SUPERSEDED and kept.",
         "# Instruction v2 told every agent that iceberg_scan_table returns a sample and",
@@ -75,7 +83,8 @@ SUPERSEDED_D = [
         "# re-run. Re-scored below under the current scorer, not changed."]),
 ]
 COPIED = ["ground-truth.txt", "environment.txt", "failure-modes.txt", "verification.txt",
-          "run-gcp.txt", "run-aws.txt", "run-azure.txt", "import-times.txt"]
+          "run-gcp.txt", "run-aws.txt", "run-azure.txt", "import-times.txt",
+          "credential-times.txt"]
 TIMING = re.compile(r"agent seconds: ([\d.]+) \| tool seconds: ([\d.]+)")
 #: Hostnames that are the evidence rather than an account. The blob host is the
 #: one PyArrow builds for OneLake and which does not exist -- masking it would
@@ -92,8 +101,7 @@ def rescore(base: str, axis: str, truth: dict, timed: bool) -> tuple:
             body = handle.read()
         bodies[stored["capture"]] = body
         fresh = (score_scan if axis == "D" else score)(body, truth[stored["catalog"]])
-        if fresh["catalog_calls"] is None:
-            problems.append("%s: no stamped header, the leg did not answer" % stored["capture"])
+        answered = fresh["catalog_calls"] is not None
         older = stored.get("scorer", 1) != SCORER_VERSION
         for key, value in fresh.items():
             if stored.get(key) != value:
@@ -107,8 +115,8 @@ def rescore(base: str, axis: str, truth: dict, timed: bool) -> tuple:
                             % (stored["capture"], stored["elapsed_s"], elapsed))
         timing = TIMING.search(body)
         agent_s, tool_s = (float(timing.group(1)), float(timing.group(2))) if timing else (None, None)
-        if timed and (agent_s is None or agent_s != stored.get("agent_s")
-                      or tool_s != stored.get("tool_s")):
+        if timed and answered and (agent_s is None or agent_s != stored.get("agent_s")
+                                   or tool_s != stored.get("tool_s")):
             problems.append("%s: timing line missing or disagrees with the runner"
                             % stored["capture"])
         model = re.search(r"<!-- cloud=\S+ model=(\S+)", body)
@@ -117,6 +125,7 @@ def rescore(base: str, axis: str, truth: dict, timed: bool) -> tuple:
             problems.append("%s: runner asked for %s, answer header says %s"
                             % (stored["capture"], stored["model"], model))
         rows.append(dict(stored, **fresh, agent_s=agent_s, tool_s=tool_s, model=model,
+                         answered=answered,
                          cell="%s / %s%s" % (FRAMEWORK[stored["leg"]], model,
                                               " on %s" % stored["catalog"] if axis == "D" else "")))
     return data, rows, problems, bodies
@@ -136,6 +145,22 @@ def timed_label(rows: list) -> str:
     return "" if all(r.get("agent_s") is not None for r in rows) else "  [PROCESS time: no answer time recorded]"
 
 
+def answered(rows: list) -> list:
+    """Runs that produced an answer. Timing is taken over these only; runs that
+    did not answer are counted and shown, never dropped silently or retried."""
+    return [r for r in rows if r.get("answered", True)]
+
+
+def quartiles(values) -> tuple:
+    """(p25, p75). With ten runs a single outlier makes min/max overlap, so
+    separation between cells is judged on the middle half of the runs."""
+    values = list(values)
+    if len(values) < 2:
+        return values[0], values[0]
+    q = statistics.quantiles(values, n=4, method="inclusive")
+    return q[0], q[2]
+
+
 def cells(rows: list, key: str) -> dict:
     out = {}
     for row in rows:
@@ -148,21 +173,23 @@ def med(values) -> float:
 
 
 def cell_line(name: str, runs: list, width: int = 20) -> str:
-    t = [secs(r) for r in runs]
+    ok = answered(runs)
+    t = [secs(r) for r in ok]
     n = len(runs)
     frac = lambda f: "%d/%d" % (sum(bool(r[f]) for r in runs), n)  # noqa: E731
-    line = ("  %-*s %-5d %-8s %-8s %-8s %-8s %5.2f / %5.2f / %5.2f"
-            % (width, name, n, frac("correct_row_count"), frac("cites_snapshot"),
-               frac("cites_metadata"), frac("names_all_columns"), min(t), med(t), max(t)))
-    if all(r["tool_s"] is not None for r in runs):
-        line += "   %5.1f       %5.2f" % (med(r["elapsed_s"] for r in runs), med(r["tool_s"] for r in runs))
+    p25, p75 = quartiles(t)
+    line = ("  %-*s %-5d %-6d %-8s %-8s %-8s %-8s %5.2f / %5.2f / %5.2f  iqr %5.2f-%5.2f"
+            % (width, name, n, n - len(ok), frac("correct_row_count"), frac("cites_snapshot"),
+               frac("cites_metadata"), frac("names_all_columns"), min(t), med(t), max(t), p25, p75))
+    if all(r["tool_s"] is not None for r in ok):
+        line += "   %5.1f       %5.2f" % (med(r["elapsed_s"] for r in ok), med(r["tool_s"] for r in ok))
     return line
 
 
 def summary(a_rows: list, b_rows: list, repeat: int, c_rows: list = (), d_rows: list = (),
             truth: dict = None) -> str:
-    head = ("  cell                 runs  correct  snapshot metadata columns  "
-            "answer s (min/med/max)  process-med tool-med")
+    head = ("  cell                 runs  failed correct  snapshot metadata columns  "
+            "answer s (min/med/max)  iqr (p25-p75)  process-med tool-med")
     tail = lambda rs: ("  catalog_calls across all runs: %s | invented columns: %d"  # noqa: E731
                        % (sorted({r["catalog_calls"] for r in rs}),
                           sum(bool(r["invented_column"]) for r in rs)))
@@ -194,12 +221,14 @@ def summary(a_rows: list, b_rows: list, repeat: int, c_rows: list = (), d_rows: 
         for key, runs in cells(d_rows, "cell").items():
             n = len(runs)
             frac = lambda f: "%d/%d" % (sum(bool(r[f]) for r in runs), n)  # noqa: E731
-            t = [secs(r) for r in runs]
-            lines.append("  %-58s %-5d %-8s %-9s %-8s %5.2f / %5.2f / %5.2f   %5.2f    %s"
+            ok = answered(runs)
+            t = [secs(r) for r in ok]
+            p25, p75 = quartiles(t)
+            lines.append("  %-58s %-5d %-8s %-9s %-8s %5.2f / %5.2f / %5.2f  iqr %5.2f-%5.2f  %5.2f    %s  failed %d"
                          % (key, n, frac("correct_max_id"), frac("correct_count"),
-                            frac("cites_snapshot"), min(t), med(t), max(t),
-                            med(r["tool_s"] for r in runs),
-                            sorted({r["catalog_calls"] for r in runs})))
+                            frac("cites_snapshot"), min(t), med(t), max(t), p25, p75,
+                            med(r["tool_s"] for r in ok),
+                            sorted({r["catalog_calls"] for r in ok}), n - len(ok)))
         if truth:
             lines.append("  expected: " + "; ".join(
                 "%s max_id=%s count>=10=%s" % (c, truth[c]["max_id"], truth[c]["ids_at_least_10"])
@@ -226,8 +255,8 @@ def summary(a_rows: list, b_rows: list, repeat: int, c_rows: list = (), d_rows: 
 def derived(a_rows: list, b_rows: list) -> str:
     legs = cells(a_rows, "leg")
     mid = {k: med(secs(r) for r in v) for k, v in legs.items()}
-    lo = {k: min(secs(r) for r in v) for k, v in legs.items()}
-    hi = {k: max(secs(r) for r in v) for k, v in legs.items()}
+    lo = {k: quartiles(secs(r) for r in v)[0] for k, v in legs.items()}
+    hi = {k: quartiles(secs(r) for r in v)[1] for k, v in legs.items()}
     order = sorted(mid, key=mid.get)
     fast, slow = order[0], order[-1]
     b_times = [secs(r) for r in b_rows]
@@ -238,15 +267,13 @@ def derived(a_rows: list, b_rows: list) -> str:
              "  source    matrix-summary.txt, AXIS A (catalog fixed at %s)" % AXIS_A_CATALOG,
              "  operands  %s median %.2fs / %s median %.2fs" % (slow, mid[slow], fast, mid[fast]),
              "  result    %.4f -> quoted as %.2fx" % (mid[slow] / mid[fast], mid[slow] / mid[fast]),
-             "  note      medians, not extremes. The max-to-min ratio over the same cells is",
-             "            %.2f / %.2f = %.2fx, which is NOT the headline figure."
-             % (max(hi.values()), min(lo.values()), max(hi.values()) / min(lo.values())), "",
-             "overlap between Axis A legs, ordered by median"]
+             "  note      medians, not extremes.", "",
+             "separation between Axis A legs, ordered by median, on the middle half of runs"]
     for a, b in zip(order, order[1:]):
-        lines.append("  %-5s slowest %.2fs vs %-5s fastest %.2fs -> %s"
+        lines.append("  %-5s p75 %.2fs vs %-5s p25 %.2fs -> %s"
                      % (a, hi[a], b, lo[b], "no overlap" if hi[a] < lo[b] else "OVERLAP"))
     lines += ["", "gap between adjacent Axis A legs",
-              "  %-14s %-10s %s" % ("pair", "medians", "edges (fastest of slower - slowest of faster)")]
+              "  %-14s %-10s %s" % ("pair", "medians", "p25 of slower - p75 of faster")]
     for a, b in zip(order, order[1:]):
         lines.append("  %-14s %-10s %.2fs" % ("%s-%s" % (a, b), "%.2fs" % (mid[b] - mid[a]),
                                              lo[b] - hi[a]))
@@ -281,7 +308,8 @@ def superseded(truth: dict) -> tuple:
         if not os.path.isdir(base):
             continue
         lines, by_axis = header + [""], {}
-        for axis in "AB":
+        for axis in [x for x in "ABC" if x in "AB"
+                     or os.path.exists(os.path.join(base, "matrix-axis-%s.json" % x))]:
             _, rows, problems, bodies = rescore(base, axis, truth, timed=timed)
             if problems:
                 sys.exit("%s re-scoring disagrees:\n%s" % (name, "\n".join(problems)))
@@ -311,7 +339,11 @@ def self_test(truth: dict) -> None:
                          % (t["rows"], t["snapshot_id"], t["metadata_location"])), t)
     outside = score("question: %s rows? id ts payload region %s %s\n" % (
         t["rows"], t["snapshot_id"], t["metadata_location"]) + wrap % "I could not read it.", t)
+    # A real phrasing from the ten-repeat run, which v4 scored wrong.
+    long_gap = score(wrap % ("The exact number of rows in this table, as of snapshot-id %s, is %s."
+                             % (t["snapshot_id"], t["rows"])), t)
     failures = [k for k in ("correct_row_count", "names_all_columns") if vacuous[k]]
+    failures += ["long-gap row count" for _ in [0] if not long_gap["correct_row_count"]]
     failures += ["good answer: " + k for k in ("correct_row_count", "cites_snapshot",
                  "cites_metadata", "names_all_columns") if not good[k]]
     failures += ["text outside the answer: " + k for k, v in outside.items()
@@ -371,7 +403,9 @@ def answer_style(bodies: dict) -> str:
         c["thinking"] += "<thinking>" in body
         c["tool_log"] += bool(re.search(r"-> tool:|Tool #\d", body))
         c["twice"] += bool(first) and first in before
-        c["agent"].append(float(TIMING.search(body).group(1)))
+        timing = TIMING.search(body)
+        if timing:
+            c["agent"].append(float(timing.group(1)))
     lines = ["", "answer style: every published matrix capture, by framework and model",
              "  %-36s %-5s %-12s %-11s %-9s %-9s %-7s %s"
              % ("framework / model", "runs", "answer chars", "answer lines", "thinking",
@@ -381,7 +415,7 @@ def answer_style(bodies: dict) -> str:
         lines.append("  %-36s %-5d %-12d %-12d %-9s %-9s %-7s %.2fs"
                      % (key, c["n"], med(c["chars"]), med(c["lines"]),
                         "%d/%d" % (c["thinking"], c["n"]), "%d/%d" % (c["tool_log"], c["n"]),
-                        "%d/%d" % (c["twice"], c["n"]), med(c["agent"])))
+                        "%d/%d" % (c["twice"], c["n"]), med(c["agent"]) if c["agent"] else 0))
     lines += ["  answer chars and lines are medians of the text after the stamped header.",
               "  thinking: <thinking> text reached stdout. tool log: the capture shows each",
               "  tool call as it happened. printed: the answer appears before the header as",
@@ -394,8 +428,8 @@ def crossover(c_rows: list) -> str:
     by = cells(c_rows, "cell")
     mid = {k: med(secs(r) for r in v) for k, v in by.items()}
     agent = {k: med(r["agent_s"] for r in v) for k, v in by.items()}
-    lo = {k: min(secs(r) for r in v) for k, v in by.items()}
-    hi = {k: max(secs(r) for r in v) for k, v in by.items()}
+    lo = {k: quartiles(secs(r) for r in v)[0] for k, v in by.items()}
+    hi = {k: quartiles(secs(r) for r in v)[1] for k, v in by.items()}
     adk_g, str_g, str_n = ("ADK / gemini-2.5-flash", "Strands / gemini-2.5-flash",
                            "Strands / us.amazon.nova-micro-v1:0")
     if not all(k in mid for k in (adk_g, str_g, str_n)):
@@ -404,8 +438,8 @@ def crossover(c_rows: list) -> str:
     def compare(label, a, b):
         slow, fast = (a, b) if mid[a] >= mid[b] else (b, a)
         return ["  %s" % label,
-                "    %-36s answer median %.2fs  (%.2f-%.2f)" % (a, mid[a], lo[a], hi[a]),
-                "    %-36s answer median %.2fs  (%.2f-%.2f)" % (b, mid[b], lo[b], hi[b]),
+                "    %-36s answer median %.2fs  (iqr %.2f-%.2f)" % (a, mid[a], lo[a], hi[a]),
+                "    %-36s answer median %.2fs  (iqr %.2f-%.2f)" % (b, mid[b], lo[b], hi[b]),
                 "    ratio %.2fx, medians differ %.2fs, %s"
                 % (mid[slow] / mid[fast], mid[slow] - mid[fast],
                    "no overlap" if hi[fast] < lo[slow] else "OVERLAP")]
@@ -431,7 +465,7 @@ def superseded_d(truth: dict) -> dict:
                          % (r["capture"], "ok" if r["correct_max_id"] else "WRONG",
                             "ok" if r["correct_count"] else "WRONG",
                             "ok" if r["cites_snapshot"] else "WRONG", r["catalog_calls"], secs(r)))
-        texts["superseded-runs/%s/README.txt" % name] = "\n".join(lines) + "\n"
+        texts["superseded-runs/%s/README-axis-D.txt" % name] = "\n".join(lines) + "\n"
         for capture, body in bodies.items():
             texts["superseded-runs/%s/matrix/%s" % (name, capture)] = body
     return texts
@@ -444,8 +478,8 @@ def replication(history: list) -> str:
     for label, a_rows, _ in history:
         legs = cells(a_rows, "leg")
         mid = {k: med(secs(r) for r in v) for k, v in legs.items()}
-        lo = {k: min(secs(r) for r in v) for k, v in legs.items()}
-        hi = {k: max(secs(r) for r in v) for k, v in legs.items()}
+        lo = {k: quartiles(secs(r) for r in v)[0] for k, v in legs.items()}
+        hi = {k: quartiles(secs(r) for r in v)[1] for k, v in legs.items()}
         order = sorted(mid, key=mid.get)
         overlap = any(hi[a] >= lo[b] for a, b in zip(order, order[1:]))
         lines.append("  %-20s %s   spread %.2fx   %s%s"

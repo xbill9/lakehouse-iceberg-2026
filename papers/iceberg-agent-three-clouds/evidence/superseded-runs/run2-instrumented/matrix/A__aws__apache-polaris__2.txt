@@ -16,8 +16,8 @@ Tool #3: iceberg_count_rows
 Here is the information you requested:
 
 - The "probe_ns.probe_table" has the following columns: `id` (long), `ts` (timestamptz), `payload` (string), and `region` (string).
-- The table has **11 rows** as of snapshot-id `5653331815319537848`, and this count is exact for that snapshot.
-- The exact immutable version of the table is cited by the metadata-location `file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json` and snapshot-id `5653331815319537848`.
+- The table has **11 rows** as of snapshot-id `aws-account-00029537848`, and this count is exact for that snapshot.
+- The exact immutable version of the table is cited by the metadata-location `file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json` and snapshot-id `aws-account-00029537848`.
 
 This information is accurate up to the metadata-location and snapshot-id provided.
 <!-- cloud=aws model=us.amazon.nova-micro-v1:0 catalog=apache-polaris instruction=v2 catalog_calls=3 -->
@@ -26,8 +26,8 @@ This information is accurate up to the metadata-location and snapshot-id provide
 Here is the information you requested:
 
 - The "probe_ns.probe_table" has the following columns: `id` (long), `ts` (timestamptz), `payload` (string), and `region` (string).
-- The table has **11 rows** as of snapshot-id `5653331815319537848`, and this count is exact for that snapshot.
-- The exact immutable version of the table is cited by the metadata-location `file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json` and snapshot-id `5653331815319537848`.
+- The table has **11 rows** as of snapshot-id `aws-account-00029537848`, and this count is exact for that snapshot.
+- The exact immutable version of the table is cited by the metadata-location `file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json` and snapshot-id `aws-account-00029537848`.
 
 This information is accurate up to the metadata-location and snapshot-id provided.
 

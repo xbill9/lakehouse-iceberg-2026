@@ -21,6 +21,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 
 import common  # noqa: E402
+import iceberg_tool  # noqa: E402
 from run_matrix import LEGS, QUESTION, RAW, ground_truth, score  # noqa: E402
 
 
@@ -56,7 +57,8 @@ def main() -> None:
             ("all columns named", s["names_all_columns"]),
             ("no column invented", not s["invented_column"]),
             ("catalog in header matches", bool(head) and head.group(3) == catalog),
-            ("instruction v2", bool(head) and head.group(4) == "2"),
+            ("instruction v%d" % iceberg_tool.INSTRUCTION_VERSION,
+             bool(head) and head.group(4) == str(iceberg_tool.INSTRUCTION_VERSION)),
             ("catalog_calls == 3", s["catalog_calls"] == 3),
         ]
         report.append("%-6s model=%s catalog=%s" % (leg, head.group(2) if head else "?", catalog))

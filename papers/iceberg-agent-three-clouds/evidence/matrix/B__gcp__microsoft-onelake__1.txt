@@ -1,4 +1,4 @@
-# axis=B leg=gcp catalog=microsoft-onelake run=1 elapsed_s=10.9 captured=2026-09-15T01:14:01Z
+# axis=B leg=gcp catalog=microsoft-onelake run=1 elapsed_s=34.4 captured=2026-09-15T13:46:26Z
 
 cloud=gcp model=gemini-2.5-flash catalog=microsoft-onelake
 question: How many rows are in the probe table, and what columns does it have? Cite the exact table version you read.
@@ -7,13 +7,16 @@ question: How many rows are in the probe table, and what columns does it have? C
    -> tool: iceberg_describe_table(table='dbo.probe_table')
    -> tool: iceberg_count_rows(table='dbo.probe_table')
 
-<!-- cloud=gcp model=gemini-2.5-flash catalog=microsoft-onelake instruction=v2 catalog_calls=3 -->
-The `dbo.probe_table` contains 6 rows, based on the snapshot summary of snapshot-id `3346142071915475645` (abfss://guid-0005@onelake.dfs.fabric.microsoft.com/guid-0006/Tables/probe_table/metadata/v3.metadata.json).
+<!-- cloud=gcp model=gemini-2.5-flash catalog=microsoft-onelake instruction=v3 catalog_calls=3 -->
+The `dbo.probe_table` has 6 rows, according to the snapshot summary (total-records) of snapshot-id 3346142071915475645. This is exact for that snapshot.
 
-It has the following columns:
-*   `id` (int)
-*   `ts` (timestamptz)
-*   `payload` (string)
+The table has the following columns:
+*   `id` (int, optional)
+*   `ts` (timestamptz, optional)
+*   `payload` (string, optional)
+
+This information was retrieved from metadata-location `abfss://guid-0005@onelake.dfs.fabric.microsoft.com/guid-0006/Tables/probe_table/metadata/v3.metadata.json` and snapshot-id `3346142071915475645`.
 
 catalog calls: 3 of 8
-agent seconds: 9.76 | tool seconds: 3.74
+agent seconds: 29.60 | tool seconds: 23.28
+warm-up seconds: 3.63

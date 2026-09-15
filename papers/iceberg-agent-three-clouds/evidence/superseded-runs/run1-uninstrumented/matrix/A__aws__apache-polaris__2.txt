@@ -14,7 +14,7 @@ Tool #3: iceberg_count_rows
 The table "probe_ns.probe_table" has 11 rows. The metadata location and snapshot ID that identify the exact immutable version of the table I read from are:
 
 - Metadata location: `file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json`
-- Snapshot ID: `5653331815319537848`
+- Snapshot ID: `aws-account-00029537848`
 
 The table's columns are:
 - `id` (long, required)
@@ -27,7 +27,7 @@ The table is partitioned by the `ts_day` column.
 The table "probe_ns.probe_table" has 11 rows. The metadata location and snapshot ID that identify the exact immutable version of the table I read from are:
 
 - Metadata location: `file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json`
-- Snapshot ID: `5653331815319537848`
+- Snapshot ID: `aws-account-00029537848`
 
 The table's columns are:
 - `id` (long, required)

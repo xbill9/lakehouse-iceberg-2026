@@ -22,6 +22,7 @@ the catalog itself rather than through any agent.
 """
 import argparse
 import json
+import random
 import os
 import re
 import subprocess
@@ -95,7 +96,12 @@ def ground_truth() -> dict:
 #: D: one Strands answer stated in its visible text that it "cannot confirm this
 #: as the largest 'id' in the table", and passed the max-id check on its
 #: <thinking> block alone.
-SCORER_VERSION = 4
+#: v5 (2026-09-15) widens the row-count window from 40 to 90 characters.
+#: MEASURED on the ten-repeat run: "The exact number of rows in this table, as of
+#: snapshot-id 5653331815319537848, is 11." put the snapshot id between the word
+#: and the count, and v4 marked a correct answer wrong. It also ended "is 11.",
+#: and a full stop after the count was read as a decimal point.
+SCORER_VERSION = 5
 ANSWER = re.compile(r"<!-- cloud=.*?-->\n(.*?)\ncatalog calls:", re.S)
 
 
@@ -155,7 +161,7 @@ def score(body: str, truth: dict) -> dict:
     n = re.escape(truth["rows"])
     return {
         "correct_row_count": bool(re.search(
-            r"(?<![\w.-])%s(?![\w.-])[^\n]{0,40}?\brows?\b|\brows?\b[^\n]{0,40}?(?<![\w.-])%s(?![\w.-])"
+            r"(?<![\w.-])%s(?![\w-]|\.\d)[^\n]{0,90}?\brows?\b|\brows?\b[^\n]{0,90}?(?<![\w.-])%s(?![\w-]|\.\d)"
             % (n, n), answer, re.I)),
         "cites_snapshot": truth["snapshot_id"] in answer,
         "cites_metadata": truth["metadata_location"] in answer,
@@ -168,7 +174,7 @@ def score(body: str, truth: dict) -> dict:
 
 
 def one_run(axis: str, leg: str, catalog: str, index: int, model: str = None,
-            question: str = QUESTION) -> dict:
+            question: str = QUESTION, warm: bool = True) -> dict:
     env = {k: v for k, v in os.environ.items() if not k.startswith("ICEBERG_MODEL")}
     env["ICEBERG_CATALOG"] = catalog
     if model:
@@ -176,7 +182,7 @@ def one_run(axis: str, leg: str, catalog: str, index: int, model: str = None,
     started = time.time()
     proc = subprocess.run(
         [sys.executable, os.path.join(HERE, "run_once.py"), leg, question,
-         "--catalog", catalog],
+         "--catalog", catalog] + (["--warm"] if warm else []),
         capture_output=True, text=True, cwd=HERE, env=env, timeout=900)
     elapsed = round(time.time() - started, 1)
     body = proc.stdout + proc.stderr
@@ -204,6 +210,9 @@ def main() -> None:
     ap.add_argument("--axis", choices=["A", "B", "C", "D"], required=True)
     ap.add_argument("--repeat", type=int, default=3)
     ap.add_argument("--leg", default=AXIS_B_LEG)
+    ap.add_argument("--no-warm", action="store_true", help="time sign-in inside the answer")
+    ap.add_argument("--seed", type=int, default=20260915,
+                    help="seeds the per-round shuffle of cell order")
     args = ap.parse_args()
 
     truth = ground_truth()
@@ -217,11 +226,18 @@ def main() -> None:
         cells = [(leg, cat, None) for leg, cat in AXIS_D_CELLS]
     question, scorer = (SCAN_QUESTION, score_scan) if args.axis == "D" else (QUESTION, score)
 
+    # Rounds, not blocks: one run of every cell per round, in a shuffled order, so
+    # drift in endpoint load across a long sitting spreads over every cell instead
+    # of landing on whichever cell happened to run while it was high.
+    rng = random.Random(args.seed)
     results = []
-    for leg, catalog, model in cells:
-        for index in range(1, args.repeat + 1):
-            row = one_run(args.axis, leg, catalog, index, model, question)
+    for index in range(1, args.repeat + 1):
+        round_cells = list(cells)
+        rng.shuffle(round_cells)
+        for leg, catalog, model in round_cells:
+            row = one_run(args.axis, leg, catalog, index, model, question, not args.no_warm)
             row.update(scorer(row.pop("body"), truth[catalog]))
+            row["answered"] = row["catalog_calls"] is not None
             results.append(row)
             checks = " ".join("%s=%s" % (k, "ok" if v else "NO") for k, v in row.items()
                               if k.startswith(("correct_", "cites_", "names_")))
@@ -231,8 +247,10 @@ def main() -> None:
 
     out = os.path.join(RAW, "matrix-axis-%s.json" % args.axis)
     with open(out, "w") as handle:
-        json.dump({"axis": args.axis, "question": question,
-                   "repeat": args.repeat, "results": results}, handle, indent=2)
+        json.dump({"axis": args.axis, "question": question, "repeat": args.repeat,
+                   "warm": not args.no_warm, "seed": args.seed,
+                   "order": "rounds, cells shuffled per round", "results": results},
+                  handle, indent=2)
     print("\nwrote %s (%d runs)" % (out, len(results)))
 
 

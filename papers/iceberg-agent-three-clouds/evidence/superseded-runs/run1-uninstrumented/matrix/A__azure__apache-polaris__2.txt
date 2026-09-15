@@ -16,15 +16,15 @@ I described the table I used (probe_ns.probe_table). Its description:
   - payload — string — optional
   - region — string — optional
 - partitioned by: ts_day
-- current-snapshot-id: 5653331815319537848
+- current-snapshot-id: aws-account-00029537848
 - metadata-location: file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json
 
 Exact row count:
-- 11 rows (this is exact for snapshot-id 5653331815319537848).
+- 11 rows (this is exact for snapshot-id aws-account-00029537848).
 
 Cited table version (the exact immutable version I read):
 - metadata-location: file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json
-- snapshot-id: 5653331815319537848
+- snapshot-id: aws-account-00029537848
 
 If you want, I can show a small sample of rows from that snapshot.
 

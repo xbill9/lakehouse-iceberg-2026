@@ -18,15 +18,15 @@ Description of probe_ns.probe_table (as read):
   - payload (string, optional)
   - region (string, optional)
 - partitioned by: ts_day
-- current-snapshot-id: 5653331815319537848
+- current-snapshot-id: aws-account-00029537848
 - metadata-location: file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json
 
 Answer:
-- Number of rows: 11 rows (exact for snapshot id 5653331815319537848).
+- Number of rows: 11 rows (exact for snapshot id aws-account-00029537848).
 - Columns: id (long, required); ts (timestamptz, optional); payload (string, optional); region (string, optional).
 
 All figures above come from probe_ns.probe_table at metadata-location
-file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json and snapshot id 5653331815319537848.
+file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json and snapshot id aws-account-00029537848.
 
 catalog calls: 3 of 8
 agent seconds: 14.64 | tool seconds: 0.42

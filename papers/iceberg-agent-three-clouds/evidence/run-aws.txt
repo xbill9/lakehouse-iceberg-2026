@@ -1,25 +1,21 @@
-# captured 2026-09-15T01:14:33Z by run_once.py on this machine
+# captured 2026-09-15T14:13:21Z by run_once.py on this machine
 # command: python3 run_once.py aws "How many rows are in the probe table, and what columns does it have? Cite the exact table version you read."
 
 cloud=aws model=us.amazon.nova-micro-v1:0 catalog=aws-glue
 question: How many rows are in the probe table, and what columns does it have? Cite the exact table version you read.
 
-<thinking> To answer the question, I need to list the available tables first to identify if "probe" table exists. Then, I will describe the "probe" table to obtain its columns and metadata-location and snapshot-id for exact version citation. Finally, I will count the rows in the "probe" table to provide an exact row count. I will use a maximum of 8 catalog calls as per the instruction. </thinking>
+<thinking> To answer the question about the number of rows in the "probe" table and its columns, I need to first list all available tables to confirm that "probe" exists. Once I have confirmed the existence of the "probe" table, I will describe it to get its columns. Finally, I will count the rows in the table to provide the exact number. I will cite the exact table version by quoting the metadata location and snapshot ID returned by the `iceberg_describe_table` tool.</thinking>
 
 
 Tool #1: iceberg_list_tables
-<thinking> I have found one table, "probe_ns.probe_table". Now, I will describe this table to obtain its columns, metadata-location, and snapshot-id. This will allow me to cite the exact version of the table I will refer to. </thinking> 
+<thinking> The "probe_ns.probe_table" table exists. Now I need to describe this table to get its columns and the exact table version.</thinking> 
 Tool #2: iceberg_describe_table
-<thinking> Now that I have the columns and metadata details for the "probe_ns.probe_table", I will proceed to count the rows in this table to provide the exact number of rows. The metadata-location and snapshot-id for the table are: `s3://bucket-0002/probe_ns/probe_table/metadata/00006-guid-0003.metadata.json` and `9187553066798777529` respectively. </thinking> 
+<thinking> Now that I have the columns for the "probe_ns.probe_table", I will count the rows in this table to provide the exact number of rows.</thinking> 
 Tool #3: iceberg_count_rows
-The "probe_ns.probe_table" has 11 rows. The exact version of the table, as per the metadata-location and snapshot-id, is located at `s3://bucket-0002/probe_ns/probe_table/metadata/00006-guid-0003.metadata.json` and the snapshot-id is `9187553066798777529`.
-
-The columns in the "probe_ns.probe_table" are `id` (long), `ts` (timestamptz), `payload` (string), and `region` (string). This table is partitioned by `ts_day`.
-<!-- cloud=aws model=us.amazon.nova-micro-v1:0 catalog=aws-glue instruction=v2 catalog_calls=3 -->
-The "probe_ns.probe_table" has 11 rows. The exact version of the table, as per the metadata-location and snapshot-id, is located at `s3://bucket-0002/probe_ns/probe_table/metadata/00006-guid-0003.metadata.json` and the snapshot-id is `9187553066798777529`.
-
-The columns in the "probe_ns.probe_table" are `id` (long), `ts` (timestamptz), `payload` (string), and `region` (string). This table is partitioned by `ts_day`.
+The "probe_ns.probe_table" has **11 rows** as of snapshot-id `9187553066798777529`. The table columns are `id` (long, required), `ts` (timestamptz, optional), `payload` (string, optional), and `region` (string, optional). These figures are cited from the metadata-location `s3://bucket-0002/probe_ns/probe_table/metadata/00006-guid-0003.metadata.json` and snapshot-id `9187553066798777529`.
+<!-- cloud=aws model=us.amazon.nova-micro-v1:0 catalog=aws-glue instruction=v3 catalog_calls=3 -->
+The "probe_ns.probe_table" has **11 rows** as of snapshot-id `9187553066798777529`. The table columns are `id` (long, required), `ts` (timestamptz, optional), `payload` (string, optional), and `region` (string, optional). These figures are cited from the metadata-location `s3://bucket-0002/probe_ns/probe_table/metadata/00006-guid-0003.metadata.json` and snapshot-id `9187553066798777529`.
 
 
 catalog calls: 3 of 8
-agent seconds: 4.75 | tool seconds: 1.25
+agent seconds: 4.02 | tool seconds: 0.95

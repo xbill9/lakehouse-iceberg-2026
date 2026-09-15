@@ -19,10 +19,10 @@ Table described (I used probe_ns.probe_table)
 
 Exact table version (from iceberg_describe_table)
 - metadata-location: "file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json"
-- snapshot-id: 5653331815319537848
+- snapshot-id: aws-account-00029537848
 
 Row count
-- 11 rows (exact). This count is for snapshot-id 5653331815319537848 and the metadata-location quoted above.
+- 11 rows (exact). This count is for snapshot-id aws-account-00029537848 and the metadata-location quoted above.
 
 catalog calls: 3 of 8
 agent seconds: 13.07 | tool seconds: 0.40

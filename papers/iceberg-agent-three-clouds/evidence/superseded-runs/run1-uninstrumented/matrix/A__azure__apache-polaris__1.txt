@@ -19,11 +19,11 @@ I will use probe_ns.probe_table. Description (as returned by the catalog):
 
 Table version (metadata-location and snapshot id) for the figures below:
 - metadata-location: file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json
-- snapshot id: 5653331815319537848
+- snapshot id: aws-account-00029537848
 
 Row count:
 - Exact row count: 11 rows.
-- Source: the table snapshot summary (total-records) for snapshot id 5653331815319537848.
+- Source: the table snapshot summary (total-records) for snapshot id aws-account-00029537848.
 - Referenced table version: metadata-location and snapshot id quoted above.
 
 catalog calls: 3 of 8

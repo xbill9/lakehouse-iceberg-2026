@@ -23,7 +23,7 @@ The "probe_ns.probe_table" has the following columns:
 
 The table is partitioned by the column "ts_day".
 
-The exact number of rows in the "probe_ns.probe_table" is **11**, and this count is true for snapshot-id **5653331815319537848**. The metadata-location for this exact version of the table is **file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json**.
+The exact number of rows in the "probe_ns.probe_table" is **11**, and this count is true for snapshot-id **aws-account-00029537848**. The metadata-location for this exact version of the table is **file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json**.
 
 Please cite the metadata-location and snapshot-id above when stating a figure from this table.
 <!-- cloud=aws model=us.amazon.nova-micro-v1:0 catalog=apache-polaris instruction=v2 catalog_calls=3 -->
@@ -39,7 +39,7 @@ The "probe_ns.probe_table" has the following columns:
 
 The table is partitioned by the column "ts_day".
 
-The exact number of rows in the "probe_ns.probe_table" is **11**, and this count is true for snapshot-id **5653331815319537848**. The metadata-location for this exact version of the table is **file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json**.
+The exact number of rows in the "probe_ns.probe_table" is **11**, and this count is true for snapshot-id **aws-account-00029537848**. The metadata-location for this exact version of the table is **file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json**.
 
 Please cite the metadata-location and snapshot-id above when stating a figure from this table.
 

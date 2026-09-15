@@ -16,7 +16,7 @@ Tool #1: iceberg_list_tables
 Tool #2: iceberg_describe_table
 <thinking> Now that I have the columns and metadata version of the "probe_ns.probe_table", I can proceed to count the exact number of rows in the table. This count will be cited with the metadata-location and snapshot-id from the table description.</thinking> 
 Tool #3: iceberg_count_rows
-The "probe_ns.probe_table" contains exactly **11 rows** as of the metadata-location `file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json` and snapshot-id `5653331815319537848`. 
+The "probe_ns.probe_table" contains exactly **11 rows** as of the metadata-location `file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json` and snapshot-id `aws-account-00029537848`. 
 
 The columns of the table are:
 - `id` (`long`), required
@@ -26,7 +26,7 @@ The columns of the table are:
 
 The table is partitioned by `ts_day`.
 <!-- cloud=aws model=us.amazon.nova-micro-v1:0 catalog=apache-polaris instruction=v2 catalog_calls=3 -->
-The "probe_ns.probe_table" contains exactly **11 rows** as of the metadata-location `file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json` and snapshot-id `5653331815319537848`. 
+The "probe_ns.probe_table" contains exactly **11 rows** as of the metadata-location `file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json` and snapshot-id `aws-account-00029537848`. 
 
 The columns of the table are:
 - `id` (`long`), required

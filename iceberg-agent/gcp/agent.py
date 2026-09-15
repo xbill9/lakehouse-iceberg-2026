@@ -24,8 +24,12 @@ def build():
 
     model = common.resolve_model(CLOUD, DEFAULT_MODEL)
     os.environ.setdefault("ICEBERG_CATALOG", common.resolve_catalog(CLOUD))
+    # Resolved once, so the Gemini client -- and the token it holds -- survives
+    # from a warm-up turn to the timed one. A bare model string is resolved to a
+    # new client on every run, which re-fetches the token inside answer time.
+    from google.adk.models.registry import LLMRegistry
     return LlmAgent(
-        model=model,                        # a model id string
+        model=LLMRegistry.new_llm(model),   # resolved from a model id string
         name=common.AGENT_NAME,
         description=common.DESCRIPTION,
         instruction=common.INSTRUCTION,     # `instruction`

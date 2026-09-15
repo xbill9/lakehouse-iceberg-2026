@@ -8,7 +8,7 @@ question: How many rows are in the probe table, and what columns does it have? C
    -> tool: iceberg_count_rows(table='probe_ns.probe_table')
 
 <!-- cloud=gcp model=gemini-2.5-flash catalog=apache-polaris instruction=v2 catalog_calls=3 -->
-The `probe_ns.probe_table` has 11 rows. This count is exact for snapshot-id 5653331815319537848.
+The `probe_ns.probe_table` has 11 rows. This count is exact for snapshot-id aws-account-00029537848.
 
 The table has the following columns:
 *   `id` (type: long)
@@ -16,6 +16,6 @@ The table has the following columns:
 *   `payload` (type: string)
 *   `region` (type: string)
 
-These column details are from the table version identified by metadata-location: `file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json` and snapshot-id: `5653331815319537848`.
+These column details are from the table version identified by metadata-location: `file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json` and snapshot-id: `aws-account-00029537848`.
 
 catalog calls: 3 of 8

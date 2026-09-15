@@ -14,6 +14,8 @@ local control.
 """
 import argparse
 import asyncio
+import contextlib
+import io
 import importlib.util
 import os
 import sys
@@ -73,12 +75,21 @@ async def run_azure(agent, question: str) -> str:
 
 RUNNERS = {"gcp": run_gcp, "aws": run_aws, "azure": run_azure}
 
+#: --warm sends this through the agent before the timed question, with its output
+#: discarded, and builds the catalog client, so tokens and connections are held
+#: before the clock starts. MEASURED 2026-09-15: a cold first token costs 1.25 to
+#: 1.53s through DefaultAzureCredential, 0.52 to 0.54s through Vertex ADC and
+#: 0.06s through the AWS chain, all of which landed inside answer time.
+WARMUP = "This is a connection check. Reply with the single word ready and call no tools."
+
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("cloud", choices=sorted(RUNNERS))
     ap.add_argument("question")
     ap.add_argument("--catalog", help="override the catalog this leg reads")
+    ap.add_argument("--warm", action="store_true",
+                    help="run an untimed warm-up turn first, so sign-in is not timed")
     args = ap.parse_args()
 
     import common
@@ -97,6 +108,17 @@ def main() -> None:
     print("cloud=%s model=%s catalog=%s" % (args.cloud, model, catalog))
     print("question: %s\n" % args.question)
 
+    warm_seconds = None
+    if args.warm:
+        warm_started = time.monotonic()
+        with contextlib.redirect_stdout(io.StringIO()):
+            iceberg_tool.catalog()
+            asyncio.run(RUNNERS[args.cloud](agent, WARMUP))
+        warm_seconds = time.monotonic() - warm_started
+        if isinstance(getattr(agent, "messages", None), list):
+            agent.messages.clear()      # Strands keeps the conversation on the agent
+        iceberg_tool.reset_budget()
+
     started = time.monotonic()
     answer = asyncio.run(RUNNERS[args.cloud](agent, args.question))
     agent_seconds = time.monotonic() - started
@@ -110,6 +132,8 @@ def main() -> None:
     # the model and the framework.
     print("agent seconds: %.2f | tool seconds: %.2f"
           % (agent_seconds, iceberg_tool.catalog_seconds()))
+    if warm_seconds is not None:
+        print("warm-up seconds: %.2f" % warm_seconds)
 
 
 if __name__ == "__main__":

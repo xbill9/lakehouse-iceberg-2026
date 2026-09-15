@@ -1,4 +1,4 @@
-# environment the paper 3 evidence was measured in, captured 2026-09-15T02:46:58Z
+# environment the paper 3 evidence was measured in, captured 2026-09-15T13:37:11Z
 python=3.14.7
 platform=Linux
 google-adk=2.8.0
@@ -18,4 +18,4 @@ vertex_ai=true
 vertex_location=us-central1
 aws_region=us-east-1
 catalog_budget=8
-instruction=v2
+instruction=v3

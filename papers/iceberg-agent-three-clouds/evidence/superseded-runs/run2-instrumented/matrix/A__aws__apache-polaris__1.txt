@@ -21,10 +21,10 @@ Here are the details regarding the "probe_ns.probe_table":
 
 **Exact Version Information:**
 - The metadata location is `file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json`
-- Snapshot ID for the current version is `5653331815319537848`
+- Snapshot ID for the current version is `aws-account-00029537848`
 
 **Row Count:**
-- The table has **11 rows** as of snapshot ID `5653331815319537848`. This count is exact for that snapshot.
+- The table has **11 rows** as of snapshot ID `aws-account-00029537848`. This count is exact for that snapshot.
 
 If you need any further details or another table, let me know!
 <!-- cloud=aws model=us.amazon.nova-micro-v1:0 catalog=apache-polaris instruction=v2 catalog_calls=3 -->
@@ -38,10 +38,10 @@ Here are the details regarding the "probe_ns.probe_table":
 
 **Exact Version Information:**
 - The metadata location is `file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json`
-- Snapshot ID for the current version is `5653331815319537848`
+- Snapshot ID for the current version is `aws-account-00029537848`
 
 **Row Count:**
-- The table has **11 rows** as of snapshot ID `5653331815319537848`. This count is exact for that snapshot.
+- The table has **11 rows** as of snapshot ID `aws-account-00029537848`. This count is exact for that snapshot.
 
 If you need any further details or another table, let me know!
 

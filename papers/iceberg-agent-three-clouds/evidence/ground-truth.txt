@@ -1,4 +1,4 @@
-# ground truth captured 2026-09-15T02:46:58Z, read directly from each catalog
+# ground truth captured 2026-09-15T13:37:11Z, read directly from each catalog
 # not via any agent; every agent answer is checked against this
 
 catalog=apache-polaris table=probe_ns.probe_table
@@ -8,7 +8,7 @@ catalog=apache-polaris table=probe_ns.probe_table
   max_id=23
   ids_at_least_10=8
   columns=id,ts,payload,region
-  snapshot_id=5653331815319537848
+  snapshot_id=aws-account-00029537848
   metadata_location=file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json
 catalog=google-lakehouse table=probe_ns.probe_table
   rows=11

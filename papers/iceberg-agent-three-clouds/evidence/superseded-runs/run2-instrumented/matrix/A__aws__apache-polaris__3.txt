@@ -17,9 +17,9 @@ The "probe_ns.probe_table" has the following columns:
 - payload: string, optional
 - region: string, optional
 
-The metadata for this exact version of the table is located at: `file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json` and it was read at snapshot-id `5653331815319537848`.
+The metadata for this exact version of the table is located at: `file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json` and it was read at snapshot-id `aws-account-00029537848`.
 
-The table has an exact count of `11 rows`, true for snapshot-id `5653331815319537848`.
+The table has an exact count of `11 rows`, true for snapshot-id `aws-account-00029537848`.
 <!-- cloud=aws model=us.amazon.nova-micro-v1:0 catalog=apache-polaris instruction=v2 catalog_calls=3 -->
 The "probe_ns.probe_table" has the following columns:
 - id: long, required
@@ -27,9 +27,9 @@ The "probe_ns.probe_table" has the following columns:
 - payload: string, optional
 - region: string, optional
 
-The metadata for this exact version of the table is located at: `file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json` and it was read at snapshot-id `5653331815319537848`.
+The metadata for this exact version of the table is located at: `file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json` and it was read at snapshot-id `aws-account-00029537848`.
 
-The table has an exact count of `11 rows`, true for snapshot-id `5653331815319537848`.
+The table has an exact count of `11 rows`, true for snapshot-id `aws-account-00029537848`.
 
 
 catalog calls: 3 of 8

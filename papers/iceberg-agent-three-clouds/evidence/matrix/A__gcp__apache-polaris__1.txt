@@ -1,4 +1,4 @@
-# axis=A leg=gcp catalog=apache-polaris run=1 elapsed_s=7.7 captured=2026-09-15T01:10:29Z
+# axis=A leg=gcp catalog=apache-polaris run=1 elapsed_s=10.4 captured=2026-09-15T13:37:39Z
 
 cloud=gcp model=gemini-2.5-flash catalog=apache-polaris
 question: How many rows are in the probe table, and what columns does it have? Cite the exact table version you read.
@@ -7,18 +7,17 @@ question: How many rows are in the probe table, and what columns does it have? C
    -> tool: iceberg_describe_table(table='probe_ns.probe_table')
    -> tool: iceberg_count_rows(table='probe_ns.probe_table')
 
-<!-- cloud=gcp model=gemini-2.5-flash catalog=apache-polaris instruction=v2 catalog_calls=3 -->
-The `probe_ns.probe_table` has 11 rows. This count is exact for snapshot ID `5653331815319537848`
-(metadata-location: `file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json`).
+<!-- cloud=gcp model=gemini-2.5-flash catalog=apache-polaris instruction=v3 catalog_calls=3 -->
+The `probe_ns.probe_table` table has 11 rows, from snapshot-id `aws-account-00029537848`. This count is exact for that snapshot.
 
 The table has the following columns:
-*   `id` (type: `long`)
-*   `ts` (type: `timestamptz`)
-*   `payload` (type: `string`)
-*   `region` (type: `string`)
+*   `id` (long, required)
+*   `ts` (timestamptz, optional)
+*   `payload` (string, optional)
+*   `region` (string, optional)
 
-This table description is for snapshot ID `5653331815319537848`
-(metadata-location: `file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json`).
+This table description is for the version identified by metadata-location `file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json` and snapshot-id `aws-account-00029537848`.
 
 catalog calls: 3 of 8
-agent seconds: 6.57 | tool seconds: 0.32
+agent seconds: 6.57 | tool seconds: 0.14
+warm-up seconds: 2.61

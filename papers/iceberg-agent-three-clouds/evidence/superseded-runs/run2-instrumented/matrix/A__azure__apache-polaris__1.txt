@@ -24,10 +24,10 @@ Exact row count:
 
 Exact table version I read (quote from iceberg_describe_table):
 - metadata-location: file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json
-- snapshot id: 5653331815319537848
+- snapshot id: aws-account-00029537848
 
 Source of the row count:
-- The 11-row count comes from the snapshot summary (total-records) for snapshot-id 5653331815319537848.
+- The 11-row count comes from the snapshot summary (total-records) for snapshot-id aws-account-00029537848.
 
 catalog calls: 3 of 8
 agent seconds: 15.50 | tool seconds: 0.42
