@@ -561,6 +561,45 @@ refuses if the two disagree, refuses if the scorer passes a planted empty answer
 and maps account identifiers to stable pseudonyms on the way out. Every figure
 below comes from the summary it writes.
 
+## Where the Control Fits
+
+Apache Polaris is the open-source Iceberg REST catalog, run locally in Docker and
+configured permissively on purpose. It does four jobs in this article, and it
+cannot do a fifth.
+
+**It proves the wiring.** Every leg answers its first question against Polaris,
+before any cloud catalog is involved (Step 4). A failure there is almost always a
+bug in the harness, not a finding about a vendor.
+
+**It holds the catalog still.** Axes A and C both read Polaris. There is no
+network hop, no managed service and no region, so tool time is 0.31 to 0.39
+seconds in every leg and the rest of the answer can be put on the framework and
+the model.
+
+**It is the baseline for the managed catalogs.** In Axis B the same leg reads all
+five catalogs. Three calls take 0.31 seconds against Polaris and 1.01 to 2.09
+seconds against the four managed ones. The difference is distance from this
+machine plus whatever the service adds, and it is not a ranking.
+
+**It measures the noise.** ADK on Polaris is the one cell both Axis A and Axis B
+run. Its medians differed by 0.5 seconds in this run, and by 0.4 and 1.7 seconds
+in the two before it. That is the run-to-run variation every other comparison in
+this article has to clear.
+
+**What it cannot test is the storage wiring.** Polaris keeps its data as local
+files in a warehouse directory the client shares, so an agent reading it never
+touches `FsspecFileIO`, an OneLake account host, or vended S3 credentials -- the
+part of this agent that does not port. A leg that works against Polaris has
+proven its agent and its catalog calls, not its file access. That is why the
+failure modes above were reproduced against OneLake and Glue, each with its own
+control.
+
+It has one consequence for the headline. The about-4x spread in Axis A was
+measured against a local catalog, where the tools are about 5% of an answer.
+Reading each leg's own managed catalog would add between 1.01 and 2.09 seconds of
+tool time to each leg, depending on the catalog, and adding time to both ends of
+a ratio narrows it. That was not measured here.
+
 ## Axis A: Catalog Fixed, Framework and Model Vary
 
 Three legs, one catalog, three runs each. The catalog is the local Polaris
