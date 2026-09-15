@@ -164,7 +164,7 @@ halves overlapping (evidence files: Axis F).
 
 | leg | framework and model | runs passing every check | answer seconds min/med/max | tokens generated |
 |---|---|---|---|---|
-| aws | Strands, `us.amazon.nova-micro-v1:0`, greedy | one answer, passed | 3.15 / 3.25 / 3.32 | 564 |
+| aws | Strands, `us.amazon.nova-micro-v1:0` | 10/10, the same answer each run | 3.15 / 3.25 / 3.32 | 564 |
 | gcp | ADK, `gemini-2.5-flash` | 10/10 | 4.53 / 5.62 / 6.96 | 653.5 |
 | azure | Agent Framework, `gpt-5-mini` | 10/10 | 11.74 / 13.11 / 15.61 | 1442 |
 
@@ -213,7 +213,7 @@ repeated, as in Test 1.
 |---|---|---|---|---|
 | ADK | `gemini-2.5-flash` | 4.56 / 4.86 / 5.99 | 4.63 – 5.64 | 648.5 |
 | Strands | `gemini-2.5-flash` | 6.03 / 6.96 / 8.53 | 6.42 – 7.89 | 707.5 |
-| Strands | `us.amazon.nova-micro-v1:0`, greedy | 3.22 / 3.33 / 3.48 | 3.29 – 3.36 | 564 |
+| Strands | `us.amazon.nova-micro-v1:0` | 3.22 / 3.33 / 3.48 | 3.29 – 3.36 | 564 |
 
 **Swapping the model** under Strands moved the median 2.09x, with no overlap. That
 comparison also changes provider and region, Vertex AI in `us-central1` against
@@ -244,13 +244,13 @@ maximum over every matching row, so no model counts rows in its head.
 | agent and catalog | largest id | rows with id of 10 or more | median answer seconds | median seconds in tools |
 |---|---|---|---|---|
 | ADK / Gemini on BigLake | 10/10 | 10/10 | 13.55 | 5.12 |
-| Strands / Nova Micro on Glue, greedy | one answer, right | one answer, right | 6.31 | 2.08 |
+| Strands / Nova Micro on Glue | 10/10 | 10/10 | 6.31 | 2.08 |
 | Agent Framework / `gpt-5-mini` on OneLake | 10/10 | 10/10 | 25.00 | 4.66 |
 
 Every agent read its data: the tools print each call they receive, whatever the
-framework, and every one of the thirty captures shows a scan with a filter. "One
-answer" means Nova Micro's ten runs returned the same text, word for word. These
-cells are not like for like --
+framework, and every one of the thirty captures shows a scan with a filter. Nova
+Micro's ten runs returned the same text word for word, so that row is one answer
+that passed, ten times over. These cells are not like for like --
 different catalogs, regions, and a smaller OneLake table -- so correctness is
 compared in Test 5.
 
@@ -268,16 +268,18 @@ cells repeat one answer.
 | ADK / `gemini-2.5-flash` | the model | 10/10 | 10/10 | 10.29 | 1555.5 |
 | Strands / `gemini-2.5-flash` | the engine | 10/10 | 10/10 | 10.46 | 1002 |
 | Strands / `gemini-2.5-flash` | the model | 10/10 | 10/10 | 11.97 | 1352.5 |
-| Strands / `us.amazon.nova-micro-v1:0`, greedy | the engine | one answer, right | one answer, right | 3.69 | 540 |
-| Strands / `us.amazon.nova-micro-v1:0`, greedy | the model | one answer, right | one answer, wrong | 3.43 | 513 |
+| Strands / `us.amazon.nova-micro-v1:0`, greedy | the engine | 10/10, same answer | 10/10, same answer | 3.69 | 540 |
+| Strands / `us.amazon.nova-micro-v1:0`, greedy | the model | 10/10, same answer | 0/10, same answer | 3.43 | 513 |
 | Strands / `us.amazon.nova-micro-v1:0`, Bedrock defaults | the engine | 10/10 | 10/10 | 4.07 | 693.5 |
 | Strands / `us.amazon.nova-micro-v1:0`, Bedrock defaults | the model | 9/10 | 1/10 | 5.22 | 853.5 |
 | Agent Framework / `gpt-5-mini` | the engine | 10/10 | 10/10 | 20.75 | 2883.5 |
 | Agent Framework / `gpt-5-mini` | the model | 10/10 | 10/10 | 19.09 | 2654.5 |
 
-"One answer" means all ten runs returned the same text, word for word. Every
-capture records the tool calls, so which scan each answer used is on record: all
-fifty engine runs filtered, and no rows-only run could.
+"Same answer" marks the cells where all ten runs returned identical text: greedy
+decoding is deterministic, so those scores are one answer repeated, and the rows
+below them run the same question at Bedrock's defaults. Every capture records the
+tool calls, so which scan each answer used is on record: all fifty engine runs
+filtered, and no rows-only run could.
 
 Counting by reading only works on a table this small. The rows-only scan returns at
 most 100 rows, so on a real table no model can count what it cannot see. Whatever the

@@ -422,10 +422,10 @@ rows in its head.</p>
 alt="Table: agent and catalog, largest id, rows with id of 10 or more, median answer seconds, median seconds in tools" /></p>
 <p>Every agent read its data: the tools print each call they receive,
 whatever the framework, and every one of the thirty captures shows a
-scan with a filter. "One answer" means Nova Micro's ten runs returned
-the same text, word for word. These cells are not like for like --
-different catalogs, regions, and a smaller OneLake table -- so
-correctness is compared in Test 5.</p>
+scan with a filter. Nova Micro's ten runs returned the same text word
+for word, so that row is one answer that passed, ten times over. These
+cells are not like for like -- different catalogs, regions, and a
+smaller OneLake table -- so correctness is compared in Test 5.</p>
 <h4 id="test-5-the-same-data-question-like-for-like">Test 5: The Same
 Data Question, Like for Like</h4>
 <p>All four setups, the same 11-row Polaris table, ten runs each --
@@ -436,10 +436,12 @@ runs both ways at Bedrock's default decoding, because its greedy cells
 repeat one answer.</p>
 <p><img src="https://raw.githubusercontent.com/xbill9/lakehouse-iceberg-2026/main/papers/iceberg-agent-three-clouds/medium/img/devto-iceberg-agent-three-clouds-table-6.png"
 alt="Table: framework / model, who counts, largest id, rows with id of 10 or more, median answer seconds, tokens generated" /></p>
-<p>"One answer" means all ten runs returned the same text, word for
-word. Every capture records the tool calls, so which scan each answer
-used is on record: all fifty engine runs filtered, and no rows-only run
-could.</p>
+<p>"Same answer" marks the cells where all ten runs returned identical
+text: greedy decoding is deterministic, so those scores are one answer
+repeated, and the rows below them run the same question at Bedrock's
+defaults. Every capture records the tool calls, so which scan each
+answer used is on record: all fifty engine runs filtered, and no
+rows-only run could.</p>
 <p>Counting by reading only works on a table this small. The rows-only
 scan returns at most 100 rows, so on a real table no model can count
 what it cannot see. Whatever the model, the count belongs in the
