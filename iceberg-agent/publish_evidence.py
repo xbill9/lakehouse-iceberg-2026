@@ -37,7 +37,7 @@ sys.path.insert(0, os.path.join(ROOT, "iceberg-conformance"))
 
 import anonymize_evidence as anon  # noqa: E402
 from run_matrix import (AXIS_A_CATALOG, AXIS_B_LEG, FRAMEWORK, LEGS, RAW,  # noqa: E402
-                        SCORER_VERSION, ground_truth, score)
+                        SCAN_QUESTION, SCORER_VERSION, ground_truth, score, score_scan)
 
 #: Fields whose score moved because a run was recorded under an older scorer.
 #: Disclosed in matrix-summary.txt rather than refused: the capture is the
@@ -61,8 +61,21 @@ SUPERSEDED = [
         "# again from ground truth onwards, to check that the result replicates rather",
         "# than to change one; the replication is in derived-figures.txt."]),
 ]
+#: Archived single-axis runs, published under superseded-runs/<name>/ with their
+#: re-scored rows. Kept for the same reason as the complete runs above.
+SUPERSEDED_D = [
+    ("axis-d-run1-instruction-v2", [
+        "# Axis D's first run, captured 2026-09-15, SUPERSEDED and kept.",
+        "# Instruction v2 told every agent that iceberg_scan_table returns a sample and",
+        "# must never be counted, and the scan tool never said when it had returned the",
+        "# whole table. Two of three ADK runs declined to scan at all, and every answer",
+        "# that did scan hedged 'based on a sample', although each scan had returned",
+        "# every row. That is this harness's wording, not a framework's behaviour, so",
+        "# the instruction (v3) and the scan tool's output were changed and the axis was",
+        "# re-run. Re-scored below under the current scorer, not changed."]),
+]
 COPIED = ["ground-truth.txt", "environment.txt", "failure-modes.txt", "verification.txt",
-          "run-gcp.txt", "run-aws.txt", "run-azure.txt"]
+          "run-gcp.txt", "run-aws.txt", "run-azure.txt", "import-times.txt"]
 TIMING = re.compile(r"agent seconds: ([\d.]+) \| tool seconds: ([\d.]+)")
 #: Hostnames that are the evidence rather than an account. The blob host is the
 #: one PyArrow builds for OneLake and which does not exist -- masking it would
@@ -78,7 +91,7 @@ def rescore(base: str, axis: str, truth: dict, timed: bool) -> tuple:
         with open(os.path.join(base, "matrix", stored["capture"])) as handle:
             body = handle.read()
         bodies[stored["capture"]] = body
-        fresh = score(body, truth[stored["catalog"]])
+        fresh = (score_scan if axis == "D" else score)(body, truth[stored["catalog"]])
         if fresh["catalog_calls"] is None:
             problems.append("%s: no stamped header, the leg did not answer" % stored["capture"])
         older = stored.get("scorer", 1) != SCORER_VERSION
@@ -104,8 +117,23 @@ def rescore(base: str, axis: str, truth: dict, timed: bool) -> tuple:
             problems.append("%s: runner asked for %s, answer header says %s"
                             % (stored["capture"], stored["model"], model))
         rows.append(dict(stored, **fresh, agent_s=agent_s, tool_s=tool_s, model=model,
-                         cell="%s / %s" % (FRAMEWORK[stored["leg"]], model)))
+                         cell="%s / %s%s" % (FRAMEWORK[stored["leg"]], model,
+                                              " on %s" % stored["catalog"] if axis == "D" else "")))
     return data, rows, problems, bodies
+
+
+def secs(row: dict) -> float:
+    """Answer seconds: question in, answer out, after imports and agent
+    construction. MEASURED 2026-09-15: importing the frameworks alone takes 0.78s
+    for ADK, 0.45s for Strands and 0.24s for Agent Framework, and process time
+    carried that into every published latency. A run recorded before answers were
+    timed (the first superseded run) falls back to process time, and every figure
+    that includes one says so."""
+    return row["agent_s"] if row.get("agent_s") is not None else row["elapsed_s"]
+
+
+def timed_label(rows: list) -> str:
+    return "" if all(r.get("agent_s") is not None for r in rows) else "  [PROCESS time: no answer time recorded]"
 
 
 def cells(rows: list, key: str) -> dict:
@@ -120,20 +148,21 @@ def med(values) -> float:
 
 
 def cell_line(name: str, runs: list, width: int = 20) -> str:
-    t = [r["elapsed_s"] for r in runs]
+    t = [secs(r) for r in runs]
     n = len(runs)
     frac = lambda f: "%d/%d" % (sum(bool(r[f]) for r in runs), n)  # noqa: E731
-    line = ("  %-*s %-5d %-8s %-8s %-8s %-8s %5.1f / %5.1f / %5.1f"
+    line = ("  %-*s %-5d %-8s %-8s %-8s %-8s %5.2f / %5.2f / %5.2f"
             % (width, name, n, frac("correct_row_count"), frac("cites_snapshot"),
                frac("cites_metadata"), frac("names_all_columns"), min(t), med(t), max(t)))
     if all(r["tool_s"] is not None for r in runs):
-        line += "   %5.2f   %5.2f" % (med(r["agent_s"] for r in runs), med(r["tool_s"] for r in runs))
+        line += "   %5.1f       %5.2f" % (med(r["elapsed_s"] for r in runs), med(r["tool_s"] for r in runs))
     return line
 
 
-def summary(a_rows: list, b_rows: list, repeat: int, c_rows: list = ()) -> str:
+def summary(a_rows: list, b_rows: list, repeat: int, c_rows: list = (), d_rows: list = (),
+            truth: dict = None) -> str:
     head = ("  cell                 runs  correct  snapshot metadata columns  "
-            "seconds (min/med/max)  agent-med tool-med")
+            "answer s (min/med/max)  process-med tool-med")
     tail = lambda rs: ("  catalog_calls across all runs: %s | invented columns: %d"  # noqa: E731
                        % (sorted({r["catalog_calls"] for r in rs}),
                           sum(bool(r["invented_column"]) for r in rs)))
@@ -142,7 +171,8 @@ def summary(a_rows: list, b_rows: list, repeat: int, c_rows: list = ()) -> str:
              "# every cell is %d runs of one question; correctness is checked against" % repeat,
              "# ground-truth.txt read directly from each catalog. Re-scored from each",
              "# capture's body by publish_evidence.py, not copied from the runner.",
-             "# seconds is the whole process, imports included. agent is the answer alone;",
+             "# answer s is the answer alone: question in, answer out, after imports and",
+             "# agent construction. process-med is the whole process, imports included.",
              "# tool is the part of the answer spent inside the Iceberg tools.", "",
              "AXIS A -- catalog fixed (%s), framework and model vary" % AXIS_A_CATALOG, head]
     lines += [cell_line(k, v) for k, v in cells(a_rows, "leg").items()]
@@ -155,6 +185,30 @@ def summary(a_rows: list, b_rows: list, repeat: int, c_rows: list = ()) -> str:
                   head.replace("cell                ", "framework / model".ljust(36))]
         lines += [cell_line(k, v, 36) for k, v in cells(c_rows, "cell").items()]
         lines.append(tail(c_rows))
+    if d_rows:
+        lines += ["", "AXIS D -- each leg on its own cloud's catalog, a question only a data scan answers",
+                  "  question: %s" % SCAN_QUESTION,
+                  "  %-58s %-5s %-8s %-9s %-8s %-23s %-8s %s"
+                  % ("framework / model on catalog", "runs", "max id", "count>=10", "snapshot",
+                     "answer s (min/med/max)", "tool-med", "calls")]
+        for key, runs in cells(d_rows, "cell").items():
+            n = len(runs)
+            frac = lambda f: "%d/%d" % (sum(bool(r[f]) for r in runs), n)  # noqa: E731
+            t = [secs(r) for r in runs]
+            lines.append("  %-58s %-5d %-8s %-9s %-8s %5.2f / %5.2f / %5.2f   %5.2f    %s"
+                         % (key, n, frac("correct_max_id"), frac("correct_count"),
+                            frac("cites_snapshot"), min(t), med(t), max(t),
+                            med(r["tool_s"] for r in runs),
+                            sorted({r["catalog_calls"] for r in runs})))
+        if truth:
+            lines.append("  expected: " + "; ".join(
+                "%s max_id=%s count>=10=%s" % (c, truth[c]["max_id"], truth[c]["ids_at_least_10"])
+                for c in sorted({r["catalog"] for r in d_rows})))
+    if truth:
+        lines += ["", "ground truth: snapshot total-records against a full scan of the data files"]
+        lines += ["  %-20s total-records=%s scanned=%s agree=%s"
+                  % (c, t["rows"], t.get("rows_scanned", "?"), t.get("rows_agree", "not checked"))
+                  for c, t in truth.items()]
     everything = a_rows + b_rows
     lines += ["", "total runs, axes A and B: %d" % len(everything)]
     for f in ("correct_row_count", "cites_snapshot", "cites_metadata",
@@ -171,33 +225,33 @@ def summary(a_rows: list, b_rows: list, repeat: int, c_rows: list = ()) -> str:
 
 def derived(a_rows: list, b_rows: list) -> str:
     legs = cells(a_rows, "leg")
-    mid = {k: med(r["elapsed_s"] for r in v) for k, v in legs.items()}
-    lo = {k: min(r["elapsed_s"] for r in v) for k, v in legs.items()}
-    hi = {k: max(r["elapsed_s"] for r in v) for k, v in legs.items()}
+    mid = {k: med(secs(r) for r in v) for k, v in legs.items()}
+    lo = {k: min(secs(r) for r in v) for k, v in legs.items()}
+    hi = {k: max(secs(r) for r in v) for k, v in legs.items()}
     order = sorted(mid, key=mid.get)
     fast, slow = order[0], order[-1]
-    b_times = [r["elapsed_s"] for r in b_rows]
+    b_times = [secs(r) for r in b_rows]
     lines = ["# Figures in the article that are arithmetic on measured values rather than",
              "# measurements themselves. Written by publish_evidence.py from the re-scored",
              "# rows in matrix-summary.txt; nothing here is typed by hand.", "",
-             "latency spread, fastest framework median to slowest",
+             "latency spread, fastest framework median to slowest, in answer seconds",
              "  source    matrix-summary.txt, AXIS A (catalog fixed at %s)" % AXIS_A_CATALOG,
-             "  operands  %s median %.1fs / %s median %.1fs" % (slow, mid[slow], fast, mid[fast]),
+             "  operands  %s median %.2fs / %s median %.2fs" % (slow, mid[slow], fast, mid[fast]),
              "  result    %.4f -> quoted as %.2fx" % (mid[slow] / mid[fast], mid[slow] / mid[fast]),
              "  note      medians, not extremes. The max-to-min ratio over the same cells is",
-             "            %.1f / %.1f = %.2fx, which is NOT the headline figure."
+             "            %.2f / %.2f = %.2fx, which is NOT the headline figure."
              % (max(hi.values()), min(lo.values()), max(hi.values()) / min(lo.values())), "",
              "overlap between Axis A legs, ordered by median"]
     for a, b in zip(order, order[1:]):
-        lines.append("  %-5s slowest %.1fs vs %-5s fastest %.1fs -> %s"
+        lines.append("  %-5s slowest %.2fs vs %-5s fastest %.2fs -> %s"
                      % (a, hi[a], b, lo[b], "no overlap" if hi[a] < lo[b] else "OVERLAP"))
     lines += ["", "gap between adjacent Axis A legs",
               "  %-14s %-10s %s" % ("pair", "medians", "edges (fastest of slower - slowest of faster)")]
     for a, b in zip(order, order[1:]):
-        lines.append("  %-14s %-10s %.1fs" % ("%s-%s" % (a, b), "%.1fs" % (mid[b] - mid[a]),
+        lines.append("  %-14s %-10s %.2fs" % ("%s-%s" % (a, b), "%.2fs" % (mid[b] - mid[a]),
                                              lo[b] - hi[a]))
     lines += ["", "Axis B range, every run through one leg",
-              "  %.1fs to %.1fs, width %.1fs" % (min(b_times), max(b_times),
+              "  %.2fs to %.2fs, width %.2fs" % (min(b_times), max(b_times),
                                                 max(b_times) - min(b_times))]
     if all(r["tool_s"] is not None for r in a_rows + b_rows):
         lines += ["", "where the answer's time went (medians over each axis's runs)"]
@@ -206,7 +260,7 @@ def derived(a_rows: list, b_rows: list) -> str:
             lines.append("  %s  agent %.2fs, tool %.2fs, tool share of the answer %.0f%%"
                          % (label, med(r["agent_s"] for r in rows),
                             med(r["tool_s"] for r in rows), 100 * share))
-        slowest = sorted(a_rows + b_rows, key=lambda r: r["elapsed_s"])[-3:]
+        slowest = sorted(a_rows + b_rows, key=lambda r: secs(r))[-3:]
         lines += ["", "the three slowest runs overall, split"]
         for r in reversed(slowest):
             lines.append("  %-45s total %.1fs  agent %.2fs  tool %.2fs  other %.2fs"
@@ -237,7 +291,7 @@ def superseded(truth: dict) -> tuple:
                 ok = all(r[k] for k in ("correct_row_count", "cites_snapshot",
                                         "cites_metadata", "names_all_columns"))
                 lines.append("  %-45s %5.1fs  %s  calls=%s"
-                             % (r["capture"], r["elapsed_s"], "correct" if ok else "WRONG",
+                             % (r["capture"], secs(r), "correct" if ok else "WRONG",
                                 r["catalog_calls"]))
             lines.append("")
             for capture, body in bodies.items():
@@ -262,6 +316,18 @@ def self_test(truth: dict) -> None:
                  "cites_metadata", "names_all_columns") if not good[k]]
     failures += ["text outside the answer: " + k for k, v in outside.items()
                  if k != "catalog_calls" and v]
+    if "max_id" in t:
+        mx, n = t["max_id"], t["ids_at_least_10"]
+        # The long gap is a real answer from Axis D's first run, which v2 scored wrong.
+        right = score_scan(wrap % ('The largest id in the "probe_ns.probe_table" is %s. %s rows '
+                                   "have an id of 10 or more. snapshot-id %s"
+                                   % (mx, n, t["snapshot_id"])), t)
+        swapped = score_scan(wrap % ("The largest id is %s, and %s rows have an id of 10 or more."
+                                     % (n, mx)), t)
+        failures += ["scan scorer, right answer: " + k for k in
+                     ("correct_max_id", "correct_count", "cites_snapshot") if not right[k]]
+        failures += ["scan scorer, swapped answer: " + k for k in
+                     ("correct_max_id", "correct_count") if swapped[k]]
     if failures:
         sys.exit("scorer self-test failed, evidence NOT published: %s" % failures)
 
@@ -326,10 +392,10 @@ def answer_style(bodies: dict) -> str:
 def crossover(c_rows: list) -> str:
     """Axis C: each comparison moves exactly one of framework and model."""
     by = cells(c_rows, "cell")
-    mid = {k: med(r["elapsed_s"] for r in v) for k, v in by.items()}
+    mid = {k: med(secs(r) for r in v) for k, v in by.items()}
     agent = {k: med(r["agent_s"] for r in v) for k, v in by.items()}
-    lo = {k: min(r["elapsed_s"] for r in v) for k, v in by.items()}
-    hi = {k: max(r["elapsed_s"] for r in v) for k, v in by.items()}
+    lo = {k: min(secs(r) for r in v) for k, v in by.items()}
+    hi = {k: max(secs(r) for r in v) for k, v in by.items()}
     adk_g, str_g, str_n = ("ADK / gemini-2.5-flash", "Strands / gemini-2.5-flash",
                            "Strands / us.amazon.nova-micro-v1:0")
     if not all(k in mid for k in (adk_g, str_g, str_n)):
@@ -338,9 +404,9 @@ def crossover(c_rows: list) -> str:
     def compare(label, a, b):
         slow, fast = (a, b) if mid[a] >= mid[b] else (b, a)
         return ["  %s" % label,
-                "    %-36s median %.1fs  (%.1f-%.1f)  agent-med %.2fs" % (a, mid[a], lo[a], hi[a], agent[a]),
-                "    %-36s median %.1fs  (%.1f-%.1f)  agent-med %.2fs" % (b, mid[b], lo[b], hi[b], agent[b]),
-                "    ratio %.2fx, medians differ %.1fs, %s"
+                "    %-36s answer median %.2fs  (%.2f-%.2f)" % (a, mid[a], lo[a], hi[a]),
+                "    %-36s answer median %.2fs  (%.2f-%.2f)" % (b, mid[b], lo[b], hi[b]),
+                "    ratio %.2fx, medians differ %.2fs, %s"
                 % (mid[slow] / mid[fast], mid[slow] - mid[fast],
                    "no overlap" if hi[fast] < lo[slow] else "OVERLAP")]
     lines = ["", "crossover: Axis C, catalog fixed at %s" % AXIS_A_CATALOG]
@@ -349,29 +415,53 @@ def crossover(c_rows: list) -> str:
     return "\n".join(lines) + "\n"
 
 
+def superseded_d(truth: dict) -> dict:
+    texts = {}
+    for name, header in SUPERSEDED_D:
+        base = os.path.join(RAW, name)
+        if not os.path.isdir(base):
+            continue
+        _, rows, problems, bodies = rescore(base, "D", truth, timed=True)
+        if problems:
+            sys.exit("%s re-scoring disagrees:\n%s" % (name, "\n".join(problems)))
+        lines = header + ["", "  %-40s %-6s %-6s %-9s %-6s %s"
+                          % ("capture", "max id", "count", "snapshot", "calls", "answer s")]
+        for r in rows:
+            lines.append("  %-40s %-6s %-6s %-9s %-6s %.2f"
+                         % (r["capture"], "ok" if r["correct_max_id"] else "WRONG",
+                            "ok" if r["correct_count"] else "WRONG",
+                            "ok" if r["cites_snapshot"] else "WRONG", r["catalog_calls"], secs(r)))
+        texts["superseded-runs/%s/README.txt" % name] = "\n".join(lines) + "\n"
+        for capture, body in bodies.items():
+            texts["superseded-runs/%s/matrix/%s" % (name, capture)] = body
+    return texts
+
+
 def replication(history: list) -> str:
     """Axis A's ordering, spread and overlap in every complete run, and the one
     cell both axes measure, so run-to-run noise is stated beside the result."""
     lines = ["", "replication: Axis A in every complete run, legs ordered by median"]
     for label, a_rows, _ in history:
         legs = cells(a_rows, "leg")
-        mid = {k: med(r["elapsed_s"] for r in v) for k, v in legs.items()}
-        lo = {k: min(r["elapsed_s"] for r in v) for k, v in legs.items()}
-        hi = {k: max(r["elapsed_s"] for r in v) for k, v in legs.items()}
+        mid = {k: med(secs(r) for r in v) for k, v in legs.items()}
+        lo = {k: min(secs(r) for r in v) for k, v in legs.items()}
+        hi = {k: max(secs(r) for r in v) for k, v in legs.items()}
         order = sorted(mid, key=mid.get)
         overlap = any(hi[a] >= lo[b] for a, b in zip(order, order[1:]))
-        lines.append("  %-20s %s   spread %.2fx   %s"
-                     % (label, " < ".join("%s %.1fs" % (k, mid[k]) for k in order),
-                        mid[order[-1]] / mid[order[0]], "OVERLAP" if overlap else "no overlap"))
+        lines.append("  %-20s %s   spread %.2fx   %s%s"
+                     % (label, " < ".join("%s %.2fs" % (k, mid[k]) for k in order),
+                        mid[order[-1]] / mid[order[0]], "OVERLAP" if overlap else "no overlap",
+                        timed_label(a_rows)))
     lines += ["", "the same cell measured by both axes (%s on %s), medians"
               % (AXIS_B_LEG, AXIS_A_CATALOG)]
     for label, a_rows, b_rows in history:
-        a = med(r["elapsed_s"] for r in a_rows if r["leg"] == AXIS_B_LEG)
-        b = med(r["elapsed_s"] for r in b_rows if r["catalog"] == AXIS_A_CATALOG)
-        b_mids = [med(r["elapsed_s"] for r in v) for v in cells(b_rows, "catalog").values()]
-        lines.append("  %-20s axis A %.1fs  axis B %.1fs  differ %.1fs   "
-                     "(Axis B cell-median range %.1fs)"
-                     % (label, a, b, abs(a - b), max(b_mids) - min(b_mids)))
+        a = med(secs(r) for r in a_rows if r["leg"] == AXIS_B_LEG)
+        b = med(secs(r) for r in b_rows if r["catalog"] == AXIS_A_CATALOG)
+        b_mids = [med(secs(r) for r in v) for v in cells(b_rows, "catalog").values()]
+        lines.append("  %-20s axis A %.2fs  axis B %.2fs  differ %.2fs   "
+                     "(Axis B cell-median range %.2fs)%s"
+                     % (label, a, b, abs(a - b), max(b_mids) - min(b_mids),
+                        timed_label(a_rows + b_rows)))
     return "\n".join(lines) + "\n"
 
 
@@ -400,11 +490,14 @@ def main() -> None:
     a_data, a_rows, a_bad, a_bodies = rescore(RAW, "A", truth, timed=True)
     b_data, b_rows, b_bad, b_bodies = rescore(RAW, "B", truth, timed=True)
     axes = [(a_data, a_bodies), (b_data, b_bodies)]
-    c_rows, c_bad = [], []
+    c_rows, c_bad, d_rows, d_bad = [], [], [], []
     if os.path.exists(os.path.join(RAW, "matrix-axis-C.json")):
         c_data, c_rows, c_bad, c_bodies = rescore(RAW, "C", truth, timed=True)
         axes.append((c_data, c_bodies))
-    bad = a_bad + b_bad + c_bad + verify_single_legs(truth)
+    if os.path.exists(os.path.join(RAW, "matrix-axis-D.json")):
+        d_data, d_rows, d_bad, d_bodies = rescore(RAW, "D", truth, timed=True)
+        axes.append((d_data, d_bodies))
+    bad = a_bad + b_bad + c_bad + d_bad + verify_single_legs(truth)
     if bad:
         print("\n".join("   !! " + p for p in bad))
         sys.exit("\nevidence NOT published: re-scoring disagrees with the runner")
@@ -420,9 +513,10 @@ def main() -> None:
     texts["derived-figures.txt"] = derived(a_rows, b_rows)
     old_texts, history = superseded(truth)
     texts.update(old_texts)
+    texts.update(superseded_d(truth))
     texts["derived-figures.txt"] += replication(history + [("published run", a_rows, b_rows)])
     texts["derived-figures.txt"] += crossover(c_rows)
-    texts["matrix-summary.txt"] = summary(a_rows, b_rows, a_data["repeat"], c_rows)
+    texts["matrix-summary.txt"] = summary(a_rows, b_rows, a_data["repeat"], c_rows, d_rows, truth)
 
     combined = "".join(texts.values())
     # BUCKET_RE reads abfss://<workspace-guid>@onelake.dfs... as one bucket name,

@@ -1,0 +1,19 @@
+# framework import times, captured 2026-09-15 on the machine that ran the matrix
+# Each line is one fresh interpreter importing only that framework's modules, timed
+# with `date` around `python3 -c "import ..."`. It is why the article reports answer
+# seconds (after imports and agent construction) rather than process seconds: the
+# process time in every earlier table carried these, and they differ by framework.
+#
+# for mod in "google.adk.agents,google.adk.runners" "strands,strands.models.bedrock" \
+#            "agent_framework,agent_framework.foundry,azure.identity"; do
+#   for i in 1 2 3; do s=$(date +%s.%N); python3 -c "import $mod"; e=$(date +%s.%N); ...; done; done
+
+google.adk.agents,google.adk.runners                    run 1  0.78s
+google.adk.agents,google.adk.runners                    run 2  0.79s
+google.adk.agents,google.adk.runners                    run 3  0.78s
+strands,strands.models.bedrock                          run 1  0.45s
+strands,strands.models.bedrock                          run 2  0.45s
+strands,strands.models.bedrock                          run 3  0.45s
+agent_framework,agent_framework.foundry,azure.identity  run 1  0.24s
+agent_framework,agent_framework.foundry,azure.identity  run 2  0.23s
+agent_framework,agent_framework.foundry,azure.identity  run 3  0.24s

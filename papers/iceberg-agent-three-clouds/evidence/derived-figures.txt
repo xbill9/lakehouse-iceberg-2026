@@ -2,24 +2,24 @@
 # measurements themselves. Written by publish_evidence.py from the re-scored
 # rows in matrix-summary.txt; nothing here is typed by hand.
 
-latency spread, fastest framework median to slowest
+latency spread, fastest framework median to slowest, in answer seconds
   source    matrix-summary.txt, AXIS A (catalog fixed at apache-polaris)
-  operands  azure median 15.8s / aws median 3.9s
-  result    4.0513 -> quoted as 4.05x
+  operands  azure median 14.57s / aws median 3.40s
+  result    4.2853 -> quoted as 4.29x
   note      medians, not extremes. The max-to-min ratio over the same cells is
-            28.6 / 3.6 = 7.94x, which is NOT the headline figure.
+            27.43 / 3.14 = 8.74x, which is NOT the headline figure.
 
 overlap between Axis A legs, ordered by median
-  aws   slowest 4.0s vs gcp   fastest 7.7s -> no overlap
-  gcp   slowest 9.3s vs azure fastest 15.3s -> no overlap
+  aws   slowest 3.49s vs gcp   fastest 6.57s -> no overlap
+  gcp   slowest 8.17s vs azure fastest 14.03s -> no overlap
 
 gap between adjacent Axis A legs
   pair           medians    edges (fastest of slower - slowest of faster)
-  aws-gcp        3.9s       3.7s
-  gcp-azure      8.0s       6.0s
+  aws-gcp        3.29s      3.08s
+  gcp-azure      7.88s      5.86s
 
 Axis B range, every run through one leg
-  7.8s to 11.6s, width 3.8s
+  6.70s to 10.40s, width 3.70s
 
 where the answer's time went (medians over each axis's runs)
   axis A  agent 6.69s, tool 0.31s, tool share of the answer 5%
@@ -31,31 +31,31 @@ the three slowest runs overall, split
   A__azure__apache-polaris__3.txt               total 15.3s  agent 14.03s  tool 0.39s  other 13.64s
 
 replication: Axis A in every complete run, legs ordered by median
-  run1-uninstrumented  aws 4.1s < gcp 9.5s < azure 15.6s   spread 3.80x   no overlap
-  run2-instrumented    aws 4.0s < gcp 9.9s < azure 15.9s   spread 3.98x   no overlap
-  published run        aws 3.9s < gcp 7.8s < azure 15.8s   spread 4.05x   no overlap
+  run1-uninstrumented  aws 4.10s < gcp 9.50s < azure 15.60s   spread 3.80x   no overlap  [PROCESS time: no answer time recorded]
+  run2-instrumented    aws 3.51s < gcp 8.70s < azure 14.64s   spread 4.17x   no overlap
+  published run        aws 3.40s < gcp 6.69s < azure 14.57s   spread 4.29x   no overlap
 
 the same cell measured by both axes (gcp on apache-polaris), medians
-  run1-uninstrumented  axis A 9.5s  axis B 9.1s  differ 0.4s   (Axis B cell-median range 4.1s)
-  run2-instrumented    axis A 9.9s  axis B 8.2s  differ 1.7s   (Axis B cell-median range 2.8s)
-  published run        axis A 7.8s  axis B 8.3s  differ 0.5s   (Axis B cell-median range 2.6s)
+  run1-uninstrumented  axis A 9.50s  axis B 9.10s  differ 0.40s   (Axis B cell-median range 4.10s)  [PROCESS time: no answer time recorded]
+  run2-instrumented    axis A 8.70s  axis B 7.07s  differ 1.63s   (Axis B cell-median range 2.74s)
+  published run        axis A 6.69s  axis B 7.13s  differ 0.44s   (Axis B cell-median range 2.63s)
 
 crossover: Axis C, catalog fixed at apache-polaris
   framework varies, model fixed (gemini-2.5-flash)
-    ADK / gemini-2.5-flash               median 8.8s  (6.9-9.2)  agent-med 7.66s
-    Strands / gemini-2.5-flash           median 9.4s  (8.4-9.8)  agent-med 8.63s
-    ratio 1.07x, medians differ 0.6s, OVERLAP
+    ADK / gemini-2.5-flash               answer median 7.66s  (5.71-8.04)
+    Strands / gemini-2.5-flash           answer median 8.63s  (7.64-8.99)
+    ratio 1.13x, medians differ 0.97s, OVERLAP
   model varies, framework fixed (Strands)
-    Strands / gemini-2.5-flash           median 9.4s  (8.4-9.8)  agent-med 8.63s
-    Strands / us.amazon.nova-micro-v1:0  median 4.0s  (3.8-4.6)  agent-med 3.51s
-    ratio 2.35x, medians differ 5.4s, no overlap
+    Strands / gemini-2.5-flash           answer median 8.63s  (7.64-8.99)
+    Strands / us.amazon.nova-micro-v1:0  answer median 3.51s  (3.30-4.07)
+    ratio 2.46x, medians differ 5.12s, no overlap
 
 answer style: every published matrix capture, by framework and model
   framework / model                    runs  answer chars answer lines thinking  tool log  printed agent-med
-  ADK / gemini-2.5-flash               21    391          9            0/21      21/21     0/21    8.04s
-  Agent Framework / gpt-5-mini         3     886          21           0/3       0/3       0/3     14.57s
+  ADK / gemini-2.5-flash               24    389          7            0/24      24/24     0/24    8.18s
+  Agent Framework / gpt-5-mini         6     847          19           0/6       0/6       0/6     25.06s
   Strands / gemini-2.5-flash           3     459          9            0/3       3/3       3/3     8.63s
-  Strands / us.amazon.nova-micro-v1:0  6     463          9            6/6       6/6       6/6     3.45s
+  Strands / us.amazon.nova-micro-v1:0  9     519          5            9/9       9/9       9/9     3.51s
   answer chars and lines are medians of the text after the stamped header.
   thinking: <thinking> text reached stdout. tool log: the capture shows each
   tool call as it happened. printed: the answer appears before the header as

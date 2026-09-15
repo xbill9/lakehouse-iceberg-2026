@@ -375,6 +375,14 @@ async def iceberg_scan_table(table: str, columns: str = "",
         out.append("")
         out.append("%d row(s), read from snapshot-id %s"
                    % (len(rows), snap.snapshot_id if snap else "unknown"))
+        # Say when the view is COMPLETE, not only when it is partial: without this
+        # a model told scans are samples will not count a whole table from one.
+        total = (snap.summary or {}).get("total-records") if snap else None
+        if total is not None and len(rows) == int(total):
+            out.append(
+                "COMPLETE: these are all %d rows in this snapshot (total-records %s), "
+                "so values, maxima and counts read from them are exact for snapshot-id %s."
+                % (len(rows), total, snap.snapshot_id))
         # A silent truncation is how a scan produces a confidently wrong total.
         # Measured: a model asked for a row count called this with limit=100000,
         # the tool clamped to MAX_ROW_LIMIT without saying so, and the answer
@@ -463,7 +471,15 @@ TOOLS = [iceberg_list_tables, iceberg_describe_table,
 #:    more". Both used the tool as told; the question was answerable only by
 #:    guessing a large enough limit, which measures the guess rather than the
 #:    catalog. Counting is now its own tool and scanning says not to count with it.
-INSTRUCTION_VERSION = 2
+#: v3, 2026-09-15. v2 told the model that iceberg_scan_table returns a sample and
+#: must never be counted. That guard stopped a partial scan being reported as a
+#: total, and it also stopped a whole table being read as one. MEASURED on Axis
+#: D's first run: asked for the largest id and a filtered count, two of three ADK
+#: runs declined without scanning ("the available tools do not support querying
+#: for maximum values"), and every answer that did scan hedged "based on a
+#: sample", although each scan had returned all 11 rows. v3 says when a scan may
+#: be counted, and the scan tool now says when it returned every row.
+INSTRUCTION_VERSION = 3
 
 INSTRUCTION = (
     "You are a data analyst with four tools that read Apache Iceberg tables "
@@ -471,9 +487,11 @@ INSTRUCTION = (
     "iceberg_count_rows and iceberg_scan_table. Given a question, you answer it "
     "from the data and nothing else. "
     "ALWAYS list the tables first, then describe the table you intend to use. "
-    "To answer how many rows a table has, use iceberg_count_rows -- never count "
-    "the rows iceberg_scan_table returns, because that is a sample. Use "
-    "iceberg_scan_table to look at values, not to measure size. "
+    "To answer how many rows a table has, use iceberg_count_rows. To answer a "
+    "question about the values in a table -- the largest value, or how many rows "
+    "meet a condition -- read them with iceberg_scan_table. Its result says "
+    "whether it returned every row of the snapshot or only some of them; count "
+    "or compare rows from a scan only when it says it returned every row. "
     "Never name a table, a column or a figure you have not read. "
     "You have a budget of eight catalog calls for the whole answer, so read "
     "broadly rather than once per sentence; when the budget is spent you will "

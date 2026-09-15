@@ -7,10 +7,12 @@ say whether a difference between two legs is a property of the framework, of
 the model, or of the catalog, because a one-run-per-leg layout moves all three
 at once -- and it cannot say whether a result is stable.
 
-So this runs two axes separately:
+So this runs four axes separately:
 
   axis A   catalog fixed, legs vary      -> isolates framework and model
   axis B   leg fixed, catalogs vary      -> isolates the catalog
+  axis C   model fixed, framework varies -> separates framework from model
+  axis D   each leg on its own catalog, a question only a data scan answers
 
 with repetition in both, and scores every answer against ground truth read from
 the catalog itself rather than through any agent.
@@ -47,6 +49,16 @@ AXIS_B_LEG = "gcp"
 AXIS_C_CELLS = [("gcp", "gemini-2.5-flash"), ("aws", "gemini-2.5-flash"),
                 ("aws", "us.amazon.nova-micro-v1:0")]
 FRAMEWORK = {"gcp": "ADK", "aws": "Strands", "azure": "Agent Framework"}
+#: Axis D: every leg on its own cloud's catalog, asked something only a data scan
+#: can answer. Axes A to C ask a question answered from metadata alone, so no run
+#: in them ever reads a data file -- which left the storage wiring, the part of
+#: this agent that does not port, exercised only by failure_modes.py. A correct
+#: answer here is evidence the agent read GCS, S3 or ADLS through that wiring,
+#: including on the leg whose tool calls cannot be seen.
+SCAN_QUESTION = ("What is the largest id in the probe table, and how many of its "
+                 "rows have an id of 10 or more? Cite the exact table version you read.")
+AXIS_D_CELLS = [("gcp", "google-lakehouse"), ("aws", "aws-glue"),
+                ("azure", "microsoft-onelake")]
 CATALOGS = ["apache-polaris", "google-lakehouse", "aws-glue",
             "aws-s3tables", "microsoft-onelake"]
 LEGS = ["gcp", "aws", "azure"]
@@ -73,7 +85,11 @@ def ground_truth() -> dict:
 #: "snapshot-id exists; payload region. 11", which v1 scored as a correct count
 #: with every column named. v2 reads only the answer, needs the count beside
 #: "row"/"rows", and matches column names as whole words.
-SCORER_VERSION = 2
+#: v3 (2026-09-15) widens the Axis D max-id window from 25 to 60 characters.
+#: MEASURED on Axis D's first run: 'The largest id in the "probe_ns.probe_table" is
+#: 23.' put 36 characters between the word and the value, and v2 marked a correct
+#: answer wrong. Axes A to C score identically under v2 and v3.
+SCORER_VERSION = 3
 ANSWER = re.compile(r"<!-- cloud=.*?-->\n(.*?)\ncatalog calls:", re.S)
 
 
@@ -86,6 +102,43 @@ def answer_of(body: str) -> str:
 def word(name: str, text: str) -> bool:
     """`name` as a whole identifier: not inside snapshot-id, not inside exists."""
     return bool(re.search(r"(?<![\w-])%s(?![\w-])" % re.escape(name), text))
+
+
+NUMBER_WORDS = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight",
+                "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen",
+                "sixteen", "seventeen", "eighteen", "nineteen", "twenty"]
+AT_LEAST_10 = r"(?:10 or more|10 or greater|10 or higher|10 and above|at least 10|>= ?10|\u2265 ?10)"
+
+
+def score_scan(body: str, truth: dict) -> dict:
+    """Axis D: each value must sit next to its own wording, so a swapped answer
+    ("the largest id is 8, and 23 rows...") fails both checks. \\D spans cannot
+    cross another number, which is what keeps the pairing honest."""
+    header = re.search(r"catalog_calls=(\d+)", body)
+    answer = answer_of(body)
+
+    def token(value: str) -> str:
+        alts = [re.escape(value)]
+        if value.isdigit() and int(value) < len(NUMBER_WORDS):
+            alts.append(NUMBER_WORDS[int(value)])
+        # A full stop ends a sentence; only a stop followed by a digit is a decimal.
+        # Caught by the scorer's own test: "Maximum id: 23." failed as (?![\w.-]).
+        return r"(?<![\w.-])(?:%s)(?![\w-]|\.\d)" % "|".join(alts)
+
+    mx, n = token(truth["max_id"]), token(truth["ids_at_least_10"])
+    count_patterns = [
+        r"%s\D{0,15}\brows?\b" % n,                  # 8 rows
+        r"%s\s+of\s+(?:the\s+)?\d+\s+rows?\b" % n,   # 8 of the 11 rows
+        r"%s\D{0,40}%s" % (n, AT_LEAST_10),            # 8 rows have an id of 10 or more
+        r"%s\D{0,30}%s" % (AT_LEAST_10, n),            # 10 or more: 8
+    ]
+    return {
+        "correct_max_id": bool(re.search(
+            r"\b(?:largest|maximum|highest|max|biggest|greatest)\b\D{0,60}%s" % mx, answer, re.I)),
+        "correct_count": any(re.search(p, answer, re.I) for p in count_patterns),
+        "cites_snapshot": truth["snapshot_id"] in answer,
+        "catalog_calls": int(header.group(1)) if header else None,
+    }
 
 
 def score(body: str, truth: dict) -> dict:
@@ -108,14 +161,15 @@ def score(body: str, truth: dict) -> dict:
     }
 
 
-def one_run(axis: str, leg: str, catalog: str, index: int, model: str = None) -> dict:
+def one_run(axis: str, leg: str, catalog: str, index: int, model: str = None,
+            question: str = QUESTION) -> dict:
     env = {k: v for k, v in os.environ.items() if not k.startswith("ICEBERG_MODEL")}
     env["ICEBERG_CATALOG"] = catalog
     if model:
         env["ICEBERG_MODEL_" + leg.upper()] = model
     started = time.time()
     proc = subprocess.run(
-        [sys.executable, os.path.join(HERE, "run_once.py"), leg, QUESTION,
+        [sys.executable, os.path.join(HERE, "run_once.py"), leg, question,
          "--catalog", catalog],
         capture_output=True, text=True, cwd=HERE, env=env, timeout=900)
     elapsed = round(time.time() - started, 1)
@@ -141,7 +195,7 @@ def one_run(axis: str, leg: str, catalog: str, index: int, model: str = None) ->
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--axis", choices=["A", "B", "C"], required=True)
+    ap.add_argument("--axis", choices=["A", "B", "C", "D"], required=True)
     ap.add_argument("--repeat", type=int, default=3)
     ap.add_argument("--leg", default=AXIS_B_LEG)
     args = ap.parse_args()
@@ -151,26 +205,27 @@ def main() -> None:
         cells = [(leg, AXIS_A_CATALOG, None) for leg in LEGS]
     elif args.axis == "B":
         cells = [(args.leg, cat, None) for cat in CATALOGS]
-    else:
+    elif args.axis == "C":
         cells = [(leg, AXIS_A_CATALOG, model) for leg, model in AXIS_C_CELLS]
+    else:
+        cells = [(leg, cat, None) for leg, cat in AXIS_D_CELLS]
+    question, scorer = (SCAN_QUESTION, score_scan) if args.axis == "D" else (QUESTION, score)
 
     results = []
     for leg, catalog, model in cells:
         for index in range(1, args.repeat + 1):
-            row = one_run(args.axis, leg, catalog, index, model)
-            row.update(score(row.pop("body"), truth[catalog]))
+            row = one_run(args.axis, leg, catalog, index, model, question)
+            row.update(scorer(row.pop("body"), truth[catalog]))
             results.append(row)
-            print("  %-6s %-26s %-19s run %d  %5ss  agent=%ss tool=%ss  count=%s snap=%s meta=%s cols=%s calls=%s"
-                  % (leg, model or "", catalog, index, row["elapsed_s"], row["agent_s"], row["tool_s"],
-                     "ok" if row["correct_row_count"] else "NO",
-                     "ok" if row["cites_snapshot"] else "NO",
-                     "ok" if row["cites_metadata"] else "NO",
-                     "ok" if row["names_all_columns"] else "NO",
-                     row["catalog_calls"]), flush=True)
+            checks = " ".join("%s=%s" % (k, "ok" if v else "NO") for k, v in row.items()
+                              if k.startswith(("correct_", "cites_", "names_")))
+            print("  %-6s %-26s %-19s run %d  %5ss  agent=%ss tool=%ss  %s calls=%s"
+                  % (leg, model or "", catalog, index, row["elapsed_s"], row["agent_s"],
+                     row["tool_s"], checks, row["catalog_calls"]), flush=True)
 
     out = os.path.join(RAW, "matrix-axis-%s.json" % args.axis)
     with open(out, "w") as handle:
-        json.dump({"axis": args.axis, "question": QUESTION,
+        json.dump({"axis": args.axis, "question": question,
                    "repeat": args.repeat, "results": results}, handle, indent=2)
     print("\nwrote %s (%d runs)" % (out, len(results)))
 

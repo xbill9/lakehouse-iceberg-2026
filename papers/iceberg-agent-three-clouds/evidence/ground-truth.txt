@@ -1,28 +1,48 @@
-# ground truth captured 2026-09-15T01:10:15Z, read directly from each catalog
+# ground truth captured 2026-09-15T02:46:58Z, read directly from each catalog
 # not via any agent; every agent answer is checked against this
 
 catalog=apache-polaris table=probe_ns.probe_table
   rows=11
+  rows_scanned=11
+  rows_agree=yes
+  max_id=23
+  ids_at_least_10=8
   columns=id,ts,payload,region
   snapshot_id=5653331815319537848
   metadata_location=file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json
 catalog=google-lakehouse table=probe_ns.probe_table
   rows=11
+  rows_scanned=11
+  rows_agree=yes
+  max_id=23
+  ids_at_least_10=8
   columns=id,ts,payload,region
   snapshot_id=6042367411917366632
   metadata_location=gs://bucket-0001/probe_ns/probe_table/jy3n8ueer5x567uy/metadata/00006-guid-0002.metadata.json
 catalog=aws-glue table=probe_ns.probe_table
   rows=11
+  rows_scanned=11
+  rows_agree=yes
+  max_id=23
+  ids_at_least_10=8
   columns=id,ts,payload,region
   snapshot_id=9187553066798777529
   metadata_location=s3://bucket-0002/probe_ns/probe_table/metadata/00006-guid-0003.metadata.json
 catalog=aws-s3tables table=probe_ns.probe_table
   rows=11
+  rows_scanned=11
+  rows_agree=yes
+  max_id=23
+  ids_at_least_10=8
   columns=id,ts,payload,region
   snapshot_id=2606005059456881273
   metadata_location=s3://managed-bucket-0001/metadata/00006-guid-0004.metadata.json
 catalog=microsoft-onelake table=dbo.probe_table
   rows=6
+  rows_scanned=6
+  rows_agree=yes
+  max_id=21
+  ids_at_least_10=4
   columns=id,ts,payload
   snapshot_id=3346142071915475645
   metadata_location=abfss://guid-0005@onelake.dfs.fabric.microsoft.com/guid-0006/Tables/probe_table/metadata/v3.metadata.json

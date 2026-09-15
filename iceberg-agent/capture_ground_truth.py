@@ -12,6 +12,13 @@ credential the agents lack, this lacks too, and it fails here first.
 Writes ground-truth.txt and environment.txt into the raw evidence directory.
 Nothing is written unless every catalog answers: a partial ground truth would
 score the missing catalog's runs against nothing.
+
+MEASURED 2026-09-15: `rows` comes from the snapshot summary's total-records,
+which is the same place iceberg_count_rows reads -- so checking an agent's row
+count against it proves the agent relayed the tool's number, not that the number
+is right. Every table is now also scanned, and `rows_scanned` and `rows_agree`
+record whether the data files hold what the summary says. The scan also yields
+the values the Axis D question needs, which no metadata call can supply.
 """
 import datetime
 import importlib.metadata
@@ -46,8 +53,14 @@ def read(catalog: str) -> list:
     rows = snap.summary.get("total-records") if snap else None
     if rows is None:
         raise RuntimeError("no total-records in the current snapshot summary")
+    data = tbl.scan().to_arrow()
+    ids = data.column("id").to_pylist()
     return ["catalog=%s table=%s" % (catalog, name),
             "  rows=%s" % rows,
+            "  rows_scanned=%d" % data.num_rows,
+            "  rows_agree=%s" % ("yes" if data.num_rows == int(rows) else "NO"),
+            "  max_id=%s" % max(ids),
+            "  ids_at_least_10=%d" % sum(1 for i in ids if i >= 10),
             "  columns=%s" % ",".join(f.name for f in tbl.schema().fields),
             "  snapshot_id=%s" % snap.snapshot_id,
             "  metadata_location=%s" % tbl.metadata_location]

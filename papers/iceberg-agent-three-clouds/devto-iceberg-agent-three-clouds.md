@@ -1,7 +1,7 @@
 ---
-title: "One Iceberg Tool, Three Agent Frameworks: What Ports, and What Doesn't"
+title: "Four Iceberg Tools, Three Agent Frameworks: What Ports, and What Doesn't"
 published: false
-description: "One read-only Apache Iceberg REST catalog tool bound into Google ADK, AWS Strands and Microsoft Agent Framework, run against five catalogs. 24 scored runs with 24 correct row counts, one answer that claimed a citation it did not make, an about-4x latency spread that replicated across three complete runs, and a crossover showing that between ADK and Strands the spread belongs to the model, not the framework."
+description: "Four read-only Apache Iceberg tools bound into Google ADK, AWS Strands and Microsoft Agent Framework and run against five catalogs. The code barely changes, the speed goes with the model rather than the framework, and the part that does not port is the storage wiring under the tools -- which every agent then used to read its own cloud's data."
 tags: iceberg, aiagents, lakehouse, dataengineering
 cover_image: https://raw.githubusercontent.com/xbill9/lakehouse-iceberg-2026/main/papers/iceberg-agent-three-clouds/cover.30ed1e97.jpg
 ---
@@ -51,8 +51,10 @@ were built on one cloud and had to move to another, three things could cost you:
 
 Each of those can be answered with a measurement instead of a feature list. The
 answers turned out to live in different places. The code difference is small.
-The speed difference, between ADK and Strands, is mostly the model. And the
-plumbing under the tools is where the real per-cloud work is.
+The speed difference, between ADK and Strands, goes with the model and the
+endpoint serving it. And the plumbing under the tools is where the real per-cloud
+work is -- which is why one set of runs asks a question that forces every agent
+to read its own cloud's data files.
 
 The results below were measured on 2026-09-15 (UTC). Two earlier complete runs
 of the same matrix, from 2026-09-14, are published beside them.
@@ -91,18 +93,23 @@ And the runs are split into three axes rather than one grid:
 - **Axis B** holds the leg still and varies the catalog
 - **Axis C** holds the model still and varies the framework
 
-Three runs per cell, so a disagreement means something.
+Three runs per cell. That is enough to see a clean separation, or the absence of
+one, and not enough to estimate a distribution. Treat what follows as a
+reproducible probe, not a benchmark.
+
+Every time in the results is **answer time**: from the question going in to the
+answer coming out, after the framework has been imported and the agent built.
+Importing the frameworks alone takes 0.78 seconds for ADK, 0.45 for Strands and
+0.24 for Agent Framework, which is why start-up is left out of every figure.
 
 Every answer is scored by string comparison against ground truth read straight
 from the catalog, not through any agent, and only the answer text is scored. The
 row count has to sit beside the word "rows", each column has to appear as a whole
 word, and the snapshot id and metadata location have to appear exactly. A run
-that does all four passes every check, and that is what the tables below count. The first
-version of the scorer searched the whole capture with looser matches, and an
-answer reading `snapshot-id exists; payload region. 11` passed it with a correct
-count and every column named. The scorer now has to fail that answer before any
-evidence is published. Re-scoring every run with the stricter version changed no
-result.
+that does all four passes every check, and that is what the tables below count.
+Before any evidence is published, the scorer has to fail a planted answer that
+contains the right numbers without stating them, such as
+`snapshot-id exists; payload region. 11`.
 
 ## At This Point You Should Have…
 
@@ -220,9 +227,8 @@ catalog calls: 3 of 8
 agent seconds: 7.14 | tool seconds: 0.33
 ```
 
-Run the same command with `aws` and `azure`. All three answered 11 rows for the
-same snapshot. Strands answered this shorter question in two calls, skipping
-describe, because nothing in it asks for columns.
+Run the same command with `aws` and `azure`, and check that each answers 11 rows
+for the same snapshot before going further.
 
 Then drop `--catalog`, and each leg reads its own cloud's catalog: BigLake for
 ADK, Glue for Strands, OneLake for Agent Framework.
@@ -235,7 +241,8 @@ answer:
 - `iceberg_list_tables` — discovery
 - `iceberg_describe_table` — columns, partitioning, and the metadata location
 - `iceberg_count_rows` — exact count from the snapshot summary
-- `iceberg_scan_table` — sampled rows, and says so when the view is partial
+- `iceberg_scan_table` — rows, and says whether it returned every row of the
+  snapshot or only some of them
 
 Read-only is a decision, not a limitation of effort. These four tools use only
 operations in the nine that all seven catalogs serve, so a reading agent built
@@ -404,7 +411,11 @@ them.
 ### What You Can See While It Runs
 
 This is where the three differ most, and it matters the first time an answer is
-wrong. Every published capture was measured for it:
+wrong. The table is what each framework shows **by default, as this harness runs
+it** -- not what each one can show. Strands goes quiet with
+`callback_handler=None`, ADK's events are visible only because the harness reads
+them, and Agent Framework has middleware and OpenTelemetry instrumentation that
+this harness does not turn on. Every published capture was measured:
 
 | framework / model | tool calls visible | answer printed twice | model reasoning visible | median answer |
 |---|---|---|---|---|
@@ -425,7 +436,7 @@ models, which puts it on the framework. The `<thinking>` blocks are the model's:
 they appeared in all six Nova Micro runs, and in none of the three where the same
 Strands agent ran Gemini.
 
-**Agent Framework returns the reply and nothing else.** Its captures record that
+**Agent Framework, run this way, returns the reply and nothing else.** Its captures record that
 three catalog calls were made, because the tools count them, but not which ones.
 Its answers were also the longest, at about twice the length of the others, and
 usually restated the table's description before giving the count. With only one
@@ -434,17 +445,17 @@ model on this framework, that cannot be split between Agent Framework and
 
 ### How Fast It Answers
 
-Between ADK and Strands, speed follows the model rather than the framework. The
-same Gemini model took a median 8.8 seconds under ADK and 9.4 under Strands; the
-same Strands agent took 9.4 on Gemini and 4.0 on Nova Micro. Axis C, below, is
-where those numbers come from.
+Between ADK and Strands, speed follows the model and the endpoint serving it,
+rather than the framework. The same Gemini model took a median 7.66 seconds to
+answer under ADK and 8.63 under Strands; the same Strands agent took 8.63 on
+Gemini and 3.51 on Nova Micro. Axis C, below, is where those numbers come from.
 
-Agent Framework on `gpt-5-mini`, a reasoning model, was the slowest leg at 15.8
-seconds, and was not run on another model. That model was not a free choice. In
+Agent Framework on `gpt-5-mini` was the slowest leg at 14.57 seconds, and was not
+run on another model. That model may not be a free choice. In
 [an earlier build](https://dev.to/gde/three-clouds-one-brief-what-actually-differs-between-adk-strands-and-agent-framework-2kgc),
 `store=False` -- which keeps the conversation from being stored server-side --
 made the framework request encrypted reasoning content, which a non-reasoning
-model rejected.
+model rejected. This leg sets `store=False` too, but that was not re-tested here.
 
 So the three agents differ a little in how they are built, a lot in how they are
 run and observed, and in speed mostly because of the model each cloud serves.
@@ -582,17 +593,21 @@ seconds against the four managed ones. The difference is distance from this
 machine plus whatever the service adds, and it is not a ranking.
 
 **It measures the noise.** ADK on Polaris is the one cell both Axis A and Axis B
-run. Its medians differed by 0.5 seconds in this run, and by 0.4 and 1.7 seconds
-in the two before it. That is the run-to-run variation every other comparison in
+run. Its answer-time medians differed by 0.44 seconds in this run and 1.63 in the
+one before it; the first run, which recorded only process time, gave 0.40. That is the run-to-run variation every other comparison in
 this article has to clear.
 
 **What it cannot test is the storage wiring.** Polaris keeps its data as local
 files in a warehouse directory the client shares, so an agent reading it never
 touches `FsspecFileIO`, an OneLake account host, or vended S3 credentials -- the
 part of this agent that does not port. A leg that works against Polaris has
-proven its agent and its catalog calls, not its file access. That is why the
-failure modes above were reproduced against OneLake and Glue, each with its own
-control.
+proven its agent and its catalog calls, not its file access.
+
+Neither do Axes A to C, on any catalog. Their question is answered from metadata,
+so no run in them reads a data file at all. File access is tested in two other
+places: by the failure modes above, against OneLake and Glue with their own
+controls, and by Axis D, where each agent has to read its own cloud's data files
+to answer at all.
 
 It has one consequence for the headline. The about-4x spread in Axis A was
 measured against a local catalog, where the tools are about 5% of an answer.
@@ -606,16 +621,18 @@ Three legs, one catalog, three runs each. The catalog is the local Polaris
 control, so nothing about it varies between legs.
 
 The three models are not matched, and this table should not be read as if they
-were. Nova Micro is the smallest of Amazon's Nova text models. `gpt-5-mini` is a
-reasoning model, run here at its default reasoning effort. Gemini 2.5 Flash sits
-between them and thinks by default. Each leg runs its own cloud's model, which is
-the arrangement a real deployment would have -- and it is also why Axis C exists.
+were. They differ in kind as well as speed: Bedrock's model catalog lists Nova
+Micro as text in, text out, where Nova Lite and Pro also take images and video.
+Each ran with its defaults --
+no temperature, thinking budget or reasoning effort was set on any leg. Each leg
+runs a model its own cloud serves, which is the arrangement a real deployment
+would have, and it is also why Axis C exists.
 
-| leg | framework and model | runs passing every check | seconds min/med/max | median seconds in tools |
+| leg | framework and model | runs passing every check | answer seconds min/med/max | median seconds in tools |
 |---|---|---|---|---|
-| aws | Strands, `us.amazon.nova-micro-v1:0` | 2/3 | 3.6 / 3.9 / 4.0 | 0.31 |
-| gcp | ADK, `gemini-2.5-flash` | 3/3 | 7.7 / 7.8 / 9.3 | 0.31 |
-| azure | Agent Framework, `gpt-5-mini` | 3/3 | 15.3 / 15.8 / 28.6 | 0.39 |
+| aws | Strands, `us.amazon.nova-micro-v1:0` | 2/3 | 3.14 / 3.40 / 3.49 | 0.31 |
+| gcp | ADK, `gemini-2.5-flash` | 3/3 | 6.57 / 6.69 / 8.17 | 0.31 |
+| azure | Agent Framework, `gpt-5-mini` | 3/3 | 14.03 / 14.57 / 27.43 | 0.39 |
 
 Every run used exactly three catalog calls. ADK and Strands log each tool call,
 and in every one of their runs the calls were list, describe, count; Agent
@@ -625,21 +642,23 @@ count -- rather than a fixed property of the legs.
 
 All three frameworks reach the same correct row count with the same call
 pattern. What separates them is latency, and the separation is clean — **about
-4x from the fastest median to the slowest** (15.8s / 3.9s = 4.05x in this run),
-with no overlap between any pair. AWS's slowest run (4.0s) is
-faster than Google's fastest (7.7s), and Google's slowest (9.3s) is faster than
-Azure's fastest (15.3s).
+4x from the fastest median to the slowest** (14.57s / 3.40s = 4.29x in this run),
+with no overlap between any pair. AWS's slowest answer (3.49s) is faster than
+Google's fastest (6.57s), and Google's slowest (8.17s) is faster than Azure's
+fastest (14.03s).
 
 That separation replicates. This is the third complete run of both axes, and all
-three produced the same order with no overlap between legs, at spreads of 3.80x,
-3.98x and 4.05x. The second decimal moves between runs; the ordering and the
-gaps do not.
+three produced the same order with no overlap between legs, at spreads of 4.17x
+and 4.29x in answer time for the two instrumented runs, and 3.80x for the first,
+which recorded only process time. The second decimal moves between runs; the
+ordering and the gaps do not.
 
 The tools are not where that time goes. Each answer records how long it spent
 inside the four tools, and against this catalog that is 0.31 to 0.39 seconds in
-every leg — about 5% of a median answer. Azure's second run took 28.6 seconds,
-of which 0.39 were in the tools; the rest is the model and the framework. One
-slow answer in three moves the maximum and leaves the median alone.
+every leg — about 5% of a median answer. Azure's second run took 27.43 seconds,
+of which 0.39 were in the tools; the rest is the model, the framework and the
+endpoint between them. One slow answer in three moves the maximum and leaves the
+median alone.
 
 One answer failed a check. Strands run 3 gave the right count, columns and
 snapshot id, and then wrote:
@@ -657,28 +676,30 @@ what separates a citation that is made from one that is only described.
 
 One leg — ADK on Gemini — against five catalogs, three runs each.
 
-| catalog | runs passing every check | seconds min/med/max | median seconds in tools |
+| catalog | runs passing every check | answer seconds min/med/max | median seconds in tools |
 |---|---|---|---|
-| apache-polaris | 3/3 | 7.8 / 8.3 / 9.1 | 0.31 |
-| google-lakehouse | 3/3 | 9.2 / 9.9 / 11.6 | 2.09 |
-| aws-glue | 3/3 | 9.1 / 9.5 / 9.7 | 1.02 |
-| aws-s3tables | 3/3 | 8.8 / 9.4 / 10.2 | 1.01 |
-| microsoft-onelake | 3/3 | 9.7 / 10.9 / 11.3 | 2.08 |
+| apache-polaris | 3/3 | 6.70 / 7.13 / 7.90 | 0.31 |
+| google-lakehouse | 3/3 | 8.02 / 8.77 / 10.40 | 2.09 |
+| aws-glue | 3/3 | 7.88 / 8.31 / 8.53 | 1.02 |
+| aws-s3tables | 3/3 | 7.61 / 8.19 / 9.01 | 1.01 |
+| microsoft-onelake | 3/3 | 8.53 / 9.76 / 10.19 | 2.08 |
 
 The catalog is visible here, and only in the tool column. Three catalog calls
 take 0.31 seconds against the local control and between 1.01 and 2.09 seconds
 against the four managed catalogs. That is distance from this machine as much as
 anything the catalog does, and it is not a ranking of the services.
 
-In the totals it is a small part. Cell medians run from 8.3 to 10.9 seconds, a
-2.6-second range, narrower than the gap between either pair of adjacent legs'
-medians in Axis A (3.9 and 8.0 seconds).
+In the totals it is a smaller part. Cell medians run from 7.13 to 9.76 seconds, a
+2.63-second range, narrower than the gap between either pair of adjacent legs'
+medians in Axis A (3.29 and 7.88 seconds). That holds for this leg: with a
+3.4-second leg such as Strands on Nova Micro, the same two seconds of catalog
+time would be a third of the answer.
 
 Both axes measure one cell -- ADK on Polaris -- so the matrix measures its own
-noise. That cell's medians were 7.8 seconds in Axis A and 8.3 in Axis B, 0.5
-seconds apart; in the two earlier runs the same comparison gave 0.4 and 1.7
-seconds. Against a 2.6-second range across catalogs, a difference between two
-catalogs smaller than that is not distinguishable from run-to-run variation.
+noise. That cell's medians were 6.69 seconds in Axis A and 7.13 in Axis B, 0.44
+seconds apart; in the two earlier runs the same comparison gave 1.63 seconds, and
+0.40 seconds in process time. A difference between two catalogs smaller than
+that is not distinguishable from run-to-run variation.
 
 The correct answer is not the same in every row. OneLake's table holds 6 rows
 and 3 columns where the others hold 11 and 4, because it was loaded through the
@@ -695,26 +716,69 @@ through Vertex AI -- the model and endpoint ADK uses. It runs beside the two
 cells it shares one thing with, all nine runs in one sitting against the same
 Polaris catalog.
 
-| framework | model | runs passing every check | seconds min/med/max | median seconds in tools |
+| framework | model | runs passing every check | answer seconds min/med/max | median seconds in tools |
 |---|---|---|---|---|
-| ADK | `gemini-2.5-flash` | 3/3 | 6.9 / 8.8 / 9.2 | 0.31 |
-| Strands | `gemini-2.5-flash` | 3/3 | 8.4 / 9.4 / 9.8 | 0.30 |
-| Strands | `us.amazon.nova-micro-v1:0` | 3/3 | 3.8 / 4.0 / 4.6 | 0.31 |
+| ADK | `gemini-2.5-flash` | 3/3 | 5.71 / 7.66 / 8.04 | 0.31 |
+| Strands | `gemini-2.5-flash` | 3/3 | 7.64 / 8.63 / 8.99 | 0.30 |
+| Strands | `us.amazon.nova-micro-v1:0` | 3/3 | 3.30 / 3.51 / 4.07 | 0.31 |
 
-Changing the framework with the model held still moved the median by 0.6
-seconds, 1.07x, and the two cells overlap: ADK's slowest run (9.2s) is slower
-than Strands' fastest (8.4s). Changing the model with the framework held still
-moved it by 5.4 seconds, 2.35x, with no overlap.
+Changing the framework with the model held still moved the median by 0.97
+seconds, 1.13x, and the two cells overlap: ADK's slowest answer (8.04s) is slower
+than Strands' fastest (7.64s). Changing the model with the framework held still
+moved it by 5.12 seconds, 2.46x, with no overlap.
 
-So between these two frameworks, the latency difference in Axis A belongs to the
-model. A 0.6-second difference is inside the run-to-run variation measured above
-in Axis B -- up to 1.7 seconds for one cell -- so this run does not rank ADK
+So between these two frameworks, the latency difference in Axis A goes with the
+model -- more precisely, with the model and the endpoint serving it. Both Gemini
+cells call Vertex AI in `us-central1`, so the framework comparison shares a
+route; Nova Micro is served by Bedrock from `us-east-1`, so the model comparison
+also changes provider and distance, and this layout cannot separate those. A
+0.97-second difference is inside the run-to-run variation measured above in
+Axis B -- up to 1.63 seconds for one cell -- so this run does not rank ADK
 against Strands in either direction.
 
 The crossover covers two of the three frameworks. Agent Framework was not run on
 another model, so the Azure leg's framework and model remain confounded, and its
-15.8-second median describes Agent Framework with `gpt-5-mini`, not Agent
+14.57-second median describes Agent Framework with `gpt-5-mini`, not Agent
 Framework alone.
+
+## Axis D: Each Agent Reads Its Own Cloud's Data
+
+Axes A to C ask a question that the catalog's metadata can answer: the row count
+lives in the snapshot summary and the columns in the schema. Not one of those
+runs opens a data file. Axis D asks something only the data can answer, and sends
+each agent to its own cloud's catalog, so that answering at all means reading
+GCS, S3 or ADLS through the storage wiring described earlier:
+
+> What is the largest id in the probe table, and how many of its rows have an id
+> of 10 or more? Cite the exact table version you read.
+
+Ground truth for it comes from scanning each table directly: 23 and 8 on BigLake
+and Glue, 21 and 4 on OneLake. The same scan checks each snapshot's
+`total-records` against the rows actually in its data files, and they agree on
+all five catalogs.
+
+| agent and catalog | largest id | rows with id of 10 or more | answer seconds min/med/max | median seconds in tools |
+|---|---|---|---|---|
+| ADK / `gemini-2.5-flash` on BigLake | 3/3 | 3/3 | 12.84 / 14.82 / 15.76 | 3.81 |
+| Strands / `us.amazon.nova-micro-v1:0` on Glue | 3/3 | 0/3 | 5.56 / 5.97 / 6.53 | 2.21 |
+| Agent Framework / `gpt-5-mini` on OneLake | 3/3 | 3/3 | 24.08 / 26.05 / 65.90 | 6.10 |
+
+**Every agent read its data.** ADK and Strands log a scan call in every run.
+Agent Framework does not log its calls, but its answers name values that exist
+only in OneLake's data files, three times out of three. The storage wiring that
+does not port does work, on all three clouds, once it is written.
+
+**Strands on Nova Micro found the largest id every time and miscounted every
+time**: 6, 4 and 11, against 8. Each of those runs called the scan tool. ADK and
+Agent Framework counted correctly from the same tool. Axis D ran Strands only on Nova Micro, so it cannot say
+whether the miscount belongs to the framework or to the model.
+
+Two things about the times. Agent Framework's first answer took 65.90 seconds,
+48.41 of them in the tools, where its other two runs spent 4.75 and 6.10: one slow
+OneLake read in three. And every leg is slower here than in Axes A to C, because a
+scan hands the model rows to read and reason over, and these catalogs are managed
+services rather than the local control. The legs also read different catalogs in
+different regions, so these times compare nothing across clouds.
 
 ## What the Agents Actually Answered
 
@@ -755,45 +819,47 @@ the framework and the model could each be varied on its own. The results were:
   It is one run of one model on one question, not a rate.
 - **No invented columns in any run.** OneLake's table has no `region` column and
   no answer against OneLake named one.
-- **Every run used exactly three catalog calls** out of a budget of eight — the
-  three this question needs.
-- **Framework and model together account for about a 4x latency spread**, with
-  no overlap between legs and the same order in all three complete runs (3.80x,
-  3.98x, 4.05x). The tools took 0.31 to 0.39 seconds of it in every leg.
-- **Between ADK and Strands, that spread is the model's.** Holding Gemini still
-  and swapping the framework moved the median 0.6 seconds (1.07x, overlapping);
-  holding Strands still and swapping the model moved it 5.4 seconds (2.35x, no
-  overlap). Agent Framework was not crossed over.
-- **Through the ADK leg, the catalog shows up in tool time, not in the
-  totals.** A faster leg would feel the same tool time more. Three calls take
-  0.31 to 2.09 seconds depending on the catalog; cell medians through one leg
-  span 8.3 to 10.9 seconds, and the one cell both axes measure has differed by
-  up to 1.7 seconds between them.
+- **Every run in Axes A to C used exactly three catalog calls** out of a budget
+  of eight — the three that question needs.
+- **Framework and model together account for about a 4x spread in answer time**
+  against the local control, with no overlap between legs and the same order in
+  all three complete runs: 4.29x and 4.17x in answer time, and 3.80x in the first
+  run, which recorded only process time. The tools took 0.31 to 0.39 seconds of
+  it in every leg.
+- **Between ADK and Strands, that spread goes with the model and its endpoint.**
+  Holding Gemini still and swapping the framework moved the median 0.97 seconds
+  (1.13x, overlapping); holding Strands still and swapping the model moved it 5.12
+  seconds (2.46x, no overlap). Agent Framework was not crossed over.
+- **Through the ADK leg, the catalog shows up in tool time more than in the
+  totals.** Three calls take 0.31 to 2.09 seconds depending on the catalog; cell
+  medians through that leg span 7.13 to 9.76 seconds, and the one cell both axes
+  measure has differed by up to 1.63 seconds between them.
 - **The frameworks differ more in how they run than in how they are built.**
   Construction is three small differences. Calling the agent, signing in and
   seeing its tool calls are three different jobs: ADK reports each tool call as
   an event, Strands prints every answer twice by default, and Agent Framework
   showed only the reply.
-- **What does not port is the storage wiring.** The tools bind unchanged; the
-  file access beneath them is configured per cloud.
+- **What does not port is the storage wiring, and it works once written.** The
+  tools bind unchanged; the file access beneath them is configured per catalog.
+  In Axis D every agent read its own cloud's data files. ADK and Agent Framework
+  answered correctly in every run; Strands on Nova Micro found the largest id in
+  every run and miscounted the rows in every run.
 
-Scope: one question, asked three times per cell, on 2026-09-15, from one
-machine, with the versions shown above; cost and token counts were not
-measured; Axis A is three legs against one catalog and Axis B is one leg
-against five, so 24 runs rather than the full 45-cell grid; every run gave the
-correct count and only one missed a check, which means the question is not hard
-enough to discriminate between legs beyond latency; Axis C separates framework from model for ADK and Strands only, on one pair of
+Scope: two questions, each asked three times per cell, on 2026-09-15, from one
+machine, with the versions shown above and every model at its defaults; times
+are answer time, after imports and agent construction; cost and token counts
+were not measured; Axes A to C are 33 runs of a metadata question, mostly
+against the local control, and Axis D is 9 runs of a data question with each leg
+on its own catalog, rather than a full grid; the metadata question is not hard
+enough to separate the legs beyond latency, and the data question separated
+only one; ground truth reads the same snapshot summary as the count tool, and is
+cross-checked by a full scan of the data files, which agreed on every catalog; Axis C separates framework from model for ADK and Strands only, on one pair of
 models, and leaves Agent Framework confounded with `gpt-5-mini`; Polaris runs locally while the other four are managed services in
-different regions, so neither the Axis B latencies nor the tool times are a fair
-comparison between clouds; and the OneLake fixture differs from the other four
+different regions, so neither the Axis B latencies, the tool times nor Axis D's
+times are a fair comparison between clouds; and the OneLake fixture differs from the other four
 because it was loaded through the Fabric API rather than pyiceberg. Two earlier
-complete runs from 2026-09-14 are published under `evidence/superseded-runs/`.
-The first was made before answers recorded their tool time, and was replaced
-because two of its slow runs could not be attributed. The second is the run this
-article first reported; the whole pipeline was then run again from ground truth
-onwards, to check that the result replicates. Both scored 24 of 24 on every
-check, including the metadata citation, and neither was replaced because of a
-result in it.
+complete runs from 2026-09-14, and an earlier Axis D run, are published under
+`evidence/superseded-runs/`, re-scored by the same checks.
 
 The strategy for using one shared Iceberg tool across three agent frameworks was
 validated with an incremental step by step approach.
