@@ -1,14 +1,51 @@
 # Figures in the article that are arithmetic on measured values rather than
-# measurements themselves. Each line gives the operands, the source artifact
-# they were read from, and the result as it appears in the text.
-#
-# Recorded 2026-09-07. Nothing here was measured directly; every operand is a
-# median from matrix-summary.txt, which is itself derived from
-# matrix-axis-A.json and matrix-axis-B.json.
+# measurements themselves. Written by publish_evidence.py from the re-scored
+# rows in matrix-summary.txt; nothing here is typed by hand.
 
 latency spread, fastest framework median to slowest
   source    matrix-summary.txt, AXIS A (catalog fixed at apache-polaris)
-  operands  azure median 20.5s / aws median 4.6s
-  result    4.4565...  -> quoted as 4.46x
+  operands  azure median 15.8s / aws median 3.9s
+  result    4.0513 -> quoted as 4.05x
   note      medians, not extremes. The max-to-min ratio over the same cells is
-            23.0 / 4.6 = 5.0x, which is NOT the figure in the article.
+            28.6 / 3.6 = 7.94x, which is NOT the headline figure.
+
+overlap between Axis A legs, ordered by median
+  aws   slowest 4.0s vs gcp   fastest 7.7s -> no overlap
+  gcp   slowest 9.3s vs azure fastest 15.3s -> no overlap
+
+gap between adjacent Axis A legs
+  pair           medians    edges (fastest of slower - slowest of faster)
+  aws-gcp        3.9s       3.7s
+  gcp-azure      8.0s       6.0s
+
+Axis B range, every run through one leg
+  7.8s to 11.6s, width 3.8s
+
+where the answer's time went (medians over each axis's runs)
+  axis A  agent 6.69s, tool 0.31s, tool share of the answer 5%
+  axis B  agent 8.31s, tool 1.04s, tool share of the answer 13%
+
+the three slowest runs overall, split
+  A__azure__apache-polaris__2.txt               total 28.6s  agent 27.43s  tool 0.39s  other 27.04s
+  A__azure__apache-polaris__1.txt               total 15.8s  agent 14.57s  tool 0.39s  other 14.18s
+  A__azure__apache-polaris__3.txt               total 15.3s  agent 14.03s  tool 0.39s  other 13.64s
+
+replication: Axis A in every complete run, legs ordered by median
+  run1-uninstrumented  aws 4.1s < gcp 9.5s < azure 15.6s   spread 3.80x   no overlap
+  run2-instrumented    aws 4.0s < gcp 9.9s < azure 15.9s   spread 3.98x   no overlap
+  published run        aws 3.9s < gcp 7.8s < azure 15.8s   spread 4.05x   no overlap
+
+the same cell measured by both axes (gcp on apache-polaris), medians
+  run1-uninstrumented  axis A 9.5s  axis B 9.1s  differ 0.4s   (Axis B cell-median range 4.1s)
+  run2-instrumented    axis A 9.9s  axis B 8.2s  differ 1.7s   (Axis B cell-median range 2.8s)
+  published run        axis A 7.8s  axis B 8.3s  differ 0.5s   (Axis B cell-median range 2.6s)
+
+crossover: Axis C, catalog fixed at apache-polaris
+  framework varies, model fixed (gemini-2.5-flash)
+    ADK / gemini-2.5-flash               median 8.8s  (6.9-9.2)  agent-med 7.66s
+    Strands / gemini-2.5-flash           median 9.4s  (8.4-9.8)  agent-med 8.63s
+    ratio 1.07x, medians differ 0.6s, OVERLAP
+  model varies, framework fixed (Strands)
+    Strands / gemini-2.5-flash           median 9.4s  (8.4-9.8)  agent-med 8.63s
+    Strands / us.amazon.nova-micro-v1:0  median 4.0s  (3.8-4.6)  agent-med 3.51s
+    ratio 2.35x, medians differ 5.4s, no overlap

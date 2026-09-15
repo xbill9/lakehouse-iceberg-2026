@@ -17,6 +17,7 @@ import asyncio
 import importlib.util
 import os
 import sys
+import time
 import warnings
 
 warnings.filterwarnings("ignore")
@@ -96,12 +97,19 @@ def main() -> None:
     print("cloud=%s model=%s catalog=%s" % (args.cloud, model, catalog))
     print("question: %s\n" % args.question)
 
+    started = time.monotonic()
     answer = asyncio.run(RUNNERS[args.cloud](agent, args.question))
+    agent_seconds = time.monotonic() - started
 
     print("\n" + common.header(args.cloud, model, catalog, iceberg_tool.catalog_count()))
     print(answer)
     print("\ncatalog calls: %d of %d" % (iceberg_tool.catalog_count(),
                                          iceberg_tool.CATALOG_BUDGET))
+    # Agent seconds is the answer alone, after imports and agent construction;
+    # tool seconds is the part of it spent inside the tools. The difference is
+    # the model and the framework.
+    print("agent seconds: %.2f | tool seconds: %.2f"
+          % (agent_seconds, iceberg_tool.catalog_seconds()))
 
 
 if __name__ == "__main__":

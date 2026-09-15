@@ -1,11 +1,12 @@
-# failure modes reproduced deliberately, captured 2026-09-04T14:33:56Z
-# each disables one piece of the tool's storage credential wiring and calls
-# iceberg_scan_table, to show the error that configuration actually produces.
+# failure modes reproduced deliberately, captured 2026-09-15T01:14:59Z
+# each changes one piece of the tool's storage wiring and calls
+# iceberg_scan_table, to show what that configuration actually produces.
 # Metadata calls are shown succeeding first, which is the point: the catalog
-# is reachable in every case below.
+# is reachable in every case below. Case D is expected to read, and is kept
+# as a null result. The control at the end runs the same calls unchanged.
 
 ==============================================================================
-A. OneLake, no ADLS credential configured
+A. OneLake, no ADLS configuration (PyArrowFileIO, no adls.* properties)
 ==============================================================================
 -- metadata call (iceberg_list_tables):
 dbo.probe_table
@@ -18,7 +19,7 @@ B. OneLake, ADLS credential set but PyArrowFileIO instead of fsspec
 -- metadata call (iceberg_list_tables):
 dbo.probe_table
 -- data call (iceberg_scan_table):
-CATALOG ERROR while scanning dbo.probe_table: OSError: GetProperties failed for 'https://onelake.blob.core.windows.net/guid-0001@onelake.dfs.fabric.microsoft.com/guid-0002/Tables/probe_table/metadata/snap-3346142071915475645-1-c57d915a-341d-472b-8bf7-3f1c2c0c2394.avro'. Cannot initialise an ObjectInp. Do not guess the answer this call would have given. Say in your answer that this could not be read.
+CATALOG ERROR while scanning dbo.probe_table: OSError: GetProperties failed for 'https://onelake.blob.core.windows.net/guid-0005@onelake.dfs.fabric.microsoft.com/guid-0006/Tables/probe_table/metadata/snap-3346142071915475645-1-guid-0007.avro'. Cannot initialise an ObjectInp. Do not guess the answer this call would have given. Say in your answer that this could not be read.
 
 ==============================================================================
 C. Glue, SigV4 for the catalog but no local S3 credentials
@@ -26,5 +27,18 @@ C. Glue, SigV4 for the catalog but no local S3 credentials
 -- metadata call (iceberg_list_tables):
 probe_ns.probe_table
 -- data call (iceberg_scan_table):
-CATALOG ERROR while scanning probe_ns.probe_table: OSError: When reading information for key 'probe_ns/probe_table/metadata/snap-9187553066798777529-0-d45b414c-b580-4434-9da6-ac74ee549e71.avro' in bucket 'bucket-0001': AWS Error ACCESS_DENIED during HeadObject operation: No response body.. Do not guess the answer this call would have given. Say in your answer that this could not be read.
+CATALOG ERROR while scanning probe_ns.probe_table: OSError: When reading information for key 'probe_ns/probe_table/metadata/snap-9187553066798777529-0-guid-0008.avro' in bucket 'bucket-0002': AWS Error ACCESS_DENIED during HeadObject operation: No response body.. Do not guess the answer this call would have given. Say in your answer that this could not be read.
 
+==============================================================================
+D. OneLake, fsspec with account host but adls.credential removed (expected to read: adlfs falls back to DefaultAzureCredential)
+==============================================================================
+-- metadata call (iceberg_list_tables):
+dbo.probe_table
+-- data call (iceberg_scan_table):
+3 row(s), read from snapshot-id 3346142071915475645
+
+==============================================================================
+control. The same calls with the tool's wiring unchanged
+==============================================================================
+microsoft-onelake  list: dbo.probe_table | scan: 3 row(s), read from snapshot-id 3346142071915475645
+aws-glue           list: probe_ns.probe_table | scan: 3 row(s), read from snapshot-id 9187553066798777529

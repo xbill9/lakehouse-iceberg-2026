@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>One Iceberg Tool, Three Agent Frameworks: What Ports, and What Doesn't</title>
+  <meta name="description" content="One read-only Apache Iceberg REST catalog tool bound into Google ADK, AWS Strands and Microsoft Agent Framework, run against five catalogs. 24 scored runs with 24 correct row counts, one answer that claimed a citation it did not make, an about-4x latency spread that replicated across three complete runs, and a crossover showing that between ADK and Strands the spread belongs to the model, not the framework." />
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <style>
+    body{font-family:-apple-system,'Segoe UI',Roboto,'Liberation Sans',Arial,sans-serif;
+         font-size:18px;line-height:1.58;max-width:42em;color:#242424;}
+    h1,h2,h3,h4{font-weight:700;line-height:1.25;margin-top:1.8em;}
+    h4{font-size:1.25em;}
+    img{max-width:100%;height:auto;display:block;margin:1.6em 0;}
+    pre{background:#f7f7f7;border:1px solid #e6e6e6;border-radius:4px;
+        padding:12px 14px;overflow-x:auto;font-size:14px;line-height:1.45;}
+    code{font-family:'Liberation Mono',Menlo,Consolas,monospace;}
+    :not(pre)>code{background:#f2f2f2;padding:1px 5px;border-radius:3px;font-size:.9em;}
+    blockquote{border-left:3px solid #ddd;margin-left:0;padding-left:1em;color:#555;}
+    hr{border:0;border-top:1px solid #e6e6e6;margin:2.4em 0;}
+  </style>
+</head>
+<body>
+<figure><img src="https://raw.githubusercontent.com/xbill9/lakehouse-iceberg-2026/main/papers/iceberg-agent-three-clouds/medium/img/cover.30ed1e97.jpg" alt="One Iceberg Tool, Three Agent Frameworks: What Ports, and What Doesn&#x27;t" /></figure>
+<p>This article provides a step by step build of one read-only Apache
+Iceberg REST catalog tool, bound into three vendor-native agent
+frameworks and run against five catalogs. A Python tool suite is built
+so that only the framework, the model and the catalog differ, and every
+answer is scored against ground truth read from the catalog itself.</p>
+<p><a
+href="https://github.com/xbill9/lakehouse-iceberg-2026">https://github.com/xbill9/lakehouse-iceberg-2026</a></p>
+<h4 id="what-is-this-project-trying-to-do">What Is This Project Trying
+to Do?</h4>
+<p>An <a
+href="https://dev.to/gde/seven-iceberg-rest-catalogs-what-they-declare-and-what-they-serve-40oj">earlier
+article</a> measured seven Iceberg REST catalogs against the
+specification. Nine read operations are served by all seven -- config,
+namespace listing and loading, table listing and loading, and their HEAD
+forms -- while views, scan planning and credential vending are not. This
+project asks the obvious follow-up: if an agent restricts itself to the
+nine, is it portable?</p>
+<p>So it builds one data agent three times, once in each vendor's own
+framework:</p>
+<ul>
+<li><strong>Google</strong> — ADK on <code>gemini-2.5-flash</code></li>
+<li><strong>AWS</strong> — Strands on
+<code>us.amazon.nova-micro-v1:0</code></li>
+<li><strong>Azure</strong> — Agent Framework on
+<code>gpt-5-mini</code></li>
+</ul>
+<p>Each is handed the same four read-only Iceberg tools and the same
+instruction, asked the same question, and scored against ground truth
+read from the catalog directly. Every answer has to cite the exact table
+version it read.</p>
+<p>The interesting part is not whether the agents answer. All of them
+do. It is what moves the latency, and what has to change underneath the
+tools before any of them can read a file.</p>
+<p>The results below were measured on 2026-09-15 (UTC). Two earlier
+complete runs of the same matrix, from 2026-09-14, are published beside
+them.</p>
+<h4 id="where-do-i-start">Where Do I Start?</h4>
+<p>The strategy for building a portable Iceberg agent is an incremental
+step by step approach.</p>
+<p>First, the Python environment is set up and the local Apache Polaris
+control catalog is brought up, so every leg can be tested without a
+cloud catalog in the path.</p>
+<p>Then, each leg is asked one question against the control. Once all
+three answer it correctly, ground truth is captured from every catalog,
+the matrix runs, and the evidence is re-scored and published.</p>
+<h4 id="what-is-being-compared-and-what-is-held-still">What Is Being
+Compared, and What Is Held Still</h4>
+<p>A single run of each cloud's agent proves the wiring works and
+nothing else. If the framework, the model and the catalog all change
+together, no difference can be attributed to any of them.</p>
+<p>So the shared parts are exactly one implementation each:</p>
+<p><img src="https://raw.githubusercontent.com/xbill9/lakehouse-iceberg-2026/main/papers/iceberg-agent-three-clouds/medium/img/devto-iceberg-agent-three-clouds-table-1.png"
+alt="Table: shared, one implementation, different, on purpose" /></p>
+<p>And the runs are split into three axes rather than one grid:</p>
+<ul>
+<li><strong>Axis A</strong> holds the catalog still and varies the
+framework and model</li>
+<li><strong>Axis B</strong> holds the leg still and varies the
+catalog</li>
+<li><strong>Axis C</strong> holds the model still and varies the
+framework</li>
+</ul>
+<p>Three runs per cell, so a disagreement means something.</p>
+<p>Every answer is scored by string comparison against ground truth read
+straight from the catalog, not through any agent, and only the answer
+text is scored. The row count has to sit beside the word "rows", each
+column has to appear as a whole word, and the snapshot id and metadata
+location have to appear exactly. A run that does all four passes every
+check, and that is what the tables below count. The first version of the
+scorer searched the whole capture with looser matches, and an answer
+reading <code>snapshot-id exists; payload region. 11</code> passed it
+with a correct count and every column named. The scorer now has to fail
+that answer before any evidence is published. Re-scoring every run with
+the stricter version changed no result.</p>
+<h4 id="at-this-point-you-should-have">At This Point You Should
+Have…</h4>
+<ul>
+<li>Python 3.14 and Docker</li>
+<li>Vertex AI enabled on a Google Cloud project, for ADK</li>
+<li>Bedrock model access to Nova Micro in <code>us-east-1</code>, for
+Strands</li>
+<li>A Microsoft Foundry project with a <code>gpt-5-mini</code>
+deployment, for Agent Framework</li>
+<li>Optional: the managed catalogs, seeded. The <a
+href="https://dev.to/gde/seven-iceberg-rest-catalogs-what-they-declare-and-what-they-serve-40oj">earlier
+article</a> brings up each one. Everything through Step 4 needs only the
+local control.</li>
+</ul>
+<h4 id="step-1--clone-and-install">Step 1 — Clone and Install</h4>
+<pre class="console"><code>$ git clone https://github.com/xbill9/lakehouse-iceberg-2026
+$ cd lakehouse-iceberg-2026/iceberg-agent
+$ python3 -m venv .venv &amp;&amp; . .venv/bin/activate
+$ pip install -r ../iceberg-conformance/requirements.txt -r requirements.txt</code></pre>
+<p>Both requirements files are needed. The tool imports the conformance
+harness's credential flows rather than reimplementing six of them. In a
+fresh venv the pair resolves in about 20 seconds.</p>
+<p>Once everything is installed, check the versions:</p>
+<pre class="console"><code>$ python3 -c &quot;
+import importlib.metadata as md, sys
+print(&#39;python                 &#39;, sys.version.split()[0])
+for d in [&#39;google-adk&#39;, &#39;strands-agents&#39;, &#39;agent-framework-core&#39;, &#39;agent-framework-foundry&#39;, &#39;pyiceberg&#39;]:
+    print(&#39;%-23s&#39; % d, md.version(d))&quot;
+python                  3.14.7
+google-adk              2.8.0
+strands-agents          1.55.0
+agent-framework-core    1.17.0
+agent-framework-foundry 1.12.0
+pyiceberg               0.12.0</code></pre>
+<h4
+id="mag_right-tip-install-agent-framework-core-not-agent-framework">🔎
+Tip: Install <code>agent-framework-core</code>, Not
+<code>agent-framework</code></h4>
+<p>The meta package depends on every connector Microsoft ships. On this
+machine pip resolved it for 1,445 seconds and then gave up with
+<code>resolution-too-deep</code>. Core and
+<code>agent-framework-foundry</code> together resolve in about a second,
+and both are needed: <code>FoundryChatClient</code> lives in the
+second.</p>
+<h4 id="mag_right-tip-onelake-needs-adlfs">🔎 Tip: OneLake Needs
+<code>adlfs</code></h4>
+<p><code>adlfs</code> is the fsspec filesystem for
+<code>abfss://</code>, and pyiceberg only pulls it in as an optional
+extra. Without it every metadata call against OneLake succeeds and every
+scan returns
+<code>ModuleNotFoundError: No module named 'adlfs'</code>.</p>
+<h4 id="step-2--bring-up-the-control-catalog">Step 2 — Bring Up the
+Control Catalog</h4>
+<p>Start with the control, not the clouds. Apache Polaris runs locally
+in Docker, costs nothing, and carries the same fixture as three of the
+four managed catalogs, so a leg that fails against it has a wiring
+problem rather than a catalog problem.</p>
+<pre class="console"><code>$ cd ../iceberg-conformance
+$ cp catalogs.example.yaml catalogs.yaml
+$ ./polaris-up.sh
+$ curl -s http://localhost:8182/q/health/ready
+{&quot;status&quot;: &quot;UP&quot;, &quot;checks&quot;: [...]}</code></pre>
+<p><code>polaris-up.sh</code> starts the container and seeds
+<code>probe_ns.probe_table</code>: 11 rows, four columns, partitioned by
+day. The four flags it needs, and the failed attempt behind each one,
+are in the earlier article.</p>
+<h4 id="step-3--set-the-environment">Step 3 — Set the Environment</h4>
+<pre class="console"><code>$ cd ../iceberg-agent
+$ export PYTHONPATH=../iceberg-conformance
+$ export ICEBERG_CATALOGS_FILE=../iceberg-conformance/catalogs.yaml
+$ export POLARIS_CLIENT_ID=root POLARIS_CLIENT_SECRET=s3cr3t
+$ export GOOGLE_GENAI_USE_VERTEXAI=true GOOGLE_CLOUD_LOCATION=us-central1
+$ export GOOGLE_CLOUD_PROJECT=&lt;your-project&gt;
+$ unset GOOGLE_API_KEY                    # keep ADK on Vertex AI
+$ export AWS_REGION=us-east-1</code></pre>
+<p>The Foundry endpoint is the project's <code>AI Foundry API</code>
+endpoint, which the management API returns:</p>
+<pre class="console"><code>$ ID=$(az cognitiveservices account show -n &lt;resource&gt; -g &lt;resource-group&gt; --query id -o tsv)
+$ az rest --method get --url &quot;https://management.azure.com$ID/projects?api-version=2025-06-01&quot; \
+    --query &quot;value[0].properties.endpoints.\&quot;AI Foundry API\&quot;&quot; -o tsv
+https://&lt;resource&gt;.services.ai.azure.com/api/projects/&lt;project&gt;
+$ export FOUNDRY_PROJECT_ENDPOINT=https://&lt;resource&gt;.services.ai.azure.com/api/projects/&lt;project&gt;</code></pre>
+<h4 id="step-4--ask-one-leg-against-the-control">Step 4 — Ask One Leg,
+Against the Control</h4>
+<p><code>--catalog</code> points a leg at the control, so the wiring is
+proven before a cloud catalog is involved:</p>
+<pre class="console"><code>$ python3 run_once.py gcp --catalog apache-polaris &quot;How many rows are in the probe table?&quot;
+cloud=gcp model=gemini-2.5-flash catalog=apache-polaris
+question: How many rows are in the probe table?
+ 
+   -&gt; tool: iceberg_list_tables()
+   -&gt; tool: iceberg_describe_table(table=&#39;probe_ns.probe_table&#39;)
+   -&gt; tool: iceberg_count_rows(table=&#39;probe_ns.probe_table&#39;)
+ 
+&lt;!-- cloud=gcp model=gemini-2.5-flash catalog=apache-polaris instruction=v2 catalog_calls=3 --&gt;
+The table `probe_ns.probe_table` has 11 rows. This count is exact for snapshot-id 5653331815319537848, from the table described by metadata-location `file:/.../metadata/00006-57dbb327-b002-43cc-9ed3-93e61cab024e.metadata.json`.
+ 
+catalog calls: 3 of 8
+agent seconds: 7.14 | tool seconds: 0.33</code></pre>
+<p>Run the same command with <code>aws</code> and <code>azure</code>.
+All three answered 11 rows for the same snapshot. Strands answered this
+shorter question in two calls, skipping describe, because nothing in it
+asks for columns.</p>
+<p>Then drop <code>--catalog</code>, and each leg reads its own cloud's
+catalog: BigLake for ADK, Glue for Strands, OneLake for Agent
+Framework.</p>
+<h4 id="the-tools">The Tools</h4>
+<p>Four async callables, read-only, sharing one budget of eight catalog
+calls per answer:</p>
+<ul>
+<li><code>iceberg_list_tables</code> — discovery</li>
+<li><code>iceberg_describe_table</code> — columns, partitioning, and the
+metadata location</li>
+<li><code>iceberg_count_rows</code> — exact count from the snapshot
+summary</li>
+<li><code>iceberg_scan_table</code> — sampled rows, and says so when the
+view is partial</li>
+</ul>
+<p>Read-only is a decision, not a limitation of effort. These four tools
+use only operations in the nine that all seven catalogs serve, so a
+reading agent built this way is the portable case worth measuring. A
+tool that listed views or planned a scan would not be: views fail on six
+of the seven, and scan planning on all seven.</p>
+<h4 id="why-every-result-carries-a-metadata-location">Why Every Result
+Carries a Metadata Location</h4>
+<p>The research-agent version of this mesh puts the source URL on every
+search result, because an agent told to cite its sources and handed
+snippets without them invents citations that look real.</p>
+<p>The data version of that failure is an agent naming a table it never
+opened. An Iceberg table's <code>metadata-location</code> and
+<code>snapshot-id</code> name an exact immutable version, so carrying
+them into the model's context makes a real citation cheaper to produce
+than an invented one — and makes the claim checkable afterwards.</p>
+<pre class="console"><code>$ python3 -c &quot;
+import asyncio, iceberg_tool as t
+print(asyncio.run(t.iceberg_describe_table(&#39;probe_ns.probe_table&#39;)))&quot;
+table: probe_ns.probe_table
+format-version: 2
+columns:
+  id               long           required
+  ts               timestamptz    optional
+  payload          string         optional
+  region           string         optional
+partitioned by: ts_day
+snapshots: 4
+current-snapshot-id: 5653331815319537848
+metadata-location: file:/.../metadata/00006-57dbb327-b002-43cc-9ed3-93e61cab024e.metadata.json
+ 
+Cite the metadata-location and current-snapshot-id above when you state a figure from this table.</code></pre>
+<h4 id="counting-is-not-scanning">Counting Is Not Scanning</h4>
+<p><code>iceberg_scan_table</code> returns at most 100 rows and says so.
+Counting what it returns therefore gives the sample size, not the
+table's size, and before <code>iceberg_count_rows</code> existed the
+row-count question was answerable only by guessing a limit large enough
+to cover the table — which measures the guess rather than the
+catalog.</p>
+<p>Counting is now one metadata call against the snapshot summary:</p>
+<pre class="console"><code>$ python3 -c &quot;
+import asyncio, iceberg_tool as t
+print(asyncio.run(t.iceberg_count_rows(&#39;probe_ns.probe_table&#39;)))&quot;
+11 rows, from the snapshot summary (total-records) of snapshot-id 5653331815319537848. This is exact for that snapshot.</code></pre>
+<p>The scan tool also warns when the view it returned is partial, which
+is what stops a sample being reported as a total:</p>
+<pre class="console"><code>$ python3 -c &quot;
+import asyncio, iceberg_tool as t
+print(asyncio.run(t.iceberg_scan_table(&#39;probe_ns.probe_table&#39;, limit=3)))&quot;
+...
+NOTE: exactly 3 row(s) came back, which is the limit, so there are probably more. Do NOT report this as the table&#39;s row count. If you were asked how many rows the table has, say you sampled 3 and could not count the whole table.</code></pre>
+<h4 id="three-frameworks-three-shapes-for-the-same-agent">Three
+Frameworks, Three Shapes for the Same Agent</h4>
+<p>Here is the entire construction on each cloud. Not excerpts — this is
+all of it, and the tools and instruction are the same objects in all
+three.</p>
+<p><strong>Google, ADK:</strong></p>
+<pre class="python"><code>from google.adk.agents import LlmAgent
+ 
+LlmAgent(
+    model=model,                        # a model id string
+    name=..., description=...,
+    instruction=common.INSTRUCTION,     # `instruction`
+    tools=list(iceberg_tool.TOOLS),     # plain callables
+)</code></pre>
+<p><strong>AWS, Strands:</strong></p>
+<pre class="python"><code>from strands import Agent, tool
+from strands.models import BedrockModel
+ 
+Agent(
+    model=BedrockModel(model_id=model),              # a model *object*
+    system_prompt=common.INSTRUCTION,                # `system_prompt`
+    tools=[tool(fn) for fn in iceberg_tool.TOOLS],   # explicitly decorated
+)</code></pre>
+<p><strong>Azure, Agent Framework:</strong></p>
+<pre class="python"><code>from agent_framework import Agent
+from agent_framework.foundry import FoundryChatClient
+ 
+client = FoundryChatClient(
+    project_endpoint=os.environ[&quot;FOUNDRY_PROJECT_ENDPOINT&quot;],
+    model=model,
+    credential=DefaultAzureCredential(),
+)
+Agent(
+    client=client,                      # a chat *client* object
+    instructions=common.INSTRUCTION,    # `instructions`
+    tools=list(iceberg_tool.TOOLS),
+)</code></pre>
+<p>A model id string, a model object, a client object.
+<code>instruction</code>, <code>system_prompt</code>,
+<code>instructions</code>. Strands also wraps each tool in
+<code>tool()</code>, and Agent Framework takes a credential. That is the
+whole delta in the agent.</p>
+<h4 id="reading-the-data-is-not-the-same-as-reading-the-catalog">Reading
+the Data Is Not the Same as Reading the Catalog</h4>
+<p>Three configurations reach the catalog and cannot read the data. Each
+one is reproduced deliberately in the evidence, with
+<code>iceberg_list_tables</code> succeeding immediately before
+<code>iceberg_scan_table</code> fails, so the catalog is demonstrably
+reachable in all three. A control runs the same two calls with the
+tool's wiring unchanged, and reads.</p>
+<pre class="console"><code>$ # A. OneLake, no ADLS configuration at all (PyArrowFileIO, no adls.* properties)
+-- metadata call (iceberg_list_tables):
+dbo.probe_table
+-- data call (iceberg_scan_table):
+CATALOG ERROR while scanning dbo.probe_table: TypeError: __init__() takes exactly 1 positional argument (0 given).
+$ # B. OneLake, ADLS credential set but PyArrowFileIO instead of fsspec
+CATALOG ERROR while scanning dbo.probe_table: OSError: GetProperties failed for
+&#39;https://onelake.blob.core.windows.net/...&#39; Cannot initialise an ObjectInp.
+$ # C. Glue, SigV4 for the catalog but no local S3 credentials
+CATALOG ERROR while scanning probe_ns.probe_table: OSError: ... AWS Error
+ACCESS_DENIED during HeadObject operation</code></pre>
+<p>The second builds a hostname that does not exist: PyArrow's Azure
+filesystem ignores <code>adls.account-host</code>, and fsspec honours
+it. The third is <code>ACCESS_DENIED</code> on a bucket the caller owns
+outright, because pyiceberg used the credentials the catalog vends
+rather than local ones.</p>
+<p>One configuration that looks as though it should fail does not. With
+fsspec and the OneLake account host in place, removing only the ADLS
+credential still reads the table, because adlfs resolves
+<code>DefaultAzureCredential</code> on its own when handed none. The
+<code>TypeError</code> in the first case needs the whole Azure storage
+configuration to be absent, not just the credential.</p>
+<p>Signing the catalog calls and reading the files the catalog points at
+are two different credentials. In all three failing cases the error
+names something other than the missing configuration.</p>
+<p>This is the part that does not port. Every framework binds the same
+four tool objects, but the storage wiring underneath them --
+<code>FsspecFileIO</code> and an account host for OneLake, local rather
+than vended credentials for Glue, and the vended ones S3 Tables' managed
+bucket requires -- is written once per catalog, inside the tool. It
+differs even between two catalogs on the same cloud. An agent that reads
+Iceberg is portable at the catalog. At the files, it is configured.</p>
+<h4 id="step-5--capture-ground-truth">Step 5 — Capture Ground Truth</h4>
+<p>The thing being measured cannot also be the thing that says whether
+the measurement was right. Ground truth comes from pyiceberg against
+each catalog, with no agent in the path:</p>
+<pre class="console"><code>$ python3 capture_ground_truth.py
+catalog=apache-polaris table=probe_ns.probe_table
+  rows=11
+  columns=id,ts,payload,region
+  snapshot_id=5653331815319537848
+  metadata_location=file:/.../metadata/00006-57dbb327-b002-43cc-9ed3-93e61cab024e.metadata.json
+...
+catalog=microsoft-onelake table=dbo.probe_table
+  rows=6
+  columns=id,ts,payload
+  snapshot_id=3346142071915475645</code></pre>
+<p>Nothing is written unless every catalog answers. A partial ground
+truth would score the missing catalog's runs against nothing.</p>
+<h4 id="step-6--run-the-matrix">Step 6 — Run the Matrix</h4>
+<pre class="console"><code>$ python3 run_matrix.py --axis A --repeat 3
+...
+$ python3 run_matrix.py --axis B --repeat 3
+...
+$ python3 run_matrix.py --axis C --repeat 3
+  gcp    gemini-2.5-flash           apache-polaris      run 1    9.2s  agent=8.04s tool=0.32s  count=ok snap=ok meta=ok cols=ok calls=3
+  ...
+  aws    gemini-2.5-flash           apache-polaris      run 1    9.4s  agent=8.63s tool=0.3s  count=ok snap=ok meta=ok cols=ok calls=3
+  ...
+  aws    us.amazon.nova-micro-v1:0  apache-polaris      run 1    4.6s  agent=4.07s tool=0.32s  count=ok snap=ok meta=ok cols=ok calls=3
+  ...
+wrote .../evidence/paper3-raw/matrix-axis-C.json (9 runs)</code></pre>
+<p>Run each axis alone. Its latencies are published, and anything else
+running on the machine or against the same model endpoints is in them.
+Runs write only to a gitignored raw directory, because a loaded table
+can carry real account identifiers.</p>
+<h4 id="step-7--publish-the-evidence">Step 7 — Publish the Evidence</h4>
+<pre class="console"><code>$ python3 publish_evidence.py
+...
+mapped 13 identifiers; published 95 files to .../papers/iceberg-agent-three-clouds/evidence
+$ cd .. &amp;&amp; ./check-no-identifiers.sh
+...
+clean</code></pre>
+<p><code>publish_evidence.py</code> is the only path into the article's
+evidence directory. It re-scores every capture from its own body rather
+than trusting the runner, refuses if the two disagree, refuses if the
+scorer passes a planted empty answer, and maps account identifiers to
+stable pseudonyms on the way out. Every figure below comes from the
+summary it writes.</p>
+<h4 id="axis-a-catalog-fixed-framework-and-model-vary">Axis A: Catalog
+Fixed, Framework and Model Vary</h4>
+<p>Three legs, one catalog, three runs each. The catalog is the local
+Polaris control, so nothing about it varies between legs.</p>
+<p>The three models are not matched, and this table should not be read
+as if they were. Nova Micro is the smallest of Amazon's Nova text
+models. <code>gpt-5-mini</code> is a reasoning model, run here at its
+default reasoning effort. Gemini 2.5 Flash sits between them and thinks
+by default. Each leg runs its own cloud's model, which is the
+arrangement a real deployment would have -- and it is also why Axis C
+exists.</p>
+<p><img src="https://raw.githubusercontent.com/xbill9/lakehouse-iceberg-2026/main/papers/iceberg-agent-three-clouds/medium/img/devto-iceberg-agent-three-clouds-table-2.png"
+alt="Table: leg, framework and model, runs passing every check, seconds min/med/max, median seconds in tools" /></p>
+<p>Every run used exactly three catalog calls. ADK and Strands log each
+tool call, and in every one of their runs the calls were list, describe,
+count; Agent Framework does not log them, and its answers report what
+those same three returned. Three is what this question needs -- it asks
+for columns as well as a count -- rather than a fixed property of the
+legs.</p>
+<p>All three frameworks reach the same correct row count with the same
+call pattern. What separates them is latency, and the separation is
+clean — <strong>about 4x from the fastest median to the slowest</strong>
+(15.8s / 3.9s = 4.05x in this run), with no overlap between any pair.
+AWS's slowest run (4.0s) is faster than Google's fastest (7.7s), and
+Google's slowest (9.3s) is faster than Azure's fastest (15.3s).</p>
+<p>That separation replicates. This is the third complete run of both
+axes, and all three produced the same order with no overlap between
+legs, at spreads of 3.80x, 3.98x and 4.05x. The second decimal moves
+between runs; the ordering and the gaps do not.</p>
+<p>The tools are not where that time goes. Each answer records how long
+it spent inside the four tools, and against this catalog that is 0.31 to
+0.39 seconds in every leg — about 5% of a median answer. Azure's second
+run took 28.6 seconds, of which 0.39 were in the tools; the rest is the
+model and the framework. One slow answer in three moves the maximum and
+leaves the median alone.</p>
+<p>One answer failed a check. Strands run 3 gave the right count,
+columns and snapshot id, and then wrote:</p>
+<blockquote>
+<p>The metadata-location and snapshot-id that I cited above identify the
+exact immutable version of the table from which these figures are
+derived.</p>
+</blockquote>
+<p>It had cited the snapshot id and not the metadata location. The
+describe call that returns the location did run -- the answer reports
+the columns that came back with it -- so the location was in context and
+was not carried into the answer. The check is an exact string comparison
+against ground truth, which is what separates a citation that is made
+from one that is only described.</p>
+<h4 id="axis-b-leg-fixed-catalog-varies">Axis B: Leg Fixed, Catalog
+Varies</h4>
+<p>One leg — ADK on Gemini — against five catalogs, three runs each.</p>
+<p><img src="https://raw.githubusercontent.com/xbill9/lakehouse-iceberg-2026/main/papers/iceberg-agent-three-clouds/medium/img/devto-iceberg-agent-three-clouds-table-3.png"
+alt="Table: catalog, runs passing every check, seconds min/med/max, median seconds in tools" /></p>
+<p>The catalog is visible here, and only in the tool column. Three
+catalog calls take 0.31 seconds against the local control and between
+1.01 and 2.09 seconds against the four managed catalogs. That is
+distance from this machine as much as anything the catalog does, and it
+is not a ranking of the services.</p>
+<p>In the totals it is a small part. Cell medians run from 8.3 to 10.9
+seconds, a 2.6-second range, narrower than the gap between either pair
+of adjacent legs' medians in Axis A (3.9 and 8.0 seconds).</p>
+<p>Both axes measure one cell -- ADK on Polaris -- so the matrix
+measures its own noise. That cell's medians were 7.8 seconds in Axis A
+and 8.3 in Axis B, 0.5 seconds apart; in the two earlier runs the same
+comparison gave 0.4 and 1.7 seconds. Against a 2.6-second range across
+catalogs, a difference between two catalogs smaller than that is not
+distinguishable from run-to-run variation.</p>
+<p>The correct answer is not the same in every row. OneLake's table
+holds 6 rows and 3 columns where the others hold 11 and 4, because it
+was loaded through the Fabric load-table API rather than seeded with
+pyiceberg. Each answer is scored against ground truth read from its own
+catalog, so a leg that reported 11 rows against OneLake would be marked
+wrong.</p>
+<h4 id="axis-c-model-fixed-framework-varies">Axis C: Model Fixed,
+Framework Varies</h4>
+<p>Axis A cannot say how much of that 4x is the framework, because each
+leg pairs one framework with one model. Axis C adds one crossover: the
+Strands agent from the AWS leg, unchanged except for its model object,
+on <code>gemini-2.5-flash</code> through Vertex AI -- the model and
+endpoint ADK uses. It runs beside the two cells it shares one thing
+with, all nine runs in one sitting against the same Polaris catalog.</p>
+<p><img src="https://raw.githubusercontent.com/xbill9/lakehouse-iceberg-2026/main/papers/iceberg-agent-three-clouds/medium/img/devto-iceberg-agent-three-clouds-table-4.png"
+alt="Table: framework, model, runs passing every check, seconds min/med/max, median seconds in tools" /></p>
+<p>Changing the framework with the model held still moved the median by
+0.6 seconds, 1.07x, and the two cells overlap: ADK's slowest run (9.2s)
+is slower than Strands' fastest (8.4s). Changing the model with the
+framework held still moved it by 5.4 seconds, 2.35x, with no
+overlap.</p>
+<p>So between these two frameworks, the latency difference in Axis A
+belongs to the model. A 0.6-second difference is inside the run-to-run
+variation measured above in Axis B -- up to 1.7 seconds for one cell --
+so this run does not rank ADK against Strands in either direction.</p>
+<p>The crossover covers two of the three frameworks. Agent Framework was
+not run on another model, so the Azure leg's framework and model remain
+confounded, and its 15.8-second median describes Agent Framework with
+<code>gpt-5-mini</code>, not Agent Framework alone.</p>
+<h4 id="what-the-agents-actually-answered">What the Agents Actually
+Answered</h4>
+<pre class="console"><code>$ python3 run_once.py azure &quot;How many rows are in the probe table, and what columns does it have? Cite the exact table version you read.&quot;
+&lt;!-- cloud=azure model=gpt-5-mini catalog=microsoft-onelake instruction=v2 catalog_calls=3 --&gt;
+...
+- metadata-location: abfss://...@onelake.dfs.fabric.microsoft.com/.../Tables/probe_table/metadata/v3.metadata.json
+- current-snapshot-id: 3346142071915475645
+ 
+Row count
+- Exact number of rows: 6 rows.
+- This count is exact for the table version identified above (metadata-location and snapshot id quoted). The count was taken from the snapshot summary (total-records) for snapshot-id 3346142071915475645.
+ 
+catalog calls: 3 of 8
+agent seconds: 19.35 | tool seconds: 3.43</code></pre>
+<p>Every answer carries a stamped header giving the cloud, model,
+catalog, instruction version and call count. Without it, an answer that
+looks wrong cannot be told from one produced by an older instruction,
+and an agent that never called its tools looks identical to one that
+did. The last line splits the answer's time into the part spent in the
+tools and the rest.</p>
+<h4 id="summary">Summary</h4>
+<p>The goal of this article was to find out whether a data agent that
+only reads Apache Iceberg is portable across agent frameworks and across
+catalogs. The key to the solution was building one tool implementation,
+binding it into three frameworks unchanged, and splitting the runs into
+three axes so that the catalog, the framework and the model could each
+be varied on its own. The results were:</p>
+<ul>
+<li><strong>24 of 24 runs gave the correct row count and
+columns</strong>, across three frameworks and five catalogs, and all 24
+cited the snapshot id of the version they read.</li>
+<li><strong>23 of 24 cited the metadata location.</strong> The one that
+did not said that it had, and only an exact comparison against ground
+truth shows the difference. It is one run of one model on one question,
+not a rate.</li>
+<li><strong>No invented columns in any run.</strong> OneLake's table has
+no <code>region</code> column and no answer against OneLake named
+one.</li>
+<li><strong>Every run used exactly three catalog calls</strong> out of a
+budget of eight — the three this question needs.</li>
+<li><strong>Framework and model together account for about a 4x latency
+spread</strong>, with no overlap between legs and the same order in all
+three complete runs (3.80x, 3.98x, 4.05x). The tools took 0.31 to 0.39
+seconds of it in every leg.</li>
+<li><strong>Between ADK and Strands, that spread is the
+model's.</strong> Holding Gemini still and swapping the framework moved
+the median 0.6 seconds (1.07x, overlapping); holding Strands still and
+swapping the model moved it 5.4 seconds (2.35x, no overlap). Agent
+Framework was not crossed over.</li>
+<li><strong>Through the ADK leg, the catalog shows up in tool time, not
+in the totals.</strong> A faster leg would feel the same tool time more.
+Three calls take 0.31 to 2.09 seconds depending on the catalog; cell
+medians through one leg span 8.3 to 10.9 seconds, and the one cell both
+axes measure has differed by up to 1.7 seconds between them.</li>
+<li><strong>Binding the same tool three times takes three construction
+differences</strong> — a model id string against a model object against
+a client object — plus a tool wrapper in Strands and a credential in
+Agent Framework.</li>
+<li><strong>What does not port is the storage wiring.</strong> The tools
+bind unchanged; the file access beneath them is configured per
+cloud.</li>
+</ul>
+<p>Scope: one question, asked three times per cell, on 2026-09-15, from
+one machine, with the versions shown above; cost and token counts were
+not measured; Axis A is three legs against one catalog and Axis B is one
+leg against five, so 24 runs rather than the full 45-cell grid; every
+run gave the correct count and only one missed a check, which means the
+question is not hard enough to discriminate between legs beyond latency;
+Axis C separates framework from model for ADK and Strands only, on one
+pair of models, and leaves Agent Framework confounded with
+<code>gpt-5-mini</code>; Polaris runs locally while the other four are
+managed services in different regions, so neither the Axis B latencies
+nor the tool times are a fair comparison between clouds; and the OneLake
+fixture differs from the other four because it was loaded through the
+Fabric API rather than pyiceberg. Two earlier complete runs from
+2026-09-14 are published under <code>evidence/superseded-runs/</code>.
+The first was made before answers recorded their tool time, and was
+replaced because two of its slow runs could not be attributed. The
+second is the run this article first reported; the whole pipeline was
+then run again from ground truth onwards, to check that the result
+replicates. Both scored 24 of 24 on every check, including the metadata
+citation, and neither was replaced because of a result in it.</p>
+<p>The strategy for using one shared Iceberg tool across three agent
+frameworks was validated with an incremental step by step approach.</p>
+</body>
+</html>

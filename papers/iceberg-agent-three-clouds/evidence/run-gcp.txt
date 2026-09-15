@@ -1,4 +1,4 @@
-# captured 2026-09-04T14:08:15Z by run_once.py on this machine
+# captured 2026-09-15T01:14:22Z by run_once.py on this machine
 # command: python3 run_once.py gcp "How many rows are in the probe table, and what columns does it have? Cite the exact table version you read."
 
 cloud=gcp model=gemini-2.5-flash catalog=google-lakehouse
@@ -9,14 +9,15 @@ question: How many rows are in the probe table, and what columns does it have? C
    -> tool: iceberg_count_rows(table='probe_ns.probe_table')
 
 <!-- cloud=gcp model=gemini-2.5-flash catalog=google-lakehouse instruction=v2 catalog_calls=3 -->
-The `probe_ns.probe_table` contains 11 rows, which was exact for snapshot-id 6042367411917366632.
+The `probe_ns.probe_table` has 11 rows. This count is exact for snapshot-id `6042367411917366632`.
 
-The table has the following columns:
-*   `id`: long
-*   `ts`: timestamptz
-*   `payload`: string
-*   `region`: string
+The table `probe_ns.probe_table` has the following columns:
+*   `id` (long)
+*   `ts` (timestamptz)
+*   `payload` (string)
+*   `region` (string)
 
-This information is from the table version identified by metadata-location `gs://GCP_PROJECT-iceberg-probe/probe_ns/probe_table/jy3n8ueer5x567uy/metadata/00006-6a99c835-0000-2c3f-a2cd-3c286d4fe366.metadata.json` and snapshot-id `6042367411917366632`.
+The table version read for this information is identified by metadata-location: `gs://bucket-0001/probe_ns/probe_table/jy3n8ueer5x567uy/metadata/00006-guid-0002.metadata.json` and snapshot-id: `6042367411917366632`.
 
 catalog calls: 3 of 8
+agent seconds: 9.40 | tool seconds: 2.17

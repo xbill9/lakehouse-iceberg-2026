@@ -1,0 +1,21 @@
+# environment the paper 3 evidence was measured in, captured 2026-09-15T01:10:15Z
+python=3.14.7
+platform=Linux
+google-adk=2.8.0
+google-genai=2.22.0
+strands-agents=1.55.0
+agent-framework-core=1.17.0
+agent-framework-foundry=1.12.0
+pyiceberg=0.12.0
+pyarrow=25.0.1
+fsspec=2026.7.0
+botocore=1.43.90
+azure-identity=1.25.3
+model.gcp=gemini-2.5-flash
+model.aws=us.amazon.nova-micro-v1:0
+model.azure=gpt-5-mini
+vertex_ai=true
+vertex_location=us-central1
+aws_region=us-east-1
+catalog_budget=8
+instruction=v2

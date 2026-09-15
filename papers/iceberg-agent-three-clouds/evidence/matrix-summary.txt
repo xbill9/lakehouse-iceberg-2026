@@ -1,26 +1,41 @@
 # matrix summary, derived from matrix-axis-A.json and matrix-axis-B.json
 # every cell is 3 runs of one question; correctness is checked against
-# ground-truth.txt read directly from each catalog
+# ground-truth.txt read directly from each catalog. Re-scored from each
+# capture's body by publish_evidence.py, not copied from the runner.
+# seconds is the whole process, imports included. agent is the answer alone;
+# tool is the part of the answer spent inside the Iceberg tools.
 
 AXIS A -- catalog fixed (apache-polaris), framework and model vary
-  cell                 runs  correct  snapshot metadata columns  seconds (min/med/max)
-  gcp                  3     3/3      3/3      3/3      3/3      11.3 / 13.4 / 15.1
-  aws                  3     3/3      3/3      3/3      3/3      4.6 / 4.6 / 4.8
-  azure                3     3/3      3/3      3/3      3/3      18.5 / 20.5 / 23.0
+  cell                 runs  correct  snapshot metadata columns  seconds (min/med/max)  agent-med tool-med
+  gcp                  3     3/3      3/3      3/3      3/3        7.7 /   7.8 /   9.3    6.69    0.31
+  aws                  3     3/3      3/3      2/3      3/3        3.6 /   3.9 /   4.0    3.40    0.31
+  azure                3     3/3      3/3      3/3      3/3       15.3 /  15.8 /  28.6   14.57    0.39
   catalog_calls across all runs: [3] | invented columns: 0
 
 AXIS B -- leg fixed (gcp / ADK / gemini-2.5-flash), catalog varies
-  cell                 runs  correct  snapshot metadata columns  seconds (min/med/max)
-  apache-polaris       3     3/3      3/3      3/3      3/3      12.8 / 13.3 / 13.3
-  google-lakehouse     3     3/3      3/3      3/3      3/3      13.5 / 15.6 / 15.8
-  aws-glue             3     3/3      3/3      3/3      3/3      12.3 / 12.6 / 13.3
-  aws-s3tables         3     3/3      3/3      3/3      3/3      11.5 / 11.7 / 12.4
-  microsoft-onelake    3     3/3      3/3      3/3      3/3      12.1 / 13.0 / 15.0
+  cell                 runs  correct  snapshot metadata columns  seconds (min/med/max)  agent-med tool-med
+  apache-polaris       3     3/3      3/3      3/3      3/3        7.8 /   8.3 /   9.1    7.13    0.31
+  google-lakehouse     3     3/3      3/3      3/3      3/3        9.2 /   9.9 /  11.6    8.77    2.09
+  aws-glue             3     3/3      3/3      3/3      3/3        9.1 /   9.5 /   9.7    8.31    1.02
+  aws-s3tables         3     3/3      3/3      3/3      3/3        8.8 /   9.4 /  10.2    8.19    1.01
+  microsoft-onelake    3     3/3      3/3      3/3      3/3        9.7 /  10.9 /  11.3    9.76    2.08
   catalog_calls across all runs: [3] | invented columns: 0
 
-total runs: 24
+AXIS C -- catalog fixed (apache-polaris), model fixed while framework varies
+  framework / model                    runs  correct  snapshot metadata columns  seconds (min/med/max)  agent-med tool-med
+  ADK / gemini-2.5-flash               3     3/3      3/3      3/3      3/3        6.9 /   8.8 /   9.2    7.66    0.31
+  Strands / gemini-2.5-flash           3     3/3      3/3      3/3      3/3        8.4 /   9.4 /   9.8    8.63    0.30
+  Strands / us.amazon.nova-micro-v1:0  3     3/3      3/3      3/3      3/3        3.8 /   4.0 /   4.6    3.51    0.31
+  catalog_calls across all runs: [3] | invented columns: 0
+
+total runs, axes A and B: 24
   correct_row_count    24/24
   cites_snapshot       24/24
-  cites_metadata       24/24
+  cites_metadata       23/24
   names_all_columns    24/24
   invented_column      0/24
+  axis C runs: 9 (reported separately; it measures a different question)
+
+# scored with scorer v2 (answer text only, count beside 'rows', whole-word
+# columns). Runs recorded under an older scorer and re-scored:
+#   no field changed

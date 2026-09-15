@@ -24,8 +24,17 @@ def build():
 
     model = common.resolve_model(CLOUD, DEFAULT_MODEL)
     os.environ.setdefault("ICEBERG_CATALOG", common.resolve_catalog(CLOUD))
+    if model.startswith("gemini"):
+        # The Axis C crossover: this same Strands agent on Gemini, so framework
+        # and model can be separated. genai.Client() picks Vertex AI from
+        # GOOGLE_GENAI_USE_VERTEXAI exactly as ADK's does -- same model, same
+        # endpoint, different framework.
+        from strands.models.gemini import GeminiModel
+        brain = GeminiModel(model_id=model)
+    else:
+        brain = BedrockModel(model_id=model)
     return Agent(
-        model=BedrockModel(model_id=model),          # a model object
+        model=brain,                                 # a model object
         system_prompt=common.INSTRUCTION,            # `system_prompt`
         tools=[tool(fn) for fn in iceberg_tool.TOOLS],  # explicitly decorated
     )

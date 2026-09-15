@@ -31,6 +31,7 @@ seven catalogs agree on anyway.
 """
 import contextvars
 import os
+import time
 
 # The harness already knows how to authenticate to all seven catalogs; this
 # imports that rather than reimplementing six credential flows.
@@ -56,10 +57,15 @@ class _Budget:
     seen from both sides.
     """
 
-    __slots__ = ("used",)
+    __slots__ = ("used", "seconds")
 
     def __init__(self) -> None:
         self.used = 0
+        #: Wall-clock spent inside the tools, catalog HTTP and pyiceberg
+        #: included. Subtracted from an answer's total it leaves the model and
+        #: the framework, which is how a slow run is attributed rather than
+        #: guessed at.
+        self.seconds = 0.0
 
 
 _used: contextvars.ContextVar[_Budget] = contextvars.ContextVar("iceberg_budget")
@@ -77,6 +83,11 @@ def _budget() -> _Budget:
 def catalog_count() -> int:
     """Catalog calls made for the answer currently being written."""
     return _budget().used
+
+
+def catalog_seconds() -> float:
+    """Seconds spent inside the tools for the answer currently being written."""
+    return _budget().seconds
 
 
 def reset_budget() -> None:
@@ -251,6 +262,7 @@ async def iceberg_list_tables(namespace: str = "") -> str:
     spent = _spend()
     if spent:
         return spent
+    started = time.monotonic()
     try:
         cat = catalog()
         spaces = [tuple(namespace.split("."))] if namespace else cat.list_namespaces()
@@ -267,6 +279,8 @@ async def iceberg_list_tables(namespace: str = "") -> str:
         return "\n".join(sorted(lines))
     except Exception as exc:  # noqa: BLE001 - a failed call must not fail the answer
         return _fail("listing tables", exc)
+    finally:
+        _budget().seconds += time.monotonic() - started
 
 
 async def iceberg_describe_table(table: str) -> str:
@@ -286,6 +300,7 @@ async def iceberg_describe_table(table: str) -> str:
     spent = _spend()
     if spent:
         return spent
+    started = time.monotonic()
     try:
         tbl = catalog().load_table(table)
         meta = tbl.metadata
@@ -314,6 +329,8 @@ async def iceberg_describe_table(table: str) -> str:
         )
     except Exception as exc:  # noqa: BLE001
         return _fail("describing %s" % table, exc)
+    finally:
+        _budget().seconds += time.monotonic() - started
 
 
 async def iceberg_scan_table(table: str, columns: str = "",
@@ -336,6 +353,7 @@ async def iceberg_scan_table(table: str, columns: str = "",
     spent = _spend()
     if spent:
         return spent
+    started = time.monotonic()
     try:
         tbl = catalog().load_table(table)
         wanted = [c.strip() for c in columns.split(",") if c.strip()]
@@ -377,6 +395,8 @@ async def iceberg_scan_table(table: str, columns: str = "",
         return "\n".join(out)
     except Exception as exc:  # noqa: BLE001
         return _fail("scanning %s" % table, exc)
+    finally:
+        _budget().seconds += time.monotonic() - started
 
 
 async def iceberg_count_rows(table: str) -> str:
@@ -396,6 +416,7 @@ async def iceberg_count_rows(table: str) -> str:
     spent = _spend()
     if spent:
         return spent
+    started = time.monotonic()
     try:
         tbl = catalog().load_table(table)
         snap = tbl.current_snapshot()
@@ -424,6 +445,8 @@ async def iceberg_count_rows(table: str) -> str:
                 "for snapshot-id %s." % (rows, first, snap.snapshot_id))
     except Exception as exc:  # noqa: BLE001
         return _fail("counting %s" % table, exc)
+    finally:
+        _budget().seconds += time.monotonic() - started
 
 
 TOOLS = [iceberg_list_tables, iceberg_describe_table,

@@ -16,6 +16,14 @@ azure-identity>=1.25            # azure leg, DefaultAzureCredential
 # CRT, so the shell looks authenticated and only Python does not.
 botocore[crt]>=1.43
 
+# The OneLake data path. iceberg_tool reads OneLake through FsspecFileIO, and
+# fsspec's abfss:// filesystem is adlfs -- an optional pyiceberg extra that
+# nothing above pulls in. MEASURED 2026-09-14 on a second machine: without it
+# every metadata call succeeds and every scan returns
+# `ModuleNotFoundError: No module named 'adlfs'`, which also masks the credential
+# error failure_modes.py exists to reproduce. Its control caught this.
+adlfs>=2024.7.0
+
 # `agent-framework-core`, not `agent-framework`. The meta package depends on
 # `agent-framework-core[all]` -- every connector Microsoft ships, Copilot Studio,
 # Cosmos, Azure AI Search, Azure Functions -- and none of them is reachable from
