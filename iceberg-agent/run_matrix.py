@@ -71,9 +71,16 @@ AXIS_D_CELLS = [("gcp", "google-lakehouse"), ("aws", "aws-glue"),
 #: A variant is one environment change on a cell, named in its capture and label.
 #: rows-only restores the v1 scan -- rows and no computed count -- so the model has to
 #: count them itself. provider-decoding sends Nova Micro no decoding fields at all.
-VARIANTS = {"rows-only": {"ICEBERG_SCAN_FILTER": "0"},
+#: rows-only carries ICEBERG_SCAN_DOC=read-all so the only difference from the
+#: published scan is who counts. Without it the v1 scan's docstring says "keep the
+#: limit small", and the model reads part of the table: MEASURED 2026-09-15 over 30
+#: Nova Micro runs at Bedrock's defaults, 8 scanned with limit 0, 5 or 10 and never
+#: saw every row, which is this harness talking, not the model's arithmetic.
+VARIANTS = {"rows-only": {"ICEBERG_SCAN_FILTER": "0", "ICEBERG_SCAN_DOC": "read-all"},
             "provider-decoding": {"ICEBERG_DECODING": "provider"},
-            "rows-only-provider-decoding": {"ICEBERG_SCAN_FILTER": "0", "ICEBERG_DECODING": "provider"}}
+            "rows-only-provider-decoding": {"ICEBERG_SCAN_FILTER": "0",
+                                            "ICEBERG_SCAN_DOC": "read-all",
+                                            "ICEBERG_DECODING": "provider"}}
 E_SETUPS = [("gcp", None), ("aws", "gemini-2.5-flash"), ("aws", None), ("azure", None)]
 #: Nova Micro's greedy cells return one answer, word for word, in all ten runs, so
 #: each is a single sample repeated; its two provider-decoding cells are the ones
@@ -146,7 +153,10 @@ def ground_truth() -> dict:
 #: MEASURED on Axis E: "There are 8 rows with an id of 10 or more: 20, 21, 22, 23,
 #: 10, 11, 12, 13." -- v8 read the 20 after the colon as the count and scored a
 #: correct answer wrong.
-SCORER_VERSION = 9
+#: v10 (2026-09-15) reads a value stated as a bullet -- "- Largest id in the table:
+#: 23." -- as the answer's statement of it. MEASURED on Axis E: one Agent Framework
+#: answer laid its results out that way and v9 scored a correct largest id wrong.
+SCORER_VERSION = 10
 #: Recorded in every matrix file, so an archived run says which harness produced it.
 SCAN_TOOL = "v2: filters in the engine; exact COUNT, MIN and MAX over every matching row"
 DECODING = "provider defaults; Nova greedy (temperature 0, topK 1) per Amazon's tool-use guidance"
@@ -210,9 +220,10 @@ def score_scan(body: str, truth: dict) -> dict:
     num = r"(?<![\w.-])(\d+|%s)(?![\w-]|\.\d)" % "|".join(NUMBER_WORDS)
     as_digits = lambda s: s if s.isdigit() else str(NUMBER_WORDS.index(s.lower()))  # noqa: E731
 
-    def last_stated(patterns):
+    def last_stated(patterns, reject=None):
         found = [(m.end(), as_digits(m.group(1))) for p in patterns
-                 for m in re.finditer(p, paired, re.I)]
+                 for m in re.finditer(p, paired, re.I)
+                 if not (reject and re.search(reject, m.group(0), re.I))]
         return max(found)[1] if found else None
 
     last_count = last_stated([r"%s\s+of\s+(?:the\s+)?\d+\s+rows?\b" % num,
@@ -222,8 +233,25 @@ def score_scan(body: str, truth: dict) -> dict:
                               r"%s\)?\s*(?:\([^()\d\n]{0,40}\))?\s*"
                               r"(?::|=|is|was|are|equals|number|total|count)\s*%s(?!\s*,\s*\d)"
                               % (AT_LEAST_10, num)])
-    last_max = last_stated([r"\b(?:largest|maximum|highest|max|biggest|greatest)\s+(?:id\s+)?"
-                            r"(?:is|was|=|:|equals)\s+%s" % num])
+    # "the largest id is 23", "Largest id in the table: 23", "max id = 23" -- the
+    # model's own claim. NOT the scan's "MIN and MAX of id over those 8 rows: 10 and
+    # 23", which answers quote verbatim: matching that read the MIN as the last value
+    # stated and scored 12 correct answers wrong (MEASURED across the stored runs).
+    # Narrow on purpose: the wording, then at most a few plain words, then the value.
+    # Every widening of this pattern has cost a correct answer somewhere, because
+    # answers quote the scan's own summary ("MIN/MAX of id over those 8 rows: 10 and
+    # 23") and refer back to the filter ("the maximum and the count of id >= 10 are
+    # exact"). A match carrying >=, MIN or MAX-of is an echo, not a claim.
+    # The lookbehind matters as much as the wording: answers quote the scan's summary
+    # line, "id MIN/MAX = 0 / 23", whose tail reads as "MAX = 0" on its own. Matching
+    # that took the MIN as the answer's last word on the largest id.
+    claim = (r"(?<!min/)(?<!min / )\b(?:largest|maximum|highest|max|biggest|greatest)\b"
+             r"(?!\s*/)(?!\s+of\b)[^\d\n:=]{0,32}[ \t]*(?:is|was|=|:|equals)[ \t]+%s" % num)
+    # The echo always names itself: "MIN and MAX of id = 0 and 23", "MIN/MAX over
+    # those rows: 10 and 23", "id >= 10". Reject on those words rather than widening
+    # the claim shape -- three spellings of the same quoted line cost three correct
+    # answers, one at a time, before this covered them all.
+    last_max = last_stated([claim], reject=r">=|≥|\bmin\b|/max|max\s+(?:of|over)")
     return {
         "correct_max_id": bool(re.search(
             # 150, not 60: "The largest id found in the sample from the "probe_ns.probe_table"
@@ -231,6 +259,9 @@ def score_scan(body: str, truth: dict) -> dict:
             # adds more. The \D span, not the width, is what rejects a swapped answer.
             r"\b(?:largest|maximum|highest|max|biggest|greatest)\b\D{0,150}%s" % mx, paired, re.I))
             and last_max in (None, truth["max_id"]),
+        # "- Largest id in the table: 23." is a statement of the value, so it counts
+        # as the last one stated. Without this the bullet read as no statement at all
+        # and a later mention decided the score.
         "correct_count": any(re.search(p, paired, re.I) for p in count_patterns)
             and last_count in (None, truth["ids_at_least_10"]),
         "cites_snapshot": truth["snapshot_id"] in answer,

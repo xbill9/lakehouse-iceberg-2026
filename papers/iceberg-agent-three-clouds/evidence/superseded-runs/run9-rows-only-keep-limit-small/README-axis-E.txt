@@ -1,0 +1,110 @@
+# Axis E at ten repeats per cell, captured 2026-09-15, SUPERSEDED and kept. Its
+# rows-only cells used the v1 scan with its own docstring, which tells the model
+# to keep the limit small, so a rows-only run could fail by reading part of the
+# table rather than by miscounting: over 30 Nova Micro runs in that configuration
+# 8 never saw every row. rows-only now carries the neutral limit wording, so the
+# only difference from the published scan is who counts. Re-scored below.
+
+  capture                                  max id count  snapshot  calls  answer s
+  E__aws__gemini-2.5-flash__rows-only__apache-polaris__1.txt ok     ok     ok        3      10.51
+  E__gcp__rows-only__apache-polaris__1.txt ok     ok     ok        3      10.45
+  E__aws__provider-decoding__apache-polaris__1.txt ok     ok     ok        4      3.83
+  E__azure__rows-only__apache-polaris__1.txt ok     ok     ok        4      19.71
+  E__aws__rows-only__apache-polaris__1.txt ok     WRONG  ok        4      3.30
+  E__aws__apache-polaris__1.txt            ok     ok     ok        4      3.82
+  E__gcp__apache-polaris__1.txt            ok     ok     ok        4      10.03
+  E__azure__apache-polaris__1.txt          ok     ok     ok        4      21.84
+  E__aws__gemini-2.5-flash__apache-polaris__1.txt ok     ok     ok        4      10.28
+  E__aws__rows-only-provider-decoding__apache-polaris__1.txt ok     WRONG  ok        4      4.48
+  E__aws__rows-only-provider-decoding__apache-polaris__2.txt ok     WRONG  ok        4      3.53
+  E__azure__apache-polaris__2.txt          ok     ok     ok        4      16.10
+  E__gcp__rows-only__apache-polaris__2.txt ok     ok     ok        3      8.61
+  E__aws__gemini-2.5-flash__apache-polaris__2.txt ok     ok     ok        4      10.39
+  E__aws__gemini-2.5-flash__rows-only__apache-polaris__2.txt ok     ok     ok        3      14.94
+  E__aws__rows-only__apache-polaris__2.txt ok     WRONG  ok        4      3.49
+  E__gcp__apache-polaris__2.txt            ok     ok     ok        4      9.68
+  E__aws__apache-polaris__2.txt            ok     ok     ok        4      3.75
+  E__azure__rows-only__apache-polaris__2.txt ok     ok     ok        4      17.15
+  E__aws__provider-decoding__apache-polaris__2.txt ok     ok     ok        6      4.87
+  E__aws__apache-polaris__3.txt            ok     ok     ok        4      3.66
+  E__aws__provider-decoding__apache-polaris__3.txt ok     ok     ok        4      3.47
+  E__aws__rows-only-provider-decoding__apache-polaris__3.txt ok     WRONG  ok        4      5.02
+  E__aws__rows-only__apache-polaris__3.txt ok     WRONG  ok        4      3.48
+  E__aws__gemini-2.5-flash__apache-polaris__3.txt ok     ok     ok        4      21.67
+  E__aws__gemini-2.5-flash__rows-only__apache-polaris__3.txt ok     ok     ok        4      12.36
+  E__azure__apache-polaris__3.txt          ok     ok     ok        4      19.32
+  E__azure__rows-only__apache-polaris__3.txt ok     ok     ok        3      17.15
+  E__gcp__rows-only__apache-polaris__3.txt ok     ok     ok        3      9.36
+  E__gcp__apache-polaris__3.txt            ok     ok     ok        4      8.11
+  E__aws__provider-decoding__apache-polaris__4.txt ok     ok     ok        4      4.00
+  E__aws__rows-only__apache-polaris__4.txt ok     WRONG  ok        4      3.36
+  E__gcp__apache-polaris__4.txt            ok     ok     ok        4      10.72
+  E__azure__rows-only__apache-polaris__4.txt ok     ok     ok        3      23.99
+  E__aws__gemini-2.5-flash__apache-polaris__4.txt ok     ok     ok        4      11.69
+  E__aws__apache-polaris__4.txt            ok     ok     ok        4      3.56
+  E__aws__rows-only-provider-decoding__apache-polaris__4.txt ok     WRONG  ok        7      6.34
+  E__aws__gemini-2.5-flash__rows-only__apache-polaris__4.txt ok     ok     ok        4      11.58
+  E__azure__apache-polaris__4.txt          ok     ok     ok        4      17.00
+  E__gcp__rows-only__apache-polaris__4.txt ok     ok     ok        4      10.20
+  E__aws__gemini-2.5-flash__rows-only__apache-polaris__5.txt ok     ok     ok        3      23.14
+  E__azure__apache-polaris__5.txt          ok     ok     ok        4      26.02
+  E__aws__rows-only-provider-decoding__apache-polaris__5.txt ok     WRONG  ok        5      5.48
+  E__aws__provider-decoding__apache-polaris__5.txt ok     ok     ok        4      4.04
+  E__gcp__apache-polaris__5.txt            ok     ok     ok        4      11.85
+  E__aws__rows-only__apache-polaris__5.txt ok     WRONG  ok        4      3.38
+  E__aws__gemini-2.5-flash__apache-polaris__5.txt ok     ok     ok        4      10.72
+  E__gcp__rows-only__apache-polaris__5.txt ok     ok     ok        3      8.66
+  E__aws__apache-polaris__5.txt            ok     ok     ok        4      3.70
+  E__azure__rows-only__apache-polaris__5.txt ok     ok     ok        3      16.96
+  E__aws__provider-decoding__apache-polaris__6.txt ok     ok     ok        4      4.08
+  E__aws__apache-polaris__6.txt            ok     ok     ok        4      3.65
+  E__gcp__apache-polaris__6.txt            ok     ok     ok        4      10.24
+  E__azure__rows-only__apache-polaris__6.txt ok     ok     ok        4      22.13
+  E__aws__rows-only-provider-decoding__apache-polaris__6.txt ok     WRONG  ok        4      4.35
+  E__gcp__rows-only__apache-polaris__6.txt ok     ok     ok        3      10.33
+  E__aws__rows-only__apache-polaris__6.txt ok     WRONG  ok        4      3.48
+  E__aws__gemini-2.5-flash__apache-polaris__6.txt ok     ok     ok        4      10.00
+  E__azure__apache-polaris__6.txt          ok     ok     ok        4      19.66
+  E__aws__gemini-2.5-flash__rows-only__apache-polaris__6.txt ok     ok     ok        3      9.71
+  E__azure__rows-only__apache-polaris__7.txt ok     ok     ok        4      18.30
+  E__aws__gemini-2.5-flash__apache-polaris__7.txt ok     ok     ok        4      9.18
+  E__gcp__apache-polaris__7.txt            ok     ok     ok        4      8.58
+  E__aws__gemini-2.5-flash__rows-only__apache-polaris__7.txt ok     ok     ok        3      11.15
+  E__aws__rows-only__apache-polaris__7.txt ok     WRONG  ok        4      3.44
+  E__aws__apache-polaris__7.txt            ok     ok     ok        4      3.71
+  E__aws__rows-only-provider-decoding__apache-polaris__7.txt ok     WRONG  ok        6      6.07
+  E__gcp__rows-only__apache-polaris__7.txt ok     ok     ok        3      10.45
+  E__azure__apache-polaris__7.txt          ok     ok     ok        4      19.37
+  E__aws__provider-decoding__apache-polaris__7.txt ok     ok     ok        4      4.36
+  E__aws__apache-polaris__8.txt            ok     ok     ok        4      3.57
+  E__aws__rows-only-provider-decoding__apache-polaris__8.txt ok     WRONG  ok        5      5.43
+  E__azure__apache-polaris__8.txt          ok     ok     ok        4      21.95
+  E__aws__gemini-2.5-flash__rows-only__apache-polaris__8.txt ok     ok     ok        3      8.45
+  E__azure__rows-only__apache-polaris__8.txt ok     ok     ok        4      19.69
+  E__aws__provider-decoding__apache-polaris__8.txt ok     ok     ok        4      4.32
+  E__gcp__rows-only__apache-polaris__8.txt ok     ok     ok        3      10.39
+  E__aws__gemini-2.5-flash__apache-polaris__8.txt ok     ok     ok        4      12.89
+  E__gcp__apache-polaris__8.txt            ok     ok     ok        4      8.21
+  E__aws__rows-only__apache-polaris__8.txt ok     WRONG  ok        4      3.33
+  E__aws__rows-only-provider-decoding__apache-polaris__9.txt ok     ok     ok        5      5.90
+  E__aws__gemini-2.5-flash__rows-only__apache-polaris__9.txt ok     ok     ok        3      17.82
+  E__azure__apache-polaris__9.txt          ok     ok     ok        4      23.30
+  E__aws__provider-decoding__apache-polaris__9.txt ok     ok     ok        4      6.06
+  E__aws__rows-only__apache-polaris__9.txt ok     WRONG  ok        4      3.42
+  E__aws__gemini-2.5-flash__apache-polaris__9.txt ok     ok     ok        4      10.21
+  E__gcp__rows-only__apache-polaris__9.txt ok     ok     ok        4      10.24
+  E__azure__rows-only__apache-polaris__9.txt ok     ok     ok        4      18.48
+  E__aws__apache-polaris__9.txt            ok     ok     ok        4      3.68
+  E__gcp__apache-polaris__9.txt            ok     ok     ok        4      8.43
+  E__azure__apache-polaris__10.txt         ok     ok     ok        4      23.09
+  E__aws__gemini-2.5-flash__rows-only__apache-polaris__10.txt ok     ok     ok        3      13.36
+  E__aws__provider-decoding__apache-polaris__10.txt ok     ok     ok        4      4.06
+  E__gcp__apache-polaris__10.txt           ok     ok     ok        4      8.02
+  E__aws__rows-only-provider-decoding__apache-polaris__10.txt WRONG  WRONG  ok        4      4.01
+  E__aws__gemini-2.5-flash__apache-polaris__10.txt ok     ok     ok        4      10.53
+  E__gcp__rows-only__apache-polaris__10.txt ok     ok     ok        4      12.23
+  E__aws__apache-polaris__10.txt           ok     ok     ok        4      3.87
+  E__aws__rows-only__apache-polaris__10.txt ok     WRONG  ok        4      3.54
+  E__azure__rows-only__apache-polaris__10.txt ok     ok     ok        4      22.65
+
+Strands answers with a line break inside a word or number the model streamed whole: 0 of 60

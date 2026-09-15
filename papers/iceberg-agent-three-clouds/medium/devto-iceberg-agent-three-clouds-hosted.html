@@ -5,7 +5,7 @@
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
   <title>Four Iceberg Tools, Three Agent Frameworks: What Ports, and What Doesn't</title>
-  <meta name="description" content="Four read-only Apache Iceberg tools bound into Google ADK, AWS Strands and Microsoft Agent Framework, run against five catalogs, 250 timed runs. Building the agent ports and running it does not; speed follows the model and how much it writes; the storage wiring under the tools is the per-cloud work." />
+  <meta name="description" content="Four read-only Apache Iceberg tools bound into Google ADK, AWS Strands and Microsoft Agent Framework, run against five catalogs, 360 timed runs. Building the agent ports and running it does not; speed follows the model and how much it writes; the storage wiring under the tools is the per-cloud work." />
   <style>
     html {
       color: #1a1a1a;
@@ -217,7 +217,7 @@ reading OneLake</li>
 three. Moving this agent between clouds could cost you in three places:
 the code, the behaviour -- does it answer the same way, as fast -- and
 the plumbing that reads a catalog's files. Each is measured below, on
-2026-09-15 (UTC), ten runs per cell.</p>
+2026-09-15 (UTC), ten runs per cell and twenty in Test 5.</p>
 <h4 id="what-did-it-find">What Did It Find?</h4>
 <p><strong>Building the agent ports; running it does not.</strong>
 Construction differs by three small things: a model id string, a model
@@ -231,22 +231,21 @@ against 3.25s), with no overlap in the middle half of their runs. But
 100 generated tokens the three take 0.58 to 0.90 seconds.</p>
 <p><strong>The framework adds a smaller cost.</strong> Running the same
 Gemini model, Strands took longer than ADK on both questions asked:
-1.43x at the median on the simple question, and 10.46 against 9.13
-seconds on the data question -- a gap only just above the 1.12-second
-noise, though slower per generated token as well.</p>
+1.43x at the median on the simple question, and 10.88 against 8.45
+seconds on the data question, slower per generated token in both.</p>
 <p><strong>The per-cloud work is the storage wiring.</strong> The tools
 bind unchanged, but reading a catalog's files needs different
 configuration for OneLake, Glue and S3 Tables -- and when it is wrong,
 the catalog still answers while the data read fails with an error that
 names something else.</p>
-<p><strong>Every agent read its cloud's data, and one model could not
-count what it read.</strong> When the scan returned rows and left the
-counting to the model, Gemini under both frameworks and
-<code>gpt-5-mini</code> counted correctly in all ten runs. Nova Micro
-counted correctly in 1 of 10 runs at Bedrock's default decoding, and its
-greedy decoding gave one wrong answer ten times. When the scan filtered
-in PyIceberg and returned the count, every setup was right in every
-run.</p>
+<p><strong>Put the arithmetic in the engine and every agent is right;
+leave it to the model and the smallest one fails.</strong> With the scan
+filtering in PyIceberg and returning the count, all four setups gave the
+largest id and the filtered count in all twenty runs. With a scan that
+returns rows only, Gemini under both frameworks and
+<code>gpt-5-mini</code> still counted correctly 20 of 20, and Nova Micro
+4 of 20 -- 0 of 20 with the greedy decoding Amazon recommends for tool
+use.</p>
 <h4 id="what-is-apache-iceberg-and-why-does-it-matter">What Is Apache
 Iceberg, and Why Does It Matter?</h4>
 <p>A lakehouse keeps its data as ordinary files -- usually Parquet -- in
@@ -310,8 +309,9 @@ and <a href="https://github.com/apache/polaris">source</a>.</p>
 <p><img src="https://raw.githubusercontent.com/xbill9/lakehouse-iceberg-2026/main/papers/iceberg-agent-three-clouds/medium/img/devto-iceberg-agent-three-clouds-table-1.png"
 alt="Table: test, what changes, what stays the same, what it answers, evidence files" /></p>
 <p><strong>Ten runs per cell, in shuffled rounds</strong> from a fixed
-seed, so a slow patch on an endpoint lands across cells. Separation is
-judged on the middle half of each cell's runs. No run failed to
+seed -- twenty in Test 5, where the question is correctness rather than
+speed -- so a slow patch on an endpoint lands across cells. Separation
+is judged on the middle half of each cell's runs. No run failed to
 answer.</p>
 <p><strong>Every time is warm answer time.</strong> Each run imports its
 framework, builds the agent, signs in and sends one untimed warm-up turn
@@ -346,11 +346,11 @@ ran at their defaults, with no temperature, thinking budget or reasoning
 effort set. Nova Micro ran with the greedy decoding Amazon <a
 href="https://docs.aws.amazon.com/nova/latest/userguide/prompting-tool-troubleshooting.html">recommends
 for Nova tool use</a>, temperature 0 and topK 1. That decoding is
-deterministic, and it matters for reading every Nova row in this
-article: its ten runs return one answer, word for word, so a Nova score
-is one answer repeated while its timings are ten real measurements. Run
-at Bedrock's defaults instead, in a separate sitting, Nova Micro gave
-ten different answers, passed every check in all ten, and took 3.27
+deterministic, and it matters for reading every Nova cell in this
+article: the runs in a cell return one answer, word for word, so a Nova
+score is one answer repeated while its timings are real measurements.
+Run at Bedrock's defaults instead, in a separate sitting, Nova Micro
+gave ten different answers, passed every check in all ten, and took 3.27
 seconds at the median against 3.31 with greedy decoding (evidence files:
 Axis F).</p>
 <p><img src="https://raw.githubusercontent.com/xbill9/lakehouse-iceberg-2026/main/papers/iceberg-agent-three-clouds/medium/img/devto-iceberg-agent-three-clouds-table-2.png"
@@ -427,35 +427,34 @@ catalogs, regions, and a smaller OneLake table -- so correctness is
 compared in Test 5.</p>
 <h4 id="test-5-the-same-data-question-like-for-like">Test 5: The Same
 Data Question, Like for Like</h4>
-<p>All four setups, the same 11-row Polaris table, ten runs each --
-twice. Once with the published scan, which filters in PyIceberg and
-returns an exact count, minimum and maximum; once with a scan that
-returns the rows only, so the model has to count them.</p>
+<p>All four setups, the same 11-row Polaris table, twenty runs each. The
+scan applies the filter in PyIceberg and returns the exact count, so no
+model does arithmetic over rows.</p>
 <p><img src="https://raw.githubusercontent.com/xbill9/lakehouse-iceberg-2026/main/papers/iceberg-agent-three-clouds/medium/img/devto-iceberg-agent-three-clouds-table-6.png"
-alt="Table: framework / model, who counts, largest id, rows with id of 10 or more, median answer seconds, tokens generated" /></p>
-<p>Nova Micro runs at Bedrock's defaults in this table, so its ten runs
-are ten different answers rather than one repeated. With greedy decoding
-it ran both ways too: the engine's count right in all ten, and its own
-count 6 in all ten. Every capture records the tool calls, so which scan
-each answer used is on record: all fifty engine runs filtered, and no
-rows-only run could.</p>
-<p>Counting by reading only works on a table this small. The rows-only
-scan returns at most 100 rows, so on a real table no model can count
-what it cannot see. Whatever the model, the count belongs in the
-engine.</p>
-<p><strong>The miscount is Nova Micro's, and the engine removes
-it.</strong> Gemini under both frameworks and <code>gpt-5-mini</code>
-counted eleven ids correctly in every run. Nova Micro got it right once
-in ten. It was not failing to read: nine of those ten runs scanned every
-row, and eight of the nine still counted wrong, answering 4, 5, 7 or 11,
-and one declined to answer. With the count returned by the engine it was
-right in every run both ways. The runs that separate the prompt, the
-scan output and the decoding are in <code>nova-diagnosis.txt</code>.</p>
+alt="Table: framework / model, largest id, rows with id of 10 or more, median answer seconds, tokens generated" /></p>
+<p>Every capture records the tool calls, so which scan each answer used
+is on record: all eighty runs above filtered, and every answer quoted
+the count the scan returned.</p>
+<p><strong>Take the filter away and the smallest model stops being able
+to answer.</strong> The same twenty runs with a scan that returns rows
+and no count: Gemini under both frameworks and <code>gpt-5-mini</code>
+still counted correctly 20 times out of 20; Nova Micro managed 4 of 20
+at Bedrock's default decoding, and with the greedy settings Amazon
+recommends for tool use it returned one answer, "6", in all twenty. It
+was not failing to read -- every one of those runs scanned all eleven
+rows. Asked the same question with no agent, no tools and no
+instruction, it answers 5 or 6 in 20 of 20 calls, where Gemini answers 8
+every time. Those runs are in <code>nova-diagnosis.txt</code>, the cells
+in <code>matrix-summary.txt</code>.</p>
+<p>That is an argument for putting aggregation in the engine, not for
+picking a bigger model. Counting by reading only works on a table this
+small: the scan returns at most 100 rows, so on a real table no model
+can count what it cannot see.</p>
 <p><strong>The framework cost shows again, smaller.</strong> On the same
-model with the same scan, Strands took 10.46 seconds at the median
-against ADK's 9.13 -- only just above the 1.12-second noise -- and 1.03
-seconds per 100 generated tokens against ADK's 0.84, slower per token as
-it was in Test 3.</p>
+model with the same scan, Strands took 10.88 seconds at the median
+against ADK's 8.45 -- above the 1.12-second noise -- and 1.01 seconds
+per 100 generated tokens against ADK's 0.76, slower per token as it was
+in Test 3.</p>
 <h4 id="how-are-the-three-agents-different">How Are the Three Agents
 Different?</h4>
 <p>The instruction is one string; the four tools are async Python
@@ -483,8 +482,8 @@ mislead the code around it. Four questions matter, and the frameworks
 answer them differently:</p>
 <p><img src="https://raw.githubusercontent.com/xbill9/lakehouse-iceberg-2026/main/papers/iceberg-agent-three-clouds/medium/img/devto-iceberg-agent-three-clouds-table-7.png"
 alt="Table: framework / model, can you see which tools it called?, does reasoning land in the answer text?" /></p>
-<p>That held in every captured run: all 100 ADK runs, all 120 Strands
-runs and all 40 Agent Framework runs.</p>
+<p>That held in every captured run: all 120 ADK runs, all 180 Strands
+runs and all 60 Agent Framework runs.</p>
 <ul>
 <li><strong>Can you prove what the agent read?</strong> For an agent
 answering from company data, the tool calls are the audit trail. Out of
@@ -662,23 +661,23 @@ both.</li>
 <li><strong>The per-cloud work is storage wiring.</strong> Once written,
 every agent read its cloud's data files.</li>
 <li><strong>One model miscounted; counting in the engine removed the
-error.</strong> Left to count eleven ids, three setups were right in
-every run; Nova Micro was right in 1 of 10 at its default decoding. With
-the count computed by the scan, every setup was right in every run.
-Every run of the simple question named every column and cited the exact
-table version.</li>
+error.</strong> Left to count eleven ids, three setups were right in all
+twenty runs and Nova Micro in 4 of 20. With the count computed by the
+scan, every setup was right in every run. Every run of the simple
+question named every column and cited the exact table version.</li>
 </ul>
 <p>Scope:</p>
 <ul>
-<li>One machine, 2026-09-15; ten runs per cell, warm, in shuffled
-rounds. Enough to see separation, not to estimate rates.</li>
+<li>One machine, 2026-09-15; 360 timed runs, ten per cell and twenty in
+Test 5, warm, in shuffled rounds. Enough to see separation, not to
+estimate rates precisely.</li>
 <li>Every model ran at its defaults except Nova Micro, which ran with
 Amazon's recommended tool-use decoding. That decoding is deterministic:
-a Nova cell returns one answer, word for word, in all ten runs, so its
-correctness is one sample and its timing is ten. That applies to the
-Nova rows in Tests 1, 3 and 4. Test 5's table runs Nova at Bedrock's
-defaults instead, where ten runs are ten answers, and Axis F runs Test
-1's question both ways.</li>
+a Nova cell returns one answer, word for word, in every run of a cell,
+so its correctness is one sample and its timings are many. That applies
+to every Nova cell here. Axis F runs Test 1's question with and without
+it, and Test 5's rows-only figures are given at Bedrock's defaults as
+well, where twenty runs are twenty different answers.</li>
 <li>Agent Framework ran only <code>gpt-5-mini</code>. The model
 comparison in Test 3 also changes provider and region.</li>
 <li>Polaris is local and the managed catalogs are in different regions,
@@ -697,12 +696,13 @@ data, these results change where to spend effort:</p>
 your code, your cloud and your observability -- not for speed. Its cost
 is real but small, and it was never the biggest number on the page.</li>
 <li><strong>Choosing a model?</strong> It sets most of the latency,
-mostly through how much it writes. Gemini and <code>gpt-5-mini</code>
-counted eleven rows correctly by themselves; Nova Micro did not, and was
-right every time once the tool returned the count. Put aggregation in
-the engine. And check what a model's recommended settings do to your
-measurement: Nova's greedy decoding makes every run the same answer, so
-ten runs of it are one sample.</li>
+mostly through how much it writes. Do not let it do arithmetic over
+rows: asked how many of eleven ids are 10 or more, with no agent and no
+tools, Nova Micro answered 5 or 6 in 20 of 20 calls while Gemini
+answered 8 every time -- and with the count computed by the scan, every
+setup here was right in every run. And check what a model's recommended
+settings do to your measurement: Nova's greedy decoding makes every run
+the same answer, so twenty runs of it are one sample.</li>
 <li><strong>Planning a move between clouds?</strong> Budget for the
 storage wiring under the tools, not for the agent code. Expect
 misleading errors the first time, and test file access directly, not

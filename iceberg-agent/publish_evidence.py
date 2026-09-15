@@ -87,6 +87,13 @@ SUPERSEDED = [
 #: Archived single-axis runs, published under superseded-runs/<name>/ with their
 #: re-scored rows. Kept for the same reason as the complete runs above.
 SUPERSEDED_D = [
+    ("run9-rows-only-keep-limit-small", [
+        "# Axis E at ten repeats per cell, captured 2026-09-15, SUPERSEDED and kept. Its",
+        "# rows-only cells used the v1 scan with its own docstring, which tells the model",
+        "# to keep the limit small, so a rows-only run could fail by reading part of the",
+        "# table rather than by miscounting: over 30 Nova Micro runs in that configuration",
+        "# 8 never saw every row. rows-only now carries the neutral limit wording, so the",
+        "# only difference from the published scan is who counts. Re-scored below."]),
     ("run8-greedy-single-sample", [
         "# Axis E at ten repeats per cell, captured 2026-09-15, SUPERSEDED and kept. Nova",
         "# Micro's greedy cells returned one identical answer in all ten runs, so each was",
@@ -458,7 +465,26 @@ def self_test(truth: dict) -> None:
                  "above): %s.\n- Number of rows with id >= 10 (same snapshot and metadata): %s."
                  % (mx, n)),
                 ("ids listed after a colon", "The largest `id` is %s.\n\nThere are %s rows with an "
-                 "`id` of 10 or more: 20, 21, 22, 23, 10, 11, 12, 13." % (mx, n))):
+                 "`id` of 10 or more: 20, 21, 22, 23, 10, 11, 12, 13." % (mx, n)),
+                # Verbatim shape from an Agent Framework capture: bullets, each with a
+                # source line under it, and the scan's own COUNT and MIN/MAX quoted last.
+                ("value stated as a bullet", "Results from reading that table (iceberg_scan_table "
+                 "outputs):\n- Largest id in the table: %s.\n- Source version: snapshot-id %s.\n"
+                 "- Number of rows with id >= 10: exactly %s rows.\n- Source version: snapshot-id "
+                 "%s.\n(Scans also reported the full-table COUNT = %s and id MIN/MAX = 0 / %s.)"
+                 % (mx, t["snapshot_id"], n, t["snapshot_id"], t["rows"], mx)),
+                # Answers quote the scan's own summary under their claim; the MIN in
+                # that line is not the answer's last word on the largest id.
+                ("tool MIN and MAX quoted after the claim", "Largest id: %s.\nRows with id >= 10: %s.\n"
+                 "From the scan: COUNT: exactly %s row(s) match `id >= 10`. MIN and MAX of id over "
+                 "those %s row(s): 10 and %s." % (mx, n, n, n, mx)),
+                # Verbatim third spelling of the same echo, from an Agent Framework
+                # capture: the claim in a bullet, the scan's summary quoted below it.
+                ("tool MIN and MAX quoted as 'over those rows'", "Answers (read from the snapshot "
+                 "cited above)\n- Largest id in the table: %s.\n- Number of rows with id >= 10: %s.\n"
+                 "- A filtered scan for id >= 10 reported COUNT: exactly %s row(s) matching "
+                 "`id >= 10` in snapshot-id %s (MIN and MAX over those rows: 10 and %s)."
+                 % (mx, n, n, t["snapshot_id"], mx))):
             real = score_scan(wrap % text, t)
             failures += ["scan scorer, real phrasing (%s): %s" % (label, k) for k in
                          ("correct_max_id", "correct_count") if not real[k]]

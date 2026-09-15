@@ -153,6 +153,69 @@ def run_direct() -> None:
             handle.write("\n".join(lines) + "\n")
 
 
+BARE = ("Here are 11 id values: %s. How many of them are 10 or more? Answer with just "
+        "the number." % ", ".join(str(r[0]) for r in ROWS))
+
+
+def run_bare(repeats: int = 20) -> None:
+    """The counting question with no agent, no tools and no instruction: the model,
+    the eleven ids, one API call. It is the answer to "is this the harness?" -- a
+    reader can paste the prompt into a console and see the same thing."""
+    import concurrent.futures
+    import boto3
+    from google import genai
+
+    bedrock = boto3.client("bedrock-runtime", region_name=os.getenv("AWS_REGION", "us-east-1"))
+    vertex = genai.Client(vertexai=True, project=os.environ["GOOGLE_CLOUD_PROJECT"],
+                          location=os.getenv("GOOGLE_CLOUD_LOCATION", "us-central1"))
+
+    def ask(job):
+        model, _ = job
+        for _attempt in range(6):
+            try:
+                if model.startswith("gemini"):
+                    return model, (vertex.models.generate_content(model=model, contents=BARE).text or "").strip()
+                reply = bedrock.converse(modelId=model, messages=[
+                    {"role": "user", "content": [{"text": BARE}]}])
+                return model, reply["output"]["message"]["content"][0]["text"].strip()
+            except Exception as exc:  # noqa: BLE001 -- throttling; retry, then record
+                error = exc
+                time.sleep(4)
+        return model, "FAILED %s" % error
+
+    jobs = [(m, i) for m in (MODEL, "gemini-2.5-flash") for i in range(repeats)]
+    with concurrent.futures.ThreadPoolExecutor(8) as pool:
+        answers = list(pool.map(ask, jobs))
+    os.makedirs(os.path.join(CAPTURES, "bare-count"), exist_ok=True)
+    with open(os.path.join(CAPTURES, "bare-count", "answers.jsonl"), "w") as handle:
+        for model, answer in answers:
+            handle.write(json.dumps({"model": model, "prompt": BARE, "answer": answer}) + "\n")
+
+
+def bare_section(truth: dict) -> list:
+    path = os.path.join(CAPTURES, "bare-count", "answers.jsonl")
+    if not os.path.exists(path):
+        return []
+    by_model, stated = {}, {}
+    with open(path) as handle:
+        for line in handle:
+            row = json.loads(line)
+            digits = re.findall(r"\d+", row["answer"])
+            value = digits[-1] if digits else "no number"
+            by_model.setdefault(row["model"], []).append(value == truth["ids_at_least_10"])
+            stated.setdefault(row["model"], {}).setdefault(value, 0)
+            stated[row["model"]][value] += 1
+    out = ["", "## 4. The same question with no agent, no tools and no instruction",
+           "#  One API call per run: the eleven ids in the prompt, "
+           "\"how many of them are 10 or more?\"",
+           "#  " + BARE]
+    for model, results in by_model.items():
+        counts = ", ".join("%s x%d" % kv for kv in sorted(stated[model].items(),
+                                                          key=lambda kv: -kv[1]))
+        out.append("  %2d of %2d right   %-28s answers: %s" % (sum(results), len(results), model, counts))
+    return out
+
+
 def says_eight(answer: str) -> bool:
     """The matrix scorer's count patterns, for a bare answer with no stamped header."""
     body = "<!-- cloud=x model=y catalog=apache-polaris instruction=v3 catalog_calls=0 -->\n%s\ncatalog calls: 0\n"
@@ -206,6 +269,7 @@ def summarise() -> str:
                          all(rm.word(c, turn) for c in truth["columns"].split(","))))
         out.append("  row count %2d  columns in last message %2d  columns in whole turn %2d  of %2d   %s"
                    % tuple([sum(r[i] for r in runs) for i in range(3)] + [len(runs), label]))
+    out += bare_section(truth)
     out += ["", "## What changed in the harness",
             "  - The Strands runner scored only the last assistant message; it now takes every",
             "    assistant message of the turn, as the other two frameworks' runners did (section 3).",
@@ -225,9 +289,13 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--direct", action="store_true",
                         help="re-run the direct Bedrock calls before summarising")
+    parser.add_argument("--bare", action="store_true",
+                        help="re-run the no-agent counting question on both models")
     args = parser.parse_args()
     if args.direct:
         run_direct()
+    if args.bare:
+        run_bare()
     text = summarise()
     with open(OUT, "w") as handle:
         handle.write(text)

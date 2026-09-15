@@ -1,7 +1,7 @@
 Background for a LinkedIn post about "Four Iceberg Tools, Three Agent Frameworks".
 Plain text on purpose: LinkedIn renders no markdown. Figures are from
 evidence/matrix-summary.txt and evidence/derived-figures.txt, measured 2026-09-15,
-ten runs per cell, 250 timed runs.
+ten runs per cell and twenty in Test 5, 360 timed runs.
 
 
 THE SETUP
@@ -43,8 +43,8 @@ WHAT I FOUND
   needs different settings, and when they are wrong the error message points
   somewhere else.
 - Once that plumbing is set up, every helper read its cloud's data. Asked to count
-  eleven rows itself, Google's and Microsoft's models were right in all ten tries;
-  the smallest model, Amazon's Nova Micro, in one. When the data engine did the
+  eleven rows itself, Google's and Microsoft's models were right in all twenty tries;
+  the smallest model, Amazon's Nova Micro, in four. When the data engine did the
   counting, every helper was right in every try.
 - Read the whole answer. One toolkit hands back only the last message by default,
   and one model writes part of its answer earlier in the conversation.
