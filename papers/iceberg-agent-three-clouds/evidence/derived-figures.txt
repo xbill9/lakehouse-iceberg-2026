@@ -49,3 +49,14 @@ crossover: Axis C, catalog fixed at apache-polaris
     Strands / gemini-2.5-flash           median 9.4s  (8.4-9.8)  agent-med 8.63s
     Strands / us.amazon.nova-micro-v1:0  median 4.0s  (3.8-4.6)  agent-med 3.51s
     ratio 2.35x, medians differ 5.4s, no overlap
+
+answer style: every published matrix capture, by framework and model
+  framework / model                    runs  answer chars answer lines thinking  tool log  printed agent-med
+  ADK / gemini-2.5-flash               21    391          9            0/21      21/21     0/21    8.04s
+  Agent Framework / gpt-5-mini         3     886          21           0/3       0/3       0/3     14.57s
+  Strands / gemini-2.5-flash           3     459          9            0/3       3/3       3/3     8.63s
+  Strands / us.amazon.nova-micro-v1:0  6     463          9            6/6       6/6       6/6     3.45s
+  answer chars and lines are medians of the text after the stamped header.
+  thinking: <thinking> text reached stdout. tool log: the capture shows each
+  tool call as it happened. printed: the answer appears before the header as
+  well as after it, so it was printed twice.

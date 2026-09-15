@@ -281,6 +281,48 @@ def verify_single_legs(truth: dict) -> list:
     return problems
 
 
+def answer_style(bodies: dict) -> str:
+    """How each framework-and-model pair answers, read from the published captures.
+
+    Not scored: nothing here is right or wrong. It is what a developer sees, and
+    Axis C separates the framework's part from the model's -- Strands appears
+    with two models, Gemini with two frameworks.
+    """
+    cells_ = {}
+    for name, body in bodies.items():
+        leg = os.path.basename(name).split("__")[1]
+        model = re.search(r"model=(\S+)", body).group(1)
+        m = re.search(r"<!-- cloud=.*?-->\n(.*?)\ncatalog calls:", body, re.S)
+        answer = m.group(1).strip() if m else ""
+        before = body.split("<!-- cloud=")[0]
+        first = answer.splitlines()[0][:60] if answer else ""
+        c = cells_.setdefault("%s / %s" % (FRAMEWORK[leg], model),
+                              {"n": 0, "chars": [], "lines": [], "thinking": 0,
+                               "tool_log": 0, "twice": 0, "agent": []})
+        c["n"] += 1
+        c["chars"].append(len(answer))
+        c["lines"].append(answer.count("\n") + 1)
+        c["thinking"] += "<thinking>" in body
+        c["tool_log"] += bool(re.search(r"-> tool:|Tool #\d", body))
+        c["twice"] += bool(first) and first in before
+        c["agent"].append(float(TIMING.search(body).group(1)))
+    lines = ["", "answer style: every published matrix capture, by framework and model",
+             "  %-36s %-5s %-12s %-11s %-9s %-9s %-7s %s"
+             % ("framework / model", "runs", "answer chars", "answer lines", "thinking",
+                "tool log", "printed", "agent-med")]
+    for key in sorted(cells_):
+        c = cells_[key]
+        lines.append("  %-36s %-5d %-12d %-12d %-9s %-9s %-7s %.2fs"
+                     % (key, c["n"], med(c["chars"]), med(c["lines"]),
+                        "%d/%d" % (c["thinking"], c["n"]), "%d/%d" % (c["tool_log"], c["n"]),
+                        "%d/%d" % (c["twice"], c["n"]), med(c["agent"])))
+    lines += ["  answer chars and lines are medians of the text after the stamped header.",
+              "  thinking: <thinking> text reached stdout. tool log: the capture shows each",
+              "  tool call as it happened. printed: the answer appears before the header as",
+              "  well as after it, so it was printed twice."]
+    return "\n".join(lines) + "\n"
+
+
 def crossover(c_rows: list) -> str:
     """Axis C: each comparison moves exactly one of framework and model."""
     by = cells(c_rows, "cell")
@@ -391,6 +433,9 @@ def main() -> None:
         if value.lower() in combined.lower() and value not in mapping:
             mapping[value] = "redacted-0000"
     mapping = renumber(mapping)
+    # Measured on the anonymised captures, so the figures re-derive from the repo.
+    texts["derived-figures.txt"] += answer_style(
+        {n: anon.apply_map(t, mapping) for n, t in texts.items() if n.startswith("matrix/")})
 
     out, problems = {}, []
     for name, text in texts.items():

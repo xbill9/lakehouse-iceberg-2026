@@ -1,35 +1,52 @@
 # One Iceberg Tool, Three Agent Frameworks: What Ports, and What Doesn't
 
-This article provides a step by step build of one read-only Apache Iceberg REST
-catalog tool, bound into three vendor-native agent frameworks and run against
-five catalogs. A Python tool suite is built so that only the framework, the
-model and the catalog differ, and every answer is scored against ground truth
-read from the catalog itself.
+This article provides a step by step build of one small Apache Iceberg data
+agent, written three times -- in Google ADK, in AWS Strands and in Microsoft
+Agent Framework -- and run against five Iceberg catalogs. Every answer is checked
+against the catalog itself, so the differences between the three agents can be
+measured rather than described.
 
 https://github.com/xbill9/lakehouse-iceberg-2026
 
 ## What Is This Project Trying to Do?
 
+Two things are true of the lakehouse in 2026, and they pull in opposite
+directions.
+
+All three hyperscalers now ship their own agent framework, tied to their own
+models and their own hosting. And the tables those agents would read are
+increasingly in Apache Iceberg, an open table format whose whole point is that
+no single engine owns the data. The data is designed to move between clouds. Is
+an agent that reads it designed to move too?
+
 An [earlier article](https://dev.to/gde/seven-iceberg-rest-catalogs-what-they-declare-and-what-they-serve-40oj)
-measured seven Iceberg REST catalogs against the specification. Nine read
-operations are served by all seven -- config, namespace listing and loading,
-table listing and loading, and their HEAD forms -- while views, scan planning and
-credential vending are not. This project asks the obvious follow-up: if an agent
-restricts itself to the nine, is it portable?
+measured the data side: seven Iceberg REST catalogs, and nine read operations
+that every one of them serves. This project measures the agent side. It builds a
+small data analyst -- list the tables, describe one, count its rows, and cite the
+exact table version it read -- and builds it three times:
 
-So it builds one data agent three times, once in each vendor's own framework:
+- **Google** — ADK on `gemini-2.5-flash`, reading BigLake
+- **AWS** — Strands on `us.amazon.nova-micro-v1:0`, reading Glue
+- **Azure** — Agent Framework on `gpt-5-mini`, reading OneLake
 
-- **Google** — ADK on `gemini-2.5-flash`
-- **AWS** — Strands on `us.amazon.nova-micro-v1:0`
-- **Azure** — Agent Framework on `gpt-5-mini`
+The four tools and the instruction are the same Python objects in all three.
+Only the framework, the model and the catalog change.
 
-Each is handed the same four read-only Iceberg tools and the same instruction,
-asked the same question, and scored against ground truth read from the catalog
-directly. Every answer has to cite the exact table version it read.
+## Why Measure It?
 
-The interesting part is not whether the agents answer. All of them do. It is what
-moves the latency, and what has to change underneath the tools before any of
-them can read a file.
+Because "portable" is easy to say and expensive to find out about. If this agent
+were built on one cloud and had to move to another, three things could cost you:
+
+1. **The code.** How much of the agent is specific to its framework?
+2. **The behaviour.** Given the same tools and the same instruction, do the
+   three answer the same way, at the same speed?
+3. **The plumbing.** What has to change underneath the tools before a different
+   catalog's files can be read?
+
+Each of those can be answered with a measurement instead of a feature list. The
+answers turned out to live in different places. The code difference is small.
+The speed difference, between ADK and Strands, is mostly the model. And the
+plumbing under the tools is where the real per-cloud work is.
 
 The results below were measured on 2026-09-15 (UTC). Two earlier complete runs
 of the same matrix, from 2026-09-14, are published beside them.
@@ -278,10 +295,19 @@ print(asyncio.run(t.iceberg_scan_table('probe_ns.probe_table', limit=3)))"
 NOTE: exactly 3 row(s) came back, which is the limit, so there are probably more. Do NOT report this as the table's row count. If you were asked how many rows the table has, say you sampled 3 and could not count the whole table.
 ```
 
-## Three Frameworks, Three Shapes for the Same Agent
+## How Are the Three Agents Different?
 
-Here is the entire construction on each cloud. Not excerpts — this is all of it,
-and the tools and instruction are the same objects in all three.
+Start with what is the same, because it is most of the agent. The instruction is
+one string. The four tools are four async Python functions with typed arguments
+and docstrings. The budget of eight catalog calls is enforced inside the tools,
+not by any framework. None of that changed between clouds.
+
+What changed is everything around it: how the agent is built, how it is called,
+how it signs in, what it shows you while it works, and how fast it answers.
+
+### Building It
+
+Here is the entire construction on each cloud. Not excerpts — this is all of it.
 
 **Google, ADK:**
 
@@ -328,8 +354,94 @@ Agent(
 ```
 
 A model id string, a model object, a client object. `instruction`,
-`system_prompt`, `instructions`. Strands also wraps each tool in `tool()`, and
-Agent Framework takes a credential. That is the whole delta in the agent.
+`system_prompt`, `instructions`. Strands wraps each tool in `tool()`, while ADK
+and Agent Framework take the functions as they are.
+
+None of that is hard, and none of it translates. There is no shared agent object
+to write once and hand to all three. What ports is what the frameworks are
+given -- the tools and the instruction -- not the agents themselves.
+
+### Running It
+
+Building is the smaller difference. Calling each agent is a different job:
+
+```python
+# ADK: an agent does not run on its own. It needs a runner, a session,
+# and a loop over the events the runner yields.
+runner = InMemoryRunner(agent=agent, app_name="iceberg-agent")
+session = await runner.session_service.create_session(app_name="iceberg-agent", user_id="probe")
+async for event in runner.run_async(user_id="probe", session_id=session.id, new_message=message):
+    ...   # collect the text parts, and the function_call parts to see the tools
+
+# Strands: call the agent like a function.
+result = agent(question)
+
+# Agent Framework: await the agent.
+reply = await agent.run(question)
+```
+
+ADK assumes the agent lives inside an application with sessions, and makes you
+build that much of one. Strands assumes a script. Agent Framework sits between
+them.
+
+### Signing In
+
+- **ADK on Vertex AI** uses Application Default Credentials, the same login the
+  `gcloud` CLI uses.
+- **Strands on Bedrock** uses the boto credential chain. On a machine signed in
+  with `aws login` that chain needs `botocore[crt]`, and without it the agent
+  fails before its first call while `aws sts get-caller-identity` still
+  succeeds, because the CLI ships its own copy.
+- **Agent Framework on Foundry** takes a project endpoint and a
+  `DefaultAzureCredential`, which here resolved through the `az` CLI.
+
+### What You Can See While It Runs
+
+This is where the three differ most, and it matters the first time an answer is
+wrong. Every published capture was measured for it:
+
+| framework / model | tool calls visible | answer printed twice | model reasoning visible | median answer |
+|---|---|---|---|---|
+| ADK / `gemini-2.5-flash` | 21/21 | 0/21 | 0/21 | 391 chars, 9 lines |
+| Strands / `gemini-2.5-flash` | 3/3 | 3/3 | 0/3 | 459 chars, 9 lines |
+| Strands / `us.amazon.nova-micro-v1:0` | 6/6 | 6/6 | 6/6 | 463 chars, 9 lines |
+| Agent Framework / `gpt-5-mini` | 0/3 | 0/3 | 0/3 | 886 chars, 21 lines |
+
+**ADK reports, and does not print.** Each tool call arrives as an event carrying
+its name and arguments, so the harness can show list, describe, count as they
+happen. Nothing reaches the terminal unless you print it.
+
+**Strands prints for you.** An agent built without a `callback_handler` gets a
+`PrintingCallbackHandler`, which streams the model's text and a `Tool #n` line to
+stdout as the run happens. The answer therefore appears once while it streams and
+again when the result is printed. That happened in all nine Strands runs, on both
+models, which puts it on the framework. The `<thinking>` blocks are the model's:
+they appeared in all six Nova Micro runs, and in none of the three where the same
+Strands agent ran Gemini.
+
+**Agent Framework returns the reply and nothing else.** Its captures record that
+three catalog calls were made, because the tools count them, but not which ones.
+Its answers were also the longest, at about twice the length of the others, and
+usually restated the table's description before giving the count. With only one
+model on this framework, that cannot be split between Agent Framework and
+`gpt-5-mini`.
+
+### How Fast It Answers
+
+Between ADK and Strands, speed follows the model rather than the framework. The
+same Gemini model took a median 8.8 seconds under ADK and 9.4 under Strands; the
+same Strands agent took 9.4 on Gemini and 4.0 on Nova Micro. Axis C, below, is
+where those numbers come from.
+
+Agent Framework on `gpt-5-mini`, a reasoning model, was the slowest leg at 15.8
+seconds, and was not run on another model. That model was not a free choice. In
+[an earlier build](https://dev.to/gde/three-clouds-one-brief-what-actually-differs-between-adk-strands-and-agent-framework-2kgc),
+`store=False` -- which keeps the conversation from being stored server-side --
+made the framework request encrypted reasoning content, which a non-reasoning
+model rejected.
+
+So the three agents differ a little in how they are built, a lot in how they are
+run and observed, and in speed mostly because of the model each cloud serves.
 
 ## Reading the Data Is Not the Same as Reading the Catalog
 
@@ -612,9 +724,11 @@ the framework and the model could each be varied on its own. The results were:
   0.31 to 2.09 seconds depending on the catalog; cell medians through one leg
   span 8.3 to 10.9 seconds, and the one cell both axes measure has differed by
   up to 1.7 seconds between them.
-- **Binding the same tool three times takes three construction differences** —
-  a model id string against a model object against a client object — plus a tool
-  wrapper in Strands and a credential in Agent Framework.
+- **The frameworks differ more in how they run than in how they are built.**
+  Construction is three small differences. Calling the agent, signing in and
+  seeing its tool calls are three different jobs: ADK reports each tool call as
+  an event, Strands prints every answer twice by default, and Agent Framework
+  showed only the reply.
 - **What does not port is the storage wiring.** The tools bind unchanged; the
   file access beneath them is configured per cloud.
 
