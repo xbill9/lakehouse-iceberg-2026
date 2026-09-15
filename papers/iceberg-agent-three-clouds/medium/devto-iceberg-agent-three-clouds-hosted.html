@@ -229,11 +229,11 @@ configured here, the three agents are 4.03x apart at the median (13.11s
 against 3.25s), with no overlap in the middle half of their runs. But
 <code>gpt-5-mini</code> generates far more tokens than Nova Micro. Per
 100 generated tokens the three take 0.58 to 0.90 seconds.</p>
-<p><strong>The framework adds a smaller, steady cost.</strong> Running
-the same Gemini model, Strands took longer than ADK on both questions
-asked: 1.43x at the median on the simple question, and 10.46 against
-9.13 seconds on the data question -- a gap only just above the
-1.12-second noise, though slower per generated token as well.</p>
+<p><strong>The framework adds a smaller cost.</strong> Running the same
+Gemini model, Strands took longer than ADK on both questions asked:
+1.43x at the median on the simple question, and 10.46 against 9.13
+seconds on the data question -- a gap only just above the 1.12-second
+noise, though slower per generated token as well.</p>
 <p><strong>The per-cloud work is the storage wiring.</strong> The tools
 bind unchanged, but reading a catalog's files needs different
 configuration for OneLake, Glue and S3 Tables -- and when it is wrong,
@@ -422,10 +422,10 @@ rows in its head.</p>
 alt="Table: agent and catalog, largest id, rows with id of 10 or more, median answer seconds, median seconds in tools" /></p>
 <p>Every agent read its data: the tools print each call they receive,
 whatever the framework, and every one of the thirty captures shows a
-scan with a filter. Nova Micro's ten runs on Glue were one answer,
-repeated. These cells are not like for like -- different catalogs,
-regions, and a smaller OneLake table -- so correctness is compared in
-Test 5.</p>
+scan with a filter. "One answer" means Nova Micro's ten runs returned
+the same text, word for word. These cells are not like for like --
+different catalogs, regions, and a smaller OneLake table -- so
+correctness is compared in Test 5.</p>
 <h4 id="test-5-the-same-data-question-like-for-like">Test 5: The Same
 Data Question, Like for Like</h4>
 <p>All four setups, the same 11-row Polaris table, ten runs each --
@@ -448,10 +448,11 @@ engine.</p>
 it.</strong> Gemini under both frameworks and <code>gpt-5-mini</code>
 counted eleven ids correctly in every run. Nova Micro's greedy answer
 read all eleven rows and gave the count as 6. At Bedrock's defaults its
-ten answers gave ten different texts and one right count; the wrong ones
-said 4, 5, 7 and 11, and one gave no count. With the count returned by
-the engine it was right in every run both ways. The runs that separate
-the prompt, the scan output and the decoding are in
+ten answers gave ten different texts and one right count; nine of those
+runs read every row, and eight of the nine still counted wrong. The
+wrong answers said 4, 5, 7 and 11, and one gave no count. With the count
+returned by the engine it was right in every run both ways. The runs
+that separate the prompt, the scan output and the decoding are in
 <code>nova-diagnosis.txt</code>.</p>
 <p><strong>The framework cost shows again, smaller.</strong> On the same
 model with the same scan, Strands took 10.46 seconds at the median
@@ -616,16 +617,20 @@ Azure management API.</p>
 1,445 seconds here; and install <code>adlfs</code>, without which every
 OneLake metadata call works and every scan fails.</p>
 <p>Ask one leg against Polaris before any cloud:</p>
-<pre class="console"><code>$ python3 run_once.py gcp --catalog apache-polaris &quot;How many rows are in the probe table?&quot;
+<pre class="console"><code>$ python3 run_once.py gcp --catalog apache-polaris --warm &quot;How many rows are in the probe table?&quot;
    -&gt; tool: iceberg_list_tables()
    -&gt; tool: iceberg_describe_table(table=&#39;probe_ns.probe_table&#39;)
    -&gt; tool: iceberg_count_rows(table=&#39;probe_ns.probe_table&#39;)
  
 &lt;!-- cloud=gcp model=gemini-2.5-flash catalog=apache-polaris instruction=v3 catalog_calls=3 --&gt;
-The `probe_ns.probe_table` contains 11 rows. This count is exact for snapshot-id 5653331815319537848, from metadata-location file:/.../metadata/00006-57dbb327-b002-43cc-9ed3-93e61cab024e.metadata.json.
+The `probe_ns.probe_table` contains 11 rows. This figure is from snapshot-id 5653331815319537848, found at metadata-location file:/.../metadata/00006-57dbb327-b002-43cc-9ed3-93e61cab024e.metadata.json.
  
 catalog calls: 3 of 8
-agent seconds: 6.75 | tool seconds: 0.32</code></pre>
+agent seconds: 5.08 | tool seconds: 0.12
+tokens: input=4660 output=161 reasoning=353 model_calls=4
+warm-up seconds: 2.57</code></pre>
+<p><code>--warm</code> sends one untimed turn first, so sign-in is not
+in <code>agent seconds</code>.</p>
 <p>The header stamps cloud, model, catalog, instruction version and call
 count, so an answer from an older instruction, or an agent that never
 called its tools, stands out. Then capture ground truth, run the tests
@@ -651,11 +656,12 @@ thing. The results were:</p>
 Calling, signing in and reading the answer differ per framework, with
 real traps in the last.</li>
 <li><strong>Speed follows the model and how much it writes.</strong>
-4.03x between the agents as shipped, 0.58 to 0.90 seconds per 100
-generated tokens.</li>
-<li><strong>Framework cost is smaller and steady.</strong> Strands was
-slower than ADK on the same model on both questions, and slower per
-generated token on both.</li>
+4.03x between the agents as configured here, 0.58 to 0.90 seconds per
+100 generated tokens.</li>
+<li><strong>Framework cost is smaller.</strong> Strands was slower than
+ADK on the same model on both questions -- 1.43x on the simple one, just
+above the noise on the data one -- and slower per generated token on
+both.</li>
 <li><strong>The per-cloud work is storage wiring.</strong> Once written,
 every agent read its cloud's data files.</li>
 <li><strong>One model miscounted; counting in the engine removed the
