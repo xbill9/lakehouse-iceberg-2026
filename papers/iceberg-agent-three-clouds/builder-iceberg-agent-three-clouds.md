@@ -53,12 +53,12 @@ a catalog's files needs different configuration for OneLake, Glue and S3 Tables 
 and when it is wrong, the catalog still answers while the data read fails with an
 error that names something else.
 
-**Put the arithmetic in the engine and every agent is right; leave it to the model
-and the smallest one fails.** With the scan filtering in PyIceberg and returning the
-count, all four setups gave the largest id and the filtered count in all twenty runs.
-With a scan that returns rows only, Gemini under both frameworks and `gpt-5-mini`
-still counted correctly 20 of 20, and Nova Micro 4 of 20 -- 0 of 20 with the greedy
-decoding Amazon recommends for tool use.
+**Every agent read its own cloud's Iceberg data, and they all answered alike.** Each
+leg scanned GCS, S3 or ADLS through its own catalog and cited the exact snapshot; on
+the same table all four setups gave the largest id and the filtered count in all
+twenty runs. That holds because the tool does the filtering and counting in
+PyIceberg. Leave that arithmetic to the model and the smallest one fails, which is a
+tool design point rather than an Iceberg one.
 
 ## What Is Apache Iceberg, and Why Does It Matter?
 
@@ -270,19 +270,12 @@ rows.
 Every capture records the tool calls, so which scan each answer used is on record:
 all eighty runs above filtered, and every answer quoted the count the scan returned.
 
-**Take the filter away and the smallest model stops being able to answer.** The same
-twenty runs with a scan that returns rows and no count: Gemini under both frameworks
-and `gpt-5-mini` still counted correctly 20 times out of 20; Nova Micro managed 4 of
-20 at Bedrock's default decoding, and with the greedy settings Amazon recommends for
-tool use it returned one answer, "6", in all twenty. It was not failing to read --
-every one of those runs scanned all eleven rows. Asked the same question with no
-agent, no tools and no instruction, it answers 5 or 6 in 20 of 20 calls, where Gemini
-answers 8 every time. Those runs are in `nova-diagnosis.txt`, the cells in
-`matrix-summary.txt`.
-
-That is an argument for putting aggregation in the engine, not for picking a bigger
-model. Counting by reading only works on a table this small: the scan returns at most
-100 rows, so on a real table no model can count what it cannot see.
+**Design the tool so the engine answers.** Rerun the same twenty runs with a scan
+that returns rows and no count, and the answers stop agreeing: Gemini under both
+frameworks and `gpt-5-mini` still counted correctly 20 of 20, Nova Micro 4 of 20.
+Counting by reading cannot scale anyway -- the scan returns at most 100 rows -- so a
+filter and an exact count belong in PyIceberg, whatever model is driving.
+`nova-diagnosis.txt` has the runs behind that.
 
 **The framework cost shows again, smaller.** On the same model with the same scan,
 Strands took 10.88 seconds at the median against ADK's 8.45 -- above the 1.12-second
@@ -492,10 +485,10 @@ unchanged, and five tests that each move one thing. The results were:
   and slower per generated token on both.
 - **The per-cloud work is storage wiring.** Once written, every agent read its
   cloud's data files.
-- **One model miscounted; counting in the engine removed the error.** Left to count
-  eleven ids, three setups were right in all twenty runs and Nova Micro in 4 of 20.
-  With the count computed by the scan, every setup was right in every run. Every run
-  of the simple question named every column and cited the exact table version.
+- **Every agent read its cloud's data and answered alike.** All four setups gave the
+  largest id and the filtered count in all twenty runs, each cited the exact snapshot,
+  and every run of the simple question named every column. That holds because the scan
+  filters and counts in PyIceberg; left to count rows themselves, the models diverge.
 
 Scope:
 
@@ -525,12 +518,10 @@ results change where to spend effort:
   observability -- not for speed. Its cost is real but small, and it was never the
   biggest number on the page.
 - **Choosing a model?** It sets most of the latency, mostly through how much it
-  writes. Do not let it do arithmetic over rows: asked how many of eleven ids are 10
-  or more, with no agent and no tools, Nova Micro answered 5 or 6 in 20 of 20 calls
-  while Gemini answered 8 every time -- and with the count computed by the scan, every
-  setup here was right in every run. And check what a model's recommended settings do
-  to your measurement: Nova's greedy decoding makes every run the same answer, so
-  twenty runs of it are one sample.
+  writes. Give it tools that answer in the engine -- a filter and an exact count from
+  PyIceberg -- and the model choice stops deciding whether the figures are right. And
+  check what a model's recommended settings do to your measurement: Nova's greedy
+  decoding makes every run the same answer, so twenty runs of it are one sample.
 - **Planning a move between clouds?** Budget for the storage wiring under the tools,
   not for the agent code. Expect misleading errors the first time, and test file
   access directly, not only catalog calls.
