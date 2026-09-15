@@ -84,12 +84,17 @@ SUPERSEDED_D = [
 ]
 COPIED = ["ground-truth.txt", "environment.txt", "failure-modes.txt", "verification.txt",
           "run-gcp.txt", "run-aws.txt", "run-azure.txt", "import-times.txt",
-          "credential-times.txt"]
+          "credential-times.txt", "related-work.txt"]
 TIMING = re.compile(r"agent seconds: ([\d.]+) \| tool seconds: ([\d.]+)")
 #: Hostnames that are the evidence rather than an account. The blob host is the
 #: one PyArrow builds for OneLake and which does not exist -- masking it would
 #: remove the finding.
 anon.KEEP_HOSTS |= {"onelake.blob.core.windows.net", "onelake.dfs.fabric.microsoft.com"}
+#: Public documentation and research hosts cited in related-work.txt. They carry
+#: no account, and masking them turns the source list into catalog-host-NNNN.
+anon.KEEP_HOSTS |= {"launchdarkly.com", "arxiv.org", "github.com", "iceberglakehouse.com",
+                    "aws.amazon.com", "iceberg.apache.org", "py.iceberg.apache.org",
+                    "polaris.apache.org"}
 
 
 def rescore(base: str, axis: str, truth: dict, timed: bool) -> tuple:

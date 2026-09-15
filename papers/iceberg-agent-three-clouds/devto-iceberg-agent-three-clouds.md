@@ -70,6 +70,97 @@ largest id in nine runs and the filtered row count in one.
 correct row count, named every column, and cited the exact table version it
 read.
 
+## What Is Apache Iceberg, and Why Does It Matter?
+
+A lakehouse keeps its data as ordinary files -- usually Parquet -- in object
+storage such as S3, GCS or ADLS. On their own, those files are just a pile:
+nothing says which of them make up a table, which version is current, or what
+happens when two writers change the table at once. Apache Iceberg is the open
+table format that answers those questions. It adds a metadata layer over the
+files: a schema, the list of files in each version of the table, and a chain of
+immutable snapshots, one per committed change.
+
+That metadata is what makes the rest possible:
+
+- **Many engines, one table.** Spark, Trino, Flink and the cloud warehouses can
+  all read and write the same Iceberg table, so the data does not have to be
+  copied into every tool that needs it.
+- **Versions you can point at.** Every change creates a new snapshot. A query can
+  read the table as it was at a given snapshot, and an answer can name exactly
+  which version it came from -- which is what the agents in this article do.
+- **Change without rewrites.** Columns can be added or renamed, and partitioning
+  changed, without rewriting the data files already written.
+- **A standard way in.** The Iceberg REST catalog specification defines one API
+  for finding tables and their current metadata.
+
+That last point is why Iceberg is becoming the common ground between platforms
+that otherwise compete. Google, AWS, Microsoft, Snowflake and Databricks all now
+serve an Iceberg REST catalog; the
+[earlier article](https://dev.to/gde/seven-iceberg-rest-catalogs-what-they-declare-and-what-they-serve-40oj)
+measured seven of them against the specification.
+
+Why it matters depends on your job:
+
+- **Developers** can build against one open API instead of one vendor's
+  warehouse. A tool, a service or an agent written for the REST catalog can, in
+  principle, be pointed at a different catalog -- which is exactly the claim this
+  article puts to the test.
+- **Platform and cloud admins** keep the data in their own buckets, as open
+  files, and govern access at the catalog. The catch, measured below, is that
+  each catalog wires storage credentials its own way.
+- **Data engineers and analysts** get reproducible reads. A report, a pipeline or
+  an AI agent's answer can be tied to an exact snapshot, and checked later
+  against the same data.
+
+For a deeper dive:
+
+- [Iceberg table specification](https://iceberg.apache.org/spec/) -- snapshots,
+  schemas, partitioning and the metadata files themselves
+- [REST catalog specification](https://iceberg.apache.org/rest-catalog-spec/) and
+  its [OpenAPI definition](https://github.com/apache/iceberg/blob/main/open-api/rest-catalog-open-api.yaml)
+  -- the API every catalog in this article serves
+- [PyIceberg](https://py.iceberg.apache.org/) -- the Python library the tools here
+  are built on, including its REST catalog and FileIO configuration
+
+## What Is Apache Polaris, and Why Is It Here?
+
+Apache Polaris is an open-source implementation of the Iceberg REST catalog --
+the same API that BigLake, Glue, S3 Tables and OneLake serve, run on your own
+machine instead of as a managed service. Here it runs locally in Docker, started
+by one script, and holds the same 11-row test table as three of the four managed
+catalogs.
+
+It is the **control**: the catalog every agent is checked against before a cloud
+is involved. A control exists to answer one question whenever something fails:
+is this a finding about a vendor, or a problem with the test? Polaris is
+configured permissively on purpose, so when an agent fails against it, the cause
+is in the agent's wiring or the harness, not in a managed catalog.
+
+It does four jobs in this article:
+
+- **It proves the wiring.** Every agent answers its first question against
+  Polaris before it touches a cloud catalog.
+- **It holds the catalog still.** Tests 1 and 3 read only Polaris, so there is no
+  network hop, managed service or region inside their timings -- three catalog
+  calls take 0.12 seconds -- and a difference between agents belongs to the
+  framework or the model.
+- **It sets the baseline for the managed catalogs.** In Test 2 the same agent
+  reads Polaris and the four cloud catalogs, so the extra tool time on each cloud,
+  0.52 to 2.29 seconds, is measured against a catalog that adds none.
+- **It measures the noise.** One cell, ADK on Polaris, runs in both Test 1 and
+  Test 2, in separate sittings. Its medians differed by 0.26 seconds; a smaller
+  difference than that cannot be told from run-to-run variation.
+
+What it cannot test is storage wiring. Polaris keeps its table as local files, so
+an agent reading it never touches cloud storage credentials or `FsspecFileIO`.
+That part is tested only against the real clouds, in Test 4 and in the storage
+wiring cases.
+
+For a deeper dive: the [Apache Polaris site](https://polaris.apache.org/), its
+[documentation](https://polaris.apache.org/docs/), and the
+[source on GitHub](https://github.com/apache/polaris), which includes quickstarts
+for running it locally.
+
 ## How the Tests Work
 
 A single run of each cloud's agent proves the wiring works and nothing else. If
@@ -117,14 +208,6 @@ whole word, and the snapshot id and metadata location have to appear exactly. A
 run that does all four passes every check. Before any evidence is published, the
 scorer has to fail a planted answer that contains the right numbers without
 stating them, such as `snapshot-id exists; payload region. 11`.
-
-**Apache Polaris, run locally in Docker, is the control.** Every leg answers its
-first question against it before a cloud catalog is involved, so a failure there
-is a wiring problem rather than a vendor finding. Tests 1 and 3 read it, so there
-is no network hop, managed service or region inside their numbers. What it
-cannot test is storage wiring: Polaris keeps its data as local files, so an
-agent reading it never touches `FsspecFileIO`, an OneLake host or vended S3
-credentials. Test 4 is the one that does.
 
 ## Test 1: The Three Agents, Side by Side
 
@@ -703,6 +786,52 @@ refuses if the two disagree, refuses if the scorer passes a planted empty answer
 counts any run that did not answer, and maps account identifiers to stable
 pseudonyms on the way out. Every figure in this article comes from the evidence
 files it writes.
+
+## How Does This Compare to Other Work?
+
+A search of published work in September 2026 found related pieces on each side of
+this question, and none that combines them: the same agent built in the three
+hyperscalers' frameworks, reading several Iceberg REST catalogs, with answers
+scored against ground truth read from the catalog.
+
+**Comparing agent frameworks.** The closest is
+[LaunchDarkly's benchmark](https://launchdarkly.com/docs/tutorials/agent-graph-experiments)
+of LangGraph, Strands, the OpenAI Agents SDK and ADK on the same agent graph, with
+the model pinned to one Claude model, over 36 runs scored by an LLM judge.
+Strands was fastest, and most differences were "within a few percent". That
+agrees in direction with Test 3 here, where swapping the framework moved answer
+time far less than swapping the model. It covers research-paper analysis rather
+than data, and does not include Agent Framework or any catalog.
+
+**Benchmarking data agents.**
+[DAB](https://arxiv.org/abs/2603.20576), [FDABench](https://arxiv.org/abs/2509.02473)
+and [KramaBench](https://arxiv.org/abs/2506.06541) measure whether agents answer
+questions over databases and data lakes correctly. DAB's 54 queries across four
+database systems left the best of five models at 38% pass@1. These benchmarks
+vary the model and the task; this article holds the task deliberately simple and
+varies the framework and the catalog instead.
+
+**Where agent time goes.**
+[Bian et al.](https://arxiv.org/abs/2510.16276) found that environment and tool
+latency can reach 53.7% of total latency in web-based agents. Against a local
+Iceberg catalog, tool time here was about 2% of an answer; against managed
+catalogs it was larger. That is why every answer here records its tool time
+separately.
+
+**Agents over Iceberg.** Tooling exists -- an official
+[AWS Labs MCP server for S3 Tables](https://github.com/awslabs/mcp/tree/main/src/s3-tables-mcp-server),
+community Iceberg MCP servers, and written patterns such as
+[MCP and Apache Iceberg](https://iceberglakehouse.com/iceberg/iceberg-mcp/) --
+along with architectures such as AWS's
+[multi-cloud lakehouse for agentic AI](https://aws.amazon.com/blogs/big-data/multi-cloud-lakehouse-architecture-on-aws-for-agentic-ai-part-1-architecture-and-best-practices/),
+which federates Databricks and Snowflake catalogs through Glue. None of these
+publish measurements of correctness or latency.
+
+This article builds on two earlier ones: the
+[catalog side](https://dev.to/gde/seven-iceberg-rest-catalogs-what-they-declare-and-what-they-serve-40oj),
+which measured seven Iceberg REST catalogs, and the
+[framework side](https://dev.to/gde/three-clouds-one-brief-what-actually-differs-between-adk-strands-and-agent-framework-2kgc),
+which built one research agent in the same three frameworks.
 
 ## Summary
 

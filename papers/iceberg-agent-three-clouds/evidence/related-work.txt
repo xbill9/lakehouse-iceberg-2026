@@ -1,0 +1,48 @@
+# related work cited in the article, checked against each source on 2026-09-15
+# Each entry: the URL, what was confirmed on the page, and any figure the article quotes.
+# These are other people's results, not measurements from this harness.
+
+LaunchDarkly, "Benchmark LangGraph, Strands, OpenAI Agents, and Google ADK on the same agent graph", 2026-06-09
+  https://launchdarkly.com/docs/tutorials/agent-graph-experiments
+  frameworks: LangGraph, Strands, OpenAI Agents SDK, Google ADK; model pinned to claude-sonnet-4-5
+  measured: graph latency, tokens, LLM-as-judge quality; 36 runs (six runs over six topics)
+  task: agents analysing arXiv papers through a fetch_paper tool
+  result: "Strands won on speed"; differences "often within a few percent"
+
+Ma, Shankar, Chen, Lin, Zeighami, Ghosh, Gupta, Gupta, Gopal, Parameswaran,
+"Can AI Agents Answer Your Data Questions? A Benchmark for Data Agents", arXiv:2603.20576, 2026-03-21
+  https://arxiv.org/abs/2603.20576
+  54 queries across 12 datasets, 9 domains and 4 database management systems
+  five frontier models; best 38% pass@1
+
+FDABench: A Benchmark for Data Agents on Analytical Queries over Heterogeneous Data, arXiv:2509.02473
+  https://arxiv.org/abs/2509.02473
+KramaBench: a benchmark for AI systems on data-to-insight pipelines over data lakes, arXiv:2506.06541
+  https://arxiv.org/abs/2506.06541
+
+Bian, Yan, Jayarajan, Pekhimenko, Venkataraman, "What Limits Agentic Systems Efficiency?", arXiv:2510.16276, 2025-10-18
+  https://arxiv.org/abs/2510.16276
+  "web environment latency can contribute as much as 53.7% to the overall latency in a web-based agentic system"
+
+AWS Labs, S3 Tables MCP server
+  https://github.com/awslabs/mcp/tree/main/src/s3-tables-mcp-server
+  tools: create/list tables, namespaces and table buckets; read-only SQL queries; append-only writes
+  no latency or correctness evaluation published on the page
+
+Alex Merced, "MCP and Apache Iceberg", updated 2026-05-14
+  https://iceberglakehouse.com/iceberg/iceberg-mcp/
+  describes the MCP-over-Iceberg pattern with a PyIceberg example; no measurements
+
+Sakti Mishra, "Multi-cloud lakehouse architecture on AWS for Agentic AI, Part 1", AWS Big Data Blog, 2026-07-13
+  https://aws.amazon.com/blogs/big-data/multi-cloud-lakehouse-architecture-on-aws-for-agentic-ai-part-1-architecture-and-best-practices/
+  Glue Data Catalog as an Iceberg REST catalog federating Databricks and Snowflake catalogs; MCP; Athena
+  architecture only: no agents built or measured
+
+Documentation linked from the article
+  https://iceberg.apache.org/spec/
+  https://iceberg.apache.org/rest-catalog-spec/
+  https://github.com/apache/iceberg/blob/main/open-api/rest-catalog-open-api.yaml
+  https://py.iceberg.apache.org/
+  https://polaris.apache.org/
+  https://polaris.apache.org/docs/
+  https://github.com/apache/polaris
