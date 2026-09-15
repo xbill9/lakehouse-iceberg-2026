@@ -1,4 +1,4 @@
-# axis=E leg=gcp catalog=apache-polaris run=9 elapsed_s=11.6 captured=2026-09-15T21:41:22Z
+# axis=E leg=gcp catalog=apache-polaris run=9 elapsed_s=12.8 captured=2026-09-15T22:15:42Z
 
 cloud=gcp model=gemini-2.5-flash catalog=apache-polaris
 question: What is the largest id in the probe table, and how many of its rows have an id of 10 or more? Cite the exact table version you read.
@@ -6,17 +6,17 @@ question: What is the largest id in the probe table, and how many of its rows ha
    -> tool: iceberg_list_tables()
    -> tool: iceberg_describe_table(table='probe_ns.probe_table')
    -> tool: iceberg_scan_table(columns='id', table='probe_ns.probe_table')
-   -> tool: iceberg_scan_table(table='probe_ns.probe_table', where='id >= 10')
+   -> tool: iceberg_scan_table(where='id >= 10', table='probe_ns.probe_table')
 
 <!-- cloud=gcp model=gemini-2.5-flash catalog=apache-polaris instruction=v3 catalog_calls=4 -->
-The largest id in the `probe_ns.probe_table` is 23, read from `snapshot-id aws-account-00029537848` and `metadata-location: file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json`.
+The largest `id` in the `probe_ns.probe_table` is 23, from `snapshot-id aws-account-00029537848` (metadata-location: `file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json`).
 
-There are 8 rows in the `probe_ns.probe_table` with an id of 10 or more, read from `snapshot-id aws-account-00029537848` and `metadata-location: file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json`.
+There are 8 rows in `probe_ns.probe_table` with an `id` of 10 or more, also from `snapshot-id aws-account-00029537848` (metadata-location: `file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json`).
 
 catalog calls: 4 of 8
-agent seconds: 8.03 | tool seconds: 0.14
-tokens: input=7478 output=324 reasoning=701 model_calls=5
-warm-up seconds: 2.39
+agent seconds: 8.43 | tool seconds: 0.15
+tokens: input=7439 output=326 reasoning=740 model_calls=5
+warm-up seconds: 3.20
 [tool-trace] iceberg_scan_table(table='probe_ns.probe_table', columns='id', where='', limit=20)
 id
 0

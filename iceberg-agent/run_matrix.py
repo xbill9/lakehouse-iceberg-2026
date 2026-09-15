@@ -72,11 +72,15 @@ AXIS_D_CELLS = [("gcp", "google-lakehouse"), ("aws", "aws-glue"),
 #: rows-only restores the v1 scan -- rows and no computed count -- so the model has to
 #: count them itself. provider-decoding sends Nova Micro no decoding fields at all.
 VARIANTS = {"rows-only": {"ICEBERG_SCAN_FILTER": "0"},
-            "provider-decoding": {"ICEBERG_DECODING": "provider"}}
+            "provider-decoding": {"ICEBERG_DECODING": "provider"},
+            "rows-only-provider-decoding": {"ICEBERG_SCAN_FILTER": "0", "ICEBERG_DECODING": "provider"}}
 E_SETUPS = [("gcp", None), ("aws", "gemini-2.5-flash"), ("aws", None), ("azure", None)]
+#: Nova Micro's greedy cells return one answer, word for word, in all ten runs, so
+#: each is a single sample repeated; its two provider-decoding cells are the ones
+#: whose ten runs are ten samples. MEASURED 2026-09-15 on the previous Axis E.
 AXIS_E_CELLS = ([(leg, model, None) for leg, model in E_SETUPS]
                 + [(leg, model, "rows-only") for leg, model in E_SETUPS]
-                + [("aws", None, "provider-decoding")])
+                + [("aws", None, "provider-decoding"), ("aws", None, "rows-only-provider-decoding")])
 #: Axis F: Axis A's question for Nova Micro as published (Amazon's tool-use decoding)
 #: and at Bedrock's defaults, in one sitting, so the decoding's effect on the Axis A
 #: and C timings is measured rather than assumed.
@@ -138,7 +142,11 @@ def ground_truth() -> dict:
 #: v8 (2026-09-15) allows 60 characters on one line between "10 or more" and the
 #: count, not 30. MEASURED on Axis E: "Number of rows with id >= 10 (same snapshot
 #: and metadata): 8." put 31 between them, and v7 marked a correct count wrong.
-SCORER_VERSION = 8
+#: v9 (2026-09-15) does not take the first of a list of ids as the final count.
+#: MEASURED on Axis E: "There are 8 rows with an id of 10 or more: 20, 21, 22, 23,
+#: 10, 11, 12, 13." -- v8 read the 20 after the colon as the count and scored a
+#: correct answer wrong.
+SCORER_VERSION = 9
 #: Recorded in every matrix file, so an archived run says which harness produced it.
 SCAN_TOOL = "v2: filters in the engine; exact COUNT, MIN and MAX over every matching row"
 DECODING = "provider defaults; Nova greedy (temperature 0, topK 1) per Amazon's tool-use guidance"
@@ -209,8 +217,10 @@ def score_scan(body: str, truth: dict) -> dict:
 
     last_count = last_stated([r"%s\s+of\s+(?:the\s+)?\d+\s+rows?\b" % num,
                               r"%s\s+rows?\b[^\d\n]{0,60}%s" % (num, AT_LEAST_10),
+                              # Not the first of a list: "8 rows with an id of 10 or
+                              # more: 20, 21, 22, ..." names the ids after the count.
                               r"%s\)?\s*(?:\([^()\d\n]{0,40}\))?\s*"
-                              r"(?::|=|is|was|are|equals|number|total|count)\s*%s"
+                              r"(?::|=|is|was|are|equals|number|total|count)\s*%s(?!\s*,\s*\d)"
                               % (AT_LEAST_10, num)])
     last_max = last_stated([r"\b(?:largest|maximum|highest|max|biggest|greatest)\s+(?:id\s+)?"
                             r"(?:is|was|=|:|equals)\s+%s" % num])

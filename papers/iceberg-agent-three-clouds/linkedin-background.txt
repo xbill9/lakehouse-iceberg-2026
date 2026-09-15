@@ -44,8 +44,8 @@ WHAT I FOUND
   somewhere else.
 - Once that plumbing is set up, every helper read its cloud's data. Asked to count
   eleven rows itself, Google's and Microsoft's models were right in all ten tries;
-  the smallest model, Amazon's Nova Micro, in none. When the data engine did the
-  counting, every helper was right in all ten tries.
+  the smallest model, Amazon's Nova Micro, in one. When the data engine did the
+  counting, every helper was right in every try.
 - Read the whole answer. One toolkit hands back only the last message by default,
   and one model writes part of its answer earlier in the conversation.
 

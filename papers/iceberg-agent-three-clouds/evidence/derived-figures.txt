@@ -59,6 +59,30 @@ the same cell measured in more than one test (separate sittings), answer medians
   ADK / gemini-2.5-flash on apache-polaris      Axis A 5.62s  Axis B 4.50s  Axis C 4.86s   spread 1.12s
   Strands / us.amazon.nova-micro-v1:0 on apache-polaris Axis A 3.25s  Axis C 3.33s   spread 0.07s
 
+answer diversity: distinct answer texts per cell (1 = one sample, repeated)
+  axis   cell                                                                     distinct answers / runs
+  A      Strands / us.amazon.nova-micro-v1:0                                      1/10
+  A      ADK / gemini-2.5-flash                                                   10/10
+  A      Agent Framework / gpt-5-mini                                             10/10
+  C      Strands / gemini-2.5-flash                                               10/10
+  C      ADK / gemini-2.5-flash                                                   10/10
+  C      Strands / us.amazon.nova-micro-v1:0                                      1/10
+  D      Strands / us.amazon.nova-micro-v1:0 on aws-glue                          1/10
+  D      ADK / gemini-2.5-flash on google-lakehouse                               10/10
+  D      Agent Framework / gpt-5-mini on microsoft-onelake                        10/10
+  E      Strands / gemini-2.5-flash on apache-polaris [rows-only]                 10/10
+  E      ADK / gemini-2.5-flash on apache-polaris [rows-only]                     10/10
+  E      Strands / us.amazon.nova-micro-v1:0 on apache-polaris [provider-decoding] 10/10
+  E      Agent Framework / gpt-5-mini on apache-polaris [rows-only]               10/10
+  E      Strands / us.amazon.nova-micro-v1:0 on apache-polaris [rows-only]        1/10
+  E      Strands / us.amazon.nova-micro-v1:0 on apache-polaris                    1/10
+  E      ADK / gemini-2.5-flash on apache-polaris                                 10/10
+  E      Agent Framework / gpt-5-mini on apache-polaris                           10/10
+  E      Strands / gemini-2.5-flash on apache-polaris                             10/10
+  E      Strands / us.amazon.nova-micro-v1:0 on apache-polaris [rows-only-provider-decoding] 10/10
+  F      Strands / us.amazon.nova-micro-v1:0 [provider-decoding]                  10/10
+  F      Strands / us.amazon.nova-micro-v1:0                                      1/10
+
 tokens and model calls per answer, medians over answered runs
   frameworks report reasoning differently: ADK and Agent Framework separate it,
   Strands' Gemini provider folds it into output. 'generated' is output plus
@@ -74,24 +98,25 @@ tokens and model calls per answer, medians over answered runs
   D      Strands / us.amazon.nova-micro-v1:0 on aws-glue            12622   627     n/a       627       6           1.01
   D      ADK / gemini-2.5-flash on google-lakehouse                 7318    231.5   818       1072      5           1.29
   D      Agent Framework / gpt-5-mini on microsoft-onelake          7866.5  1565    1056      2615.5    n/a         0.98
-  E      Strands / gemini-2.5-flash on apache-polaris [rows-only]   3219    1361.5  n/a       1361.5    4           0.90
-  E      ADK / gemini-2.5-flash on apache-polaris [rows-only]       5183.5  204.5   1147      1346      4           0.73
-  E      Strands / us.amazon.nova-micro-v1:0 on apache-polaris [provider-decoding] 7730.5  614.5   n/a       614.5     4           0.63
-  E      Agent Framework / gpt-5-mini on apache-polaris [rows-only] 5396    1495    960       2472      n/a         0.75
+  E      Strands / gemini-2.5-flash on apache-polaris [rows-only]   3219    1352.5  n/a       1352.5    4           0.86
+  E      ADK / gemini-2.5-flash on apache-polaris [rows-only]       6648.5  208.5   1342.5    1555.5    4           0.68
+  E      Strands / us.amazon.nova-micro-v1:0 on apache-polaris [provider-decoding] 9063.5  693.5   n/a       693.5     4.5         0.60
+  E      Agent Framework / gpt-5-mini on apache-polaris [rows-only] 6524.5  1611.5  1056      2654.5    n/a         0.76
   E      Strands / us.amazon.nova-micro-v1:0 on apache-polaris [rows-only] 6389    513     n/a       513       4           0.67
-  E      Strands / us.amazon.nova-micro-v1:0 on apache-polaris      10215   540     n/a       540       5           0.67
-  E      ADK / gemini-2.5-flash on apache-polaris                   7148.5  224.5   751.5     1004.5    5           0.81
-  E      Agent Framework / gpt-5-mini on apache-polaris             7870.5  1692    1088      2776      n/a         0.76
-  E      Strands / gemini-2.5-flash on apache-polaris               4952    1037.5  n/a       1037.5    5           1.06
+  E      Strands / us.amazon.nova-micro-v1:0 on apache-polaris      10215   540     n/a       540       5           0.68
+  E      ADK / gemini-2.5-flash on apache-polaris                   7638.5  230     900       1138      5           0.84
+  E      Agent Framework / gpt-5-mini on apache-polaris             7979.5  1743    1184      2883.5    n/a         0.68
+  E      Strands / gemini-2.5-flash on apache-polaris               4952    1002    n/a       1002      5           1.03
+  E      Strands / us.amazon.nova-micro-v1:0 on apache-polaris [rows-only-provider-decoding] 10373   853.5   n/a       853.5     5.5         0.60
   F      Strands / us.amazon.nova-micro-v1:0 [provider-decoding]    6673.5  523     n/a       523       4           0.61
   F      Strands / us.amazon.nova-micro-v1:0                        6727    564     n/a       564       4           0.59
 
 answer style: every published matrix capture, by framework and model
   framework / model                    runs  answer chars answer lines thinking  tool log  printed agent-med
-  ADK / gemini-2.5-flash               100   390          7            0/100     100/100   0/100   6.54s
-  Agent Framework / gpt-5-mini         40    922          18           0/40      0/40      0/40    20.45s
-  Strands / gemini-2.5-flash           30    364          3            0/30      30/30     30/30   10.43s
-  Strands / us.amazon.nova-micro-v1:0  80    1504         10           80/80     80/80     80/80   3.42s
+  ADK / gemini-2.5-flash               100   388          7            0/100     100/100   0/100   6.61s
+  Agent Framework / gpt-5-mini         40    881          18           0/40      0/40      0/40    19.68s
+  Strands / gemini-2.5-flash           30    382          5            0/30      30/30     30/30   10.25s
+  Strands / us.amazon.nova-micro-v1:0  90    1504         13           90/90     90/90     90/90   3.48s
   answer chars and lines are medians of the text after the stamped header.
   thinking: <thinking> text reached stdout. tool log: the capture shows each
   tool call as it happened. printed: the answer appears before the header as

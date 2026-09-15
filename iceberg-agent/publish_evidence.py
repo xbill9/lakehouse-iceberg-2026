@@ -37,7 +37,7 @@ sys.path.insert(0, os.path.join(ROOT, "iceberg-conformance"))
 
 import anonymize_evidence as anon  # noqa: E402
 from run_matrix import (AXIS_A_CATALOG, AXIS_B_LEG, FRAMEWORK, LEGS, RAW,  # noqa: E402
-                        SCAN_QUESTION, SCORER_VERSION, ground_truth, score, score_scan,
+                        SCAN_QUESTION, SCORER_VERSION, answer_of, ground_truth, score, score_scan,
                         token_fields)
 
 #: Fields whose score moved because a run was recorded under an older scorer.
@@ -87,6 +87,12 @@ SUPERSEDED = [
 #: Archived single-axis runs, published under superseded-runs/<name>/ with their
 #: re-scored rows. Kept for the same reason as the complete runs above.
 SUPERSEDED_D = [
+    ("run8-greedy-single-sample", [
+        "# Axis E at ten repeats per cell, captured 2026-09-15, SUPERSEDED and kept. Nova",
+        "# Micro's greedy cells returned one identical answer in all ten runs, so each was",
+        "# a single sample repeated, and the only rows-only Nova cell was greedy. Axis E",
+        "# was re-run with a rows-only Nova cell at Bedrock's default decoding, and the",
+        "# distinct answers per cell are now published. Re-scored below, not changed."]),
     ("run7-untraced-no-variants", [
         "# Axes D and E at ten repeats per cell, captured 2026-09-15, SUPERSEDED and kept.",
         "# Same harness as the published run, but the captures did not record tool calls,",
@@ -450,7 +456,9 @@ def self_test(truth: dict) -> None:
                  "`probe_ns.probe_table` that have an `id` of 10 or more." % (mx, n)),
                 ("parenthetical before the count", "- Largest id in the table (snapshot shown "
                  "above): %s.\n- Number of rows with id >= 10 (same snapshot and metadata): %s."
-                 % (mx, n))):
+                 % (mx, n)),
+                ("ids listed after a colon", "The largest `id` is %s.\n\nThere are %s rows with an "
+                 "`id` of 10 or more: 20, 21, 22, 23, 10, 11, 12, 13." % (mx, n))):
             real = score_scan(wrap % text, t)
             failures += ["scan scorer, real phrasing (%s): %s" % (label, k) for k in
                          ("correct_max_id", "correct_count") if not real[k]]
@@ -601,6 +609,21 @@ def superseded_d(truth: dict) -> dict:
     return texts
 
 
+def answer_diversity(named: list) -> str:
+    """Distinct answer texts per cell. A cell whose ten runs return one identical
+    answer is one sample repeated, not ten: its correct count is 0 or 10 by
+    construction, and it cannot be read as a rate. MEASURED 2026-09-15: Nova Micro
+    at temperature 0 and topK 1 gave one answer, word for word, in every run of a
+    cell; every other model's cells gave ten different answers."""
+    lines = ["", "answer diversity: distinct answer texts per cell (1 = one sample, repeated)",
+             "  %-6s %-72s %s" % ("axis", "cell", "distinct answers / runs")]
+    for axis, rows, bodies in named:
+        for key, runs in cells(rows, "cell").items():
+            texts = {answer_of(bodies[r["capture"]]).strip() for r in runs if r["capture"] in bodies}
+            lines.append("  %-6s %-72s %d/%d" % (axis, key, len(texts), len(runs)))
+    return "\n".join(lines) + "\n"
+
+
 def token_section(named: list) -> str:
     """Tokens and model calls per answer. Output length drives answer time, so a
     speed difference between cells is read beside it. None where a framework does
@@ -739,6 +762,10 @@ def main() -> None:
     texts["derived-figures.txt"] += replication(history + [("published run", a_rows, b_rows)])
     texts["derived-figures.txt"] += crossover(answered(c_rows))
     texts["derived-figures.txt"] += noise_across_tests(a_rows, b_rows, c_rows)
+    texts["derived-figures.txt"] += answer_diversity(
+        [("A", a_rows, a_bodies if a_rows else {}), ("C", c_rows, c_bodies if c_rows else {}),
+         ("D", d_rows, d_bodies if d_rows else {}), ("E", e_rows, e_bodies if e_rows else {}),
+         ("F", f_rows, f_bodies if f_rows else {})])
     texts["derived-figures.txt"] += token_section(
         [("A", a_rows), ("B", b_rows), ("C", c_rows), ("D", d_rows), ("E", e_rows), ("F", f_rows)])
     texts["matrix-summary.txt"] = summary(a_rows, b_rows, a_data["repeat"], c_rows, d_rows, truth,

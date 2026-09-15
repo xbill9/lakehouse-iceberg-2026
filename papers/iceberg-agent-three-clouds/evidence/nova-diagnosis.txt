@@ -6,7 +6,7 @@
 ## 1. Nova Micro called directly (Bedrock Converse, no agent): how many ids are 10 or more
    8 of 10 right   ids inline, no system prompt
    4 of 10 right   ids inline, list them first
-   4 of 10 right   ids inline, yes or no per id
+   1 of 10 right   ids inline, yes or no per id
    7 of 10 right   scan text as the agent saw it, false SAMPLE note included
    6 of 10 right   scan text, SAMPLE note removed
    6 of 10 right   scan text, id column only

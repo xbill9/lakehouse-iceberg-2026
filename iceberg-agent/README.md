@@ -47,8 +47,10 @@ takes a chat client object and calls the system prompt `instructions`.
 The scan computes counts and ranges so the model never does arithmetic over rows
 in its head. Measured on 2026-09-15 with the earlier scan, which returned rows
 only. Axis E runs every setup both ways: left to count the rows, Gemini under ADK
-and Strands and `gpt-5-mini` were right in 10 of 10 runs and Nova Micro in 0 of 10;
-with the filter, every setup was right in 10 of 10.
+and Strands and `gpt-5-mini` were right in 10 of 10 runs, and Nova Micro in 1 of 10
+at Bedrock's default decoding (its greedy cell repeats one wrong answer); with the
+filter, every setup was right in every run. `derived-figures.txt` lists distinct
+answers per cell, because a greedy Nova cell's ten runs are one sample.
 
 Nova runs with the decoding Amazon documents for Nova tool use (temperature 0,
 topK 1). With default decoding it ended the loop before its filter call in 2 of 10

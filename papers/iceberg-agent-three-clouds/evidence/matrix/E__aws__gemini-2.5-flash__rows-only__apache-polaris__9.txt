@@ -1,4 +1,4 @@
-# axis=E leg=aws catalog=apache-polaris run=9 elapsed_s=14.1 captured=2026-09-15T21:41:36Z
+# axis=E leg=aws catalog=apache-polaris run=9 elapsed_s=20.0 captured=2026-09-15T22:13:42Z
 
 cloud=aws model=gemini-2.5-flash catalog=apache-polaris
 question: What is the largest id in the probe table, and how many of its rows have an id of 10 or more? Cite the exact table version you read.
@@ -9,18 +9,20 @@ Tool #1: iceberg_list_tables
 Tool #2: iceberg_describe_table
 
 Tool #3: iceberg_scan_table
-The largest `id` in the `probe_ns.probe_table` table is 23. There are 8 rows in the `probe_ns.probe_table` table that have an `id` of 10 or more.
 
-These figures are derived from snapshot-id `aws-account-00029537848` of the table, located at `file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json`.
+Tool #4: iceberg_scan_table
+The largest `id` in the `probe_ns.probe_table` is 23. There are 8 rows in the `probe_ns.probe_table` with an `id` of 10 or more.
+
+These figures are derived from the version of the table identified by `metadata-location: file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json` and `snapshot-id: aws-account-00029537848`.
 <!-- cloud=aws model=gemini-2.5-flash catalog=apache-polaris instruction=v3 catalog_calls=3 -->
-The largest `id` in the `probe_ns.probe_table` table is 23. There are 8 rows in the `probe_ns.probe_table` table that have an `id` of 10 or more.
+The largest `id` in the `probe_ns.probe_table` is 23. There are 8 rows in the `probe_ns.probe_table` with an `id` of 10 or more.
 
-These figures are derived from snapshot-id `aws-account-00029537848` of the table, located at `file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json`.
+These figures are derived from the version of the table identified by `metadata-location: file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json` and `snapshot-id: aws-account-00029537848`.
 
 catalog calls: 3 of 8
-agent seconds: 11.99 | tool seconds: 0.16
-tokens: input=3219 output=1589 reasoning=None model_calls=4
-warm-up seconds: 1.27
+agent seconds: 17.82 | tool seconds: 0.13
+tokens: input=4305 output=2384 reasoning=None model_calls=5
+warm-up seconds: 1.41
 [tool-trace] iceberg_scan_table(table='probe_ns.probe_table', columns='id', limit=1000000)
 id
 0

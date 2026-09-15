@@ -1,22 +1,24 @@
-# axis=E leg=gcp catalog=apache-polaris run=5 elapsed_s=11.2 captured=2026-09-15T21:32:36Z
+# axis=E leg=gcp catalog=apache-polaris run=5 elapsed_s=12.3 captured=2026-09-15T22:05:49Z
 
 cloud=gcp model=gemini-2.5-flash catalog=apache-polaris
 question: What is the largest id in the probe table, and how many of its rows have an id of 10 or more? Cite the exact table version you read.
 
    -> tool: iceberg_list_tables()
    -> tool: iceberg_describe_table(table='probe_ns.probe_table')
-   -> tool: iceberg_scan_table(columns='id', table='probe_ns.probe_table', limit=1000000)
+   -> tool: iceberg_scan_table(table='probe_ns.probe_table', limit=100000, columns='id')
 
 <!-- cloud=gcp model=gemini-2.5-flash catalog=apache-polaris instruction=v3 catalog_calls=3 -->
-The largest id in the `probe_ns.probe_table` is 23. There are 8 rows in the `probe_ns.probe_table` that have an id of 10 or more.
+The largest `id` in the `probe_ns.probe_table` is 23. There are 8 rows in the table that have an `id` of 10 or more.
 
-This information is derived from the table version identified by metadata-location: `file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json` and snapshot-id: `aws-account-00029537848`.
+These figures are from the table version identified by:
+*   `metadata-location`: `file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json`
+*   `snapshot-id`: `aws-account-00029537848`
 
 catalog calls: 3 of 8
-agent seconds: 7.56 | tool seconds: 0.13
-tokens: input=4811 output=204 reasoning=689 model_calls=4
-warm-up seconds: 2.50
-[tool-trace] iceberg_scan_table(table='probe_ns.probe_table', columns='id', limit=1000000)
+agent seconds: 8.66 | tool seconds: 0.14
+tokens: input=5127 output=207 reasoning=903 model_calls=4
+warm-up seconds: 2.52
+[tool-trace] iceberg_scan_table(table='probe_ns.probe_table', columns='id', limit=100000)
 id
 0
 2

@@ -1,4 +1,4 @@
-# axis=E leg=azure catalog=apache-polaris run=5 elapsed_s=25.3 captured=2026-09-15T21:31:13Z
+# axis=E leg=azure catalog=apache-polaris run=5 elapsed_s=26.6 captured=2026-09-15T22:06:21Z
 
 cloud=azure model=gpt-5-mini catalog=apache-polaris
 question: What is the largest id in the probe table, and how many of its rows have an id of 10 or more? Cite the exact table version you read.
@@ -8,25 +8,24 @@ question: What is the largest id in the probe table, and how many of its rows ha
 Tables in the catalog:
 - probe_ns.probe_table
 
-I describe the table I used:
-- probe_ns.probe_table (columns: id long required; ts timestamptz optional; payload string optional; region string optional; partitioned by ts_day)
-- metadata-location: file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json
+Description of the table I used (probe_ns.probe_table):
+- columns: id (long, required), ts (timestamptz), payload (string), region (string)
+- partitioned by: ts_day
 - current-snapshot-id: aws-account-00029537848
+- metadata-location: file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json
 
 What I read:
-- I scanned the id column and read every row from snapshot-id aws-account-00029537848 (the scan returned COMPLETE: all 11 rows in that snapshot).
+- I scanned the id column and got these 11 rows (scan reported COMPLETE for the snapshot): 0, 2, 3, 20, 21, 22, 23, 10, 11, 12, 13. The scan was from snapshot-id aws-account-00029537848.
 
-Results (from snapshot-id aws-account-00029537848, metadata-location quoted above):
-- Largest id: 23
-- Number of rows with id >= 10: 8
-
-If you want, I can also return the full list of id values I read.
+Answers (for snapshot-id aws-account-00029537848; metadata-location file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json):
+- Largest id: 23.
+- Number of rows with id >= 10: 8.
 
 catalog calls: 3 of 8
-agent seconds: 17.33 | tool seconds: 0.14
-tokens: input=5325 output=1337 reasoning=896 model_calls=None
-warm-up seconds: 6.70
-[tool-trace] iceberg_scan_table(table='probe_ns.probe_table', columns='id', limit=1000000)
+agent seconds: 16.96 | tool seconds: 0.13
+tokens: input=4606 output=1332 reasoning=768 model_calls=None
+warm-up seconds: 8.37
+[tool-trace] iceberg_scan_table(table='probe_ns.probe_table', columns='id', limit=20)
 id
 0
 2

@@ -1,4 +1,4 @@
-# axis=E leg=azure catalog=apache-polaris run=8 elapsed_s=43.3 captured=2026-09-15T21:39:33Z
+# axis=E leg=azure catalog=apache-polaris run=8 elapsed_s=40.0 captured=2026-09-15T22:11:48Z
 
 cloud=azure model=gpt-5-mini catalog=apache-polaris
 question: What is the largest id in the probe table, and how many of its rows have an id of 10 or more? Cite the exact table version you read.
@@ -8,25 +8,23 @@ question: What is the largest id in the probe table, and how many of its rows ha
 Tables found:
 - probe_ns.probe_table
 
-Described table used:
-- probe_ns.probe_table
-  - columns: id (long, required), ts (timestamptz), payload (string), region (string)
-  - partitioned by: ts_day
-  - metadata-location: file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json
-  - snapshot id: aws-account-00029537848
+I will use probe_ns.probe_table. Description (from the catalog):
+- columns: id long (required), ts timestamptz, payload string, region string
+- partitioned by: ts_day
+- metadata-location: file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json
+- current-snapshot-id: aws-account-00029537848
 
-Results (exact, from the table version above):
-- Largest id: 23.
-- Number of rows with id >= 10: 8.
+Answer (both figures come from the table version above — metadata-location and snapshot-id quoted):
+- Largest id: 23. (This value was observed when scanning the table version at metadata-location file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json, snapshot-id aws-account-00029537848.)
+- Number of rows with id >= 10: exactly 8 rows. (From the same table version: metadata-location file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json, snapshot-id aws-account-00029537848.)
 
-Source notes:
-- These figures come from probe_ns.probe_table as read from metadata-location "file:/home/xbill/bucket-0003/00006-guid-0001.metadata.json" at snapshot-id aws-account-00029537848. The table scan reported COUNT, MIN and MAX exactly for the snapshot.
+If you want, I can also return the rows themselves or the total row count for this snapshot.
 
 catalog calls: 4 of 8
-agent seconds: 18.54 | tool seconds: 0.05
-tokens: input=7919 output=1464 reasoning=896 model_calls=None
-warm-up seconds: 23.51
-[tool-trace] iceberg_scan_table(table='probe_ns.probe_table', columns='id', where='', limit=20)
+agent seconds: 21.95 | tool seconds: 0.06
+tokens: input=7722 output=2070 reasoning=1344 model_calls=None
+warm-up seconds: 16.81
+[tool-trace] iceberg_scan_table(table='probe_ns.probe_table', columns='id', where='', limit=100)
 id
 0
 2
@@ -44,7 +42,7 @@ id
 COUNT: exactly 11 row(s) are in the table in snapshot-id aws-account-00029537848. Exact, over the whole table.
 MIN and MAX of id over those 11 row(s): 0 and 23. Exact.
 [/tool-trace]
-[tool-trace] iceberg_scan_table(table='probe_ns.probe_table', columns='id', where='id >= 10', limit=20)
+[tool-trace] iceberg_scan_table(table='probe_ns.probe_table', columns='id', where='id >= 10', limit=100)
 id
 20
 21
