@@ -1,4 +1,4 @@
-# environment the paper 3 evidence was measured in, captured 2026-09-15T16:30:44Z
+# environment the paper 3 evidence was measured in, captured 2026-09-15T20:07:34Z
 python=3.14.7
 platform=Linux
 google-adk=2.8.0

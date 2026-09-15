@@ -14,7 +14,7 @@ I will use probe_ns.probe_table. Description (from the table metadata):
 - current-snapshot-id: aws-account-00029537848
 - metadata-location: file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json
 
-Results (all figures are for the exact table version above: metadata-location file:/home/xbill/.../00006-guid-0001.metadata.json, snapshot-id aws-account-00029537848):
+Results (all figures are for the exact table version above: metadata-location file:/home/xbill/bucket-0003/00006-guid-0001.metadata.json, snapshot-id aws-account-00029537848):
 
 - Largest id: 23.
 - Number of rows with id >= 10: 8.

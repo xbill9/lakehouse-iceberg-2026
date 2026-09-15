@@ -8,42 +8,42 @@
 
 AXIS A -- catalog fixed (apache-polaris), framework and model vary
   cell                 runs  failed correct  snapshot metadata columns  answer s (min/med/max)  iqr (p25-p75)  process-med tool-med
-  aws                  10    0      10/10    10/10    10/10    9/10      2.78 /  3.28 /  3.55  iqr  3.06- 3.40     4.5        0.12
-  gcp                  10    0      10/10    10/10    10/10    10/10     4.53 /  5.20 /  6.65  iqr  4.74- 5.91     9.0        0.12
-  azure                10    0      10/10    10/10    10/10    10/10    11.41 / 13.25 / 15.16  iqr 12.52-13.89    23.2        0.12
+  aws                  10    0      10/10    10/10    10/10    10/10     3.15 /  3.25 /  3.32  iqr  3.23- 3.28     4.3        0.12
+  gcp                  10    0      10/10    10/10    10/10    10/10     4.53 /  5.62 /  6.96  iqr  5.42- 6.17     9.4        0.12
+  azure                10    0      10/10    10/10    10/10    10/10    11.74 / 13.11 / 15.61  iqr 12.18-13.88    22.5        0.12
   catalog_calls across all runs: [3] | invented columns: 0
 
 AXIS B -- leg fixed (gcp / ADK / gemini-2.5-flash), catalog varies
   cell                 runs  failed correct  snapshot metadata columns  answer s (min/med/max)  iqr (p25-p75)  process-med tool-med
-  google-lakehouse     10    0      10/10    10/10    10/10    10/10     6.43 /  7.37 /  8.23  iqr  6.80- 7.46    11.8        1.40
-  aws-s3tables         10    0      10/10    10/10    10/10    10/10     5.53 /  6.21 /  6.97  iqr  5.94- 6.60    10.4        0.49
-  aws-glue             10    0      10/10    10/10    10/10    10/10     5.90 /  6.43 /  7.18  iqr  6.08- 6.55    10.5        0.69
-  apache-polaris       10    0      10/10    10/10    10/10    10/10     4.76 /  5.63 /  7.40  iqr  5.29- 5.89     9.5        0.14
-  microsoft-onelake    10    0      10/10    10/10    10/10    10/10     6.36 /  7.51 / 16.93  iqr  7.05- 7.90    11.8        1.79
+  google-lakehouse     10    0      10/10    10/10    10/10    10/10     5.27 /  7.35 /  8.25  iqr  7.09- 7.73    11.6        1.42
+  aws-s3tables         10    0      10/10    10/10    10/10    10/10     5.53 /  6.09 /  6.29  iqr  5.92- 6.24    10.1        0.49
+  aws-glue             10    0      10/10    10/10    10/10    10/10     5.17 /  6.10 /  6.71  iqr  5.68- 6.55    10.1        0.66
+  apache-polaris       10    0      10/10    10/10    10/10    10/10     4.01 /  4.50 /  6.52  iqr  4.37- 5.45     8.3        0.12
+  microsoft-onelake    10    0      10/10    10/10    10/10    10/10     5.99 /  7.50 / 50.96  iqr  7.24- 8.50    11.7        2.18
   catalog_calls across all runs: [3] | invented columns: 0
 
 AXIS C -- catalog fixed (apache-polaris), model fixed while framework varies
   framework / model                    runs  failed correct  snapshot metadata columns  answer s (min/med/max)  iqr (p25-p75)  process-med tool-med
-  Strands / gemini-2.5-flash           10    0      10/10    10/10    10/10    10/10     6.63 /  8.75 / 11.51  iqr  6.94- 9.25    11.0        0.12
-  ADK / gemini-2.5-flash               10    0      10/10    10/10    10/10    10/10     4.89 /  6.15 /  7.31  iqr  5.76- 6.71    10.2        0.12
-  Strands / us.amazon.nova-micro-v1:0  10    0      10/10    10/10    10/10    10/10     3.00 /  3.18 /  4.62  iqr  3.06- 3.45     4.3        0.12
+  Strands / gemini-2.5-flash           10    0      10/10    10/10    10/10    10/10     6.03 /  6.96 /  8.53  iqr  6.42- 7.89     9.0        0.12
+  ADK / gemini-2.5-flash               10    0      10/10    10/10    10/10    10/10     4.56 /  4.86 /  5.99  iqr  4.63- 5.64     8.5        0.12
+  Strands / us.amazon.nova-micro-v1:0  10    0      10/10    10/10    10/10    10/10     3.22 /  3.33 /  3.48  iqr  3.29- 3.36     4.5        0.12
   catalog_calls across all runs: [3] | invented columns: 0
 
 AXIS D -- each leg on its own cloud's catalog, a question only a data scan answers
   question: What is the largest id in the probe table, and how many of its rows have an id of 10 or more? Cite the exact table version you read.
   framework / model on catalog                               runs  max id   count>=10 snapshot answer s (min/med/max)  tool-med calls
-  Strands / us.amazon.nova-micro-v1:0 on aws-glue            10    9/10     1/10      10/10     4.51 /  6.01 /  8.18  iqr  5.34- 6.31   1.64    [3, 4, 6]  failed 0
-  ADK / gemini-2.5-flash on google-lakehouse                 10    10/10    10/10     10/10    12.43 / 15.42 / 25.01  iqr 13.35-17.27   3.42    [3, 4]  failed 0
-  Agent Framework / gpt-5-mini on microsoft-onelake          10    10/10    10/10     10/10    21.36 / 26.48 / 32.56  iqr 23.77-29.11   4.49    [3, 4]  failed 0
+  Strands / us.amazon.nova-micro-v1:0 on aws-glue            10    10/10    10/10     10/10     6.16 /  6.31 / 11.57  iqr  6.21- 6.63   2.08    [5]  failed 0
+  ADK / gemini-2.5-flash on google-lakehouse                 10    10/10    10/10     10/10    11.79 / 13.55 / 16.37  iqr 13.16-14.46   5.12    [4]  failed 0
+  Agent Framework / gpt-5-mini on microsoft-onelake          10    10/10    10/10     10/10    22.76 / 25.00 / 27.26  iqr 24.56-25.56   4.66    [4]  failed 0
   expected: aws-glue max_id=23 count>=10=8; google-lakehouse max_id=23 count>=10=8; microsoft-onelake max_id=21 count>=10=4
 
 AXIS E -- every framework and model on apache-polaris, the same data question
   question: What is the largest id in the probe table, and how many of its rows have an id of 10 or more? Cite the exact table version you read.
   framework / model on catalog                               runs  max id   count>=10 snapshot answer s (min/med/max)  tool-med calls
-  Strands / gemini-2.5-flash on apache-polaris               10    10/10    10/10     10/10    10.63 / 12.16 / 23.37  iqr 11.78-15.33   0.14    [3, 4]  failed 0
-  Agent Framework / gpt-5-mini on apache-polaris             10    10/10    10/10     10/10    16.54 / 21.54 / 26.10  iqr 21.11-24.01   0.13    [3, 4]  failed 0
-  Strands / us.amazon.nova-micro-v1:0 on apache-polaris      10    7/10     1/10      10/10     3.25 /  4.53 /  6.19  iqr  3.84- 5.10   0.17    [3, 4, 5, 6]  failed 0
-  ADK / gemini-2.5-flash on apache-polaris                   10    10/10    10/10     10/10     7.45 / 12.36 / 15.76  iqr  9.85-13.21   0.15    [3, 4]  failed 0
+  Strands / gemini-2.5-flash on apache-polaris               10    10/10    10/10     10/10     8.79 / 11.21 / 12.06  iqr 10.87-11.68   0.15    [4]  failed 0
+  Agent Framework / gpt-5-mini on apache-polaris             10    10/10    10/10     10/10    17.20 / 20.69 / 27.63  iqr 19.81-21.57   0.15    [4]  failed 0
+  Strands / us.amazon.nova-micro-v1:0 on apache-polaris      10    10/10    10/10     10/10     3.58 /  3.73 /  3.86  iqr  3.65- 3.77   0.15    [4]  failed 0
+  ADK / gemini-2.5-flash on apache-polaris                   10    10/10    10/10     10/10     6.35 /  8.33 / 12.76  iqr  7.72- 8.75   0.15    [4]  failed 0
 
 ground truth: snapshot total-records against a full scan of the data files
   apache-polaris       total-records=11 scanned=11 agree=yes
@@ -56,12 +56,11 @@ total runs, axes A and B: 80
   correct_row_count    80/80
   cites_snapshot       80/80
   cites_metadata       80/80
-  names_all_columns    79/80
+  names_all_columns    80/80
   invented_column      0/80
   axis C runs: 30 (reported separately; it measures a different question)
 
-# scored with scorer v5 (answer text only, count beside 'rows', whole-word
+# scored with scorer v6 (answer text only, count beside 'rows', whole-word
 # columns). Runs recorded under an older scorer and re-scored:
 #   C__aws__us.amazon.nova-micro-v1-0__apache-polaris__2.txt: correct_row_count stored False, re-scored True (run4-ten-repeats)
-#   D__aws__aws-glue__2.txt: correct_max_id stored True, re-scored False (run3-three-repeats)
 #   D__aws__aws-glue__3.txt: correct_max_id stored False, re-scored True (axis-d-run1-instruction-v2)

@@ -1,4 +1,4 @@
-# failure modes reproduced deliberately, captured 2026-09-15T17:14:54Z
+# failure modes reproduced deliberately, captured 2026-09-15T20:51:26Z
 # each changes one piece of the tool's storage wiring and calls
 # iceberg_scan_table, to show what that configuration actually produces.
 # Metadata calls are shown succeeding first, which is the point: the catalog
@@ -35,10 +35,10 @@ D. OneLake, fsspec with account host but adls.credential removed (expected to re
 -- metadata call (iceberg_list_tables):
 dbo.probe_table
 -- data call (iceberg_scan_table):
-3 row(s), read from snapshot-id 3346142071915475645
+3 of 6 row(s) shown, read from snapshot-id 3346142071915475645
 
 ==============================================================================
 control. The same calls with the tool's wiring unchanged
 ==============================================================================
-microsoft-onelake  list: dbo.probe_table | scan: 3 row(s), read from snapshot-id 3346142071915475645
-aws-glue           list: probe_ns.probe_table | scan: 3 row(s), read from snapshot-id 9187553066798777529
+microsoft-onelake  list: dbo.probe_table | scan: 3 of 6 row(s) shown, read from snapshot-id 3346142071915475645
+aws-glue           list: probe_ns.probe_table | scan: 3 of 11 row(s) shown, read from snapshot-id 9187553066798777529

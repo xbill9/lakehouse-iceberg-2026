@@ -1,0 +1,33 @@
+# axis=D leg=azure catalog=microsoft-onelake run=2 elapsed_s=39.7 captured=2026-09-15T16:53:00Z
+
+cloud=azure model=gpt-5-mini catalog=microsoft-onelake
+question: What is the largest id in the probe table, and how many of its rows have an id of 10 or more? Cite the exact table version you read.
+
+
+<!-- cloud=azure model=gpt-5-mini catalog=microsoft-onelake instruction=v3 catalog_calls=3 -->
+Tables found:
+- dbo.probe_table
+
+Description of the table I used (dbo.probe_table):
+- columns: id int, ts timestamptz, payload string
+- partitioning: (unpartitioned)
+- current-snapshot-id: 3346142071915475645
+- metadata-location: abfss://guid-0005@onelake.dfs.fabric.microsoft.com/guid-0006/Tables/probe_table/metadata/v3.metadata.json
+
+What I read:
+- Scanned column: id
+- Rows returned by the scan: 0, 1, 20, 21, 10, 11
+- The scan reported: "COMPLETE: these are all 6 rows in this snapshot (total-records 6)bucket-0003 read from snapshot-id 3346142071915475645."
+
+Answers (for the table version cited above):
+- Largest id: 21.
+- Number of rows with id >= 10: 4.
+
+Figures above are from dbo.probe_table at metadata-location
+abfss://guid-0005@onelake.dfs.fabric.microsoft.com/guid-0006/Tables/probe_table/metadata/v3.metadata.json
+(snapshot-id 3346142071915475645).
+
+catalog calls: 3 of 8
+agent seconds: 29.64 | tool seconds: 5.32
+tokens: input=5007 output=1910 reasoning=1344 model_calls=None
+warm-up seconds: 8.76

@@ -16,7 +16,7 @@ Description of the table I used (as returned by iceberg_describe_table)
 
 What I read
 - I scanned the id column and obtained these rows (from snapshot-id 3346142071915475645): 0, 1, 20, 21, 10, 11.
-- The scan reported: "COMPLETE: these are all 6 rows in this snapshot (total-records 6) ... exact for snapshot-id 3346142071915475645."
+- The scan reported: "COMPLETE: these are all 6 rows in this snapshot (total-records 6) bucket-0003 exact for snapshot-id 3346142071915475645."
 
 Answers (citing the exact table version above)
 - Largest id: 21.

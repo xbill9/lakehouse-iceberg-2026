@@ -42,10 +42,12 @@ WHAT I FOUND
 - The real per-cloud work is the plumbing that opens the data files. Each cloud
   needs different settings, and when they are wrong the error message points
   somewhere else.
-- Once that plumbing is set up, every helper read its cloud's data. On the same
-  table, every setup counted correctly except one: the smallest model, Amazon's Nova
-  Micro, got the count right once in ten tries. The same Strands helper running
-  Google's Gemini got it right every time -- so that is the model, not the toolkit.
+- Once that plumbing is set up, every helper read its cloud's data, and every helper
+  answered every data question correctly in all ten tries -- once the counting was
+  done by the data engine rather than the AI. Left to count the rows itself, the
+  smallest model, Amazon's Nova Micro, was right in 3 of 10 tries.
+- Read the whole answer. One toolkit hands back only the last message by default,
+  and one model writes part of its answer earlier in the conversation.
 
 
 WHY SO CAREFUL

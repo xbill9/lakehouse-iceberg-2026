@@ -32,7 +32,24 @@ def build():
         from strands.models.gemini import GeminiModel
         brain = GeminiModel(model_id=model)
     else:
-        brain = BedrockModel(model_id=model)
+        # Nova runs with the decoding Amazon documents for Nova tool use: greedy,
+        # temperature 0 and topK 1, topK going through additionalModelRequestFields.
+        # https://docs.aws.amazon.com/nova/latest/userguide/prompting-tool-troubleshooting.html
+        # MEASURED on the scan question: default decoding ended the loop before its
+        # filter call in 2 of 10 runs; greedy, 0 of 10. Every other model keeps its
+        # provider's defaults. ICEBERG_TEMPERATURE / ICEBERG_TOP_K override, for
+        # diagnostics only.
+        # ICEBERG_DECODING=provider sends no decoding fields at all, so Bedrock's own
+        # defaults apply -- the only honest "default" to compare greedy against.
+        greedy = "nova" in model and os.getenv("ICEBERG_DECODING") != "provider"
+        extra = {}
+        temperature = os.getenv("ICEBERG_TEMPERATURE", "0" if greedy else None)
+        top_k = os.getenv("ICEBERG_TOP_K", "1" if greedy else None)
+        if temperature is not None:
+            extra["temperature"] = float(temperature)
+        if top_k is not None:
+            extra["additional_request_fields"] = {"inferenceConfig": {"topK": int(top_k)}}
+        brain = BedrockModel(model_id=model, **extra)
     return Agent(
         model=brain,                                 # a model object
         system_prompt=common.INSTRUCTION,            # `system_prompt`

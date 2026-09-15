@@ -1,0 +1,76 @@
+# Axes D and E at ten repeats per cell, captured 2026-09-15, SUPERSEDED and kept
+# beside the same run's Axes A to C; why is under that run above.
+
+  capture                                  max id count  snapshot  calls  answer s
+  D__aws__aws-glue__1.txt                  ok     WRONG  ok        4      6.32
+  D__gcp__google-lakehouse__1.txt          ok     ok     ok        3      16.08
+  D__azure__microsoft-onelake__1.txt       ok     ok     ok        4      25.66
+  D__aws__aws-glue__2.txt                  ok     ok     ok        4      6.15
+  D__gcp__google-lakehouse__2.txt          ok     ok     ok        4      14.08
+  D__azure__microsoft-onelake__2.txt       ok     ok     ok        3      29.64
+  D__azure__microsoft-onelake__3.txt       ok     ok     ok        4      27.30
+  D__aws__aws-glue__3.txt                  WRONG  WRONG  ok        6      8.18
+  D__gcp__google-lakehouse__3.txt          ok     ok     ok        3      17.66
+  D__aws__aws-glue__4.txt                  ok     WRONG  ok        3      5.19
+  D__gcp__google-lakehouse__4.txt          ok     ok     ok        3      25.01
+  D__azure__microsoft-onelake__4.txt       ok     ok     ok        4      27.52
+  D__gcp__google-lakehouse__5.txt          ok     ok     ok        4      12.43
+  D__azure__microsoft-onelake__5.txt       ok     ok     ok        3      23.24
+  D__aws__aws-glue__5.txt                  ok     WRONG  ok        4      6.77
+  D__azure__microsoft-onelake__6.txt       ok     ok     ok        4      22.73
+  D__aws__aws-glue__6.txt                  ok     WRONG  ok        4      6.29
+  D__gcp__google-lakehouse__6.txt          ok     ok     ok        3      13.11
+  D__aws__aws-glue__7.txt                  ok     WRONG  ok        3      4.66
+  D__gcp__google-lakehouse__7.txt          ok     ok     ok        4      12.55
+  D__azure__microsoft-onelake__7.txt       ok     ok     ok        4      32.56
+  D__aws__aws-glue__8.txt                  ok     WRONG  ok        3      4.51
+  D__azure__microsoft-onelake__8.txt       ok     ok     ok        3      21.36
+  D__gcp__google-lakehouse__8.txt          ok     ok     ok        3      19.76
+  D__aws__aws-glue__9.txt                  ok     WRONG  ok        4      5.87
+  D__azure__microsoft-onelake__9.txt       ok     ok     ok        4      30.31
+  D__gcp__google-lakehouse__9.txt          ok     ok     ok        3      16.03
+  D__azure__microsoft-onelake__10.txt      ok     ok     ok        4      25.38
+  D__aws__aws-glue__10.txt                 ok     WRONG  ok        3      5.78
+  D__gcp__google-lakehouse__10.txt         ok     ok     ok        3      14.81
+  E__aws__gemini-2.5-flash__apache-polaris__1.txt ok     ok     ok        4      16.24
+  E__azure__apache-polaris__1.txt          ok     ok     ok        4      25.23
+  E__aws__apache-polaris__1.txt            ok     WRONG  ok        5      5.03
+  E__gcp__apache-polaris__1.txt            ok     ok     ok        3      8.43
+  E__aws__apache-polaris__2.txt            ok     WRONG  ok        3      3.25
+  E__azure__apache-polaris__2.txt          ok     ok     ok        3      18.18
+  E__aws__gemini-2.5-flash__apache-polaris__2.txt ok     ok     ok        3      12.59
+  E__gcp__apache-polaris__2.txt            ok     ok     ok        3      9.28
+  E__aws__apache-polaris__3.txt            WRONG  WRONG  ok        6      6.19
+  E__gcp__apache-polaris__3.txt            ok     ok     ok        3      13.11
+  E__aws__gemini-2.5-flash__apache-polaris__3.txt ok     ok     ok        3      12.26
+  E__azure__apache-polaris__3.txt          ok     ok     ok        4      21.77
+  E__aws__gemini-2.5-flash__apache-polaris__4.txt ok     ok     ok        3      12.07
+  E__gcp__apache-polaris__4.txt            ok     ok     ok        3      12.78
+  E__aws__apache-polaris__4.txt            ok     ok     ok        5      5.53
+  E__azure__apache-polaris__4.txt          ok     ok     ok        4      24.70
+  E__aws__gemini-2.5-flash__apache-polaris__5.txt ok     ok     ok        3      11.05
+  E__aws__apache-polaris__5.txt            ok     WRONG  ok        5      4.81
+  E__azure__apache-polaris__5.txt          ok     ok     ok        4      21.94
+  E__gcp__apache-polaris__5.txt            ok     ok     ok        3      13.25
+  E__aws__apache-polaris__6.txt            ok     WRONG  ok        3      3.75
+  E__azure__apache-polaris__6.txt          ok     ok     ok        4      26.10
+  E__gcp__apache-polaris__6.txt            ok     ok     ok        4      11.58
+  E__aws__gemini-2.5-flash__apache-polaris__6.txt ok     ok     ok        3      23.37
+  E__azure__apache-polaris__7.txt          ok     ok     ok        4      21.10
+  E__aws__apache-polaris__7.txt            WRONG  WRONG  ok        5      5.12
+  E__aws__gemini-2.5-flash__apache-polaris__7.txt ok     ok     ok        3      17.82
+  E__gcp__apache-polaris__7.txt            ok     ok     ok        3      7.45
+  E__aws__gemini-2.5-flash__apache-polaris__8.txt ok     ok     ok        3      11.97
+  E__gcp__apache-polaris__8.txt            ok     ok     ok        3      15.76
+  E__aws__apache-polaris__8.txt            WRONG  WRONG  ok        4      4.24
+  E__azure__apache-polaris__8.txt          ok     ok     ok        3      16.54
+  E__aws__apache-polaris__9.txt            ok     WRONG  ok        4      4.12
+  E__aws__gemini-2.5-flash__apache-polaris__9.txt ok     ok     ok        3      11.72
+  E__gcp__apache-polaris__9.txt            ok     ok     ok        4      14.29
+  E__azure__apache-polaris__9.txt          ok     ok     ok        4      21.12
+  E__azure__apache-polaris__10.txt         ok     ok     ok        3      21.31
+  E__aws__gemini-2.5-flash__apache-polaris__10.txt ok     ok     ok        3      10.63
+  E__gcp__apache-polaris__10.txt           ok     ok     ok        3      11.95
+  E__aws__apache-polaris__10.txt           ok     WRONG  ok        3      3.25
+
+Strands answers with a line break inside a word or number the model streamed whole: 0 of 30

@@ -15,7 +15,7 @@ Description of the table I used (dbo.probe_table)
 - snapshot id: 3346142071915475645
 
 What I read
-- I scanned the id column and the scan returned all rows for snapshot 3346142071915475645 (the scan reported: "COMPLETE: these are all 6 rows in this snapshot (total-records 6) ...").
+- I scanned the id column and the scan returned all rows for snapshot 3346142071915475645 (the scan reported: "COMPLETE: these are all 6 rows in this snapshot (total-records 6) bucket-0003").
 
 Answers (for metadata-location abfss://guid-0005@onelake.dfs.fabric.microsoft.com/guid-0006/Tables/probe_table/metadata/v3.metadata.json, snapshot-id 3346142071915475645)
 - Largest id: 21

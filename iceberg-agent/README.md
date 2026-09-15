@@ -41,7 +41,25 @@ takes a chat client object and calls the system prompt `instructions`.
 - `iceberg_list_tables` — discovery
 - `iceberg_describe_table` — columns, partitioning, and the metadata location
 - `iceberg_count_rows` — exact count from the snapshot summary, no scan
-- `iceberg_scan_table` — sampled rows, and says so when the view is partial
+- `iceberg_scan_table` — rows, an optional `where` filter applied in the engine, and
+  an exact COUNT, MIN and MAX over every matching row however few rows are shown
+
+The scan computes counts and ranges so the model never does arithmetic over rows
+in its head. Measured on 2026-09-15 with the earlier scan, which returned rows
+only: Nova Micro, left to count the scanned rows, said how many ids were 10 or more
+correctly in 3 of 10 agent runs, and in 1 of 20 direct calls holding the agent's
+instruction and the 11 rows. Given the filter, every setup answered 10 of 10.
+
+Nova runs with the decoding Amazon documents for Nova tool use (temperature 0,
+topK 1). With default decoding it ended the loop before its filter call in 2 of 10
+runs; every other model keeps its provider's defaults.
+
+Each runner scores the whole turn: every text part ADK emits, every message in
+Agent Framework's `AgentResponse.text`, and every assistant message Strands
+appends. Strands' `result.message` is only the last one, and Nova Micro writes part
+of its answer in a message that also calls a tool -- read alone, the last message
+named the table's columns in 0 of 10 greedy runs while the turn named them in all 10.
+`nova-diagnosis.txt` has every figure in this section.
 
 Every result carries the table's `metadata-location` and `snapshot-id`. That is
 the data-side equivalent of putting a URL on a search result: an agent asked
@@ -132,6 +150,7 @@ $ python3 run_matrix.py --axis D --repeat 10  # each leg on its own cloud's cata
 $ python3 run_matrix.py --axis E --repeat 10  # the Axis D question for all four cells on the local control
 $ python3 capture_runs.py                  # each leg against its own cloud's catalog
 $ python3 failure_modes.py
+$ python3 nova_diagnosis.py                # Nova Micro's Test 5 count, from its diagnostic captures
 $ python3 publish_evidence.py              # re-score, summarise, anonymise, publish
 ```
 

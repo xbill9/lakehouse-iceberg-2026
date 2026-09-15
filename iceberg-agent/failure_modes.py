@@ -107,7 +107,8 @@ def run(catalog: str, table: str, change) -> tuple:
 
 def read_line(scanned: str) -> str:
     """The scan's summary line, not its rows."""
-    hits = [l for l in scanned.splitlines() if "row(s), read from snapshot-id" in l]
+    # "11 row(s), read from ..." from the v1 scan, "3 of 11 row(s) shown, read from ..." from v2.
+    hits = [l for l in scanned.splitlines() if "row(s)" in l and "read from snapshot-id" in l]
     return hits[0] if hits else ""
 
 

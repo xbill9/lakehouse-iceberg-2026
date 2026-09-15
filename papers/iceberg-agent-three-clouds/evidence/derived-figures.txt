@@ -4,85 +4,87 @@
 
 latency spread, fastest framework median to slowest, in answer seconds
   source    matrix-summary.txt, AXIS A (catalog fixed at apache-polaris)
-  operands  azure median 13.25s / aws median 3.28s
-  result    4.0443 -> quoted as 4.04x
+  operands  azure median 13.11s / aws median 3.25s
+  result    4.0261 -> quoted as 4.03x
   note      medians, not extremes.
 
 separation between Axis A legs, ordered by median, on the middle half of runs
-  aws   p75 3.40s vs gcp   p25 4.74s -> no overlap
-  gcp   p75 5.91s vs azure p25 12.52s -> no overlap
+  aws   p75 3.28s vs gcp   p25 5.42s -> no overlap
+  gcp   p75 6.17s vs azure p25 12.18s -> no overlap
 
 gap between adjacent Axis A legs
   pair           medians    p25 of slower - p75 of faster
-  aws-gcp        1.92s      1.33s
-  gcp-azure      8.05s      6.61s
+  aws-gcp        2.37s      2.14s
+  gcp-azure      7.48s      6.01s
 
 Axis B range, every run through one leg
-  4.76s to 16.93s, width 12.17s
+  4.01s to 50.96s, width 46.95s
 
 where the answer's time went (medians over each axis's runs)
-  axis A  agent 5.20s, tool 0.12s, tool share of the answer 2%
-  axis B  agent 6.57s, tool 0.69s, tool share of the answer 11%
+  axis A  agent 5.62s, tool 0.12s, tool share of the answer 2%
+  axis B  agent 6.17s, tool 0.66s, tool share of the answer 11%
 
 the three slowest runs overall, split
-  B__gcp__microsoft-onelake__6.txt              total 21.0s  agent 16.93s  tool 1.79s  other 15.14s
-  A__azure__apache-polaris__2.txt               total 37.2s  agent 15.16s  tool 0.02s  other 15.14s
-  A__azure__apache-polaris__8.txt               total 36.3s  agent 14.85s  tool 0.02s  other 14.83s
+  B__gcp__microsoft-onelake__8.txt              total 55.4s  agent 50.96s  tool 44.88s  other 6.08s
+  A__azure__apache-polaris__5.txt               total 26.2s  agent 15.61s  tool 0.11s  other 15.50s
+  A__azure__apache-polaris__2.txt               total 19.9s  agent 14.58s  tool 0.12s  other 14.46s
 
 replication: Axis A in every complete run, legs ordered by median
   run1-uninstrumented  aws 4.10s < gcp 9.50s < azure 15.60s   spread 3.80x   no overlap  [PROCESS time: no answer time recorded]
   run2-instrumented    aws 3.51s < gcp 8.70s < azure 14.64s   spread 4.17x   no overlap
   run3-three-repeats   aws 3.40s < gcp 6.69s < azure 14.57s   spread 4.29x   no overlap
   run4-ten-repeats     aws 3.00s < gcp 5.67s < azure 15.45s   spread 5.14x   no overlap
-  published run        aws 3.28s < gcp 5.20s < azure 13.25s   spread 4.04x   no overlap
+  run6-sample-note-no-filter aws 3.28s < gcp 5.20s < azure 13.25s   spread 4.04x   no overlap
+  published run        aws 3.25s < gcp 5.62s < azure 13.11s   spread 4.03x   no overlap
 
 the same cell measured by both axes (gcp on apache-polaris), medians
   run1-uninstrumented  axis A 9.50s  axis B 9.10s  differ 0.40s   (Axis B cell-median range 4.10s)  [PROCESS time: no answer time recorded]
   run2-instrumented    axis A 8.70s  axis B 7.07s  differ 1.63s   (Axis B cell-median range 2.74s)
   run3-three-repeats   axis A 6.69s  axis B 7.13s  differ 0.44s   (Axis B cell-median range 2.63s)
   run4-ten-repeats     axis A 5.67s  axis B 5.93s  differ 0.26s   (Axis B cell-median range 2.52s)
-  published run        axis A 5.20s  axis B 5.63s  differ 0.43s   (Axis B cell-median range 1.88s)
+  run6-sample-note-no-filter axis A 5.20s  axis B 5.63s  differ 0.43s   (Axis B cell-median range 1.88s)
+  published run        axis A 5.62s  axis B 4.50s  differ 1.12s   (Axis B cell-median range 3.00s)
 
 crossover: Axis C, catalog fixed at apache-polaris
   framework varies, model fixed (gemini-2.5-flash)
-    ADK / gemini-2.5-flash               answer median 6.15s  (iqr 5.76-6.71)
-    Strands / gemini-2.5-flash           answer median 8.75s  (iqr 6.94-9.25)
-    ratio 1.42x, medians differ 2.60s, no overlap
+    ADK / gemini-2.5-flash               answer median 4.86s  (iqr 4.63-5.64)
+    Strands / gemini-2.5-flash           answer median 6.96s  (iqr 6.42-7.89)
+    ratio 1.43x, medians differ 2.10s, no overlap
   model varies, framework fixed (Strands)
-    Strands / gemini-2.5-flash           answer median 8.75s  (iqr 6.94-9.25)
-    Strands / us.amazon.nova-micro-v1:0  answer median 3.18s  (iqr 3.06-3.45)
-    ratio 2.75x, medians differ 5.57s, no overlap
+    Strands / gemini-2.5-flash           answer median 6.96s  (iqr 6.42-7.89)
+    Strands / us.amazon.nova-micro-v1:0  answer median 3.33s  (iqr 3.29-3.36)
+    ratio 2.09x, medians differ 3.63s, no overlap
 
 the same cell measured in more than one test (separate sittings), answer medians
-  ADK / gemini-2.5-flash on apache-polaris      Axis A 5.20s  Axis B 5.63s  Axis C 6.15s   spread 0.95s
-  Strands / us.amazon.nova-micro-v1:0 on apache-polaris Axis A 3.28s  Axis C 3.18s   spread 0.10s
+  ADK / gemini-2.5-flash on apache-polaris      Axis A 5.62s  Axis B 4.50s  Axis C 4.86s   spread 1.12s
+  Strands / us.amazon.nova-micro-v1:0 on apache-polaris Axis A 3.25s  Axis C 3.33s   spread 0.07s
 
 tokens and model calls per answer, medians over answered runs
   frameworks report reasoning differently: ADK and Agent Framework separate it,
   Strands' Gemini provider folds it into output. 'generated' is output plus
   reasoning, the figure comparable across all four, and the per-100 column uses it.
   axis   cell                                                       input   output  reasoning generated model calls answer s per 100 generated tokens
-  A      Strands / us.amazon.nova-micro-v1:0                        6155.5  471     n/a       471       4           0.67
-  A      ADK / gemini-2.5-flash                                     4288    210.5   411.5     633.5     4           0.82
-  A      Agent Framework / gpt-5-mini                               4268.5  926     448       1395      n/a         0.98
-  B      ADK / gemini-2.5-flash                                     4357.5  221     462       704       4           0.92
-  C      Strands / gemini-2.5-flash                                 2664    690.5   n/a       690.5     3.5         1.12
-  C      ADK / gemini-2.5-flash                                     4356    211     488.5     705.5     4           0.87
-  C      Strands / us.amazon.nova-micro-v1:0                        6103    461.5   n/a       461.5     4           0.71
-  D      Strands / us.amazon.nova-micro-v1:0 on aws-glue            7721.5  797     n/a       797       4.5         0.79
-  D      ADK / gemini-2.5-flash on google-lakehouse                 5667    210.5   1317      1532.5    4           0.94
-  D      Agent Framework / gpt-5-mini on microsoft-onelake          7302    1797    1216      2991      n/a         0.84
-  E      Strands / gemini-2.5-flash on apache-polaris               3258    1359    n/a       1359      4           0.93
-  E      Agent Framework / gpt-5-mini on apache-polaris             6972.5  1823.5  1184      3050.5    n/a         0.72
-  E      Strands / us.amazon.nova-micro-v1:0 on apache-polaris      9937    728.5   n/a       728.5     5.5         0.63
-  E      ADK / gemini-2.5-flash on apache-polaris                   5261    198     1443      1635.5    4           0.77
+  A      Strands / us.amazon.nova-micro-v1:0                        6727    564     n/a       564       4           0.58
+  A      ADK / gemini-2.5-flash                                     4730    248     411.5     653.5     4           0.90
+  A      Agent Framework / gpt-5-mini                               4804    930     512       1442      n/a         0.90
+  B      ADK / gemini-2.5-flash                                     4689.5  241     418.5     662.5     4           0.91
+  C      Strands / gemini-2.5-flash                                 2818    707.5   n/a       707.5     3.5         1.01
+  C      ADK / gemini-2.5-flash                                     4623    227.5   433.5     648.5     4           0.76
+  C      Strands / us.amazon.nova-micro-v1:0                        6727    564     n/a       564       4           0.59
+  D      Strands / us.amazon.nova-micro-v1:0 on aws-glue            12622   627     n/a       627       6           1.01
+  D      ADK / gemini-2.5-flash on google-lakehouse                 7412.5  229.5   868.5     1097.5    5           1.27
+  D      Agent Framework / gpt-5-mini on microsoft-onelake          7671.5  1553.5  960       2511.5    n/a         1.02
+  E      Strands / gemini-2.5-flash on apache-polaris               4810    1119    n/a       1119      5           0.97
+  E      Agent Framework / gpt-5-mini on apache-polaris             7640    1567.5  960       2527.5    n/a         0.80
+  E      Strands / us.amazon.nova-micro-v1:0 on apache-polaris      10215   540     n/a       540       5           0.69
+  E      ADK / gemini-2.5-flash on apache-polaris                   7552.5  223.5   776.5     1051      5           0.80
 
 answer style: every published matrix capture, by framework and model
   framework / model                    runs  answer chars answer lines thinking  tool log  printed agent-med
-  ADK / gemini-2.5-flash               90    374          3            0/90      90/90     0/90    6.64s
-  Agent Framework / gpt-5-mini         30    881          18           0/30      0/30      0/30    21.34s
-  Strands / gemini-2.5-flash           20    408          4            0/20      20/20     20/20   11.00s
-  Strands / us.amazon.nova-micro-v1:0  40    628          8            40/40     40/40     40/40   3.65s
+  ADK / gemini-2.5-flash               90    388          7            0/90      90/90     0/90    6.29s
+  Agent Framework / gpt-5-mini         30    871          17           0/30      0/30      0/30    20.69s
+  Strands / gemini-2.5-flash           20    367          3            0/20      20/20     20/20   8.66s
+  Strands / us.amazon.nova-micro-v1:0  40    1504         13           40/40     40/40     40/40   3.53s
   answer chars and lines are medians of the text after the stamped header.
   thinking: <thinking> text reached stdout. tool log: the capture shows each
   tool call as it happened. printed: the answer appears before the header as

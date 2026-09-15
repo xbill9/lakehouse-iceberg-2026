@@ -1,27 +1,28 @@
-# axis=D leg=azure catalog=microsoft-onelake run=3 elapsed_s=50.6 captured=2026-09-15T16:53:51Z
+# axis=D leg=azure catalog=microsoft-onelake run=3 elapsed_s=32.3 captured=2026-09-15T20:30:02Z
 
 cloud=azure model=gpt-5-mini catalog=microsoft-onelake
 question: What is the largest id in the probe table, and how many of its rows have an id of 10 or more? Cite the exact table version you read.
 
 
 <!-- cloud=azure model=gpt-5-mini catalog=microsoft-onelake instruction=v3 catalog_calls=4 -->
-Tables found:
+Tables in the catalog
 - dbo.probe_table
 
-Description of the table used:
-- Columns: id (int, optional), ts (timestamptz, optional), payload (string, optional)
-- Partitioning: unpartitioned
-- format-version: 2
+Description of the table I used (from iceberg_describe_table)
+- table: dbo.probe_table
+- columns: id (int), ts (timestamptz), payload (string)
+- partitioning: unpartitioned
 - metadata-location: abfss://guid-0005@onelake.dfs.fabric.microsoft.com/guid-0006/Tables/probe_table/metadata/v3.metadata.json
-- snapshot-id: 3346142071915475645
+- current-snapshot-id: 3346142071915475645
 
-Answer (for the above metadata-location and snapshot-id):
+Answer (read from the table version above)
 - Largest id: 21.
-- Rows with id >= 10: 4 rows.
+- Number of rows with id >= 10: 4.
 
-Notes: I read the id column from all 6 rows in snapshot-id 3346142071915475645 (ids returned: 0, 1, 20, 21, 10, 11), so the maxima and the count are exact for the quoted metadata-location and snapshot-id.
+Sources / evidence
+- I scanned dbo.probe_table (snapshot-id 3346142071915475645; metadata-location quoted above). The full-table scan returned COUNT: exactly 6 rows and MIN/MAX of id = 0 and 21 (exact). A filtered scan for id >= 10 returned COUNT: exactly 4 rows (MIN/MAX over those rows = 10 and 21). Both scans were read from snapshot-id 3346142071915475645.
 
 catalog calls: 4 of 8
-agent seconds: 27.30 | tool seconds: 3.79
-tokens: input=7534 output=2012 reasoning=1536 model_calls=None
-warm-up seconds: 22.01
+agent seconds: 25.64 | tool seconds: 5.07
+tokens: input=8571 output=1646 reasoning=1152 model_calls=None
+warm-up seconds: 5.37

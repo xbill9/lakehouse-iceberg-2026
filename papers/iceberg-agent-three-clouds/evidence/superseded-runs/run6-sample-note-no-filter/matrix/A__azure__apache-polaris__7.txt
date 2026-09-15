@@ -1,0 +1,29 @@
+# axis=A leg=azure catalog=apache-polaris run=7 elapsed_s=23.4 captured=2026-09-15T16:35:35Z
+
+cloud=azure model=gpt-5-mini catalog=apache-polaris
+question: How many rows are in the probe table, and what columns does it have? Cite the exact table version you read.
+
+
+<!-- cloud=azure model=gpt-5-mini catalog=apache-polaris instruction=v3 catalog_calls=3 -->
+Tables found:
+- probe_ns.probe_table
+
+Table described (the one I used):
+- probe_ns.probe_table
+  - format-version: 2
+  - columns:
+    - id — long (required)
+    - ts — timestamptz (optional)
+    - payload — string (optional)
+    - region — string (optional)
+  - partitioned by: ts_day
+  - metadata-location: file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json
+  - current-snapshot-id: aws-account-00029537848
+
+Row count:
+- The table contains exactly 11 rows (obtained with iceberg_count_rows). This count is exact for snapshot-id aws-account-00029537848 (metadata-location quoted above).
+
+catalog calls: 3 of 8
+agent seconds: 13.96 | tool seconds: 0.12
+tokens: input=4510 output=887 reasoning=512 model_calls=None
+warm-up seconds: 8.24

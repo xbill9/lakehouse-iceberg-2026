@@ -70,10 +70,26 @@ SUPERSEDED = [
         "# a complete run at ten repeats per cell, captured 2026-09-15, SUPERSEDED and",
         "# kept. It did not record tokens or model calls, and had no Axis E; the",
         "# published run records both and runs Axis E alongside."]),
+    ("run6-sample-note-no-filter", True, [
+        "# a complete run at ten repeats per cell, Axes A to E, captured 2026-09-15,",
+        "# SUPERSEDED and kept. Its scan tool added a SAMPLE note whenever a model asked",
+        "# for more than 100 rows, beside the COMPLETE line of an 11-row table, and had",
+        "# no filter, so a filtered count was arithmetic the model did in its head.",
+        "# Nova Micro, given the agent's instruction and every row, gave the count right",
+        "# in 1 of 20 direct calls.",
+        "# The Strands runner also scored only the last assistant message, where ADK's",
+        "# and Agent Framework's runners took every message of the turn; Nova named the",
+        "# columns in an earlier message. The scan now filters in the engine and returns",
+        "# an exact COUNT, MIN and MAX, the Strands runner takes the whole turn, Nova runs",
+        "# with Amazon's documented tool-use decoding, and every axis was re-run.",
+        "# nova-diagnosis.txt has the measurements. Re-scored below, not changed."]),
 ]
 #: Archived single-axis runs, published under superseded-runs/<name>/ with their
 #: re-scored rows. Kept for the same reason as the complete runs above.
 SUPERSEDED_D = [
+    ("run6-sample-note-no-filter", [
+        "# Axes D and E at ten repeats per cell, captured 2026-09-15, SUPERSEDED and kept",
+        "# beside the same run's Axes A to C; why is under that run above."]),
     ("run5-strands-str-join", [
         "# Axes C and E, captured 2026-09-15, SUPERSEDED and kept. The harness read",
         "# Strands answers with str(AgentResult), which puts a line break after every",
@@ -100,7 +116,7 @@ SUPERSEDED_D = [
 ]
 COPIED = ["ground-truth.txt", "environment.txt", "failure-modes.txt", "verification.txt",
           "run-gcp.txt", "run-aws.txt", "run-azure.txt", "import-times.txt",
-          "credential-times.txt", "related-work.txt"]
+          "credential-times.txt", "related-work.txt", "nova-diagnosis.txt"]
 TIMING = re.compile(r"agent seconds: ([\d.]+) \| tool seconds: ([\d.]+)")
 #: Hostnames that are the evidence rather than an account. The blob host is the
 #: one PyArrow builds for OneLake and which does not exist -- masking it would
@@ -110,7 +126,7 @@ anon.KEEP_HOSTS |= {"onelake.blob.core.windows.net", "onelake.dfs.fabric.microso
 #: no account, and masking them turns the source list into catalog-host-NNNN.
 anon.KEEP_HOSTS |= {"launchdarkly.com", "arxiv.org", "github.com", "iceberglakehouse.com",
                     "aws.amazon.com", "iceberg.apache.org", "py.iceberg.apache.org",
-                    "polaris.apache.org"}
+                    "polaris.apache.org", "docs.aws.amazon.com"}
 
 
 def rescore(base: str, axis: str, truth: dict, timed: bool) -> tuple:

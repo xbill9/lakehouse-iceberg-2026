@@ -1,4 +1,4 @@
-# ground truth captured 2026-09-15T16:30:44Z, read directly from each catalog
+# ground truth captured 2026-09-15T20:07:34Z, read directly from each catalog
 # not via any agent; every agent answer is checked against this
 
 catalog=apache-polaris table=probe_ns.probe_table

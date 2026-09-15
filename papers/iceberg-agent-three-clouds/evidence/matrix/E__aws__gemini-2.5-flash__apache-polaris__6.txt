@@ -1,4 +1,4 @@
-# axis=E leg=aws catalog=apache-polaris run=6 elapsed_s=25.6 captured=2026-09-15T17:29:22Z
+# axis=E leg=aws catalog=apache-polaris run=6 elapsed_s=12.8 captured=2026-09-15T20:45:19Z
 
 cloud=aws model=gemini-2.5-flash catalog=apache-polaris
 question: What is the largest id in the probe table, and how many of its rows have an id of 10 or more? Cite the exact table version you read.
@@ -9,15 +9,19 @@ Tool #1: iceberg_list_tables
 Tool #2: iceberg_describe_table
 
 Tool #3: iceberg_scan_table
-The largest id in the `probe_ns.probe_table` is 23, and 8 of its rows have an id of 10 or more.
 
-This information was read from snapshot `aws-account-00029537848` of the table, whose metadata is located at `file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json`. All rows from this snapshot were scanned to obtain these figures.
-<!-- cloud=aws model=gemini-2.5-flash catalog=apache-polaris instruction=v3 catalog_calls=3 -->
-The largest id in the `probe_ns.probe_table` is 23, and 8 of its rows have an id of 10 or more.
+Tool #4: iceberg_scan_table
+The largest `id` in the `probe_ns.probe_table` is 23. This figure is from `metadata-location: file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json` and `snapshot-id: aws-account-00029537848`.
 
-This information was read from snapshot `aws-account-00029537848` of the table, whose metadata is located at `file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json`. All rows from this snapshot were scanned to obtain these figures.
+There are 8 rows in `probe_ns.probe_table` with an `id` of 10 or more. This figure is also from `metadata-location: file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json` and `snapshot-id: aws-account-00029537848`.
 
-catalog calls: 3 of 8
-agent seconds: 23.37 | tool seconds: 0.13
-tokens: input=3255 output=2498 reasoning=None model_calls=4
-warm-up seconds: 1.38
+<!-- cloud=aws model=gemini-2.5-flash catalog=apache-polaris instruction=v3 catalog_calls=4 -->
+The largest `id` in the `probe_ns.probe_table` is 23. This figure is from `metadata-location: file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json` and `snapshot-id: aws-account-00029537848`.
+
+There are 8 rows in `probe_ns.probe_table` with an `id` of 10 or more. This figure is also from `metadata-location: file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json` and `snapshot-id: aws-account-00029537848`.
+
+
+catalog calls: 4 of 8
+agent seconds: 10.80 | tool seconds: 0.15
+tokens: input=4668 output=1209 reasoning=None model_calls=5
+warm-up seconds: 1.22

@@ -1,33 +1,28 @@
-# axis=A leg=azure catalog=apache-polaris run=6 elapsed_s=21.0 captured=2026-09-15T16:34:45Z
+# axis=A leg=azure catalog=apache-polaris run=6 elapsed_s=23.6 captured=2026-09-15T20:11:12Z
 
 cloud=azure model=gpt-5-mini catalog=apache-polaris
 question: How many rows are in the probe table, and what columns does it have? Cite the exact table version you read.
 
 
 <!-- cloud=azure model=gpt-5-mini catalog=apache-polaris instruction=v3 catalog_calls=3 -->
-Tables in the catalog (listed first)
+Tables in the catalog:
 - probe_ns.probe_table
 
-Table I used (description)
-- probe_ns.probe_table
-  - format-version: 2
-  - columns:
-    - id (long, required)
-    - ts (timestamptz, optional)
-    - payload (string, optional)
-    - region (string, optional)
-  - partitioned by: ts_day
-  - metadata-location: file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json
-  - current-snapshot-id: aws-account-00029537848
+Description of the table I used (probe_ns.probe_table):
+- Columns (names and types): 
+  - id long (required)
+  - ts timestamptz (optional)
+  - payload string (optional)
+  - region string (optional)
+- Partitioning: ts_day
+- Format version: 2
+- Current snapshot id: aws-account-00029537848
+- Metadata location: file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json
 
-Row count
-- The table has 11 rows. This is the exact row count for snapshot-id aws-account-00029537848 (as returned by iceberg_count_rows). 
-
-Sources / exact version cited
-- metadata-location: file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json
-- snapshot-id: aws-account-00029537848
+Row count:
+- The table has exactly 11 rows. This count is exact for snapshot id aws-account-00029537848 and was obtained from the snapshot summary (total-records) for the metadata location file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json.
 
 catalog calls: 3 of 8
-agent seconds: 11.87 | tool seconds: 0.13
-tokens: input=4264 output=828 reasoning=384 model_calls=None
-warm-up seconds: 7.85
+agent seconds: 14.10 | tool seconds: 0.12
+tokens: input=4889 output=855 reasoning=384 model_calls=None
+warm-up seconds: 8.28

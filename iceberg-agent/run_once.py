@@ -70,16 +70,27 @@ async def run_gcp(agent, question: str) -> str:
 
 async def run_aws(agent, question: str) -> str:
     """Strands calls the agent directly."""
+    before = len(agent.messages)
     result = agent(question)
     used = result.metrics.accumulated_usage
-    # Not str(result): AgentResult.__str__ appends "\n" after every text block, and
-    # Strands' Gemini provider can return one answer as several blocks, so a number
-    # split across two blocks comes back as "2\n3". MEASURED 2026-09-15: 3 of 10
-    # Strands-on-Gemini answers in Axis E had a line break inside a word or number
-    # that the model had streamed whole, and none in any other framework or model.
-    blocks = [b.get("text", "") for b in (result.message or {}).get("content", [])
-              if isinstance(b, dict) and "text" in b]
-    text = "".join(blocks) if blocks else str(result)
+    # Every assistant message of the turn, as ADK (every event's text) and Agent
+    # Framework (AgentResponse.text, every message) already collect. result.message
+    # is only the LAST one. MEASURED 2026-09-15: Nova Micro wrote the columns in the
+    # message that called iceberg_count_rows and the row count in the last, so the
+    # last message alone named the columns in 0 of 10 greedy runs and 7 of 10 default
+    # runs, while the turn named them in 10 of 10 of both.
+    # Blocks within a message are joined with "", not via str(result): its "\n"
+    # after every block split numbers Strands' Gemini provider streamed whole
+    # ("2\n3"), in 3 of 10 Axis E answers.
+    texts = []
+    for message in agent.messages[before:]:
+        if message.get("role") != "assistant":
+            continue
+        blocks = [b.get("text", "") for b in message.get("content", [])
+                  if isinstance(b, dict) and "text" in b]
+        if "".join(blocks).strip():
+            texts.append("".join(blocks))
+    text = "\n".join(texts) if texts else str(result)
     return text, {"input": used.get("inputTokens"), "output": used.get("outputTokens"),
                          "reasoning": None, "model_calls": result.metrics.cycle_count}
 

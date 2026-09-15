@@ -251,11 +251,12 @@ def _fail(what: str, exc: Exception) -> str:
     could not read. An agent whose loop crashed returns nothing at all, and the
     coordinator files that as a provider failure on a leg that was working.
     """
-    return (
+    # Traced too: a failed call is exactly the one a capture most needs to show.
+    return _trace("failed", {"while": what}, (
         "CATALOG ERROR while %s: %s: %s. Do not guess the answer this call would "
         "have given. Say in your answer that this could not be read."
         % (what, type(exc).__name__, str(exc)[:300])
-    )
+    ))
 
 
 # --------------------------------------------------------------------------
@@ -393,7 +394,8 @@ async def iceberg_scan_table(table: str, columns: str = "",
         # Say when the view is COMPLETE, not only when it is partial: without this
         # a model told scans are samples will not count a whole table from one.
         total = (snap.summary or {}).get("total-records") if snap else None
-        if total is not None and len(rows) == int(total):
+        complete = total is not None and len(rows) == int(total)
+        if complete:
             out.append(
                 "COMPLETE: these are all %d rows in this snapshot (total-records %s), "
                 "so values, maxima and counts read from them are exact for snapshot-id %s."
@@ -403,12 +405,14 @@ async def iceberg_scan_table(table: str, columns: str = "",
         # the tool clamped to MAX_ROW_LIMIT without saying so, and the answer
         # would have reported the cap as the table's size -- with a correct
         # metadata-location cited next to it. Say when the view is partial.
-        if asked > capped:
+        # Only when it IS partial: both notes once fired beside COMPLETE, so an
+        # 11-row table read with limit=10000 was called exact and a SAMPLE at once.
+        elif asked > capped and len(rows) == capped:
             out.append(
                 "NOTE: you asked for %d rows and this tool returns at most %d, "
                 "so the rows above are a SAMPLE, not the whole table."
                 % (asked, capped))
-        if len(rows) == capped:
+        elif len(rows) == capped:
             out.append(
                 "NOTE: exactly %d row(s) came back, which is the limit, so there "
                 "are probably more. Do NOT report this as the table's row count. "
@@ -472,6 +476,102 @@ async def iceberg_count_rows(table: str) -> str:
     finally:
         _budget().seconds += time.monotonic() - started
 
+
+# Diagnostic control, unset in every published run. The scan docstring tells the
+# model to "keep the limit small"; ICEBERG_SCAN_DOC=read-all swaps that sentence for
+# one that asks for every row needed, to measure how much that wording drives a
+# model to under-read a table. Set before the frameworks read the docstring.
+if os.getenv("ICEBERG_SCAN_DOC") == "read-all":
+    import re as _re
+    iceberg_scan_table.__doc__ = _re.sub(
+        r"Prefer naming the columns you\s+need over reading all of them, and keep the limit small"
+        r"\s+--\s+you are answering\s+a question, not exporting the table\.",
+        "Set the limit high enough to read every row the question needs; the result says "
+        "whether every row came back, and a count or maximum is only exact when it did.",
+        iceberg_scan_table.__doc__)
+    assert "keep the limit small" not in iceberg_scan_table.__doc__
+
+# The published scan (v2). It filters in the engine and returns an exact COUNT, MIN
+# and MAX, so no model does arithmetic over rows in its head. MEASURED 2026-09-15
+# with the v1 scan above, which returned rows only: Nova Micro counted the ids >= 10
+# correctly in 3 of 10 agent runs, and in 1 of 20 direct calls holding the agent's
+# instruction and the 11 rows;
+# with this scan, 8 of 10, and 10 of 10 with Amazon's documented Nova tool-use
+# decoding (aws/agent.py). ICEBERG_SCAN_FILTER=0 restores v1, for diagnostics only.
+if os.getenv("ICEBERG_SCAN_FILTER", "1") == "1":
+
+    async def iceberg_scan_table(table: str, columns: str = "", where: str = "",
+                                 limit: int = DEFAULT_ROW_LIMIT) -> str:
+        """Read rows from an Iceberg table, with exact counts and ranges computed for you.
+
+        Use this to check a figure before stating it. Every result ends with an
+        exact COUNT of the matching rows and the MIN and MAX of each numeric
+        column over all of them -- the whole table when `where` is omitted --
+        however few rows are shown. Quote those; do not count or compare rows
+        yourself.
+
+        Args:
+            table: A `namespace.table` name, as returned by iceberg_list_tables.
+            columns: Comma-separated column names. Omit for all columns.
+            where: A row filter only, such as "id >= 10" or "region == 'eu'". No
+                ORDER BY, LIMIT or functions. Omit for all rows.
+            limit: How many rows to show, at most. COUNT, MIN and MAX are exact regardless.
+
+        Returns:
+            A header line, one row per line, then the exact COUNT, MIN and MAX over
+            every matching row and the snapshot id they were read from.
+        """
+        spent = _spend()
+        if spent:
+            return spent
+        started = time.monotonic()
+        condition = (where or "").strip()
+        try:
+            import pyarrow as pa
+            import pyarrow.compute as pc
+
+            tbl = catalog().load_table(table)
+            wanted = tuple(c.strip() for c in (columns or "").split(",") if c.strip()) or ("*",)
+            scan = tbl.scan(row_filter=condition, selected_fields=wanted) if condition \
+                else tbl.scan(selected_fields=wanted)
+            matched = scan.to_arrow()
+            capped = min(max(1, int(limit or DEFAULT_ROW_LIMIT)), MAX_ROW_LIMIT)
+            rows = matched.slice(0, capped).to_pylist()
+            snap = tbl.current_snapshot()
+            snap_id = snap.snapshot_id if snap else "unknown"
+            scope = "match `%s`" % condition if condition else "are in the table"
+            out = []
+            if rows:
+                names = list(rows[0])
+                out = [" | ".join(names)]
+                out += [" | ".join(str(r.get(n)) for n in names) for r in rows]
+                out.append("")
+            out.append("%d of %d row(s) shown, read from snapshot-id %s"
+                       % (len(rows), matched.num_rows, snap_id))
+            out.append("COUNT: exactly %d row(s) %s in snapshot-id %s. Exact, over the whole table."
+                       % (matched.num_rows, scope, snap_id))
+            for field in matched.schema:
+                if matched.num_rows and (pa.types.is_integer(field.type) or pa.types.is_floating(field.type)):
+                    span = pc.min_max(matched.column(field.name))
+                    out.append("MIN and MAX of %s over those %d row(s): %s and %s. Exact."
+                               % (field.name, matched.num_rows, span["min"].as_py(), span["max"].as_py()))
+            return _trace("iceberg_scan_table",
+                          {"table": table, "columns": columns, "where": where, "limit": limit},
+                          "\n".join(out))
+        except Exception as exc:  # noqa: BLE001
+            if condition and type(exc).__name__ == "ParseException":
+                # Measured: models wrote "true ORDER BY id DESC" to find a maximum,
+                # read the bare parse error as "cannot be done", and declined.
+                return _trace("failed", {"while": "where %r" % condition}, (
+                    "FILTER NOT UNDERSTOOD: `where` takes a row filter only, such as "
+                    "\"id >= 10\" -- no ORDER BY, LIMIT or functions (%s). For a largest "
+                    "or smallest value, call this again without that clause and read the "
+                    "MIN and MAX lines, which are exact over every matching row."
+                    % str(exc)[:120]))
+            return _fail("scanning %s where %s" % (table, condition) if condition
+                         else "scanning %s" % table, exc)
+        finally:
+            _budget().seconds += time.monotonic() - started
 
 TOOLS = [iceberg_list_tables, iceberg_describe_table,
          iceberg_count_rows, iceberg_scan_table]

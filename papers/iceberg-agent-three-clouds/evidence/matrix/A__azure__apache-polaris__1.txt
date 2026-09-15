@@ -1,4 +1,4 @@
-# axis=A leg=azure catalog=apache-polaris run=1 elapsed_s=22.9 captured=2026-09-15T16:31:34Z
+# axis=A leg=azure catalog=apache-polaris run=1 elapsed_s=22.3 captured=2026-09-15T20:08:23Z
 
 cloud=azure model=gpt-5-mini catalog=apache-polaris
 question: How many rows are in the probe table, and what columns does it have? Cite the exact table version you read.
@@ -9,22 +9,24 @@ Tables in the catalog
 - probe_ns.probe_table
 
 Description of the table I used (probe_ns.probe_table)
-- Columns:
-  - id               long           required
-  - ts               timestamptz    optional
-  - payload          string         optional
-  - region           string         optional
-- Partitioning: ts_day
-- Table version (metadata location and snapshot id I read): 
-  - metadata-location: file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json
-  - snapshot-id: aws-account-00029537848
+- format-version: 2
+- columns:
+  - id (long, required)
+  - ts (timestamptz, optional)
+  - payload (string, optional)
+  - region (string, optional)
+- partitioned by: ts_day
+
+Exact table version (as reported by iceberg_describe_table)
+- metadata-location: file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json
+- snapshot-id: aws-account-00029537848
 
 Row count
-- Exact number of rows (for the quoted snapshot): 11 rows.
-  - Source: iceberg_count_rows for probe_ns.probe_table, exact for snapshot-id aws-account-00029537848.
-  - Cited table version (same as above): metadata-location: file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json; snapshot-id: aws-account-00029537848.
+- The table has 11 rows (exact for snapshot-id aws-account-00029537848; obtained from the snapshot summary). 
+
+Sources: iceberg_list_tables, iceberg_describe_table and iceberg_count_rows for probe_ns.probe_table (see metadata-location and snapshot-id above).
 
 catalog calls: 3 of 8
-agent seconds: 13.18 | tool seconds: 0.15
-tokens: input=4229 output=972 reasoning=448 model_calls=None
-warm-up seconds: 8.41
+agent seconds: 13.15 | tool seconds: 0.12
+tokens: input=3731 output=1192 reasoning=832 model_calls=None
+warm-up seconds: 7.89

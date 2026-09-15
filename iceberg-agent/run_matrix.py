@@ -116,7 +116,10 @@ def ground_truth() -> dict:
 #: snapshot-id 5653331815319537848, is 11." put the snapshot id between the word
 #: and the count, and v4 marked a correct answer wrong. It also ended "is 11.",
 #: and a full stop after the count was read as a decimal point.
-SCORER_VERSION = 5
+SCORER_VERSION = 6
+#: Recorded in every matrix file, so an archived run says which harness produced it.
+SCAN_TOOL = "v2: filters in the engine; exact COUNT, MIN and MAX over every matching row"
+DECODING = "provider defaults; Nova greedy (temperature 0, topK 1) per Amazon's tool-use guidance"
 ANSWER = re.compile(r"<!-- cloud=.*?-->\n(.*?)\ncatalog calls:", re.S)
 
 
@@ -143,6 +146,13 @@ def score_scan(body: str, truth: dict) -> dict:
     cross another number, which is what keeps the pairing honest."""
     header = re.search(r"catalog_calls=(\d+)", body)
     answer = answer_of(body)
+    # The citations the instruction asks for sit between a wording and its value
+    # ("the largest id, read from metadata-location file:/.../00006-...json and
+    # snapshot-id 5653..., is 23"), and their digits stopped the \D span. Blank
+    # them for pairing only; cites_snapshot still reads the answer as written.
+    paired = re.sub(r"(?:file|s3a?|gs|abfss?)://?\S+|\b\d{12,}\b", " ", answer)
+    # Markdown emphasis too: "`id` is `10` or more is `8`" never matched "10 or more".
+    paired = re.sub(r"[`*_]", "", paired)
 
     def token(value: str) -> str:
         alts = [re.escape(value)]
@@ -161,8 +171,11 @@ def score_scan(body: str, truth: dict) -> dict:
     ]
     return {
         "correct_max_id": bool(re.search(
-            r"\b(?:largest|maximum|highest|max|biggest|greatest)\b\D{0,60}%s" % mx, answer, re.I)),
-        "correct_count": any(re.search(p, answer, re.I) for p in count_patterns),
+            # 150, not 60: "The largest id found in the sample from the "probe_ns.probe_table"
+            # is **23**" puts 62 characters between the two, and a blanked citation
+            # adds more. The \D span, not the width, is what rejects a swapped answer.
+            r"\b(?:largest|maximum|highest|max|biggest|greatest)\b\D{0,150}%s" % mx, paired, re.I)),
+        "correct_count": any(re.search(p, paired, re.I) for p in count_patterns),
         "cites_snapshot": truth["snapshot_id"] in answer,
         "catalog_calls": int(header.group(1)) if header else None,
     }
@@ -266,6 +279,7 @@ def main() -> None:
     with open(out, "w") as handle:
         json.dump({"axis": args.axis, "question": question, "repeat": args.repeat,
                    "warm": not args.no_warm, "seed": args.seed,
+                   "scan_tool": SCAN_TOOL, "decoding": DECODING,
                    "order": "rounds, cells shuffled per round", "results": results},
                   handle, indent=2)
     print("\nwrote %s (%d runs)" % (out, len(results)))
