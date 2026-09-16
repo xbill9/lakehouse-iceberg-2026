@@ -305,7 +305,7 @@ and <a href="https://github.com/apache/polaris">source</a>.</p>
 <h4 id="how-the-tests-work">How the Tests Work</h4>
 <p>Each test changes one thing and holds the rest still:</p>
 <p><img src="https://raw.githubusercontent.com/xbill9/lakehouse-iceberg-2026/main/papers/iceberg-agent-three-clouds/medium/img/devto-iceberg-agent-three-clouds-table-1.png"
-alt="Table: test, what changes, what stays the same, what it answers, evidence files" /></p>
+alt="Table: test, what changes, held still, what it answers, axis" /></p>
 <p><strong>Ten runs per cell, twenty in Test 5</strong>, in shuffled
 rounds from a fixed seed, so a slow patch on an endpoint lands across
 cells. Separation is judged on the middle half of each cell's runs. No
@@ -400,14 +400,15 @@ earlier build</a>, its <code>store=False</code> setting made a
 non-reasoning model fail; that was not re-tested.</p>
 <h4 id="test-4-each-agent-reads-its-own-clouds-data">Test 4: Each Agent
 Reads Its Own Cloud's Data</h4>
+<p>Tests 1 to 3 ask what the catalog's metadata already knows. This one
+does not. Each agent is asked:</p>
 <blockquote>
 <p>What is the largest id in the probe table, and how many of its rows
 have an id of 10 or more? Cite the exact table version you read.</p>
 </blockquote>
-<p>No metadata tool can answer that. Counts come from snapshot
-summaries, columns from the schema, and neither holds a filtered count.
-Answering means reading GCS, S3 or ADLS through each cloud's storage
-wiring.</p>
+<p>Counts come from snapshot summaries and columns from the schema;
+neither holds a filtered count. Answering means reading the data files
+-- GCS, S3 or ADLS -- through each cloud's storage wiring.</p>
 <p>The scan takes a row filter such as <code>id &gt;= 10</code>, applies
 it in PyIceberg, and returns an exact count with the minimum and maximum
 over every matching row.</p>
@@ -415,9 +416,13 @@ over every matching row.</p>
 alt="Table: agent and catalog, largest id, rows with id of 10 or more, median answer seconds, median seconds in tools" /></p>
 <p>Every agent read its data: the tools print each call they receive,
 whatever the framework, and every one of the thirty captures shows a
-scan with a filter. These cells are not like for like -- different
-catalogs, regions, and a smaller OneLake table -- so correctness is
-compared in Test 5.</p>
+scan with a filter.</p>
+<p>Glue's 2.07 seconds in the tools is the lowest of the three, and that
+is the read path rather than the agent: in Test 2, where the catalog is
+the only thing that changes, Glue costs 0.66 seconds against BigLake's
+1.42 and OneLake's 2.18.</p>
+<p>These cells are not like for like -- different catalogs, regions, and
+a smaller OneLake table -- so correctness is compared in Test 5.</p>
 <h4 id="test-5-the-same-data-question-like-for-like">Test 5: The Same
 Data Question, Like for Like</h4>
 <p>All four setups, the same 11-row Polaris table, twenty runs each. The
@@ -487,9 +492,9 @@ where a caller will read it, so the harness strips
 what a caller receives.</p>
 <ul>
 <li><strong>Log the tool calls yourself.</strong> ADK and Strands report
-each call; Agent Framework does not without middleware or OpenTelemetry.
-The tools here print every call they receive, so the audit trail works
-the same on all three.</li>
+each call; Agent Framework reported none in any of its 60 runs. The
+tools here print every call they receive, so the audit trail works the
+same on all three.</li>
 <li><strong>Strip reasoning before anything reads the answer.</strong>
 Nova Micro writes its scratch work as <code>&lt;thinking&gt;</code>
 text, and Strands passes text through. Gemini's and

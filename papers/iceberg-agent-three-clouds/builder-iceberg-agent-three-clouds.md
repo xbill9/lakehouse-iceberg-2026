@@ -114,13 +114,13 @@ See the [Polaris site](https://polaris.apache.org/),
 
 Each test changes one thing and holds the rest still:
 
-| test | what changes | what stays the same | what it answers | evidence files |
+| test | what changes | held still | what it answers | axis |
 |---|---|---|---|---|
-| **Test 1** | framework and model together | the catalog: Polaris | how the three agents compare | Axes A and F |
-| **Test 2** | the catalog | the agent: ADK on Gemini | whether the catalog changes anything | Axis B |
-| **Test 3** | framework or model, one at a time | the catalog: Polaris | which a speed difference belongs to | Axis C |
-| **Test 4** | each agent on its own cloud | the question | whether it reads its cloud's files | Axis D |
-| **Test 5** | the same data question, all four setups | the table: Polaris | who answers correctly, like for like | Axis E |
+| Test 1 | framework and model | Polaris | how the three agents compare | A, F |
+| Test 2 | the catalog | ADK on Gemini | whether the catalog matters | B |
+| Test 3 | framework or model, one at a time | Polaris | which one a speed gap belongs to | C |
+| Test 4 | each agent on its own cloud | the question | whether it reads its cloud's files | D |
+| Test 5 | all four setups, one data question | Polaris | who answers correctly, like for like | E |
 
 **Ten runs per cell, twenty in Test 5**, in shuffled rounds from a fixed seed, so a
 slow patch on an endpoint lands across cells. Separation is judged on the middle half
@@ -237,12 +237,15 @@ its `store=False` setting made a non-reasoning model fail; that was not re-teste
 
 ## Test 4: Each Agent Reads Its Own Cloud's Data
 
+Tests 1 to 3 ask what the catalog's metadata already knows. This one does not. Each
+agent is asked:
+
 > What is the largest id in the probe table, and how many of its rows have an id
 > of 10 or more? Cite the exact table version you read.
 
-No metadata tool can answer that. Counts come from snapshot summaries, columns from
-the schema, and neither holds a filtered count. Answering means reading GCS, S3 or
-ADLS through each cloud's storage wiring.
+Counts come from snapshot summaries and columns from the schema; neither holds a
+filtered count. Answering means reading the data files -- GCS, S3 or ADLS -- through
+each cloud's storage wiring.
 
 The scan takes a row filter such as `id >= 10`, applies it in PyIceberg, and returns
 an exact count with the minimum and maximum over every matching row.
@@ -254,10 +257,14 @@ an exact count with the minimum and maximum over every matching row.
 | Agent Framework / `gpt-5-mini` on OneLake | 10/10 | 10/10 | 24.35 | 5.09 |
 
 Every agent read its data: the tools print each call they receive, whatever the
-framework, and every one of the thirty captures shows a scan with a filter. These
-cells are not like for like --
-different catalogs, regions, and a smaller OneLake table -- so correctness is
-compared in Test 5.
+framework, and every one of the thirty captures shows a scan with a filter.
+
+Glue's 2.07 seconds in the tools is the lowest of the three, and that is the read
+path rather than the agent: in Test 2, where the catalog is the only thing that
+changes, Glue costs 0.66 seconds against BigLake's 1.42 and OneLake's 2.18.
+
+These cells are not like for like -- different catalogs, regions, and a smaller
+OneLake table -- so correctness is compared in Test 5.
 
 ## Test 5: The Same Data Question, Like for Like
 
@@ -330,7 +337,7 @@ Four questions matter, and the frameworks answer them differently:
 | ADK / `gemini-2.5-flash` | yes -- each call is an event your code receives | a separate field |
 | Strands / `gemini-2.5-flash` | yes -- a `Tool #n` line is printed per call | a separate field |
 | Strands / `us.amazon.nova-micro-v1:0` | yes -- a `Tool #n` line is printed per call | into the answer text, as `<thinking>` |
-| Agent Framework / `gpt-5-mini` | no, unless middleware or OpenTelemetry is switched on | a separate field |
+| Agent Framework / `gpt-5-mini` | no -- no tool call appeared in any of its 60 captures | a separate field |
 
 That held in every captured run: all 120 ADK runs, all 180 Strands runs and all 60
 Agent Framework runs. Only one model puts reasoning where a caller will read it, so
@@ -338,8 +345,8 @@ the harness strips `<thinking>` on every leg and the answers below are what a ca
 receives.
 
 - **Log the tool calls yourself.** ADK and Strands report each call; Agent Framework
-  does not without middleware or OpenTelemetry. The tools here print every call they
-  receive, so the audit trail works the same on all three.
+  reported none in any of its 60 runs. The tools here print every call they receive,
+  so the audit trail works the same on all three.
 - **Strip reasoning before anything reads the answer.** Nova Micro writes its scratch
   work as `<thinking>` text, and Strands passes text through. Gemini's and
   `gpt-5-mini`'s reasoning never reaches the answer. Left in, it leaks the agent's
