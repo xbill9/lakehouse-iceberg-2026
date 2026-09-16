@@ -59,6 +59,38 @@ both would have put two identical rows in the matrix, and they would have agreed
 perfectly, which reads as a result rather than as a duplicate.
 `evidence/host-inventory.txt` has the sources and the qualifier.
 
+## Knowing whether a tool was called at all
+
+Grading reads the host's answer, and prose cannot tell a fetched number from an
+invented one. Paper 3 only resolved its worst question -- where a count nobody
+could source had come from -- because every tool call was on record.
+
+`mcp_trace.py` is that instrument one layer down: the host talks to it, it talks
+to the server, and it copies every JSON-RPC frame aside. Arguments are recorded
+by name and size and results by size, because a result body can carry catalog
+credentials; `--full` keeps the bodies for debugging and is never used for a
+published run.
+
+It is byte-transparent, which was verified rather than assumed: a server emitting
+compact JSON comes back compact through the proxy, and the same comparison fires
+on a deliberately respaced stream, so "identical" means something.
+
+**Only the two local servers can be wrapped.** `bigquery` and `managed-spark` are
+HTTP endpoints the host dials directly, so those cells have no trace at all.
+Absent is not empty, so `traced` is recorded per row and a missing trace never
+reads as "made no tool calls".
+
+The check this buys is `answered_without_tools`: a substantive answer, no
+refusal, and nothing called behind it.
+
 ## Status
 
-Scaffolding. Nothing has been run yet. Fixture and question set next.
+Scaffolding. Nothing has been run yet.
+
+Done: the two axes, the grader against catalog-read ground truth, the question
+set v1, and the frame trace above.
+
+Next: the fixture, then repeats. One run of a cell is one sample -- paper 3
+learned that the hard way on a model whose decoding made twenty runs a single
+answer repeated -- so the runner still needs `--repeat` and seeded shuffled
+rounds before any number here is worth quoting.

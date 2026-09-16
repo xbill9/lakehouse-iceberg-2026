@@ -5,6 +5,9 @@ iceberg-conformance/.warehouse/
 
 # run artefacts: evidence contains account ids, bucket names and workspace GUIDs
 iceberg-conformance/evidence/
+# MCP frame traces: the spawn line carries absolute paths, and a --full
+# trace carries result bodies. Raw stays local, as with paper 3.
+iceberg-mcp-hosts/evidence/traces/
 iceberg-conformance/out/
 
 # sprint submission material — contains personal details

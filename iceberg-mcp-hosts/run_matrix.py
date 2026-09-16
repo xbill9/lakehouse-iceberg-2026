@@ -81,12 +81,47 @@ def score(qid, body, truth, answers_rows):
     return s
 
 
+TRACES = os.path.join(EVIDENCE, "traces")
+
+
+def read_trace(label):
+    """What the host actually called, from the proxy's log.
+
+    Absent is not empty. An HTTP server is dialled by the host directly, so
+    those cells have no file at all and `traced` is False -- reporting them as
+    "made no tool calls" would invent a finding out of a plumbing limit.
+    """
+    path = os.path.join(TRACES, label + ".jsonl")
+    if not os.path.exists(path):
+        return None
+    calls, listed, errors = [], [], 0
+    with open(path) as h:
+        for line in h:
+            try:
+                rec = json.loads(line)
+            except ValueError:
+                continue
+            if rec.get("method") == "tools/call" and rec.get("name"):
+                calls.append(rec["name"])
+            if rec.get("tools"):
+                listed = rec["tools"]
+            if rec.get("error") or rec.get("is_error"):
+                errors += 1
+    return {"tool_calls": calls, "tools_offered": listed, "error_frames": errors}
+
+
 def one_cell(host, server, truth):
     h = hosts_mod.HOSTS[host]
     cleanup = h.prepare(server)
     rows = []
     try:
         for qid, text in questions():
+            label = "%s__%s__%s" % (host, server["key"], qid)
+            # The proxy appends, so a re-run would otherwise stack on the last one.
+            stale = os.path.join(TRACES, label + ".jsonl")
+            if os.path.exists(stale):
+                os.remove(stale)
+            os.environ["MCP_TRACE_LABEL"] = label
             started = time.time()
             try:
                 body = h.ask(text)
@@ -107,14 +142,25 @@ def one_cell(host, server, truth):
                 if err:
                     fh.write("\n\n# runner error: %s\n" % err)
 
+            trace = read_trace(label) if server.get("traced") else None
             row = {"host": host, "server": server["key"], "question": qid,
                    "elapsed_s": elapsed, "capture": os.path.basename(cap),
-                   "error": err}
+                   "error": err, "traced": bool(trace)}
+            if trace:
+                row.update(trace)
+                # The check prose cannot make: a substantive answer with no tool
+                # call behind it. Paper 3 could only separate a fetched figure
+                # from an invented one because the calls were on record.
+                row["answered_without_tools"] = (
+                    not trace["tool_calls"] and len(body.strip()) > 80
+                    and not REFUSAL.search(body))
             row.update(score(qid, body, truth, server["answers_rows"]))
             rows.append(row)
-            print("  %-7s %-13s %s  %5ss  %s" % (
+            print("  %-7s %-13s %s  %5ss  %-8s %s" % (
                 host, server["key"], qid, elapsed,
-                "ERR" if err else ("declines" if row["declines_explicitly"] else "answered")),
+                "ERR" if err else ("declines" if row["declines_explicitly"] else "answered"),
+                ("calls=" + ",".join(row["tool_calls"]) if row.get("tool_calls")
+                 else ("NO TOOL CALL" if row.get("traced") else "untraced"))),
                 flush=True)
     finally:
         cleanup()
