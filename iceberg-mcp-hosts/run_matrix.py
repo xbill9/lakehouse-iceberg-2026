@@ -37,13 +37,39 @@ AXIS_A_HOST = "claude"
 AXIS_B_SERVER = "bigquery"
 
 
-def ground_truth():
+def ground_truth(catalog):
+    """The truth for one catalog, or a refusal.
+
+    Each server reads its own catalog, so each cell is graded against that
+    catalog's snapshot id and metadata location. Grading a Google cell against
+    Polaris's would score the citation checks 0 by construction, and a scoring
+    artefact that looks like a finding is the failure this project exists to
+    avoid.
+
+    A missing file stops the run rather than defaulting to another catalog's:
+    the whole point is that the grader cannot quietly compare against the wrong
+    table.
+    """
+    path = os.path.join(EVIDENCE, "ground-truth-%s.txt" % catalog)
+    if not os.path.exists(path):
+        raise SystemExit(
+            "no ground truth for %s.\n  expected %s\n"
+            "  run: python3 ground_truth.py --catalog %s" % (catalog, path, catalog))
     truth = {}
-    with open(os.path.join(EVIDENCE, "ground-truth.txt")) as h:
+    with open(path) as h:
         for line in h:
             if "=" in line and line.startswith("  "):
                 k, v = line.strip().split("=", 1)
                 truth[k] = v
+    # A metadata_location pointing at a path that is gone means the file was
+    # written on another machine or before a reseed. Paper 4's first
+    # ground-truth.txt was exactly that, and every citation check would have
+    # been graded against a file that does not exist.
+    loc = truth.get("metadata_location", "")
+    if loc.startswith("file:") and not os.path.exists(loc[len("file:"):]):
+        raise SystemExit(
+            "stale ground truth for %s: %s does not exist.\n"
+            "  regenerate: python3 ground_truth.py --catalog %s" % (catalog, loc, catalog))
     return truth
 
 
@@ -160,6 +186,7 @@ def one_cell(host, server, truth):
 
             trace = read_trace(label) if server.get("traced") else None
             row = {"host": host, "server": server["key"], "question": qid,
+                   "catalog": server["catalog"], "graded_against": truth.get("snapshot_id"),
                    "elapsed_s": elapsed, "capture": os.path.basename(cap),
                    "error": err, "traced": bool(trace)}
             if trace:
@@ -197,7 +224,6 @@ def main():
     ap.add_argument("--only", help="comma-separated server or host keys")
     a = ap.parse_args()
 
-    truth = ground_truth()
     if a.axis == "A":
         keys = (a.only or ",".join(SERVERS)).split(",")
         cells = [(a.host, SERVERS[k]) for k in keys]
@@ -207,7 +233,9 @@ def main():
 
     results = []
     for host, server in cells:
-        results += one_cell(host, server, truth)
+        # Per server, not per run: axis A varies the server, so it varies the
+        # catalog too.
+        results += one_cell(host, server, ground_truth(server["catalog"]))
 
     out = os.path.join(EVIDENCE, "matrix-axis-%s.json" % a.axis)
     with open(out, "w") as h:

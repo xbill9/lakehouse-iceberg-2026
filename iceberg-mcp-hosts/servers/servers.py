@@ -1,6 +1,13 @@
 # -*- coding: utf-8 -*-
 """The MCP servers under test, as launch specs.
 
+`catalog` is which catalog the server actually reads, and it is not cosmetic.
+Two of these point at the local Polaris and two at Google, so they are different
+physical tables holding the same seeded fixture. Grading every cell against one
+catalog's snapshot id and metadata location would score the Google cells 0 on the
+citation checks by construction -- a scoring artefact indistinguishable from a
+finding about the server.
+
 Surfaces are recorded in ../evidence/server-surfaces.txt, quoted from each
 project's own documentation. `answers_rows` is set from that reading, not from
 a run: it is what the tool list says the server can do, and the point of the
@@ -40,6 +47,7 @@ SERVERS = {
         "key": "morristai",
         "answers_rows": False,
         "traced": TRACE,
+        "catalog": "apache-polaris",
         "spec": {
             "command": "iceberg-mcp",
             "args": [],
@@ -52,6 +60,7 @@ SERVERS = {
         "key": "ahodroj",
         "answers_rows": True,
         "traced": TRACE,
+        "catalog": "apache-polaris",
         "spec": {
             "command": "uvx",
             "args": ["mcp-iceberg-service"],
@@ -63,6 +72,7 @@ SERVERS = {
         "key": "bigquery",
         "answers_rows": True,
         "traced": False,
+        "catalog": "google-lakehouse",
         "spec": {"type": "http", "url": "https://bigquery.googleapis.com/mcp"},
     },
     # Google, first-party, remote. Compute control plane, not a query surface --
@@ -71,6 +81,7 @@ SERVERS = {
         "key": "managed-spark",
         "answers_rows": False,
         "traced": False,
+        "catalog": "google-lakehouse",
         "spec": {"type": "http",
                  "url": "https://dataproc-us-central1.googleapis.com/mcp"},
     },

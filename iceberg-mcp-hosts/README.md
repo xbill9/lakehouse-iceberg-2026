@@ -90,7 +90,23 @@ Scaffolding. Nothing has been run yet.
 Done: the two axes, the grader against catalog-read ground truth, the question
 set v1, and the frame trace above.
 
-Next: the fixture, then repeats. One run of a cell is one sample -- paper 3
+Next: bring Polaris up and regenerate ground truth, then the fixture, then
+repeats.
+
+**Ground truth is per catalog, and the grader refuses without it.** Two servers
+read the local Polaris and two read Google, so they are different physical tables
+holding the same seeded fixture, with different snapshot ids and metadata
+locations. One shared ground-truth file would have scored every Google cell 0 on
+the citation checks by construction -- a scoring artefact that reads exactly like
+a finding about the server. `ground_truth.py` now writes one file per catalog,
+each row records which catalog it was graded against, and the runner stops rather
+than falling back to another catalog's answers.
+
+It also stops on a **stale** file. The first `ground-truth.txt` here cited a
+metadata location under `/home/xbill/data-sprint/`, a path from another machine
+that no longer exists, so every citation check would have been compared against a
+file that is not there. The check that catches it was verified against that real
+file before being relied on. One run of a cell is one sample -- paper 3
 learned that the hard way on a model whose decoding made twenty runs a single
 answer repeated -- so the runner still needs `--repeat` and seeded shuffled
 rounds before any number here is worth quoting.
