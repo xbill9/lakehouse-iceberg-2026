@@ -116,11 +116,11 @@ Each test changes one thing and holds the rest still:
 
 | test | what changes | held still | what it answers | axis |
 |---|---|---|---|---|
-| Test 1 | framework and model | Polaris | how the three agents compare | A, F |
-| Test 2 | the catalog | ADK on Gemini | whether the catalog matters | B |
-| Test 3 | framework or model, one at a time | Polaris | which one a speed gap belongs to | C |
-| Test 4 | each agent on its own cloud | the question | whether it reads its cloud's files | D |
-| Test 5 | all four setups, one data question | Polaris | who answers correctly, like for like | E |
+| 1 | framework and model | Polaris | how the three agents compare | A, F |
+| 2 | the catalog | ADK on Gemini | whether the catalog matters | B |
+| 3 | framework or model, one at a time | Polaris | which one a speed gap belongs to | C |
+| 4 | each agent on its own cloud | the question | whether it reads its cloud's files | D |
+| 5 | all four setups, one data question | Polaris | who answers correctly, like for like | E |
 
 **Ten runs per cell, twenty in Test 5**, in shuffled rounds from a fixed seed, so a
 slow patch on an endpoint lands across cells. Separation is judged on the middle half
