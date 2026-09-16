@@ -259,6 +259,15 @@ def self_test(truth):
 
 
 def one_cell(host, server, truth):
+    # A server whose binary is absent produces a closed connection, and a closed
+    # connection reads like a server that answered nothing -- which is a finding
+    # about the server rather than about the machine. Refuse instead.
+    if server.get("missing_binary"):
+        raise SystemExit(
+            "%s: binary not installed, so this cell cannot run.\n"
+            "  it would score as a server that answered nothing, which is a\n"
+            "  statement about this machine, not about the server.\n"
+            "  build it, or run without it: --only <other servers>" % server["key"])
     h = hosts_mod.HOSTS[host]
     cleanup = h.prepare(server)
     rows = []

@@ -14,7 +14,29 @@ a run: it is what the tool list says the server can do, and the point of the
 experiment is whether the host's behaviour matches it.
 """
 import os
+import shutil
 import sys
+
+
+def _binary(name):
+    """Resolve a local server binary to an absolute path, or leave it named.
+
+    `servers.py` launched this by bare name, and when the binary was absent the
+    wrapper died instantly and the host reported a closed connection -- which
+    reads like a server that answered nothing rather than one that never ran.
+    An absolute path fails at launch with the path in the message, and
+    `missing_binary` lets the runner refuse the cell instead of scoring it.
+
+    cargo installs to ~/.cargo/bin, which is not always on a non-interactive
+    PATH, so that is checked explicitly rather than trusted to the environment.
+    """
+    found = shutil.which(name)
+    if found:
+        return found, False
+    cargo = os.path.expanduser("~/.cargo/bin/" + name)
+    if os.path.exists(cargo):
+        return cargo, False
+    return name, True
 
 POLARIS_URI = os.getenv("IRC_POLARIS_URI", "http://localhost:8181/api/catalog")
 
@@ -49,8 +71,9 @@ SERVERS = {
         "traced": TRACE,
         "catalog": "apache-polaris",
         "cites_version": None,   # UNKNOWN: table_properties may or may not carry it
+        "missing_binary": _binary("iceberg-mcp")[1],
         "spec": {
-            "command": "iceberg-mcp",
+            "command": _binary("iceberg-mcp")[0],
             "args": [],
             "env": {"CATALOG_KIND": "rest", "REST_URI": POLARIS_URI,
                     "LOG_LEVEL": "info"},
@@ -63,8 +86,9 @@ SERVERS = {
         "traced": TRACE,
         "catalog": "apache-polaris",
         "cites_version": False,
+        "missing_binary": _binary("uvx")[1],
         "spec": {
-            "command": "uvx",
+            "command": _binary("uvx")[0],
             "args": ["mcp-iceberg-service"],
             "env": {"ICEBERG_CATALOG_URI": POLARIS_URI},
         },
@@ -96,3 +120,7 @@ SERVERS = {
 # documents, rather than as what the harness launches.
 for _s in SERVERS.values():
     _s["spec"] = _traced(_s["spec"])
+
+# Remote servers have no binary to miss.
+for _s in SERVERS.values():
+    _s.setdefault("missing_binary", False)
