@@ -1,0 +1,13 @@
+This article is a step by step build of one small Apache Iceberg data agent, written three times: in Google ADK, in AWS Strands and in Microsoft Agent Framework. Each version runs against five Iceberg catalogs.
+
+Every answer is checked against the catalog itself, so the differences between the three agents are measured rather than described.
+
+https://github.com/xbill9/lakehouse-iceberg-2026
+
+Dev.to is here: https://dev.to/gde/four-iceberg-tools-three-agent-frameworks-what-ports-and-what-doesnt-a5g
+
+Medium is here: https://medium.com/@xbill999/four-iceberg-tools-three-agent-frameworks-what-ports-and-what-doesnt-5f588278f089
+
+Builder Center article is here: https://builder.aws.com/content/3JOMbnvOh4rY1InvwKUwKPGoFE8/four-iceberg-tools-three-agent-frameworks-what-ports-and-what-doesnt
+
+My LinkedIn post is here: https://lnkd.in/p/gjzNyTfY
