@@ -104,14 +104,9 @@ marks it and `evidence/server-surfaces.txt` is what it contradicts. For
 morristai, `cites_version` is **None**: `table_properties` is a candidate and the
 documentation does not settle it, so it is unresolved rather than assumed.
 
-## Status
+## Ground truth
 
-Scaffolding. Nothing has been run yet.
-
-Done: the two axes, the grader against catalog-read ground truth, the question
-set v1, and the frame trace above.
-
-Ground truth is generated and current for both catalogs, read live on
+Generated and current for both catalogs, read live on
 2026-09-16. It is **not committed**: the Google one names a GCS bucket after the
 project, so the raw files stay local and reach the repo only through an
 anonymising publish step, which paper 4 does not have yet. That step is a
@@ -148,6 +143,30 @@ number and a decimal; URIs and long digit runs are blanked for pairing only, so
 a snapshot id's digits neither break a span nor supply a false match, while the
 citation checks still read the answer as written; and column names match as whole
 identifiers, so *identifier* is not `id` and *payloads* is not `payload`.
+
+## Not yet runnable, and why
+
+Two blockers, both found by trying rather than by reading.
+
+**`iceberg-mcp` is not installed.** `servers.py` launches it by bare name and it
+is on no PATH and not in `~/.cargo/bin`, so the morristai cells cannot run at all.
+The trace proves it independently: two spawn frames, zero `server->host` frames,
+no `tools/call`. It needs building from the Rust source, and the spec should then
+point at an absolute path rather than a bare name.
+
+**The other three are ready**: `uvx` is present for ahodroj, and the two Google
+servers are remote HTTP.
+
+## Status
+
+Scaffolding, and not yet run. A run started by accident during development was
+stopped and its two captures discarded rather than kept -- a partial run is not
+evidence.
+
+Done: three axes, per-catalog grading with stale and missing refusals, the frame
+trace with verified byte-transparency, arithmetic provenance, capability read
+from documentation, scorer v2 with a self-test that must be able to fail, and
+ground truth live for both catalogs.
 
 Next: an anonymising publish step, then the fixture, then repeats.
 

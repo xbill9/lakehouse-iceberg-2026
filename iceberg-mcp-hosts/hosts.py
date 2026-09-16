@@ -23,6 +23,19 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 
 class Host(object):
     name = None
+    #: Set per cell on axis C. Each host defaults to its own vendor's model, so a
+    #: difference between hosts is a difference of host AND model unless this is
+    #: pinned -- the confound paper 3 removed by running Strands on Gemini beside
+    #: ADK on Gemini. A host that cannot be pointed at the shared model is
+    #: reported as such rather than quietly compared.
+    model = None
+
+    def with_model(self, model):
+        self.model = model
+        return self
+
+    def _model_args(self, flag="--model"):
+        return [flag, self.model] if self.model else []
 
     def prepare(self, server):
         """Make `server` the only MCP server this host can see. Return cleanup."""
@@ -57,7 +70,7 @@ class ClaudeCode(Host):
         return _run(["claude", "-p", question,
                      "--mcp-config", self._cfg,
                      "--strict-mcp-config",
-                     "--dangerously-skip-permissions"], timeout)
+                     "--dangerously-skip-permissions"] + self._model_args(), timeout)
 
     def version(self):
         return _run(["claude", "--version"], 30).strip()
@@ -97,7 +110,8 @@ class Codex(_GlobalConfigHost):
         return ["codex", "mcp", "remove", key]
 
     def run_cmd(self, question):
-        return ["codex", "exec", "--skip-git-repo-check", question]
+        return (["codex", "exec", "--skip-git-repo-check"]
+                + self._model_args("-m") + [question])
 
 
 class Antigravity(_GlobalConfigHost):
@@ -115,7 +129,16 @@ class Antigravity(_GlobalConfigHost):
         return ["agy", "mcp", "remove", key]
 
     def run_cmd(self, question):
-        return ["agy", "--print", question, "--dangerously-skip-permissions"]
+        return (["agy", "--print", question, "--dangerously-skip-permissions"]
+                + self._model_args())
 
 
 HOSTS = {h.name: h for h in (ClaudeCode(), Codex(), Antigravity())}
+
+#: All three accept --model (claude 2.1.273, codex-cli 0.154.0, agy 1.2.3;
+#: codex spells it -m). Whether they all accept the *same* model name is a
+#: separate question and is NOT established here -- each defaults to its own
+#: vendor's. Axis C pins one and records what actually answered, so a host that
+#: rejects it shows up as a refusal rather than as a silent fallback to its
+#: default, which would put the confound back without saying so.
+MODEL_FLAG = {"claude": "--model", "codex": "-m", "agy": "--model"}

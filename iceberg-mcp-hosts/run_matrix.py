@@ -4,11 +4,20 @@
 
 Two axes, so a difference can be attributed to one thing:
 
-    axis A   host fixed, servers vary   -> isolates the server surface
-    axis B   server fixed, hosts vary   -> isolates the host
+    axis A   host fixed, servers vary              -> isolates the server surface
+    axis B   server fixed, hosts vary               -> host AND model together
+    axis C   server fixed, hosts vary, model pinned -> isolates the host
 
     python3 run_matrix.py --axis A --host claude
     python3 run_matrix.py --axis B --server bigquery
+    python3 run_matrix.py --axis C --server bigquery --model MODEL
+
+Axis B cannot attribute its own result and says so: each host defaults to its
+vendor's model, so a difference there is host and model at once. Axis C pins one
+model across the hosts and is the cell that separates them -- the same move
+paper 3 made by running Strands on Gemini beside ADK on Gemini. A host that
+rejects the pinned model is recorded as a refusal, never silently run on its
+default, because that would restore the confound without saying so.
 
 Grading is by string and integer comparison against evidence/ground-truth.txt,
 which `ground_truth.py` read from the catalog directly. Nothing under test is
@@ -283,6 +292,7 @@ def one_cell(host, server, truth):
 
             trace = read_trace(label) if server.get("traced") else None
             row = {"host": host, "server": server["key"], "question": qid,
+                   "model": getattr(h, "model", None) or "(host default)",
                    "catalog": server["catalog"], "graded_against": truth.get("snapshot_id"),
                    "elapsed_s": elapsed, "capture": os.path.basename(cap),
                    "error": err, "traced": bool(trace)}
@@ -315,7 +325,8 @@ def one_cell(host, server, truth):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--axis", choices=["A", "B"], required=True)
+    ap.add_argument("--axis", choices=["A", "B", "C"], required=True)
+    ap.add_argument("--model", help="axis C: the model to pin across hosts")
     ap.add_argument("--host", default=AXIS_A_HOST)
     ap.add_argument("--server", default=AXIS_B_SERVER)
     ap.add_argument("--only", help="comma-separated server or host keys")
@@ -325,8 +336,15 @@ def main():
         keys = (a.only or ",".join(SERVERS)).split(",")
         cells = [(a.host, SERVERS[k]) for k in keys]
     else:
+        if a.axis == "C" and not a.model:
+            raise SystemExit(
+                "axis C needs --model: it exists to hold the model constant.\n"
+                "  without it this is axis B, where host and model vary together.")
         keys = (a.only or ",".join(hosts_mod.HOSTS)).split(",")
         cells = [(k, SERVERS[a.server]) for k in keys]
+        if a.axis == "C":
+            for k in keys:
+                hosts_mod.HOSTS[k].with_model(a.model)
 
     first = ground_truth(cells[0][1]["catalog"])
     print("scorer v%d: %d planted cases pass\n" % (SCORER_VERSION, self_test(first)))
@@ -340,6 +358,8 @@ def main():
     out = os.path.join(EVIDENCE, "matrix-axis-%s.json" % a.axis)
     with open(out, "w") as h:
         json.dump({"axis": a.axis, "scorer": SCORER_VERSION,
+                   "model_pinned": a.model if a.axis == "C" else None,
+                   "attributable": a.axis != "B",
                    "results": results}, h, indent=2)
     print("\nwrote %s (%d rows)" % (out, len(results)))
 
