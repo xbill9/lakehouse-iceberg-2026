@@ -30,6 +30,7 @@ and a guessed number is the failure worth reporting.
 import argparse
 import json
 import os
+import random
 import re
 import sys
 import time
@@ -258,7 +259,7 @@ def self_test(truth):
     return len(SELF_TEST)
 
 
-def one_cell(host, server, truth):
+def one_cell(host, server, truth, index):
     # A server whose binary is absent produces a closed connection, and a closed
     # connection reads like a server that answered nothing -- which is a finding
     # about the server rather than about the machine. Refuse instead.
@@ -273,7 +274,7 @@ def one_cell(host, server, truth):
     rows = []
     try:
         for qid, text in questions():
-            label = "%s__%s__%s" % (host, server["key"], qid)
+            label = "%s__%s__%s__%d" % (host, server["key"], qid, index)
             # The proxy appends, so a re-run would otherwise stack on the last one.
             stale = os.path.join(TRACES, label + ".jsonl")
             if os.path.exists(stale):
@@ -288,12 +289,12 @@ def one_cell(host, server, truth):
             elapsed = round(time.time() - started, 1)
 
             cap = os.path.join(EVIDENCE, "matrix",
-                               "%s__%s__%s.txt" % (host, server["key"], qid))
+                               "%s__%s__%s__%d.txt" % (host, server["key"], qid, index))
             os.makedirs(os.path.dirname(cap), exist_ok=True)
             with open(cap, "w") as fh:
-                fh.write("# host=%s server=%s %s elapsed_s=%s captured=%s\n"
+                fh.write("# host=%s server=%s %s run=%d elapsed_s=%s captured=%s\n"
                          "# question: %s\n\n"
-                         % (host, server["key"], qid, elapsed,
+                         % (host, server["key"], qid, index, elapsed,
                             time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), text))
                 fh.write(body if body else "(no output)\n")
                 if err:
@@ -301,6 +302,7 @@ def one_cell(host, server, truth):
 
             trace = read_trace(label) if server.get("traced") else None
             row = {"host": host, "server": server["key"], "question": qid,
+                   "run": index,
                    "model": getattr(h, "model", None) or "(host default)",
                    "catalog": server["catalog"], "graded_against": truth.get("snapshot_id"),
                    "elapsed_s": elapsed, "capture": os.path.basename(cap),
@@ -321,8 +323,8 @@ def one_cell(host, server, truth):
                         and bool(re.search(r"\d", body)))
             row.update(score(qid, body, truth, server))
             rows.append(row)
-            print("  %-7s %-13s %s  %5ss  %-8s %s" % (
-                host, server["key"], qid, elapsed,
+            print("  %-7s %-13s %s r%-2d %5ss  %-8s %s" % (
+                host, server["key"], qid, index, elapsed,
                 "ERR" if err else ("declines" if row["declines_explicitly"] else "answered"),
                 ("calls=" + ",".join(row["tool_calls"]) if row.get("tool_calls")
                  else ("NO TOOL CALL" if row.get("traced") else "untraced"))),
@@ -336,6 +338,11 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--axis", choices=["A", "B", "C"], required=True)
     ap.add_argument("--model", help="axis C: the model to pin across hosts")
+    ap.add_argument("--repeat", type=int, default=3,
+                    help="rounds; one run of every cell per round. A single run "
+                         "of a cell is one sample, not a result")
+    ap.add_argument("--seed", type=int, default=20260916,
+                    help="seeds the per-round shuffle of cell order")
     ap.add_argument("--host", default=AXIS_A_HOST)
     ap.add_argument("--server", default=AXIS_B_SERVER)
     ap.add_argument("--only", help="comma-separated server or host keys")
@@ -358,17 +365,27 @@ def main():
     first = ground_truth(cells[0][1]["catalog"])
     print("scorer v%d: %d planted cases pass\n" % (SCORER_VERSION, self_test(first)))
 
+    # Rounds, not blocks: every cell once per round, in an order reshuffled each
+    # round from a fixed seed. Running a cell's repeats back to back would put
+    # all of one cell's runs inside whatever the endpoint was doing for those
+    # minutes, so a slow patch would read as a property of that cell.
+    rng = random.Random(a.seed)
     results = []
-    for host, server in cells:
-        # Per server, not per run: axis A varies the server, so it varies the
-        # catalog too.
-        results += one_cell(host, server, ground_truth(server["catalog"]))
+    for index in range(1, a.repeat + 1):
+        round_cells = list(cells)
+        rng.shuffle(round_cells)
+        for host, server in round_cells:
+            # Per server, not per run: axis A varies the server, so it varies
+            # the catalog too.
+            results += one_cell(host, server, ground_truth(server["catalog"]), index)
 
     out = os.path.join(EVIDENCE, "matrix-axis-%s.json" % a.axis)
     with open(out, "w") as h:
         json.dump({"axis": a.axis, "scorer": SCORER_VERSION,
                    "model_pinned": a.model if a.axis == "C" else None,
                    "attributable": a.axis != "B",
+                   "repeat": a.repeat, "seed": a.seed,
+                   "order": "rounds, cells shuffled per round",
                    "results": results}, h, indent=2)
     print("\nwrote %s (%d rows)" % (out, len(results)))
 

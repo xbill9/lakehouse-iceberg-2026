@@ -178,7 +178,23 @@ trace with verified byte-transparency, arithmetic provenance, capability read
 from documentation, scorer v2 with a self-test that must be able to fail, and
 ground truth live for both catalogs.
 
-Next: an anonymising publish step, then the fixture, then repeats.
+## Repeats are rounds, and they are not cheap
+
+`--repeat` defaults to 3 and runs **rounds, not blocks**: every cell once per
+round, in an order reshuffled each round from `--seed` (default 20260916).
+Running a cell's three repeats back to back would put all of them inside whatever
+the endpoint was doing for those minutes, so a slow patch would read as a
+property of that cell rather than of the clock.
+
+Verified: the same seed reproduces the order, a different seed changes it, and
+the order differs between rounds. The round index is in the capture name, the
+trace label and every row -- without it round 2 silently overwrites round 1.
+
+**Cost.** Axis A at the default is 3 rounds x 4 servers x 6 questions = **72 CLI
+invocations**, and one measured `claude -p` call against this server set took 65
+seconds. Budget somewhere over an hour, and do not start one casually.
+
+Next: an anonymising publish step, then the fixture.
 
 **Ground truth is per catalog, and the grader refuses without it.** Two servers
 read the local Polaris and two read Google, so they are different physical tables
