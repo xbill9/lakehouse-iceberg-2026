@@ -8,6 +8,10 @@ iceberg-conformance/evidence/
 # MCP frame traces: the spawn line carries absolute paths, and a --full
 # trace carries result bodies. Raw stays local, as with paper 3.
 iceberg-mcp-hosts/evidence/traces/
+# Paper 4 ground truth is read live from each catalog, so the Google one carries
+# a GCS bucket named after the project. Raw stays local; it reaches the repo only
+# through an anonymising publish step, as paper 3's evidence does.
+iceberg-mcp-hosts/evidence/ground-truth-*.txt
 iceberg-conformance/out/
 
 # sprint submission material — contains personal details

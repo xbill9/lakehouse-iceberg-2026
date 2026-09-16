@@ -111,8 +111,21 @@ Scaffolding. Nothing has been run yet.
 Done: the two axes, the grader against catalog-read ground truth, the question
 set v1, and the frame trace above.
 
-Next: bring Polaris up and regenerate ground truth, then the fixture, then
-repeats.
+Ground truth is generated and current for both catalogs, read live on
+2026-09-16. It is **not committed**: the Google one names a GCS bucket after the
+project, so the raw files stay local and reach the repo only through an
+anonymising publish step, which paper 4 does not have yet. That step is a
+prerequisite for publishing anything here, not an afterthought.
+
+The two catalogs disagree on every citation field, which is the whole reason the
+grader was split:
+
+| catalog | snapshot_id | metadata |
+|---|---|---|
+| apache-polaris | 4496289927168545616 | `file://...` |
+| google-lakehouse | 6042367411917366632 | `gs://...` |
+
+Next: an anonymising publish step, then the fixture, then repeats.
 
 **Ground truth is per catalog, and the grader refuses without it.** Two servers
 read the local Polaris and two read Google, so they are different physical tables
