@@ -401,11 +401,8 @@ non-reasoning model fail; that was not re-tested.</p>
 <h4 id="test-4-each-agent-reads-its-own-clouds-data">Test 4: Each Agent
 Reads Its Own Cloud's Data</h4>
 <p>Tests 1 to 3 ask what the catalog's metadata already knows. This one
-does not. Each agent is asked:</p>
-<blockquote>
-<p>What is the largest id in the probe table, and how many of its rows
-have an id of 10 or more? Cite the exact table version you read.</p>
-</blockquote>
+does not: each agent is asked for the largest id, the number of rows
+with an id of 10 or more, and the table version it read.</p>
 <p>Counts come from snapshot summaries and columns from the schema;
 neither holds a filtered count. Answering means reading the data files
 -- GCS, S3 or ADLS -- through each cloud's storage wiring.</p>

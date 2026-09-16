@@ -243,11 +243,9 @@ its `store=False` setting made a non-reasoning model fail; that was not re-teste
 
 ## Test 4: Each Agent Reads Its Own Cloud's Data
 
-Tests 1 to 3 ask what the catalog's metadata already knows. This one does not. Each
-agent is asked:
-
-> What is the largest id in the probe table, and how many of its rows have an id
-> of 10 or more? Cite the exact table version you read.
+Tests 1 to 3 ask what the catalog's metadata already knows. This one does not: each
+agent is asked for the largest id, the number of rows with an id of 10 or more, and
+the table version it read.
 
 Counts come from snapshot summaries and columns from the schema; neither holds a
 filtered count. Answering means reading the data files -- GCS, S3 or ADLS -- through
