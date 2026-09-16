@@ -5,6 +5,17 @@
 # metadata alone, Q4-Q5 need actual rows. A server with no row-returning tool
 # should fail Q4-Q5 and say why, rather than guess -- and whether it says why
 # is itself a result.
+#
+# Q4 and Q5 are provenance-sensitive, and the run records which happened.
+# "How many rows" can be answered by SELECT COUNT(*), where the engine does the
+# arithmetic and the model quotes it, or by pulling rows back and counting them,
+# where the model does the arithmetic. Those are the same number from different
+# places, and iceberg-agent measured the second one failing.
+#
+# So the headline for Q4/Q5 is the engine-computed result. `model_did_arithmetic`
+# marks a cell where rows came back with no aggregate sent; that belongs in the
+# evidence as a diagnostic, not in the results table. A benchmark that lets the
+# model do the sums is measuring the model, not the surface it was pointed at.
 
 Q1  What namespaces exist in this catalog?
 Q2  What tables are in the probe namespace?

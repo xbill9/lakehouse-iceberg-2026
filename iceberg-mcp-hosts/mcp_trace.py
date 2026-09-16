@@ -24,13 +24,17 @@ proxy that reformatted frames would be measuring itself.
 What lands in the trace, one JSON object per line:
 
     {"t": 0.412, "dir": "host->server", "method": "tools/call",
-     "name": "table_schema", "id": 3}
+     "name": "query", "args": {"sql": "SELECT COUNT(*) FROM probe_ns.probe_table"},
+     "id": 3}
     {"t": 0.907, "dir": "server->host", "id": 3, "bytes": 1841, "is_error": false}
 
-Arguments and results are recorded by shape and size rather than in full: the
-question is *what was called and what came back*, and a result body can carry
-catalog credentials. `--full` keeps the bodies for a debugging run; it is not
-the default, and publish never reads a --full trace.
+Arguments are recorded **in full**, because the argument is the measurement: a
+row count produced by `SELECT COUNT(*)` and one produced by the model counting
+the rows of a `SELECT *` are the same number from different places, and a length
+cannot tell them apart. Credential-shaped keys are withheld and long values are
+clipped. Results are recorded by size, because a result body can carry catalog
+credentials; `--full` keeps those too, for a debugging run, and publish never
+reads a --full trace.
 
 Only the two local servers can be wrapped this way. `bigquery` and
 `managed-spark` are remote HTTP endpoints the host dials directly, so for those
@@ -40,6 +44,7 @@ respect, and the reason `traced` is recorded per row rather than assumed.
 import argparse
 import json
 import os
+import re
 import subprocess
 import sys
 import threading
@@ -47,6 +52,16 @@ import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 TRACES = os.path.join(HERE, "evidence", "traces")
+
+
+SECRET = re.compile(r"token|secret|password|passwd|credential|api[_-]?key|auth", re.I)
+REDACT = "<withheld>"
+ARG_MAX = 2000
+
+
+def _clip(v):
+    s = v if isinstance(v, str) else json.dumps(v)
+    return s if len(s) <= ARG_MAX else s[:ARG_MAX] + "...<%d more>" % (len(s) - ARG_MAX)
 
 
 def summarise(obj, full):
@@ -58,9 +73,15 @@ def summarise(obj, full):
         if obj["method"] == "tools/call":
             out["name"] = params.get("name")
             args = params.get("arguments") or {}
-            # Names and sizes, not values: an argument can carry a query and a
-            # query can carry an identifier.
-            out["args"] = {k: len(str(v)) for k, v in args.items()} if not full else args
+            # Values, not sizes. The argument is the measurement: whether a row
+            # count came from the engine or from the model counting rows is the
+            # difference between SELECT COUNT(*) and SELECT *, and a length tells
+            # those apart not at all. Paper 3's last finding was exactly this --
+            # an exact number, cited, and wrong, because of the predicate sent.
+            # Only credential-shaped keys are withheld; a query the model wrote
+            # is not a secret.
+            out["args"] = {k: (REDACT if SECRET.search(k) else _clip(v))
+                           for k, v in args.items()}
     if "id" in obj:
         out["id"] = obj["id"]
     if "result" in obj:

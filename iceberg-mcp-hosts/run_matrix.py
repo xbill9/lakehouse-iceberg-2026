@@ -58,6 +58,15 @@ def questions():
     return out
 
 
+#: The arithmetic-provenance pair. `iceberg-agent`'s rule is that counting,
+#: filtering and comparing belong in the engine and the model quotes the result;
+#: a benchmark that lets the model do the sums measures the wrong thing. These
+#: two say which happened, so the model-counts case can be reported as a
+#: diagnostic rather than as the headline.
+AGGREGATE = re.compile(r"\b(count|min|max|sum|avg|approx_count_distinct)\s*\(|"
+                       r"\bgroup\s+by\b", re.I)
+ROW_FETCH = re.compile(r"\bselect\b(?!\s*(count|min|max|sum|avg)\s*\()|\bscan\b|\blimit\b", re.I)
+
 REFUSAL = re.compile(
     r"\b(no tool|not available|cannot|can't|unable to|does not (?:support|expose)|"
     r"no such tool|not supported|lacks?)\b", re.I)
@@ -94,7 +103,7 @@ def read_trace(label):
     path = os.path.join(TRACES, label + ".jsonl")
     if not os.path.exists(path):
         return None
-    calls, listed, errors = [], [], 0
+    calls, listed, errors, args_seen = [], [], 0, []
     with open(path) as h:
         for line in h:
             try:
@@ -103,11 +112,18 @@ def read_trace(label):
                 continue
             if rec.get("method") == "tools/call" and rec.get("name"):
                 calls.append(rec["name"])
+                args_seen.append(" ".join(str(v) for v in (rec.get("args") or {}).values()))
             if rec.get("tools"):
                 listed = rec["tools"]
             if rec.get("error") or rec.get("is_error"):
                 errors += 1
-    return {"tool_calls": calls, "tools_offered": listed, "error_frames": errors}
+    sent = " ".join(args_seen)
+    return {"tool_calls": calls, "tools_offered": listed, "error_frames": errors,
+            # Where the arithmetic happened. An aggregate pushes it into the
+            # engine; a bare row fetch leaves it to the model, which is the thing
+            # paper 3 measured failing. Same number, different provenance.
+            "engine_aggregate": bool(AGGREGATE.search(sent)),
+            "fetched_rows": bool(ROW_FETCH.search(sent)) and not AGGREGATE.search(sent)}
 
 
 def one_cell(host, server, truth):
@@ -154,6 +170,12 @@ def one_cell(host, server, truth):
                 row["answered_without_tools"] = (
                     not trace["tool_calls"] and len(body.strip()) > 80
                     and not REFUSAL.search(body))
+                # A number in the answer, rows pulled back, and no aggregate sent:
+                # the model did the sum. Record it; do not headline it.
+                if qid in ("Q4", "Q5"):
+                    row["model_did_arithmetic"] = (
+                        trace["fetched_rows"] and not trace["engine_aggregate"]
+                        and bool(re.search(r"\d", body)))
             row.update(score(qid, body, truth, server["answers_rows"]))
             rows.append(row)
             print("  %-7s %-13s %s  %5ss  %-8s %s" % (
