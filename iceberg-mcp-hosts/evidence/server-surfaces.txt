@@ -39,3 +39,53 @@ managed-spark MCP          endpoint live: same 405
 A 405 here means the URL exists and refuses GET. It is not evidence that auth
 works, and it is not evidence the tools are reachable -- only that the host is
 answering. Both remote servers still need OAuth/IAM through the CLI host.
+
+## Can the surface express "which version did I read?"
+
+Retrieved from Google's own documentation via Developer Knowledge on 2026-09-16.
+Sources:
+  https://docs.cloud.google.com/bigquery/docs/reference/mcp
+  https://docs.cloud.google.com/bigquery/docs/reference/mcp/tools_list/get_table_info
+  https://docs.cloud.google.com/bigquery/docs/reference/mcp/tools_list/list_table_ids
+  https://docs.cloud.google.com/bigquery/docs/use-bigquery-mcp
+
+Q6 asks for the exact table version, by snapshot id or metadata location. Whether
+a surface can answer it at all is a property of the surface, so it is read from
+documentation first, exactly as `answers_rows` was.
+
+bigquery-mcp   tool list: list_dataset_ids, get_dataset_info, list_table_ids,
+                          get_table_info, execute_sql_readonly, execute_sql
+               get_table_info returns table metadata and carries a
+               `biglakeConfiguration` object for Apache Iceberg, but the
+               documented output does **not** include a snapshot id, a metadata
+               file location, or a table version.
+               list_table_ids returns ids only.
+               execute_sql can reach metadata if the caller knows the right
+               INFORMATION_SCHEMA syntax, but the documentation names no
+               INFORMATION_SCHEMA view or table option that exposes Iceberg
+               snapshot ids or metadata locations for BigLake Iceberg tables.
+               cites_version: NO, on the documented surface.
+
+  Stated precisely: this is absence in the retrieved documentation, not a proof
+  of impossibility. It is the same standard paper 1 used -- "declared" means
+  named in the docs, and an undocumented path is not a served one. If a run finds
+  a host citing a real snapshot id through this server, that is a finding and
+  this line is what it contradicts.
+
+morristai       namespaces, tables, table_schema, table_properties.
+                table_properties can carry Iceberg table properties, which is
+                the only candidate; whether the current metadata pointer appears
+                there is NOT established from the documentation.
+                cites_version: UNKNOWN, resolve before grading Q6 on it.
+
+ahodroj         SQL surface over PyIceberg. No documented metadata or snapshot
+                introspection tool.
+                cites_version: NO, on the documented surface.
+
+managed-spark   compute control plane; no table read surface at all.
+                cites_version: NO.
+
+Consequence for grading: Q6 scored 0 against a surface that cannot express a
+version measures the surface's vocabulary, not the host. The right answer there
+is a refusal that says so, which is the same measurement Q4/Q5 make on a server
+with no row-returning tool.

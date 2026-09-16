@@ -83,6 +83,27 @@ reads as "made no tool calls".
 The check this buys is `answered_without_tools`: a substantive answer, no
 refusal, and nothing called behind it.
 
+## What a surface cannot say
+
+`answers_rows` was read from each project's documentation before any run, and Q6
+needs the same treatment. Retrieved from Google's own docs on 2026-09-16:
+bigquery-mcp's `get_table_info` returns table metadata and carries a
+`biglakeConfiguration` for Iceberg, but the documented output includes **no
+snapshot id, metadata file location or table version**, and the documentation
+names no `INFORMATION_SCHEMA` view or table option that exposes them either.
+
+So "cite the exact table version you read" cannot be answered through that
+server, and scoring it 0 would measure the vocabulary the server was given --
+something already known before the run. `cites_version` records it, and Q6 is
+graded as refusal-quality there, exactly as Q4/Q5 are on a server with no
+row-returning tool.
+
+Stated as absence in the retrieved documentation, not as impossibility. If a run
+shows a host citing a real snapshot id through that server, `cited_despite_surface`
+marks it and `evidence/server-surfaces.txt` is what it contradicts. For
+morristai, `cites_version` is **None**: `table_properties` is a candidate and the
+documentation does not settle it, so it is unresolved rather than assumed.
+
 ## Status
 
 Scaffolding. Nothing has been run yet.

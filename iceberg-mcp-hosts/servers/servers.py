@@ -48,6 +48,7 @@ SERVERS = {
         "answers_rows": False,
         "traced": TRACE,
         "catalog": "apache-polaris",
+        "cites_version": None,   # UNKNOWN: table_properties may or may not carry it
         "spec": {
             "command": "iceberg-mcp",
             "args": [],
@@ -61,6 +62,7 @@ SERVERS = {
         "answers_rows": True,
         "traced": TRACE,
         "catalog": "apache-polaris",
+        "cites_version": False,
         "spec": {
             "command": "uvx",
             "args": ["mcp-iceberg-service"],
@@ -73,6 +75,7 @@ SERVERS = {
         "answers_rows": True,
         "traced": False,
         "catalog": "google-lakehouse",
+        "cites_version": False,
         "spec": {"type": "http", "url": "https://bigquery.googleapis.com/mcp"},
     },
     # Google, first-party, remote. Compute control plane, not a query surface --
@@ -82,6 +85,7 @@ SERVERS = {
         "answers_rows": False,
         "traced": False,
         "catalog": "google-lakehouse",
+        "cites_version": False,
         "spec": {"type": "http",
                  "url": "https://dataproc-us-central1.googleapis.com/mcp"},
     },

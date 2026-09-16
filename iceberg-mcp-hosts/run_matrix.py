@@ -98,8 +98,14 @@ REFUSAL = re.compile(
     r"no such tool|not supported|lacks?)\b", re.I)
 
 
-def score(qid, body, truth, answers_rows):
-    """What the answer got right, by comparison only -- never by judgement."""
+def score(qid, body, truth, server):
+    """What the answer got right, by comparison only -- never by judgement.
+
+    Capability is read from the server's documented surface, not inferred from
+    the run. A question a surface cannot express is not a question the host
+    failed: scoring it 0 measures the vocabulary the server was given, which
+    was already known before the run started.
+    """
     cols = truth["columns"].split(",")
     s = {
         "names_all_columns": all(c in body for c in cols),
@@ -110,9 +116,20 @@ def score(qid, body, truth, answers_rows):
     }
     # A server with no row-returning tool cannot know the count. Saying so is
     # the right answer; producing a number is not, even if the number is right.
-    if qid in ("Q4", "Q5") and not answers_rows:
+    if qid in ("Q4", "Q5") and not server["answers_rows"]:
         s["invented_an_answer"] = bool(re.search(r"\b\d+\s*(rows?|records?)\b", body)) \
             and not s["declines_explicitly"]
+    # Q6 on the same principle. bigquery-mcp's documented output carries no
+    # snapshot id, metadata location or table version, so a refusal there is
+    # the right answer -- and a citation would contradict
+    # evidence/server-surfaces.txt, which is a finding, so it is recorded
+    # rather than quietly scored as a pass.
+    if qid == "Q6":
+        can = server.get("cites_version")
+        s["version_expressible"] = can
+        if can is False:
+            s["correctly_declined_version"] = s["declines_explicitly"]
+            s["cited_despite_surface"] = s["cites_snapshot"] or s["cites_metadata"]
     return s
 
 
@@ -203,7 +220,7 @@ def one_cell(host, server, truth):
                     row["model_did_arithmetic"] = (
                         trace["fetched_rows"] and not trace["engine_aggregate"]
                         and bool(re.search(r"\d", body)))
-            row.update(score(qid, body, truth, server["answers_rows"]))
+            row.update(score(qid, body, truth, server))
             rows.append(row)
             print("  %-7s %-13s %s  %5ss  %-8s %s" % (
                 host, server["key"], qid, elapsed,
