@@ -1,0 +1,6 @@
+devto-gde = https://dev.to/gde/four-iceberg-tools-three-agent-frameworks-what-ports-and-what-doesnt-a5g
+devto-aws = https://dev.to/aws-builders/four-iceberg-tools-three-agent-frameworks-what-ports-and-what-doesnt-2iib
+builder = https://builder.aws.com/content/3JOMbnvOh4rY1InvwKUwKPGoFE8/four-iceberg-tools-three-agent-frameworks-what-ports-and-what-doesnt
+medium = https://medium.com/@xbill999/four-iceberg-tools-three-agent-frameworks-what-ports-and-what-doesnt-5f588278f089
+repo = https://github.com/xbill9/lakehouse-iceberg-2026
+linkedin = https://lnkd.in/p/gjzNyTfY

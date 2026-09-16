@@ -1,0 +1,25 @@
+Continuing my deep dive into Apache Iceberg and platform-native agents.
+
+If I build an agent that answers questions about my Iceberg data with Google's toolkit, can I move it to Amazon or Microsoft without starting over?
+
+So I built one small read-only agent with four Iceberg tools - list the tables, describe one, count its rows, scan them - and then built it three times: Google ADK, AWS Strands, Microsoft Agent Framework. Same tools, same instruction. Only the framework and the model underneath change. 360 timed runs across five catalogs: Apache Polaris, BigLake, Glue, S3 Tables and OneLake.
+
+The tools ported unchanged. The code around them did not. Calling the agent, signing in and reading its answer are three different jobs in each framework.
+
+Speed followed the model and how much it wrote, not the framework. 3.72x between the fastest and slowest agent, while swapping the framework under the same model was worth about 1.5x.
+
+The real per-cloud work is the storage wiring underneath the tools. Get it wrong and the catalog still answers while the data read fails, with an error pointing somewhere else entirely.
+
+Correctness followed the tool, not the cloud. Put the filter and the count in PyIceberg and every setup answered alike. Leave that arithmetic to the model and the smallest one gets it wrong.
+
+Every number is produced by a script from saved captures, one variable changes per test, and the whole thing re-runs from the repo.
+
+Write ups are here:
+
+dev.to (Google Developer Experts): https://dev.to/gde/four-iceberg-tools-three-agent-frameworks-what-ports-and-what-doesnt-a5g
+dev.to (AWS Community Builders): https://dev.to/aws-builders/four-iceberg-tools-three-agent-frameworks-what-ports-and-what-doesnt-2iib
+AWS Builder Center: https://builder.aws.com/content/3JOMbnvOh4rY1InvwKUwKPGoFE8/four-iceberg-tools-three-agent-frameworks-what-ports-and-what-doesnt
+Medium: https://medium.com/@xbill999/four-iceberg-tools-three-agent-frameworks-what-ports-and-what-doesnt-5f588278f089
+Source: https://github.com/xbill9/lakehouse-iceberg-2026
+
+#ApacheIceberg #AIAgents #DataEngineering #Lakehouse #MultiCloud
