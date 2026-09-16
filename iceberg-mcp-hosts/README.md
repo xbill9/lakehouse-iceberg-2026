@@ -125,6 +125,30 @@ grader was split:
 | apache-polaris | 4496289927168545616 | `file://...` |
 | google-lakehouse | 6042367411917366632 | `gs://...` |
 
+## The scorer refuses to run unless it can say no
+
+`SCORER_VERSION` is recorded in the axis JSON, and ten planted answers run before
+any cell. Half of them must **fail**: a check that cannot produce a negative is
+indistinguishable from one that always passes, and paper 3 shipped a version that
+silently regressed twelve correct answers because nothing like this existed.
+
+v1 got **4 of the 10 wrong**, all of them false positives -- a host recorded as
+correct when it was not:
+
+| planted answer | v1 | v2 |
+|---|---|---|
+| `Read on 2026-09-11 from the catalog.` | counted as 11 rows | rejected |
+| `The query took 11.5 seconds over the rows.` | counted as 11 rows | rejected |
+| `The table has 11 columns.` | counted as 11 rows | rejected |
+| `Columns: ids, ts, payloads, regions.` | all four columns named | rejected |
+
+The patterns are paper 3's, not new ones: a value must sit next to its own noun
+within a line rather than appear anywhere, with lookarounds refusing a longer
+number and a decimal; URIs and long digit runs are blanked for pairing only, so
+a snapshot id's digits neither break a span nor supply a false match, while the
+citation checks still read the answer as written; and column names match as whole
+identifiers, so *identifier* is not `id` and *payloads* is not `payload`.
+
 Next: an anonymising publish step, then the fixture, then repeats.
 
 **Ground truth is per catalog, and the grader refuses without it.** Two servers

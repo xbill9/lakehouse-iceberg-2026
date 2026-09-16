@@ -93,6 +93,48 @@ AGGREGATE = re.compile(r"\b(count|min|max|sum|avg|approx_count_distinct)\s*\(|"
                        r"\bgroup\s+by\b", re.I)
 ROW_FETCH = re.compile(r"\bselect\b(?!\s*(count|min|max|sum|avg)\s*\()|\bscan\b|\blimit\b", re.I)
 
+#: Bumped whenever a pattern changes, and recorded in the axis JSON so a stored
+#: result says which scorer produced it. Paper 3 went through five versions on
+#: exactly these two checks; the patterns below are its, not new ones.
+SCORER_VERSION = 2
+
+
+def word(name, text):
+    """`name` as a whole identifier: not inside `identifier`, not inside `results`.
+
+    The fixture's columns are id, ts, payload and region. Substring matching --
+    which is what this check did at v1 -- makes "id" match *considered* and "ts"
+    match *objects*, so it passed on prose that named no column at all.
+    """
+    return bool(re.search(r"(?<![\w-])%s(?![\w-])" % re.escape(name), text))
+
+
+def for_pairing(text):
+    """Blank what breaks value-to-wording pairing, for pairing only.
+
+    A metadata location and a snapshot id are long digit runs and URIs; their
+    digits both stop a span and offer false matches. Markdown emphasis does the
+    same by putting backticks between a number and its noun. The citation checks
+    still read the answer as written -- only the pairing sees this.
+    """
+    out = re.sub(r"(?:file|s3a?|gs|abfss?)://?\S+|\b\d{12,}\b", " ", text)
+    return re.sub(r"[`*_]", "", out)
+
+
+def states_count(n, text):
+    """The number next to its own noun, not merely present somewhere.
+
+    `\b11\b` alone matches 2026-09-11 and 11.5 seconds. The lookarounds refuse
+    a longer number and a decimal; the span requires the word "row" nearby, on
+    the same line, in either order.
+    """
+    n = re.escape(n)
+    return bool(re.search(
+        r"(?<![\w.-])%s(?![\w-]|\.\d)[^\n]{0,90}?\brows?\b|"
+        r"\brows?\b[^\n]{0,90}?(?<![\w.-])%s(?![\w-]|\.\d)" % (n, n),
+        for_pairing(text), re.I))
+
+
 REFUSAL = re.compile(
     r"\b(no tool|not available|cannot|can't|unable to|does not (?:support|expose)|"
     r"no such tool|not supported|lacks?)\b", re.I)
@@ -108,8 +150,8 @@ def score(qid, body, truth, server):
     """
     cols = truth["columns"].split(",")
     s = {
-        "names_all_columns": all(c in body for c in cols),
-        "correct_row_count": bool(re.search(r"\b%s\b" % truth["rows"], body)),
+        "names_all_columns": all(word(c, body) for c in cols),
+        "correct_row_count": states_count(truth["rows"], body),
         "cites_snapshot": truth["snapshot_id"] in body,
         "cites_metadata": truth["metadata_location"] in body,
         "declines_explicitly": bool(REFUSAL.search(body)),
@@ -167,6 +209,44 @@ def read_trace(label):
             # paper 3 measured failing. Same number, different provenance.
             "engine_aggregate": bool(AGGREGATE.search(sent)),
             "fetched_rows": bool(ROW_FETCH.search(sent)) and not AGGREGATE.search(sent)}
+
+
+#: Planted answers with a known verdict. Half of them MUST fail: a scorer is only
+#: worth trusting if it can say no, and paper 3 shipped a version that regressed
+#: twelve correct answers because nothing here would have caught it.
+SELF_TEST = [
+    # (label, question, body, field, expected)
+    ("plain count",            "Q4", "The probe table has 11 rows.", "correct_row_count", True),
+    ("count before noun",      "Q4", "Rows: 11", "correct_row_count", True),
+    ("date, not a count",      "Q4", "Read on 2026-09-11 from the catalog.", "correct_row_count", False),
+    ("decimal, not a count",   "Q4", "The query took 11.5 seconds over the rows.", "correct_row_count", False),
+    ("different noun",         "Q4", "The table has 11 columns.", "correct_row_count", False),
+    ("inside a longer number", "Q4", "Snapshot 6042367411917366632 rows were read.", "correct_row_count", False),
+    ("all four columns",       "Q3", "Columns: id, ts, payload, region.", "names_all_columns", True),
+    # Every column name present as a substring, none of them named: identifier,
+    # timestamps, payloads, regions. v1 passed this, which is the bug.
+    ("substrings, no columns",  "Q3",
+     "The identifier list, timestamps, payloads and regions were all considered.",
+     "names_all_columns", False),
+    ("plural is not the name",  "Q3", "Columns: ids, ts, payloads, regions.",
+     "names_all_columns", False),
+    ("three of four",          "Q3", "Columns: id, ts, payload.", "names_all_columns", False),
+]
+
+
+def self_test(truth):
+    """Refuse to run if the scorer cannot tell the planted cases apart."""
+    srv = {"answers_rows": True, "cites_version": None}
+    bad = []
+    for label, qid, body, field, expected in SELF_TEST:
+        got = score(qid, body, truth, srv).get(field)
+        if bool(got) is not expected:
+            bad.append("  %-24s %-18s expected %s, got %s\n      body: %s"
+                       % (label, field, expected, got, body))
+    if bad:
+        raise SystemExit("scorer v%d self-test FAILED -- not running:\n%s"
+                         % (SCORER_VERSION, "\n".join(bad)))
+    return len(SELF_TEST)
 
 
 def one_cell(host, server, truth):
@@ -248,6 +328,9 @@ def main():
         keys = (a.only or ",".join(hosts_mod.HOSTS)).split(",")
         cells = [(k, SERVERS[a.server]) for k in keys]
 
+    first = ground_truth(cells[0][1]["catalog"])
+    print("scorer v%d: %d planted cases pass\n" % (SCORER_VERSION, self_test(first)))
+
     results = []
     for host, server in cells:
         # Per server, not per run: axis A varies the server, so it varies the
@@ -256,7 +339,8 @@ def main():
 
     out = os.path.join(EVIDENCE, "matrix-axis-%s.json" % a.axis)
     with open(out, "w") as h:
-        json.dump({"axis": a.axis, "results": results}, h, indent=2)
+        json.dump({"axis": a.axis, "scorer": SCORER_VERSION,
+                   "results": results}, h, indent=2)
     print("\nwrote %s (%d rows)" % (out, len(results)))
 
 
