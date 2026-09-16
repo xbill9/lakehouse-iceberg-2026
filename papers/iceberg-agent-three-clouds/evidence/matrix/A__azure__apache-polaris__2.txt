@@ -1,31 +1,33 @@
-# axis=A leg=azure catalog=apache-polaris run=2 elapsed_s=19.9 captured=2026-09-15T20:08:57Z
+# axis=A leg=azure catalog=apache-polaris run=2 elapsed_s=18.3 captured=2026-09-16T00:13:52Z
 
 cloud=azure model=gpt-5-mini catalog=apache-polaris
 question: How many rows are in the probe table, and what columns does it have? Cite the exact table version you read.
 
 
 <!-- cloud=azure model=gpt-5-mini catalog=apache-polaris instruction=v3 catalog_calls=3 -->
-Tables in the catalog (listed first):
+Tables in the catalog
 - probe_ns.probe_table
 
-Describe of the table I used (probe_ns.probe_table):
-- format-version: 2
-- columns:
-  - id               long           required
-  - ts               timestamptz    optional
-  - payload          string         optional
-  - region           string         optional
-- partitioned by: ts_day
-- snapshots: 4
-- current-snapshot-id: aws-account-00029537848
+Description of the table I used (as returned by iceberg_describe_table)
+- Columns:
+  - id — long (required)
+  - ts — timestamptz (optional)
+  - payload — string (optional)
+  - region — string (optional)
+- Partitioning: ts_day
+- Format version: 2
 - metadata-location: file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json
+- snapshot id (current): aws-account-00029537848
 
-How many rows:
-- Exact row count: 11 rows.
-- Source: iceberg_count_rows on probe_ns.probe_table for snapshot-id aws-account-00029537848 (this count is exact for that snapshot).
-- Cite the table version I read: metadata-location = "file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json", snapshot-id = aws-account-00029537848.
+Row count (exact)
+- 11 rows (exact for snapshot-id aws-account-00029537848)
+
+Sources
+- iceberg_list_tables returned: probe_ns.probe_table
+- iceberg_describe_table for probe_ns.probe_table (metadata-location and snapshot id quoted above)
+- iceberg_count_rows for probe_ns.probe_table (returned 11 rows for snapshot-id aws-account-00029537848)
 
 catalog calls: 3 of 8
-agent seconds: 14.58 | tool seconds: 0.12
-tokens: input=4922 output=1108 reasoning=576 model_calls=None
-warm-up seconds: 4.09
+agent seconds: 11.37 | tool seconds: 0.14
+tokens: input=4652 output=719 reasoning=256 model_calls=None
+warm-up seconds: 5.64

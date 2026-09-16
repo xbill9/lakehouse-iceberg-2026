@@ -8,9 +8,9 @@
 
 AXIS A -- catalog fixed (apache-polaris), framework and model vary
   cell                 runs  failed correct  snapshot metadata columns  answer s (min/med/max)  iqr (p25-p75)  process-med tool-med
-  aws                  10    0      10/10    10/10    10/10    10/10     3.15 /  3.25 /  3.32  iqr  3.23- 3.28     4.3        0.12
-  gcp                  10    0      10/10    10/10    10/10    10/10     4.53 /  5.62 /  6.96  iqr  5.42- 6.17     9.4        0.12
-  azure                10    0      10/10    10/10    10/10    10/10    11.74 / 13.11 / 15.61  iqr 12.18-13.88    22.5        0.12
+  aws                  10    0      10/10    10/10    10/10    10/10     3.21 /  3.33 /  3.58  iqr  3.31- 3.38     4.5        0.11
+  gcp                  10    0      10/10    10/10    10/10    10/10     4.88 /  5.80 /  6.72  iqr  5.37- 6.18     9.6        0.12
+  azure                10    0      10/10    10/10    10/10    10/10    10.04 / 12.36 / 17.37  iqr 11.59-12.60    21.2        0.11
   catalog_calls across all runs: [3] | invented columns: 0
 
 AXIS B -- leg fixed (gcp / ADK / gemini-2.5-flash), catalog varies
@@ -24,38 +24,38 @@ AXIS B -- leg fixed (gcp / ADK / gemini-2.5-flash), catalog varies
 
 AXIS C -- catalog fixed (apache-polaris), model fixed while framework varies
   framework / model                    runs  failed correct  snapshot metadata columns  answer s (min/med/max)  iqr (p25-p75)  process-med tool-med
-  Strands / gemini-2.5-flash           10    0      10/10    10/10    10/10    10/10     6.03 /  6.96 /  8.53  iqr  6.42- 7.89     9.0        0.12
-  ADK / gemini-2.5-flash               10    0      10/10    10/10    10/10    10/10     4.56 /  4.86 /  5.99  iqr  4.63- 5.64     8.5        0.12
-  Strands / us.amazon.nova-micro-v1:0  10    0      10/10    10/10    10/10    10/10     3.22 /  3.33 /  3.48  iqr  3.29- 3.36     4.5        0.12
+  Strands / gemini-2.5-flash           10    0      10/10    10/10    10/10    10/10     5.57 /  7.44 /  8.53  iqr  6.83- 7.95     9.4        0.11
+  ADK / gemini-2.5-flash               10    0      10/10    10/10    10/10    10/10     4.25 /  4.88 /  5.84  iqr  4.39- 5.46     8.4        0.12
+  Strands / us.amazon.nova-micro-v1:0  10    0      10/10    10/10    10/10    10/10     3.24 /  3.34 /  3.70  iqr  3.29- 3.46     4.4        0.12
   catalog_calls across all runs: [3] | invented columns: 0
 
 AXIS D -- each leg on its own cloud's catalog, a question only a data scan answers
   question: What is the largest id in the probe table, and how many of its rows have an id of 10 or more? Cite the exact table version you read.
   framework / model on catalog                               runs  max id   count>=10 snapshot answer s (min/med/max)  tool-med calls
-  Strands / us.amazon.nova-micro-v1:0 on aws-glue            10    10/10    10/10     10/10     6.01 /  6.30 /  6.41  iqr  6.17- 6.34   2.02    [5]  failed 0
-  ADK / gemini-2.5-flash on google-lakehouse                 10    10/10    10/10     10/10    11.79 / 13.91 / 17.67  iqr 13.16-14.84   5.05    [4]  failed 0
-  Agent Framework / gpt-5-mini on microsoft-onelake          10    10/10    10/10     10/10    21.05 / 26.12 / 46.20  iqr 23.72-29.42   4.79    [4]  failed 0
+  Strands / us.amazon.nova-micro-v1:0 on aws-glue            10    10/10    10/10     10/10     6.09 /  6.25 /  6.88  iqr  6.18- 6.41   2.07    [5]  failed 0
+  ADK / gemini-2.5-flash on google-lakehouse                 10    10/10    10/10     10/10    11.35 / 13.28 / 24.19  iqr 12.84-14.92   5.00    [4]  failed 0
+  Agent Framework / gpt-5-mini on microsoft-onelake          10    10/10    10/10     10/10    21.98 / 24.35 / 26.17  iqr 23.10-25.22   5.09    [4]  failed 0
   expected: aws-glue max_id=23 count>=10=8; google-lakehouse max_id=23 count>=10=8; microsoft-onelake max_id=21 count>=10=4
 
 AXIS E -- every framework and model on apache-polaris, the same data question
   question: What is the largest id in the probe table, and how many of its rows have an id of 10 or more? Cite the exact table version you read.
   framework / model on catalog                               runs  max id   count>=10 snapshot answer s (min/med/max)  tool-med calls
-  Strands / gemini-2.5-flash on apache-polaris [rows-only]   20    20/20    20/20     20/20     8.14 /  9.64 / 12.91  iqr  8.97-10.59   0.13    [3, 4]  failed 0
-  ADK / gemini-2.5-flash on apache-polaris [rows-only]       20    20/20    20/20     20/20     5.79 /  7.97 / 11.47  iqr  7.25- 8.42   0.13    [3, 4]  failed 0
-  Strands / us.amazon.nova-micro-v1:0 on apache-polaris [provider-decoding] 20    20/20    16/20     20/20     3.30 /  3.94 /  5.39  iqr  3.63- 4.51   0.15    [3, 4, 5]  failed 0
-  Agent Framework / gpt-5-mini on apache-polaris [rows-only] 20    20/20    20/20     20/20    15.80 / 18.80 / 23.04  iqr 17.54-20.83   0.13    [3, 4]  failed 0
-  Strands / us.amazon.nova-micro-v1:0 on apache-polaris [rows-only] 20    20/20    0/20      20/20     3.21 /  3.42 /  5.10  iqr  3.33- 3.55   0.13    [3]  failed 0
-  Strands / us.amazon.nova-micro-v1:0 on apache-polaris      20    20/20    20/20     20/20     3.58 /  3.72 /  4.24  iqr  3.64- 3.77   0.15    [4]  failed 0
-  ADK / gemini-2.5-flash on apache-polaris                   20    20/20    20/20     20/20     6.62 /  8.45 / 20.90  iqr  7.50- 9.47   0.15    [4]  failed 0
-  Agent Framework / gpt-5-mini on apache-polaris             20    20/20    20/20     20/20    17.08 / 19.95 / 24.32  iqr 19.18-20.48   0.14    [4]  failed 0
-  Strands / gemini-2.5-flash on apache-polaris               20    20/20    20/20     20/20     8.81 / 10.88 / 19.36  iqr 10.22-11.97   0.15    [4]  failed 0
-  Strands / us.amazon.nova-micro-v1:0 on apache-polaris [rows-only-provider-decoding] 20    20/20    4/20      20/20     3.30 /  3.91 /  4.88  iqr  3.51- 4.30   0.13    [3, 4]  failed 0
+  Strands / gemini-2.5-flash on apache-polaris [rows-only]   20    20/20    20/20     20/20     8.03 /  9.58 / 11.62  iqr  8.63-10.36   0.13    [3, 4]  failed 0
+  ADK / gemini-2.5-flash on apache-polaris [rows-only]       20    20/20    20/20     20/20     5.71 /  7.75 / 10.41  iqr  6.78- 8.94   0.13    [3, 4]  failed 0
+  Strands / us.amazon.nova-micro-v1:0 on apache-polaris [provider-decoding] 20    20/20    16/20     20/20     3.03 /  4.11 /  5.83  iqr  3.62- 4.61   0.15    [3, 4, 5]  failed 0
+  Agent Framework / gpt-5-mini on apache-polaris [rows-only] 20    20/20    20/20     20/20    15.45 / 17.98 / 21.46  iqr 17.13-19.08   0.13    [3, 4]  failed 0
+  Strands / us.amazon.nova-micro-v1:0 on apache-polaris [rows-only] 20    20/20    0/20      20/20     3.29 /  3.40 /  3.78  iqr  3.36- 3.48   0.13    [3]  failed 0
+  Strands / us.amazon.nova-micro-v1:0 on apache-polaris      20    20/20    20/20     20/20     3.50 /  3.69 /  6.89  iqr  3.60- 3.75   0.15    [4]  failed 0
+  ADK / gemini-2.5-flash on apache-polaris                   20    20/20    20/20     20/20     6.35 /  7.89 /  9.82  iqr  7.19- 8.53   0.15    [4]  failed 0
+  Agent Framework / gpt-5-mini on apache-polaris             20    20/20    20/20     20/20    16.22 / 19.32 / 25.76  iqr 18.12-20.47   0.14    [4]  failed 0
+  Strands / gemini-2.5-flash on apache-polaris               20    20/20    20/20     20/20     9.59 / 10.86 / 13.41  iqr 10.61-11.85   0.15    [4]  failed 0
+  Strands / us.amazon.nova-micro-v1:0 on apache-polaris [rows-only-provider-decoding] 20    20/20    4/20      20/20     3.14 /  3.95 /  5.06  iqr  3.60- 4.48   0.13    [3, 4]  failed 0
   [rows-only]: the v1 scan, rows and no computed count, so the model counts. [provider-decoding]: Nova Micro with no decoding fields sent.
 
 AXIS F -- Nova Micro on apache-polaris, Axis A's question, with and without its tool-use decoding
   framework / model                                          runs  failed correct  snapshot metadata columns  answer s (min/med/max)  iqr (p25-p75)  process-med tool-med
-  Strands / us.amazon.nova-micro-v1:0 [provider-decoding]    10    0      10/10    10/10    10/10    10/10     2.78 /  3.27 /  3.52  iqr  3.10- 3.36     4.4        0.11
-  Strands / us.amazon.nova-micro-v1:0                        10    0      10/10    10/10    10/10    10/10     3.17 /  3.31 /  3.76  iqr  3.24- 3.46     4.4        0.11
+  Strands / us.amazon.nova-micro-v1:0 [provider-decoding]    10    0      10/10    10/10    10/10    10/10     2.72 /  3.17 /  4.19  iqr  2.95- 3.31     4.2        0.11
+  Strands / us.amazon.nova-micro-v1:0                        10    0      10/10    10/10    10/10    10/10     3.05 /  3.46 /  3.72  iqr  3.28- 3.53     4.5        0.11
   catalog_calls across all runs: [3] | invented columns: 0
 
 ground truth: snapshot total-records against a full scan of the data files
@@ -75,8 +75,8 @@ total runs, axes A and B: 80
 
 # scored with scorer v10 (answer text only, count beside 'rows', whole-word
 # columns). Runs recorded under an older scorer and re-scored:
-#   E__azure__apache-polaris__10.txt: correct_max_id stored False, re-scored True (paper3-raw)
 #   C__aws__us.amazon.nova-micro-v1-0__apache-polaris__2.txt: correct_row_count stored False, re-scored True (run4-ten-repeats)
+#   E__azure__apache-polaris__10.txt: correct_max_id stored False, re-scored True (run10-thinking-in-answers)
 #   E__aws__gemini-2.5-flash__rows-only__apache-polaris__8.txt: correct_count stored False, re-scored True (run9-rows-only-keep-limit-small)
 #   E__azure__rows-only__apache-polaris__6.txt: correct_count stored False, re-scored True (run8-greedy-single-sample)
 #   D__aws__aws-glue__3.txt: correct_max_id stored False, re-scored True (axis-d-run1-instruction-v2)

@@ -224,7 +224,13 @@ def thinking_section() -> list:
     answer_re = re.compile(r"<!-- cloud=.*?-->\n(.*?)\ncatalog calls:", re.S)
     carrying = hidden = 0
     echo = {"the call budget": 0, "the word \"eight\"": 0}
-    for path in glob.glob(os.path.join(rm.RAW, "matrix", "*.txt")):
+    # The archived pre-strip run, not the live matrix: run_once.py now removes
+    # <thinking> on every leg, so the published captures no longer carry it and
+    # counting them would report zeros for a thing that did happen.
+    source = os.path.join(rm.RAW, "run10-thinking-in-answers", "matrix")
+    if not os.path.isdir(source):
+        return []
+    for path in glob.glob(os.path.join(source, "*.txt")):
         with open(path) as handle:
             body = handle.read()
         found = answer_re.search(body)
@@ -242,11 +248,13 @@ def thinking_section() -> list:
         hidden += any(c not in seen for c in claims)
         echo["the call budget"] += "budget" in think.lower()
         echo["the word \"eight\""] += "eight" in think.lower()
-    return ["", "## 5. Reasoning that arrives inside the answer text",
-            "#  Every published matrix capture. Only Nova Micro's answers carry it.",
-            "  %3d answers carry <thinking> in the text a caller receives" % carrying,
-            "  %3d of those state a count or largest id the visible answer never shows" % hidden,
-            ] + ["  %3d echo %s from the agent's own instruction" % (n, w) for w, n in echo.items()]
+    return ["", "## 5. Reasoning that arrived inside the answer text, before the harness stripped it",
+            "#  Measured over the captures archived as run10-thinking-in-answers. Only Nova",
+            "#  Micro's answers carried it; run_once.py now strips <thinking> on every leg,",
+            "#  so a published capture is the text a caller receives.",
+            "  %3d answers carried <thinking> in the text a caller received" % carrying,
+            "  %3d of those stated a count or largest id the visible answer never showed" % hidden,
+            ] + ["  %3d echoed %s from the agent's own instruction" % (n, w) for w, n in echo.items()]
 
 
 def says_eight(answer: str) -> bool:

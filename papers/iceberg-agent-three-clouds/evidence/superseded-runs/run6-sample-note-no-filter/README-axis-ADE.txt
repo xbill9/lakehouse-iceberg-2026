@@ -2,6 +2,36 @@
 # beside the same run's Axes A to C; why is under that run above.
 
   capture                                  max id count  snapshot  calls  answer s
+  A__aws__apache-polaris__1.txt            WRONG                  3      3.43
+  A__gcp__apache-polaris__1.txt            correct                3      6.65
+  A__azure__apache-polaris__1.txt          correct                3      13.18
+  A__aws__apache-polaris__2.txt            correct                3      3.41
+  A__gcp__apache-polaris__2.txt            correct                3      5.23
+  A__azure__apache-polaris__2.txt          correct                3      15.16
+  A__azure__apache-polaris__3.txt          correct                3      13.68
+  A__aws__apache-polaris__3.txt            correct                3      2.78
+  A__gcp__apache-polaris__3.txt            correct                3      5.61
+  A__aws__apache-polaris__4.txt            correct                3      3.38
+  A__gcp__apache-polaris__4.txt            correct                3      4.99
+  A__azure__apache-polaris__4.txt          correct                3      11.41
+  A__gcp__apache-polaris__5.txt            correct                3      4.53
+  A__azure__apache-polaris__5.txt          correct                3      12.60
+  A__aws__apache-polaris__5.txt            correct                3      3.55
+  A__azure__apache-polaris__6.txt          correct                3      11.87
+  A__aws__apache-polaris__6.txt            correct                3      3.02
+  A__gcp__apache-polaris__6.txt            correct                3      4.64
+  A__aws__apache-polaris__7.txt            correct                3      2.94
+  A__gcp__apache-polaris__7.txt            correct                3      6.01
+  A__azure__apache-polaris__7.txt          correct                3      13.96
+  A__aws__apache-polaris__8.txt            correct                3      3.24
+  A__azure__apache-polaris__8.txt          correct                3      14.85
+  A__gcp__apache-polaris__8.txt            correct                3      6.46
+  A__aws__apache-polaris__9.txt            correct                3      3.19
+  A__azure__apache-polaris__9.txt          correct                3      12.49
+  A__gcp__apache-polaris__9.txt            correct                3      5.17
+  A__azure__apache-polaris__10.txt         correct                3      13.31
+  A__aws__apache-polaris__10.txt           correct                3      3.31
+  A__gcp__apache-polaris__10.txt           correct                3      4.65
   D__aws__aws-glue__1.txt                  ok     WRONG  ok        4      6.32
   D__gcp__google-lakehouse__1.txt          ok     ok     ok        3      16.08
   D__azure__microsoft-onelake__1.txt       ok     ok     ok        4      25.66
@@ -73,4 +103,4 @@
   E__gcp__apache-polaris__10.txt           ok     ok     ok        3      11.95
   E__aws__apache-polaris__10.txt           ok     WRONG  ok        3      3.25
 
-Strands answers with a line break inside a word or number the model streamed whole: 0 of 30
+Strands answers with a line break inside a word or number the model streamed whole: 0 of 40

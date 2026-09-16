@@ -1,29 +1,31 @@
-# axis=A leg=azure catalog=apache-polaris run=7 elapsed_s=18.3 captured=2026-09-15T20:11:58Z
+# axis=A leg=azure catalog=apache-polaris run=7 elapsed_s=23.1 captured=2026-09-16T00:17:17Z
 
 cloud=azure model=gpt-5-mini catalog=apache-polaris
 question: How many rows are in the probe table, and what columns does it have? Cite the exact table version you read.
 
 
 <!-- cloud=azure model=gpt-5-mini catalog=apache-polaris instruction=v3 catalog_calls=3 -->
-Tables in the catalog (listed first)
+Tables found
 - probe_ns.probe_table
 
-Table I used (description)
-- probe_ns.probe_table
-  - format-version: 2
-  - columns:
-    - id (long, required)
-    - ts (timestamptz, optional)
-    - payload (string, optional)
-    - region (string, optional)
-  - partitioned by: ts_day
-  - metadata-location: file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json
-  - current-snapshot-id: aws-account-00029537848
+Table described (I used probe_ns.probe_table)
+- format-version: 2
+- columns:
+  - id               long           required
+  - ts               timestamptz    optional
+  - payload          string         optional
+  - region           string         optional
+- partitioned by: ts_day
+- snapshots: 4
+
+Exact table version cited
+- metadata-location: file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json
+- current-snapshot-id: aws-account-00029537848
 
 Row count
-- Exact row count: 11 rows. (This is exact for snapshot-id aws-account-00029537848; metadata-location cited above.)
+- probe_ns.probe_table has 11 rows (exact for snapshot-id aws-account-00029537848; count obtained from iceberg_count_rows).
 
 catalog calls: 3 of 8
-agent seconds: 12.51 | tool seconds: 0.12
-tokens: input=5037 output=927 reasoning=512 model_calls=None
-warm-up seconds: 4.54
+agent seconds: 12.63 | tool seconds: 0.11
+tokens: input=4877 output=882 reasoning=448 model_calls=None
+warm-up seconds: 9.28

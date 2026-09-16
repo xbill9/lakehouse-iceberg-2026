@@ -1,4 +1,4 @@
-# axis=A leg=gcp catalog=apache-polaris run=2 elapsed_s=10.0 captured=2026-09-15T20:08:37Z
+# axis=A leg=gcp catalog=apache-polaris run=2 elapsed_s=9.0 captured=2026-09-16T00:13:34Z
 
 cloud=gcp model=gemini-2.5-flash catalog=apache-polaris
 question: How many rows are in the probe table, and what columns does it have? Cite the exact table version you read.
@@ -8,17 +8,17 @@ question: How many rows are in the probe table, and what columns does it have? C
    -> tool: iceberg_count_rows(table='probe_ns.probe_table')
 
 <!-- cloud=gcp model=gemini-2.5-flash catalog=apache-polaris instruction=v3 catalog_calls=3 -->
-The table `probe_ns.probe_table` has 11 rows. This count is exact for snapshot ID aws-account-00029537848.
+The table `probe_ns.probe_table` has 11 rows. This count is exact for snapshot ID `aws-account-00029537848`.
 
-The columns in `probe_ns.probe_table` are:
+The table `probe_ns.probe_table` has the following columns:
 *   `id` (long)
 *   `ts` (timestamptz)
 *   `payload` (string)
 *   `region` (string)
 
-The table version read for this information is identified by metadata-location `file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json` and snapshot-id `aws-account-00029537848`.
+The table version for this information is identified by metadata-location `file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json` and snapshot-id `aws-account-00029537848`.
 
 catalog calls: 3 of 8
-agent seconds: 6.30 | tool seconds: 0.12
-tokens: input=4707 output=252 reasoning=450 model_calls=4
-warm-up seconds: 2.48
+agent seconds: 5.20 | tool seconds: 0.12
+tokens: input=4839 output=253 reasoning=375 model_calls=4
+warm-up seconds: 2.62

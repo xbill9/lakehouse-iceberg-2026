@@ -1,0 +1,35 @@
+# axis=C leg=aws catalog=apache-polaris run=5 elapsed_s=9.4 captured=2026-09-15T20:25:19Z
+
+cloud=aws model=gemini-2.5-flash catalog=apache-polaris
+question: How many rows are in the probe table, and what columns does it have? Cite the exact table version you read.
+
+
+Tool #1: iceberg_list_tables
+
+Tool #2: iceberg_describe_table
+
+Tool #3: iceberg_count_rows
+The `probe_ns.probe_table` contains 11 rows, from snapshot-id aws-account-00029537848.
+
+The table has the following columns:
+*   `id` (long)
+*   `ts` (timestamptz)
+*   `payload` (string)
+*   `region` (string)
+
+This information was obtained from the table version identified by metadata-location `file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json` and snapshot-id `aws-account-00029537848`.
+<!-- cloud=aws model=gemini-2.5-flash catalog=apache-polaris instruction=v3 catalog_calls=3 -->
+The `probe_ns.probe_table` contains 11 rows, from snapshot-id aws-account-00029537848.
+
+The table has the following columns:
+*   `id` (long)
+*   `ts` (timestamptz)
+*   `payload` (string)
+*   `region` (string)
+
+This information was obtained from the table version identified by metadata-location `file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json` and snapshot-id `aws-account-00029537848`.
+
+catalog calls: 3 of 8
+agent seconds: 7.44 | tool seconds: 0.12
+tokens: input=3276 output=742 reasoning=None model_calls=4
+warm-up seconds: 1.16

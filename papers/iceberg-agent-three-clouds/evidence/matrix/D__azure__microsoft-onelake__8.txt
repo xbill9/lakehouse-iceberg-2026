@@ -1,30 +1,27 @@
-# axis=D leg=azure catalog=microsoft-onelake run=8 elapsed_s=31.1 captured=2026-09-15T21:18:33Z
+# axis=D leg=azure catalog=microsoft-onelake run=8 elapsed_s=30.6 captured=2026-09-16T00:30:50Z
 
 cloud=azure model=gpt-5-mini catalog=microsoft-onelake
 question: What is the largest id in the probe table, and how many of its rows have an id of 10 or more? Cite the exact table version you read.
 
 
 <!-- cloud=azure model=gpt-5-mini catalog=microsoft-onelake instruction=v3 catalog_calls=4 -->
-Tables found
+Tables found:
 - dbo.probe_table
 
-Table described (the version I read)
-- table: dbo.probe_table
-- columns: id int optional, ts timestamptz optional, payload string optional
-- partitioned by: (unpartitioned)
-- current-snapshot-id: 3346142071915475645
+Description of the table used (dbo.probe_table):
+- columns: id (int), ts (timestamptz), payload (string)
+- partitioning: unpartitioned
 - metadata-location: abfss://guid-0005@onelake.dfs.fabric.microsoft.com/guid-0006/Tables/probe_table/metadata/v3.metadata.json
+- snapshot id: 3346142071915475645
 
-Answer
-- Largest id in the table: 21.
-- Number of rows with id >= 10: 4.
-
-These figures are from dbo.probe_table, snapshot-id 3346142071915475645, metadata-location abfss://guid-0005@onelake.dfs.fabric.microsoft.com/guid-0006/Tables/probe_table/metadata/v3.metadata.json. (Scans returned exact COUNT and MIN/MAX for the snapshot.)
+Results (from that exact table version: metadata-location and snapshot-id quoted above):
+- Largest id: 21. (From a full-table read: COUNT exactly 6 rows; MIN id = 0; MAX id = 21 — snapshot-id 3346142071915475645.)
+- Rows with id >= 10: exactly 4 rows match id >= 10. (Exact count over the same snapshot-id 3346142071915475645.)
 
 catalog calls: 4 of 8
-agent seconds: 21.79 | tool seconds: 4.74
-tokens: input=6596 output=1293 reasoning=704 model_calls=None
-warm-up seconds: 7.98
+agent seconds: 24.25 | tool seconds: 4.32
+tokens: input=6604 output=1393 reasoning=896 model_calls=None
+warm-up seconds: 5.07
 [tool-trace] iceberg_scan_table(table='dbo.probe_table', columns='id', where='', limit=20)
 id
 0

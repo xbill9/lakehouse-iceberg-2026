@@ -1,4 +1,4 @@
-# axis=C leg=aws catalog=apache-polaris run=1 elapsed_s=9.1 captured=2026-09-15T20:23:32Z
+# axis=C leg=aws catalog=apache-polaris run=1 elapsed_s=8.0 captured=2026-09-16T00:19:22Z
 
 cloud=aws model=gemini-2.5-flash catalog=apache-polaris
 question: How many rows are in the probe table, and what columns does it have? Cite the exact table version you read.
@@ -9,15 +9,27 @@ Tool #1: iceberg_list_tables
 Tool #2: iceberg_describe_table
 
 Tool #3: iceberg_count_rows
-The `probe_ns.probe_table` table has 11 rows. It has the following columns: `id` (long), `ts` (timestamptz), `payload` (string), and `region` (string).
+The `probe_ns.probe_table` has the following columns:
+*   `id` (long, required)
+*   `ts` (timestamptz, optional)
+*   `payload` (string, optional)
+*   `region` (string, optional)
 
-This information is from `file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json` at snapshot ID `aws-account-00029537848`.
+The table contains 11 rows.
+
+This information is from the snapshot with ID `aws-account-00029537848` at metadata location `file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json`.
 <!-- cloud=aws model=gemini-2.5-flash catalog=apache-polaris instruction=v3 catalog_calls=3 -->
-The `probe_ns.probe_table` table has 11 rows. It has the following columns: `id` (long), `ts` (timestamptz), `payload` (string), and `region` (string).
+The `probe_ns.probe_table` has the following columns:
+*   `id` (long, required)
+*   `ts` (timestamptz, optional)
+*   `payload` (string, optional)
+*   `region` (string, optional)
 
-This information is from `file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json` at snapshot ID `aws-account-00029537848`.
+The table contains 11 rows.
+
+This information is from the snapshot with ID `aws-account-00029537848` at metadata location `file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json`.
 
 catalog calls: 3 of 8
-agent seconds: 7.05 | tool seconds: 0.13
-tokens: input=3276 output=627 reasoning=None model_calls=4
-warm-up seconds: 1.25
+agent seconds: 5.86 | tool seconds: 0.11
+tokens: input=2360 output=598 reasoning=None model_calls=3
+warm-up seconds: 1.27

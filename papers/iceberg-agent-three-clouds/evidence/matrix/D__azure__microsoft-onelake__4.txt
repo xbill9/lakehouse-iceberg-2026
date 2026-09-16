@@ -1,4 +1,4 @@
-# axis=D leg=azure catalog=microsoft-onelake run=4 elapsed_s=33.6 captured=2026-09-15T21:14:42Z
+# axis=D leg=azure catalog=microsoft-onelake run=4 elapsed_s=29.9 captured=2026-09-16T00:27:14Z
 
 cloud=azure model=gpt-5-mini catalog=microsoft-onelake
 question: What is the largest id in the probe table, and how many of its rows have an id of 10 or more? Cite the exact table version you read.
@@ -8,28 +8,24 @@ question: What is the largest id in the probe table, and how many of its rows ha
 Tables found
 - dbo.probe_table
 
-Table described (the table I used)
+Description of the table used
 - table: dbo.probe_table
-- columns: id int, ts timestamptz, payload string
+- columns: id (int), ts (timestamptz), payload (string)
 - partitioning: unpartitioned
 - metadata-location: abfss://guid-0005@onelake.dfs.fabric.microsoft.com/guid-0006/Tables/probe_table/metadata/v3.metadata.json
-- snapshot id: 3346142071915475645
+- current-snapshot-id: 3346142071915475645
 
-Answer (figures read from the table version above)
-- Largest id: 21.
-  - Source: iceberg_scan_table over the whole table reported MIN and MAX of id = 0 and 21, COUNT exactly 6, read from snapshot-id 3346142071915475645.
-- Number of rows with id >= 10: 4.
-  - Source: iceberg_scan_table with where = "id >= 10" reported COUNT exactly 4, read from snapshot-id 3346142071915475645.
+Results (read from the above snapshot)
+- Largest id in the probe table: 21.
+- Number of rows with id >= 10: exactly 4 rows.
 
-Both figures are from the exact table version identified by:
-metadata-location = abfss://guid-0005@onelake.dfs.fabric.microsoft.com/guid-0006/Tables/probe_table/metadata/v3.metadata.json
-snapshot-id = 3346142071915475645.
+Both figures come from the table snapshot-id 3346142071915475645 (metadata-location quoted above).
 
 catalog calls: 4 of 8
-agent seconds: 26.39 | tool seconds: 4.59
-tokens: input=7934 output=1774 reasoning=1152 model_calls=None
-warm-up seconds: 6.00
-[tool-trace] iceberg_scan_table(table='dbo.probe_table', columns='id', where='', limit=100)
+agent seconds: 22.83 | tool seconds: 5.03
+tokens: input=7639 output=1502 reasoning=1024 model_calls=None
+warm-up seconds: 5.84
+[tool-trace] iceberg_scan_table(table='dbo.probe_table', columns='id', where='', limit=20)
 id
 0
 1
@@ -42,7 +38,7 @@ id
 COUNT: exactly 6 row(s) are in the table in snapshot-id 3346142071915475645. Exact, over the whole table.
 MIN and MAX of id over those 6 row(s): 0 and 21. Exact.
 [/tool-trace]
-[tool-trace] iceberg_scan_table(table='dbo.probe_table', columns='id', where='id >= 10', limit=100)
+[tool-trace] iceberg_scan_table(table='dbo.probe_table', columns='id', where='id >= 10', limit=20)
 id
 20
 21

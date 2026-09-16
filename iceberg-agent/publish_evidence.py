@@ -87,6 +87,14 @@ SUPERSEDED = [
 #: Archived single-axis runs, published under superseded-runs/<name>/ with their
 #: re-scored rows. Kept for the same reason as the complete runs above.
 SUPERSEDED_D = [
+    ("run10-thinking-in-answers", [
+        "# Axes A, C, D, E and F, captured 2026-09-15, SUPERSEDED and kept. Their answers",
+        "# carry Nova Micro's <thinking> text, because the runner returned model output as",
+        "# it arrived: 130 of them, 9 stating a count or largest id the visible answer never",
+        "# showed, 113 echoing the agent's own call budget back to the caller. run_once.py",
+        "# now strips <thinking> on every leg, so a published capture is the text a caller",
+        "# receives, and every axis was re-run. Scores are unchanged -- the scorer always",
+        "# read the answer with those blocks removed. nova-diagnosis.txt counts them here."]),
     ("run9-rows-only-keep-limit-small", [
         "# Axis E at ten repeats per cell, captured 2026-09-15, SUPERSEDED and kept. Its",
         "# rows-only cells used the v1 scan with its own docstring, which tells the model",
@@ -600,7 +608,10 @@ def superseded_d(truth: dict) -> dict:
             continue
         # Axis C of a complete archived run is already published by superseded().
         covered = "C" if name in {n for n, _, _ in SUPERSEDED} else ""
-        axes_here = [x for x in "CDE" if x not in covered
+        # A and F too: an archive kept for what its ANSWER TEXT held, rather than for
+        # a scan result, carries every axis it ran. Dropping them would publish 260 of
+        # run10's 310 captures while nova-diagnosis.txt counts all 310.
+        axes_here = [x for x in "ACDEF" if x not in covered
                      and os.path.exists(os.path.join(base, "matrix-axis-%s.json" % x))]
         rows, bodies = [], {}
         for axis in axes_here:
@@ -612,7 +623,9 @@ def superseded_d(truth: dict) -> dict:
         lines = header + ["", "  %-40s %-6s %-6s %-9s %-6s %s"
                           % ("capture", "max id", "count", "snapshot", "calls", "answer s")]
         for r in rows:
-            if r["axis"] == "C":
+            # A, C and F ask the metadata question, so they are scored on the row
+            # count and the column names, not on a scan result.
+            if r["axis"] in "ACF":
                 ok = all(r[k] for k in ("correct_row_count", "cites_snapshot",
                                         "cites_metadata", "names_all_columns"))
                 lines.append("  %-40s %-22s %-6s %.2f"

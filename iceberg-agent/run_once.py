@@ -18,6 +18,7 @@ import contextlib
 import io
 import importlib.util
 import os
+import re
 import sys
 import time
 import warnings
@@ -65,7 +66,7 @@ async def run_gcp(agent, question: str) -> str:
                                   (part.function_call.args or {}).items())), flush=True)
                 elif getattr(part, "text", None):
                     out.append(part.text)
-    return "\n".join(out).strip(), usage
+    return answer_only("\n".join(out)), usage
 
 
 async def run_aws(agent, question: str) -> str:
@@ -91,7 +92,7 @@ async def run_aws(agent, question: str) -> str:
         if "".join(blocks).strip():
             texts.append("".join(blocks))
     text = "\n".join(texts) if texts else str(result)
-    return text, {"input": used.get("inputTokens"), "output": used.get("outputTokens"),
+    return answer_only(text), {"input": used.get("inputTokens"), "output": used.get("outputTokens"),
                          "reasoning": None, "model_calls": result.metrics.cycle_count}
 
 
@@ -99,10 +100,25 @@ async def run_azure(agent, question: str) -> str:
     """Agent Framework awaits the agent."""
     reply = await agent.run(question)
     used = reply.usage_details or {}
-    return str(reply), {"input": used.get("input_token_count"),
+    return answer_only(str(reply)), {"input": used.get("input_token_count"),
                         "output": used.get("output_token_count"),
                         "reasoning": used.get("reasoning_output_token_count"),
                         "model_calls": None}
+
+
+#: Reasoning never reaches the answer, on any leg. Nova Micro writes its scratch work
+#: as ordinary <thinking> text and Strands passes text through, so without this the
+#: answer a caller receives carries it while Gemini's and gpt-5-mini's do not -- the
+#: same agent behaving differently by model. MEASURED before this was added: all 130
+#: Nova captures carried it, 9 of them stating a count or largest id the visible
+#: answer never showed, and 113 echoing the agent's own call budget back to the
+#: caller. Stripping here rather than in the scorer means the text the code around
+#: the agent sees is the text that was scored.
+THINKING = re.compile(r"<thinking>.*?</thinking>\s*", re.S)
+
+
+def answer_only(text: str) -> str:
+    return THINKING.sub("", text).strip()
 
 
 RUNNERS = {"gcp": run_gcp, "aws": run_aws, "azure": run_azure}

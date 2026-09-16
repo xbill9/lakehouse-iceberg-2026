@@ -1,32 +1,31 @@
-# axis=A leg=azure catalog=apache-polaris run=5 elapsed_s=26.2 captured=2026-09-15T20:10:44Z
+# axis=A leg=azure catalog=apache-polaris run=5 elapsed_s=29.6 captured=2026-09-16T00:15:50Z
 
 cloud=azure model=gpt-5-mini catalog=apache-polaris
 question: How many rows are in the probe table, and what columns does it have? Cite the exact table version you read.
 
 
 <!-- cloud=azure model=gpt-5-mini catalog=apache-polaris instruction=v3 catalog_calls=3 -->
-Tables found (from iceberg_list_tables):
+Tables found:
 - probe_ns.probe_table
 
-Description of the table used (from iceberg_describe_table):
-- table: probe_ns.probe_table
-- format-version: 2
-- columns:
-  - id               long           required
-  - ts               timestamptz    optional
-  - payload          string         optional
-  - region           string         optional
-- partitioned by: ts_day
-- current-snapshot-id: aws-account-00029537848
+Describing the table used:
+- Table: probe_ns.probe_table
+- Format version: 2
+- Columns:
+  - id (long, required)
+  - ts (timestamptz, optional)
+  - payload (string, optional)
+  - region (string, optional)
+- Partitioning: ts_day
+
+Exact table version (from iceberg_describe_table):
 - metadata-location: file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json
+- current-snapshot-id: aws-account-00029537848
 
-Answer:
-- Row count (exact for the snapshot cited above): 11 rows. This count is exact for snapshot-id aws-account-00029537848 and was obtained from that snapshot.
-- Columns (as listed above): id (long, required); ts (timestamptz, optional); payload (string, optional); region (string, optional).
-
-All quoted metadata-location and snapshot-id are from the iceberg_describe_table result for probe_ns.probe_table.
+Row count:
+- The table snapshot aws-account-00029537848 contains exactly 11 rows (this count is exact for that snapshot).
 
 catalog calls: 3 of 8
-agent seconds: 15.61 | tool seconds: 0.11
-tokens: input=4894 output=1062 reasoning=576 model_calls=None
-warm-up seconds: 9.31
+agent seconds: 16.10 | tool seconds: 0.11
+tokens: input=4693 output=1086 reasoning=704 model_calls=None
+warm-up seconds: 12.24

@@ -1,4 +1,4 @@
-# axis=E leg=azure catalog=apache-polaris run=1 elapsed_s=29.3 captured=2026-09-15T22:55:42Z
+# axis=E leg=azure catalog=apache-polaris run=1 elapsed_s=28.7 captured=2026-09-16T00:35:10Z
 
 cloud=azure model=gpt-5-mini catalog=apache-polaris
 question: What is the largest id in the probe table, and how many of its rows have an id of 10 or more? Cite the exact table version you read.
@@ -13,18 +13,21 @@ Description of the table I used
   - columns: id (long), ts (timestamptz), payload (string), region (string)
   - partitioned by: ts_day
   - metadata-location: file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json
-  - snapshot id: aws-account-00029537848
+  - current-snapshot-id: aws-account-00029537848
 
-Answer (figures read from the table version above)
-- Largest id: 23.
-  - Source: probe_ns.probe_table at metadata-location file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json, snapshot id aws-account-00029537848. (iceberg_scan_table returned MAX(id) = 23 for that snapshot.)
+Answers (figures quoted from the snapshot above)
+- Largest id in the table: 23.
+  - Source: probe_ns.probe_table read from snapshot-id aws-account-00029537848 (metadata-location: file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json).
+  - From scan (no WHERE): COUNT exactly 11 rows; MIN and MAX of id over those 11 rows = 0 and 23. (scan read from snapshot-id aws-account-00029537848)
+
 - Number of rows with id >= 10: 8 rows.
-  - Source: same table version as above (metadata-location and snapshot id quoted). (iceberg_scan_table returned COUNT = exactly 8 for the filter `id >= 10` on snapshot aws-account-00029537848.)
+  - Source: probe_ns.probe_table read from snapshot-id aws-account-00029537848 (same metadata-location as above).
+  - From scan (WHERE id >= 10): COUNT exactly 8 rows; MIN and MAX of id over those 8 rows = 10 and 23. (scan read from snapshot-id aws-account-00029537848)
 
 catalog calls: 4 of 8
-agent seconds: 19.25 | tool seconds: 0.15
-tokens: input=6530 output=1645 reasoning=1088 model_calls=None
-warm-up seconds: 8.80
+agent seconds: 21.01 | tool seconds: 0.17
+tokens: input=7934 output=1662 reasoning=1024 model_calls=None
+warm-up seconds: 6.45
 [tool-trace] iceberg_scan_table(table='probe_ns.probe_table', columns='id', where='', limit=20)
 id
 0

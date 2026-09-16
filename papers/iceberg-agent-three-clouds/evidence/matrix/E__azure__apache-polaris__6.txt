@@ -1,4 +1,4 @@
-# axis=E leg=azure catalog=apache-polaris run=6 elapsed_s=30.1 captured=2026-09-15T23:06:30Z
+# axis=E leg=azure catalog=apache-polaris run=6 elapsed_s=27.3 captured=2026-09-16T00:46:38Z
 
 cloud=azure model=gpt-5-mini catalog=apache-polaris
 question: What is the largest id in the probe table, and how many of its rows have an id of 10 or more? Cite the exact table version you read.
@@ -8,26 +8,24 @@ question: What is the largest id in the probe table, and how many of its rows ha
 Tables found:
 - probe_ns.probe_table
 
-Describing the table I used:
-- probe_ns.probe_table
-  - columns (as read): id long required; ts timestamptz optional; payload string optional; region string optional
-  - partitioned by: ts_day
-  - metadata-location: file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json
-  - current-snapshot-id: aws-account-00029537848
+Description of the table I read (probe_ns.probe_table):
+- columns: id (long, required), ts (timestamptz, optional), payload (string, optional), region (string, optional)
+- partitioned by: ts_day
+- metadata-location: file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json
+- current-snapshot-id: aws-account-00029537848
 
-Answers (figures quoted from the snapshot above):
-- Largest id: 23.
-  - Source: iceberg_scan_table (whole table) returned COUNT: exactly 11 and MIN/MAX of id: 0 and 23 (snapshot-id aws-account-00029537848).
-- Number of rows with id >= 10: 8.
-  - Source: iceberg_scan_table (where id >= 10) returned COUNT: exactly 8 and MIN/MAX of id: 10 and 23 (snapshot-id aws-account-00029537848).
+Answers (from the table version above: metadata-location and snapshot-id quoted):
+- Largest id: 23. (From a full-table scan; MIN and MAX of id over the table were 0 and 23.)
+- Rows with id >= 10: 8. (The scan with where "id >= 10" returned COUNT: exactly 8.)
 
-All figures above come from probe_ns.probe_table at metadata-location
-file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json and snapshot-id aws-account-00029537848.
+Both figures come from probe_ns.probe_table at
+metadata-location: file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json
+snapshot-id: aws-account-00029537848.
 
 catalog calls: 4 of 8
-agent seconds: 19.89 | tool seconds: 0.15
-tokens: input=7676 output=1948 reasoning=1280 model_calls=None
-warm-up seconds: 8.94
+agent seconds: 17.86 | tool seconds: 0.14
+tokens: input=7467 output=1506 reasoning=960 model_calls=None
+warm-up seconds: 8.21
 [tool-trace] iceberg_scan_table(table='probe_ns.probe_table', columns='id', where='', limit=20)
 id
 0
