@@ -194,7 +194,30 @@ trace label and every row -- without it round 2 silently overwrites round 1.
 invocations**, and one measured `claude -p` call against this server set took 65
 seconds. Budget somewhere over an hour, and do not start one casually.
 
-Next: an anonymising publish step, then the fixture.
+## Publishing
+
+`publish_evidence.py` is the only thing that writes into the published directory.
+Raw evidence stays here and carries real account state: the Google ground truth
+names a GCS bucket after the project, and a frame trace records the arguments a
+host actually sent, which on a SQL surface is a query naming real objects.
+
+One mapping is built across every file at once, so an identifier masks to the
+same token everywhere and two files can still be read against each other. Every
+published file is then rescanned, and a single residual hit aborts the whole
+publish rather than leaving a partial set -- a publish that half-worked is worse
+than none, because the half that worked looks finished.
+
+Verified rather than assumed. `gs://<project>-iceberg-probe/...` published as
+`gs://bucket-0001/...`, the metadata GUID as `guid-0002`, and an independent grep
+for the raw bucket name found it nowhere in the output -- the repo's own rule,
+because the residual scanner missed a project id once by having no pattern for
+it. Snapshot ids are left intact: those are the evidence, not an account.
+
+A trace recorded with `--full` is refused outright, because it keeps result
+bodies and a catalog result can carry vended credentials. Planting one produced
+the refusal; removing it published again.
+
+Next: the fixture.
 
 **Ground truth is per catalog, and the grader refuses without it.** Two servers
 read the local Polaris and two read Google, so they are different physical tables

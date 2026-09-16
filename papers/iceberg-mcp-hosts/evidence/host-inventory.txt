@@ -1,0 +1,41 @@
+# CLI hosts, verified on 2026-09-04 on this machine.
+
+claude   2.1.261      Claude Code                 /usr/local/bin/claude (or PATH)
+codex    0.152.1      Codex CLI                   codex-cli
+agy      1.1.19       Antigravity CLI             ~/.local/bin/agy  (ELF binary)
+
+## The `gemini` command here is NOT the Google Gemini CLI
+
+    $ cat ~/bin/gemini
+    agy $*
+
+It is a one-line shell wrapper around `agy`, so `gemini` and `agy` are the same
+Antigravity binary -- same version, different name. `agy mcp --help` gives itself
+away by printing "Usage: agy mcp" when invoked as `gemini`. `~/.gemini/` holds an
+`antigravity-cli` directory for the same reason.
+
+Counting both would have put two rows in the matrix that were one host, and any
+difference between them would have been noise reported as a finding. There is no
+control that would have caught it after the fact, because the two rows would
+agree perfectly -- which reads as a result rather than as a duplicate.
+
+## Gemini CLI is retired, so three is the right number, not a shortfall
+
+Google announced at I/O on 2026-05-19 that it was consolidating developer tooling
+under the Antigravity brand and retiring the standalone Gemini CLI, which stopped
+serving Pro, Ultra and free Code Assist users on 2026-06-18. Antigravity CLI --
+Go, closed source, binary `agy` -- is the replacement.
+
+  https://catalog-host-0001/an-important-update-transitioning-gemini-cli-to-antigravity-cli/
+  https://catalog-host-0002/ai-ml/2026/05/20/bye-bye-gemini-cli-google-nudges-devs-toward-antigravity/5243605
+
+So the `gemini` -> `agy` wrapper on this machine is not a misconfiguration; it is
+what the migration leaves behind, and it is the reason the two names resolve to
+one binary.
+
+One qualifier the paper has to carry: retirement was not universal. Organisations
+on a Gemini Code Assist Standard or Enterprise licence keep access. So "Gemini CLI
+is gone" is wrong; "Gemini CLI stopped serving Pro, Ultra and free Code Assist
+users on 2026-06-18" is right.
+
+THREE hosts, and the fourth is not missing -- it no longer exists to test.

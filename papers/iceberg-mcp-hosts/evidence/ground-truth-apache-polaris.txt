@@ -1,0 +1,7 @@
+catalog=apache-polaris table=probe_ns.probe_table
+  rows=11
+  columns=id,ts,payload,region
+  types=id:long,ts:timestamptz,payload:string,region:string
+  snapshot_id=4496289927168545616
+  metadata_location=file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json
+  read_at=2026-09-16T17:08:46Z

@@ -1,0 +1,7 @@
+catalog=google-lakehouse table=probe_ns.probe_table
+  rows=11
+  columns=id,ts,payload,region
+  types=id:long,ts:timestamptz,payload:string,region:string
+  snapshot_id=6042367411917366632
+  metadata_location=gs://bucket-0001/probe_ns/probe_table/jy3n8ueer5x567uy/metadata/00006-guid-0002.metadata.json
+  read_at=2026-09-16T17:08:47Z
