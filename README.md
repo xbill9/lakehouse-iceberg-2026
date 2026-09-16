@@ -14,7 +14,7 @@ the wire and published alongside it.
 |---|---|---|---|
 | 1 | [Seven Iceberg REST Catalogs: What They Declare, and What They Serve](papers/iceberg-rest-catalog-conformance/devto-iceberg-rest-catalog-conformance.md) | dev.to `gde`, Builder Center, Medium | published |
 | 2 | [AWS Has Two Iceberg REST Catalogs: What Each One Actually Serves](papers/aws-two-iceberg-rest-catalogs/devto-aws-two-iceberg-rest-catalogs.md) | dev.to `aws-builders`, Builder Center, Medium | published |
-| 3 | [One Iceberg Tool, Three Agent Frameworks: What Ports, and What Doesn't](papers/iceberg-agent-three-clouds/devto-iceberg-agent-three-clouds.md) | dev.to `gde` | measured and written, not yet published |
+| 3 | [Four Iceberg Tools, Three Agent Frameworks: What Ports, and What Doesn't](papers/iceberg-agent-three-clouds/devto-iceberg-agent-three-clouds.md) | dev.to `gde` and `aws-builders`, Builder Center, Medium | published |
 | 4 | One Iceberg table, four MCP servers, three CLI hosts ([`iceberg-mcp-hosts/`](iceberg-mcp-hosts/README.md)) | — | scaffolding, nothing run |
 | 5 | What a Rust client can reach, across the same seven catalogs ([`iceberg-rust-client/`](iceberg-rust-client/README.md)) | — | control column green, no vendor run yet |
 
