@@ -531,8 +531,8 @@ Four things move when this agent changes cloud. Two of them are free.
   file configuration under the same tool. Get it wrong and the catalog still answers
   while the data read fails, with an error naming something else.
 - **Correctness follows the tool, not the cloud.** Put the filter and the count in
-  PyIceberg and every model answered alike. Leave that work to the model and the
-  smallest one fails.
+  PyIceberg and every setup here answered alike. Leave that work to the model and
+  the smallest one fails.
 
 The catalog layer really is portable. The work is in what sits around it.
 
