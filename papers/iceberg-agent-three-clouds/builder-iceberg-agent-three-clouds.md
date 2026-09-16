@@ -322,10 +322,19 @@ Agent Framework runs.
   on. The table above is about the frameworks; the tools here also print every call
   they receive, which is why Tests 4 and 5 are on record for all three. A log your
   own tools write is the one that works in every framework.
-- **Is the answer text only the answer?** Nova Micro writes `<thinking>` text, and
-  Strands passes it through inside the answer. A dashboard, a pipeline or another
-  agent that reads the output can take a number from the model's scratch work as
-  its result. Strip `<thinking>` blocks before using the text.
+- **Is the answer text only the answer?** One row differs, and it is the model rather
+  than the framework: Nova Micro writes its reasoning as ordinary `<thinking>` text in
+  the output stream, and Strands passes text through untouched. Gemini and `gpt-5-mini`
+  return reasoning as a separate field, so it never reaches the answer -- which is why
+  the same Strands agent shows "no" on Gemini and "yes, every time" on Nova Micro.
+  The consequence is measurable here: all 130 Nova Micro answers carry `<thinking>` in
+  the text a caller receives, and in nine of them the reasoning states a count or a
+  largest id that the visible answer never shows -- a figure the model considered and
+  discarded. Anything downstream that scrapes a number out of the text can pick up
+  that one. The blocks also echo the agent's own instruction back into a user-facing
+  string: the call budget appears in 113 of the 130, the word "eight" in 72. Treat
+  answer text as untrusted -- strip reasoning before anything parses it, and read
+  figures from the tool result and the cited snapshot rather than from prose.
 - **Is the whole answer in the result?** Strands' `result.message` is only the last
   message of the turn. Nova Micro writes part of its answer in a message that also
   calls a tool -- the columns beside the call that counts the rows -- so the last

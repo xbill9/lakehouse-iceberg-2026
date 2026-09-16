@@ -54,6 +54,13 @@
    0 of 20 right   us.amazon.nova-micro-v1:0    answers: 5 x13, 6 x7
   20 of 20 right   gemini-2.5-flash             answers: 8 x20
 
+## 5. Reasoning that arrives inside the answer text
+#  Every published matrix capture. Only Nova Micro's answers carry it.
+  130 answers carry <thinking> in the text a caller receives
+    9 of those state a count or largest id the visible answer never shows
+  113 echo the call budget from the agent's own instruction
+   72 echo the word "eight" from the agent's own instruction
+
 ## What changed in the harness
   - The Strands runner scored only the last assistant message; it now takes every
     assistant message of the turn, as the other two frameworks' runners did (section 3).

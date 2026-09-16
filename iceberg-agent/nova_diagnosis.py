@@ -216,6 +216,39 @@ def bare_section(truth: dict) -> list:
     return out
 
 
+def thinking_section() -> list:
+    """What reaches a caller in the answer text. Nova Micro writes its reasoning as
+    ordinary <thinking> text and Strands passes text through, so the blocks arrive
+    inside the answer; Gemini and gpt-5-mini return reasoning as a separate field.
+    Counted over every published matrix capture, not over a sample."""
+    answer_re = re.compile(r"<!-- cloud=.*?-->\n(.*?)\ncatalog calls:", re.S)
+    carrying = hidden = 0
+    echo = {"the call budget": 0, "the word \"eight\"": 0}
+    for path in glob.glob(os.path.join(rm.RAW, "matrix", "*.txt")):
+        with open(path) as handle:
+            body = handle.read()
+        found = answer_re.search(body)
+        if not found or "<thinking>" not in found.group(1):
+            continue
+        carrying += 1
+        think = " ".join(re.findall(r"<thinking>(.*?)</thinking>", found.group(1), re.S))
+        visible = re.sub(r"<thinking>.*?</thinking>", "", found.group(1), flags=re.S)
+        seen = set(re.findall(r"\b\d{1,3}\b", visible))
+        # A count or largest id the reasoning states and the answer never shows.
+        claims = re.findall(r"(?:largest|maximum|max)\b[^\d\n]{0,40}(\d{1,3})", think, re.I)
+        claims += [a or b for a, b in re.findall(
+            r"(\d{1,3})\s+rows?\b[^\d\n]{0,40}(?:10 or more|>= ?10)"
+            r"|(?:10 or more|>= ?10)[^\d\n]{0,40}?(\d{1,3})", think, re.I)]
+        hidden += any(c not in seen for c in claims)
+        echo["the call budget"] += "budget" in think.lower()
+        echo["the word \"eight\""] += "eight" in think.lower()
+    return ["", "## 5. Reasoning that arrives inside the answer text",
+            "#  Every published matrix capture. Only Nova Micro's answers carry it.",
+            "  %3d answers carry <thinking> in the text a caller receives" % carrying,
+            "  %3d of those state a count or largest id the visible answer never shows" % hidden,
+            ] + ["  %3d echo %s from the agent's own instruction" % (n, w) for w, n in echo.items()]
+
+
 def says_eight(answer: str) -> bool:
     """The matrix scorer's count patterns, for a bare answer with no stamped header."""
     body = "<!-- cloud=x model=y catalog=apache-polaris instruction=v3 catalog_calls=0 -->\n%s\ncatalog calls: 0\n"
@@ -270,6 +303,7 @@ def summarise() -> str:
         out.append("  row count %2d  columns in last message %2d  columns in whole turn %2d  of %2d   %s"
                    % tuple([sum(r[i] for r in runs) for i in range(3)] + [len(runs), label]))
     out += bare_section(truth)
+    out += thinking_section()
     out += ["", "## What changed in the harness",
             "  - The Strands runner scored only the last assistant message; it now takes every",
             "    assistant message of the turn, as the other two frameworks' runners did (section 3).",
