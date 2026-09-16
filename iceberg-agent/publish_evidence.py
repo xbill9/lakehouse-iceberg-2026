@@ -142,7 +142,7 @@ SUPERSEDED_D = [
         "# re-run. Re-scored below under the current scorer, not changed."]),
 ]
 COPIED = ["ground-truth.txt", "environment.txt", "failure-modes.txt", "verification.txt",
-          "run-gcp.txt", "run-aws.txt", "run-azure.txt", "import-times.txt",
+          "run-gcp.txt", "run-azure.txt", "import-times.txt",
           "credential-times.txt", "related-work.txt", "nova-diagnosis.txt"]
 TIMING = re.compile(r"agent seconds: ([\d.]+) \| tool seconds: ([\d.]+)")
 #: Hostnames that are the evidence rather than an account. The blob host is the
