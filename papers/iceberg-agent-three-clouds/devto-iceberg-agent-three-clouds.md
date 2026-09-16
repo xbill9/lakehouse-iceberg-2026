@@ -298,13 +298,6 @@ Counting by reading cannot scale anyway, since the scan returns at most 100 rows
 filter and an exact count belong in PyIceberg, whatever model is driving.
 `nova-diagnosis.txt` has the runs behind that.
 
-**The engine answers the question it is given.** At Bedrock's default sampling the
-same Nova cell scored 16 of 20. Two of the four wrong answers asked for `id > 10`
-rather than 10 or more and quoted the exact 7 that came back; one sent no filter and
-quoted the table's 11; one counted by hand. Greedy decoding wrote `id >= 10` in all
-twenty. A count computed in PyIceberg is only as right as the filter it was given,
-and a wrong filter still returns an exact number with a cited snapshot.
-
 **The framework cost shows again, smaller.** On the same model and the same scan,
 Strands took 10.86 seconds at the median against ADK's 7.89. That clears the
 1.30-second noise.
