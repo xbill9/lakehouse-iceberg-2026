@@ -89,3 +89,28 @@ Consequence for grading: Q6 scored 0 against a surface that cannot express a
 version measures the surface's vocabulary, not the host. The right answer there
 is a refusal that says so, which is the same measurement Q4/Q5 make on a server
 with no row-returning tool.
+
+## morristai/iceberg-mcp: declared vs served, measured 2026-09-16
+
+Built from source and asked. `cargo install --git https://github.com/morristai/iceberg-mcp
+--locked` produced iceberg-mcp v0.1.0 at commit 8ffb3b45, a 39.7 MB release
+binary; the server identifies itself as rmcp 0.8.3.
+
+Driven over stdio with initialize, notifications/initialized and tools/list:
+
+  declared, in the project README   namespaces, tables, table_schema, table_properties
+  served, by tools/list             get_namespaces, get_tables, get_table_schema,
+                                    get_table_properties
+
+The four capabilities match. **The names do not**: every served name carries a
+`get_` prefix the documentation does not show. Anything keyed on the documented
+names -- a scorer looking for a tool call by name, a config, a prompt that names
+the tool -- would find nothing and report it as a tool that was never called.
+
+`answers_rows: False` is unaffected and confirmed: none of the four returns rows.
+
+Method note. The first probe piped the three requests in and got only the
+initialize reply, because the server exits when stdin closes and did so before
+answering tools/list. The trace showed it exactly -- three host->server frames,
+one server->host frame, exit 0 -- which is what a frame log is for. Holding stdin
+open returned the list.

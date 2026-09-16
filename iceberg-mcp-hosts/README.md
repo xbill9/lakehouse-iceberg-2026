@@ -144,18 +144,28 @@ a snapshot id's digits neither break a span nor supply a false match, while the
 citation checks still read the answer as written; and column names match as whole
 identifiers, so *identifier* is not `id` and *payloads* is not `payload`.
 
-## Not yet runnable, and why
+## Declared is not served, here too
 
-Two blockers, both found by trying rather than by reading.
+`iceberg-mcp` is built and installed: v0.1.0 at commit `8ffb3b45`, a 39.7 MB
+release binary identifying as rmcp 0.8.3. Asking it directly produced the first
+measured result in this paper, and it is paper 1's method applied to a tool list:
 
-**`iceberg-mcp` is not installed.** `servers.py` launches it by bare name and it
-is on no PATH and not in `~/.cargo/bin`, so the morristai cells cannot run at all.
-The trace proves it independently: two spawn frames, zero `server->host` frames,
-no `tools/call`. It needs building from the Rust source, and the spec should then
-point at an absolute path rather than a bare name.
+| | |
+|---|---|
+| declared, in the project README | `namespaces`, `tables`, `table_schema`, `table_properties` |
+| served, by `tools/list` | `get_namespaces`, `get_tables`, `get_table_schema`, `get_table_properties` |
 
-**The other three are ready**: `uvx` is present for ahodroj, and the two Google
-servers are remote HTTP.
+The four capabilities match; the names do not. Every served name carries a `get_`
+prefix the documentation does not show, so anything keyed on the documented names
+finds nothing and reports it as a tool that was never called.
+
+All four servers are now reachable: `uvx` is present for ahodroj and the two
+Google servers are remote HTTP.
+
+**What still blocks a run is permission, not plumbing.** Invoking the CLI hosts
+from an agent session is refused by the harness classifier as unsafe agent
+creation, so the matrix has to be run by a person or under a Bash permission rule
+for `claude`, `codex` and `agy`.
 
 ## Status
 
