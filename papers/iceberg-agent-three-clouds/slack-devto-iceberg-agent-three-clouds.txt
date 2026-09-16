@@ -1,0 +1,17 @@
+I wanted to know whether an agent built on one cloud's framework actually moves to another, or whether you start over. So I built the same small read-only Apache Iceberg agent three times - Google ADK, AWS Strands, Microsoft Agent Framework - over the same four tools, and ran 360 timed runs against five catalogs.
+
+The four tools ported unchanged. The code around them did not: calling the agent, signing in and reading its answer are three different jobs in each framework. The real per-cloud work turned out to be the storage wiring underneath the tools, not anything in the agent.
+
+Builder Center Article is here:
+https://builder.aws.com/content/3JOMbnvOh4rY1InvwKUwKPGoFE8/four-iceberg-tools-three-agent-frameworks-what-ports-and-what-doesnt
+
+Medium is here:
+https://medium.com/@xbill999/four-iceberg-tools-three-agent-frameworks-what-ports-and-what-doesnt-5f588278f089
+
+Dev.to is here:
+https://dev.to/aws-builders/four-iceberg-tools-three-agent-frameworks-what-ports-and-what-doesnt-2iib
+
+Linked In is here:
+https://lnkd.in/p/gjzNyTfY
+
+#ApacheIceberg #AIAgents #Lakehouse #AWS #DataEngineering
