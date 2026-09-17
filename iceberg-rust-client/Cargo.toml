@@ -11,6 +11,13 @@ iceberg = "=0.10.1"
 iceberg-catalog-rest = "=0.10.1"
 tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
 serde_json = "1"
+iceberg-storage-opendal = { version = "=0.10.1", features = ["opendal-gcs", "opendal-azdls"] }
+
+# Only for IRC_MODE=transport, the HTTP floor the Iceberg client is measured
+# against. Deliberately the same major version and feature set that
+# iceberg-catalog-rest 0.10.1 depends on, so the floor is the same stack the
+# client is using and not a second one compiled differently.
+reqwest = { version = "0.12", default-features = false, features = ["json"] }
 
 [[bin]]
 name = "irc-probe"

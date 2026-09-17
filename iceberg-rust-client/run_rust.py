@@ -3,8 +3,13 @@
 
     $ cargo build
     $ python3 run_rust.py --only apache-polaris --storage local-fs
-    apache-polaris   7 issued, 6 ok, 1 failed, 26 not expressible
+    apache-polaris     1 implicit, 14 not-expressible, 11 not-issued, 7 ok
     wrote evidence/rust-run-apache-polaris.json
+
+NOT-EXPRESSIBLE and NOT-ISSUED are different answers and are counted apart. The
+first means this client has no request to send; the second means the binary is
+read-only and did not send one it could have. Folding the write probes into the
+first understated the crate by eleven rows.
 
 Control first, as everywhere else in this repository: a red cell on Polaris is
 this harness's bug until proven otherwise, and the first run of this driver
@@ -16,7 +21,9 @@ papers have to be measuring the same catalogs, with the same credentials, or
 the comparison is between two setups instead of two clients.
 
 Nothing that could identify an account is written to disk: the evidence carries
-the catalog's name, never its URL, warehouse, namespace or any token.
+the catalog's name, never its URL, warehouse, namespace or any token. Error text
+comes from the client rather than from us, so it goes through redact.py, which
+refuses to write a document in which a configured value survived.
 """
 
 import argparse
@@ -33,6 +40,7 @@ sys.path.insert(0, CONF)
 import yaml                                          # noqa: E402
 from probe import auth as probe_auth                 # noqa: E402
 import operation_map as om                           # noqa: E402
+import redact                                        # noqa: E402
 from probe.spec import PROBES, WRITE_PROBES          # noqa: E402
 
 BINARY = os.path.join(HERE, "target", "debug", "irc-probe")
@@ -74,8 +82,11 @@ def auth_plan(spec):
         return "static", "bearer token minted outside the crate; not refreshable by it"
     if kind == "sigv4":
         return "absent", ("SigV4 is computed per request over the canonical "
-                          "request; the crate has no signer and a static "
-                          "header cannot carry a per-request signature")
+                          "request; this crate has no signer and a static "
+                          "header cannot carry a per-request signature "
+                          "(upstream issue #1236, open). Reachable in Rust "
+                          "only by leaving the REST protocol for "
+                          "iceberg-catalog-glue or iceberg-catalog-s3tables")
     return "absent", "unrecognised auth type %r" % kind
 
 
@@ -135,7 +146,7 @@ def run_binary(cat, mode, storage):
     return rows, proc.returncode, proc.stderr.strip(), time.time() - started
 
 
-def merge(rows):
+def merge(rows, pairs):
     """One row per probe in paper 1's list, issued or not."""
     by_probe = {r["probe"]: r for r in rows if r.get("probe") != "_meta"}
     out = []
@@ -158,13 +169,19 @@ def merge(rows):
                 row["detail"] = r.get("detail")
             elif r.get("ok") is False:
                 row["error_kind"] = r.get("error_kind")
-                row["error"] = r.get("error")
+                row["error"] = redact.scrub(r.get("error"), pairs)
             else:
                 row["note"] = r.get("note")
-        else:
+        elif status not in ("reachable", "implicit"):
             # Not a failure. There is no request to send.
             row["verdict"] = "NOT-EXPRESSIBLE"
             row["why"] = note or "no method issues this request"
+        else:
+            # Expressible, and deliberately not sent: the binary is read-only
+            # by construction. Scoring these as NOT-EXPRESSIBLE counted every
+            # write the crate can do as a write the crate cannot do.
+            row["verdict"] = "NOT-ISSUED"
+            row["why"] = "read-only binary; this client can express it"
         out.append(row)
     return out
 
@@ -174,10 +191,12 @@ def main():
     ap.add_argument("--only", action="append", default=[],
                     help="catalog name; repeatable. Default: apache-polaris only.")
     ap.add_argument("--storage", default="local-fs",
-                    choices=["local-fs", "memory", "none"],
-                    help="StorageFactory to give the client. Recorded with the run.")
+                    choices=["local-fs", "memory", "opendal", "none"],
+                    help="StorageFactory to give the client. Recorded with the run. "
+                         "Cloud-backed catalogs need `opendal`; the two factories "
+                         "in the core crate only reach local paths and memory.")
     ap.add_argument("--all", action="store_true",
-                    help="every enabled catalog. Costs vendor calls; control first.")
+                    help="every enabled catalog. Costs vendor calls; control catalog first.")
     args = ap.parse_args()
 
     cfg = yaml.safe_load(open(os.path.join(CONF, "catalogs.yaml")))
@@ -191,6 +210,7 @@ def main():
 
     for cat in catalogs:
         mode, detail = auth_plan(cat.get("auth"))
+        pairs = redact.values_for(cat, redact.secret_env_names(cat))
         meta = {
             "catalog": cat["name"],
             "crate": "iceberg-catalog-rest 0.10.1",
@@ -210,13 +230,13 @@ def main():
             rows, rc, stderr, _ = run_binary(cat, mode, args.storage)
             meta["exit_code"] = rc
             if stderr:
-                meta["stderr"] = stderr
+                meta["stderr"] = redact.scrub(stderr, pairs)
             for r in rows:
                 if r.get("probe") == "_meta":
                     meta["binary_reported"] = {k: v for k, v in r.items()
                                                if k not in ("probe", "catalog")}
 
-        merged = merge(rows)
+        merged = merge(rows, pairs)
         counts = {}
         for r in merged:
             counts[r["verdict"]] = counts.get(r["verdict"], 0) + 1
@@ -227,8 +247,10 @@ def main():
         if mode != "absent" and rc not in (0, None) and not any(
                 r["verdict"] == "OK" for r in merged):
             out = out.replace(".json", ".failed.json")
+        document = {"meta": meta, "rows": merged}
+        redact.verify(document, pairs)
         with open(out, "w") as fh:
-            json.dump({"meta": meta, "rows": merged}, fh, indent=2)
+            json.dump(document, fh, indent=2)
             fh.write("\n")
 
         print("%-18s %s" % (cat["name"], ", ".join(

@@ -12,6 +12,19 @@
 //! Nothing from a loadTable response is printed except counts and integers.
 //! That response can carry vended storage credentials and bucket paths, and
 //! this output is written to disk.
+//!
+//! Three modes. The default issues each probe once and is what the viability
+//! stream records. IRC_MODE=bench issues a fixed set of read operations
+//! IRC_ITERS times after IRC_WARMUP discarded iterations, emitting one sample
+//! per iteration in nanoseconds, and is what the comparison stream measures.
+//! IRC_MODE=transport is not the Iceberg client at all: it times a raw GET to
+//! IRC_PROBE_URL with a bearer token, so that the HTTP stack underneath can be
+//! compared against Python's on the same request. Without that floor, "the
+//! Rust client is faster" cannot be separated from "reqwest is faster than
+//! requests", and those are different sentences with different consequences.
+//!
+//! All modes share one catalog object or one HTTP client, so the config fetch
+//! and the token grant are paid once and are not inside any sample.
 
 use std::collections::HashMap;
 use std::env;
@@ -19,6 +32,7 @@ use std::sync::Arc;
 use std::time::Instant;
 
 use iceberg::io::{LocalFsStorageFactory, MemoryStorageFactory, StorageFactory};
+use iceberg_storage_opendal::OpenDalResolvingStorageFactory;
 use iceberg::{Catalog, CatalogBuilder, NamespaceIdent, TableIdent};
 use iceberg_catalog_rest::{
     REST_CATALOG_PROP_URI, REST_CATALOG_PROP_WAREHOUSE, RestCatalog, RestCatalogBuilder,
@@ -90,9 +104,12 @@ async fn build_catalog() -> RestCatalog {
 
     // `load_table` builds a Table, and a Table carries a FileIO, so the client
     // refuses to hand back a loadTable response at all without a storage
-    // factory. iceberg 0.10.1 ships exactly two -- local filesystem and memory
-    // -- so which one is in play is a property of the run and is recorded with
-    // it, never defaulted silently.
+    // factory. iceberg 0.10.1 ships exactly two -- local filesystem and memory.
+    // The cloud backends live in iceberg-storage-opendal, whose resolving
+    // factory picks one by the scheme of the table's location, and without it
+    // every s3://, gs:// and abfss:// catalog fails on our packaging rather
+    // than on anything the catalog did. Which factory is in play is a property
+    // of the run and is recorded with it, never defaulted silently.
     let mut builder = RestCatalogBuilder::default();
     match env_opt("IRC_STORAGE").as_deref() {
         Some("local-fs") => {
@@ -101,9 +118,17 @@ async fn build_catalog() -> RestCatalog {
         Some("memory") => {
             builder = builder.with_storage_factory(Arc::new(MemoryStorageFactory) as Arc<dyn StorageFactory>)
         }
+        Some("opendal") => {
+            builder = builder.with_storage_factory(
+                Arc::new(OpenDalResolvingStorageFactory::new()) as Arc<dyn StorageFactory>,
+            )
+        }
         None | Some("none") => {}
         Some(other) => {
-            eprintln!("IRC_STORAGE must be local-fs, memory or none (got {})", other);
+            eprintln!(
+                "IRC_STORAGE must be local-fs, memory, opendal or none (got {})",
+                other
+            );
             std::process::exit(2);
         }
     }
@@ -124,8 +149,98 @@ async fn build_catalog() -> RestCatalog {
     }
 }
 
+/// One timed operation, IRC_ITERS times, after IRC_WARMUP discarded runs.
+///
+/// The warmup is not decoration: the first call pays TLS, DNS and the
+/// connection pool, and a benchmark that leaves it in measures the network
+/// rather than the client. Every sample is emitted; percentiles are computed
+/// by the driver, never here and never by hand.
+macro_rules! bench_op {
+    ($name:expr, $warmup:expr, $iters:expr, $call:expr) => {{
+        for _ in 0..$warmup {
+            let _ = $call.await;
+        }
+        for i in 0..$iters {
+            let t = Instant::now();
+            let outcome = $call.await;
+            let ns = t.elapsed().as_nanos() as u64;
+            match outcome {
+                Ok(_) => emit(json!({
+                    "client": "rust", "op": $name, "iter": i, "ns": ns,
+                })),
+                Err(e) => {
+                    emit(json!({
+                        "client": "rust", "op": $name, "iter": i, "ns": ns,
+                        "error_kind": format!("{:?}", e.kind()),
+                    }));
+                    break;
+                }
+            }
+        }
+    }};
+}
+
+async fn bench(catalog: &RestCatalog, ns: &NamespaceIdent, table: &TableIdent) {
+    let warmup: u32 = env_opt("IRC_WARMUP").and_then(|v| v.parse().ok()).unwrap_or(3);
+    let iters: u32 = env_opt("IRC_ITERS").and_then(|v| v.parse().ok()).unwrap_or(30);
+
+    bench_op!("list_namespaces", warmup, iters, catalog.list_namespaces(None));
+    bench_op!("load_namespace", warmup, iters, catalog.get_namespace(ns));
+    bench_op!("head_namespace", warmup, iters, catalog.namespace_exists(ns));
+    bench_op!("list_tables", warmup, iters, catalog.list_tables(ns));
+    bench_op!("load_table", warmup, iters, catalog.load_table(table));
+    bench_op!("head_table", warmup, iters, catalog.table_exists(table));
+}
+
+/// A raw GET, body read and discarded, timed the way bench_op! times a call.
+/// Deliberately the same shape as the Python side's `session.get(url).text`.
+async fn transport_floor() {
+    let url = env_req("IRC_PROBE_URL");
+    let token = env_opt("IRC_TOKEN");
+    let warmup: u32 = env_opt("IRC_WARMUP").and_then(|v| v.parse().ok()).unwrap_or(5);
+    let iters: u32 = env_opt("IRC_ITERS").and_then(|v| v.parse().ok()).unwrap_or(60);
+
+    let client = reqwest::Client::new();
+    let fetch = || async {
+        let mut req = client.get(&url);
+        if let Some(t) = &token {
+            req = req.bearer_auth(t);
+        }
+        match req.send().await {
+            Ok(resp) => resp.text().await.map(|b| b.len()).map_err(|e| e.to_string()),
+            Err(e) => Err(e.to_string()),
+        }
+    };
+
+    for _ in 0..warmup {
+        let _ = fetch().await;
+    }
+    for i in 0..iters {
+        let t = Instant::now();
+        let outcome = fetch().await;
+        let ns = t.elapsed().as_nanos() as u64;
+        match outcome {
+            Ok(_) => emit(json!({
+                "client": "rust", "op": "transport only", "iter": i, "ns": ns,
+            })),
+            Err(e) => {
+                emit(json!({
+                    "client": "rust", "op": "transport only", "iter": i,
+                    "ns": ns, "error": e,
+                }));
+                break;
+            }
+        }
+    }
+}
+
 #[tokio::main]
 async fn main() {
+    if env_opt("IRC_MODE").as_deref() == Some("transport") {
+        transport_floor().await;
+        return;
+    }
+
     let ns = NamespaceIdent::from_strs(env_req("IRC_NAMESPACE").split('.'))
         .expect("namespace must have at least one level");
     let table = TableIdent::new(ns.clone(), env_req("IRC_TABLE"));
@@ -139,6 +254,15 @@ async fn main() {
     }));
 
     let catalog = build_catalog().await;
+
+    if env_opt("IRC_MODE").as_deref() == Some("bench") {
+        // Cold start is the driver's measurement, not this process's: it is
+        // wall-clock from spawn to a first answer, and a process cannot time
+        // its own exec. What this reports is the steady state, with the
+        // catalog already built.
+        bench(&catalog, &ns, &table).await;
+        return;
+    }
 
     // GET /v1/config is issued by the client on first use and cannot be called
     // on its own, so it is not a row this binary can measure. Reported, not

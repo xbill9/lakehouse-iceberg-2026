@@ -159,7 +159,7 @@
   drop_view  [absent]
       No view support.
 
-## Reached by the crate, not probed by paper 1
+## Reached by the client, not probed by paper 1
 
   register_table  --  Catalog::register_table  (catalog.rs:940)
       POST /v1/{prefix}/namespaces/{namespace}/register, built at

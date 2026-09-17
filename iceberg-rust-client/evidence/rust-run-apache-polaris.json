@@ -3,20 +3,21 @@
     "catalog": "apache-polaris",
     "crate": "iceberg-catalog-rest 0.10.1",
     "control": true,
-    "storage_factory": "local-fs",
+    "storage_factory": "opendal",
     "auth_mode": "native",
     "auth_detail": "credential + oauth2-server-uri + scope",
-    "measured_utc": "2026-09-04T21:54:21Z",
+    "measured_utc": "2026-09-17T17:20:09Z",
     "exit_code": 0,
     "binary_reported": {
       "crate": "iceberg-catalog-rest",
-      "storage_factory": "local-fs",
+      "storage_factory": "opendal",
       "version": "0.10.1"
     },
     "counts": {
       "IMPLICIT": 1,
       "OK": 7,
-      "NOT-EXPRESSIBLE": 25
+      "NOT-EXPRESSIBLE": 14,
+      "NOT-ISSUED": 11
     }
   },
   "rows": [
@@ -39,7 +40,7 @@
       "rust_symbol": "Catalog::list_namespaces",
       "source_ref": "catalog.rs:512",
       "verdict": "OK",
-      "ms": 24,
+      "ms": 5,
       "detail": {
         "count": 1
       }
@@ -62,7 +63,7 @@
       "rust_symbol": "Catalog::list_namespaces",
       "source_ref": "catalog.rs:526",
       "verdict": "OK",
-      "ms": 7,
+      "ms": 0,
       "detail": {
         "count": 0
       }
@@ -75,7 +76,7 @@
       "rust_symbol": "Catalog::get_namespace",
       "source_ref": "catalog.rs:603",
       "verdict": "OK",
-      "ms": 8,
+      "ms": 0,
       "detail": {
         "property_count": 1
       }
@@ -88,7 +89,7 @@
       "rust_symbol": "Catalog::namespace_exists",
       "source_ref": "catalog.rs:631",
       "verdict": "OK",
-      "ms": 9,
+      "ms": 0,
       "detail": {
         "exists": true
       }
@@ -101,9 +102,9 @@
       "rust_symbol": "Catalog::list_tables",
       "source_ref": "catalog.rs:687",
       "verdict": "OK",
-      "ms": 9,
+      "ms": 8,
       "detail": {
-        "count": 1
+        "count": 2
       }
     },
     {
@@ -114,7 +115,7 @@
       "rust_symbol": "Catalog::load_table",
       "source_ref": "catalog.rs:822",
       "verdict": "OK",
-      "ms": 24,
+      "ms": 6,
       "detail": {
         "format_version": "V2",
         "has_current_snapshot": true,
@@ -142,7 +143,7 @@
       "rust_symbol": "Catalog::table_exists",
       "source_ref": "catalog.rs:886",
       "verdict": "OK",
-      "ms": 16,
+      "ms": 4,
       "detail": {
         "exists": true
       }
@@ -194,8 +195,8 @@
       "client_status": "reachable",
       "rust_symbol": "Catalog::create_namespace",
       "source_ref": "catalog.rs:567",
-      "verdict": "NOT-EXPRESSIBLE",
-      "why": "no method issues this request"
+      "verdict": "NOT-ISSUED",
+      "why": "read-only binary; this client can express it"
     },
     {
       "probe": "update_namespace_props",
@@ -214,8 +215,8 @@
       "client_status": "reachable",
       "rust_symbol": "Catalog::create_table",
       "source_ref": "catalog.rs:739",
-      "verdict": "NOT-EXPRESSIBLE",
-      "why": "no method issues this request"
+      "verdict": "NOT-ISSUED",
+      "why": "read-only binary; this client can express it"
     },
     {
       "probe": "commit_table",
@@ -224,8 +225,8 @@
       "client_status": "reachable",
       "rust_symbol": "Catalog::update_table",
       "source_ref": "catalog.rs:1005",
-      "verdict": "NOT-EXPRESSIBLE",
-      "why": "no method issues this request"
+      "verdict": "NOT-ISSUED",
+      "why": "read-only binary; this client can express it"
     },
     {
       "probe": "commit_remove_properties",
@@ -234,8 +235,8 @@
       "client_status": "reachable",
       "rust_symbol": "Catalog::update_table",
       "source_ref": "catalog.rs:1005",
-      "verdict": "NOT-EXPRESSIBLE",
-      "why": "Same endpoint; the update is expressed as a TableCommit."
+      "verdict": "NOT-ISSUED",
+      "why": "read-only binary; this client can express it"
     },
     {
       "probe": "commit_add_schema",
@@ -244,8 +245,8 @@
       "client_status": "reachable",
       "rust_symbol": "Catalog::update_table",
       "source_ref": "catalog.rs:1005",
-      "verdict": "NOT-EXPRESSIBLE",
-      "why": "no method issues this request"
+      "verdict": "NOT-ISSUED",
+      "why": "read-only binary; this client can express it"
     },
     {
       "probe": "commit_set_current_schema",
@@ -254,8 +255,8 @@
       "client_status": "reachable",
       "rust_symbol": "Catalog::update_table",
       "source_ref": "catalog.rs:1005",
-      "verdict": "NOT-EXPRESSIBLE",
-      "why": "no method issues this request"
+      "verdict": "NOT-ISSUED",
+      "why": "read-only binary; this client can express it"
     },
     {
       "probe": "commit_upgrade_format_version",
@@ -264,8 +265,8 @@
       "client_status": "reachable",
       "rust_symbol": "Catalog::update_table",
       "source_ref": "catalog.rs:1005",
-      "verdict": "NOT-EXPRESSIBLE",
-      "why": "no method issues this request"
+      "verdict": "NOT-ISSUED",
+      "why": "read-only binary; this client can express it"
     },
     {
       "probe": "commit_transaction",
@@ -284,8 +285,8 @@
       "client_status": "reachable",
       "rust_symbol": "Catalog::rename_table",
       "source_ref": "catalog.rs:908",
-      "verdict": "NOT-EXPRESSIBLE",
-      "why": "no method issues this request"
+      "verdict": "NOT-ISSUED",
+      "why": "read-only binary; this client can express it"
     },
     {
       "probe": "drop_table_purge",
@@ -294,8 +295,8 @@
       "client_status": "reachable",
       "rust_symbol": "Catalog::purge_table",
       "source_ref": "catalog.rs:881",
-      "verdict": "NOT-EXPRESSIBLE",
-      "why": "`purgeRequested=true` via delete_table(purge=true), catalog.rs:388."
+      "verdict": "NOT-ISSUED",
+      "why": "read-only binary; this client can express it"
     },
     {
       "probe": "drop_table",
@@ -304,8 +305,8 @@
       "client_status": "reachable",
       "rust_symbol": "Catalog::drop_table",
       "source_ref": "catalog.rs:875",
-      "verdict": "NOT-EXPRESSIBLE",
-      "why": "no method issues this request"
+      "verdict": "NOT-ISSUED",
+      "why": "read-only binary; this client can express it"
     },
     {
       "probe": "create_view",
@@ -374,8 +375,8 @@
       "client_status": "reachable",
       "rust_symbol": "Catalog::drop_namespace",
       "source_ref": "catalog.rs:663",
-      "verdict": "NOT-EXPRESSIBLE",
-      "why": "no method issues this request"
+      "verdict": "NOT-ISSUED",
+      "why": "read-only binary; this client can express it"
     }
   ]
 }
