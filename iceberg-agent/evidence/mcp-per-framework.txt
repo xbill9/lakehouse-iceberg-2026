@@ -1,0 +1,93 @@
+# What it costs to reach one MCP server from three agent frameworks
+# Measured 2026-09-16. One server (iceberg-mcp-hosts/servers/iceberg_mcp.py),
+# four tools, one instruction, one catalog. The transport is the only variable
+# against iceberg-agent's paper 3 legs.
+
+## The shape each framework imposes
+
+  leg     agent.py   agent_mcp.py  build() shape          what goes in tools=
+  gcp     26         65            plain build()          a toolset object
+  aws     36         76            contextmanager         a list of tools
+  azure   32         71            async contextmanager   the server object
+
+Code lines exclude comments and blanks.
+
+Three frameworks, one protocol, three answers to "what is an MCP server to an
+agent":
+
+  ADK              MCPToolset goes into the same tools= list that took plain
+                   callables, and ADK expands it when it builds declarations.
+                   The only leg where the swap does not change build()'s shape,
+                   because the toolset's lifetime belongs to ADK's runner.
+  Strands          MCPClient is a session you open; you ask it for a list of
+                   tools and pass the list. Closest to passing callables, with
+                   a discovery step in front, and the session must stay open
+                   for as long as the tools are used.
+  Agent Framework  MCPStdioTool IS the tool. One object stands for the whole
+                   server and goes into tools= on its own. Async throughout.
+
+`run_mcp.py::open_leg` is the whole cost of that in one place: a three-way
+branch so the same question can be asked of all three. `run_once.py` needed no
+such branch -- with the tools imported, every leg's build() returned an agent.
+
+This is paper 3's result one layer up. There the four tools ported unchanged and
+the code around them did not. Here the server, the protocol and the tool
+declarations are identical across all three, and the code around them still does
+not port.
+
+## The tools do port, exactly
+
+All three legs were offered the same four tools, discovered from the server
+rather than declared in the agent:
+
+  iceberg_list_tables  iceberg_describe_table  iceberg_count_rows  iceberg_scan_table
+
+Agent Framework also picked up the descriptions the server sends, which are the
+tool docstrings from paper 3's shared module -- so the guidance measured there
+travels over the wire without being restated.
+
+## Answers, apache-polaris control catalog
+
+  aws    3.3s  4 tools  calls=list_tables,count_rows
+         "exactly 11 rows as of snapshot id 4496289927168545616"
+  gcp    6.1s  4 tools  calls=list_tables,count_rows,describe_table
+         "11 rows, from snapshot-id 4496289927168545616"
+  azure  not run: FOUNDRY_PROJECT_ENDPOINT is not set in this environment.
+         Tool discovery is confirmed -- MCPStdioTool exposed all four with
+         descriptions -- so what is outstanding is the chat client, not MCP.
+
+Nova Micro answers correctly on two calls because the count is the engine's, not
+the model's. Same result as paper 3 measured with the tools in-process.
+
+## The SDK version, and it is ours not theirs
+
+Both Google and Microsoft legs failed to import before anything was run:
+
+  google-adk 2.8.0            ModuleNotFoundError: mcp.shared.session
+  agent-framework 1.17.0      AttributeError: 'InitializeResult' object has no
+                              attribute 'protocolVersion'
+
+The Agent Framework failure is in a line setting an OpenTelemetry span
+attribute, not in protocol handling.
+
+Before reporting either as a defect, the pins:
+
+  agent-framework-core 1.17.0   mcp>=1.24.0,<2
+  google-adk           2.8.0    mcp>=1.24,<2
+  strands-agents       1.55.0   mcp<2.2,>=1.23.0
+  mcp, as installed             2.2.0
+
+All three require mcp<2, and the environment had 2.2.0 -- which satisfies none
+of them. Strands ran only because it happens not to touch the APIs 2.x renamed;
+that is luck, not compatibility. Installing mcp 1.30.0, inside every pin, all
+three import and all three run.
+
+So this is a setup finding, not a vendor one. What it says about MCP is narrower
+and more useful: the protocol is language- and framework-independent, the Python
+SDK is a shared dependency, and the frameworks do not move to a new major
+version together. Anyone running more than one framework on one machine will
+meet this.
+
+`iceberg_mcp.py` is unaffected by any of it -- it speaks newline-delimited
+JSON-RPC directly and imports no SDK, which is why the paper 4 matrix did not
+have to be re-run when the SDK version changed underneath it.

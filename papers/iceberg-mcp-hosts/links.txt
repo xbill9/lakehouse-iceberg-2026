@@ -1,0 +1,7 @@
+# Paper 4 — One Iceberg MCP Server, Three CLI Hosts
+# dev.to draft, published: false, awaiting proof.
+
+dev.to (gde, DRAFT)  id 4671148
+https://dev.to/xbill/one-iceberg-mcp-server-three-cli-hosts-what-a-tool-list-bounds-and-what-it-doesnt-18hd-temp-slug-7240323
+
+cover  https://raw.githubusercontent.com/xbill9/lakehouse-iceberg-2026/main/papers/iceberg-mcp-hosts/cover.c04aee28.jpg
