@@ -1,155 +1,111 @@
-# What a Rust client can reach: iceberg-rust against seven catalogs
+# The Rust client harness: shared by papers 5 and 6
 
-Supports the **Rust client paper**. Paper 1 measured what seven Iceberg REST
-catalogs *serve*. This measures what a *client implementation* can reach across
-the same seven, with `pyiceberg` as the control.
+One directory, one probe list, two papers with different questions. The papers
+are tracked separately and neither owns this directory:
 
-Standalone, and deliberately not part of `iceberg-mcp-hosts/`. That paper
-measures MCP tool surfaces, and the fact that one server under test happens to be
-written in Rust is incidental to it. Rust is the subject here.
+| | paper | tracked in |
+|---|---|---|
+| 5 | Can one Rust client work against the test bed, and what does it take? | [`papers/rust-client-seven-catalogs/PLAN.md`](../papers/rust-client-seven-catalogs/PLAN.md) |
+| 6 | What do the two clients cost, and what is the cost made of? | [`papers/two-iceberg-clients-cost/PLAN.md`](../papers/two-iceberg-clients-cost/PLAN.md) |
 
-## What varies, and what does not
+Findings, prior art and what each paper still owes live in those two files. What
+follows is the harness.
 
-| shared, one implementation | different, on purpose |
-|---|---|
-| the seven catalogs, already configured | the client library |
-| the fixture table, already seeded | |
-| the operation set, taken from paper 1's probes | |
-| the evidence and anonymisation discipline | |
+`control` here always means the control **catalog**, Apache Polaris, never one
+of the clients.
 
-    control     pyiceberg 0.12.0        Python, and what paper 1 measured with
-    subject     iceberg-catalog-rest    Rust, Apache, 0.10.1 (2026-08-01)
+## What is held constant
 
-Using paper 1's own probe list means the two papers are comparable rather than
-merely adjacent: a cell that a catalog served for Python and refuses for Rust is
-a client difference, because the server side is already measured.
+Both papers use paper 1's probe list, paper 1's fixture tables, and the
+conformance harness's own configuration and token minting. Nothing here is
+pointed at a different catalog, table or credential than the paper it builds on,
+because a comparison between two setups is not a comparison between two clients.
 
-## The finding that is already visible in the source
+    iceberg-catalog-rest    Rust, Apache, =0.10.1, pinned
+    iceberg-storage-opendal Rust, Apache, =0.10.1, for cloud-backed storage
+    pyiceberg               Python, Apache, 0.12.0
+    fixture                 paper 1's seeded probe table, per catalog
 
-`evidence/rust-client-auth-surface.txt` records it, read from the published crate
-rather than from documentation: the crate has **no AWS SigV4**. It supports a
-bearer `token`, OAuth2 `credential` + `oauth2-server-uri` + `scope`, and static
-`header.<name>` values, and its dependency list contains no AWS SDK or signing
-crate.
+## The pieces
 
-Paper 1 measured Glue and S3 Tables as SigV4-signed. A SigV4 signature is
-computed per request, so a static header cannot carry one. As shipped, two of the
-seven are out of reach.
-
-That is a reading of the source, not a result. **The paper has to demonstrate the
-failure against a live endpoint**, in the same way paper 1 refused to report a
-verdict it had not seen on the wire. Until then it is a hypothesis with a grep
-behind it.
-
-## What this is not
-
-Not "Rust is missing features". The REST specification does not require SigV4;
-the crate implements what the spec describes, and the two AWS catalogs layer an
-AWS-specific signing requirement on top of it. The interesting sentence is about
-what a portable client can assume, not about who is at fault.
-
-## The second finding, also from the source
-
-`make_surface.py` joins paper 1's 33 probes against `operation_map.py`, a
-hand-read of the crate's `Catalog` impl with a file and line behind every entry,
-and writes `evidence/rust-client-operation-surface.txt`. Counted by endpoint
-signature rather than by probe, because five of paper 1's probes share
-`update_table`:
-
-    13 of 25 distinct endpoints are expressible through this client
-
-The 12 that are not divide into three kinds, and the paper should not blur them:
-
-- **absent**, 11 endpoints. All six view operations, scan planning, metrics
-  reporting, the separate credentials endpoint, and `commitTransaction`. There
-  is no method and no endpoint builder that could construct the URL.
-- **unsupported**, 1 endpoint. `Catalog::update_namespace` compiles and returns
-  `FeatureUnsupported, "Updating namespace not supported yet!"`. It is named in
-  the API a caller builds against and is not served by the client -- the
-  client-side echo of paper 1's declared-versus-served split.
-- **degraded**, 2 probes that share reachable endpoints. `load_table` sends no
-  query parameters, so `?snapshots=all` cannot be asked for; `list_namespaces`
-  follows `next-page-token` internally and never sends `pageSize`. The endpoint
-  is reachable, the probe's question is not expressible.
-
-A probe that cannot be issued is not a failed probe. The run reports those as
-`NOT-EXPRESSIBLE`, never as a red cell, for the same reason `INDETERMINATE`
-exists in the conformance harness.
-
-Running `make_surface.py` fails loudly if a probe has no mapping, if a mapping
-names a probe that no longer exists, or if two probes sharing one endpoint
-signature disagree about its status.
+| file | what it does | network |
+|---|---|---|
+| `src/main.rs` | three modes: one probe per operation, `IRC_MODE=bench`, `IRC_MODE=transport` | yes |
+| `run_rust.py` | drives the binary, merges against `operation_map.py`, writes a run | yes |
+| `run_pyiceberg.py` | the same shape for the other client | yes |
+| `bench.py` | times both clients, interleaved rounds, one file per run | yes |
+| `bench_worker.py` | pyiceberg's half of the benchmark, spawned | yes |
+| `bench_breakdown.py` | one request at increasing depth, plus the Rust transport floor | yes |
+| `operation_map.py` / `pyiceberg_map.py` | hand-read maps, file and line per entry | no |
+| `make_surface.py` | renders either map as a surface | no |
+| `compare_clients.py` | joins both maps and both runs | no |
+| `gate_cost.py` | joins paper 1's declarations against pyiceberg's gate | no |
+| `bench_report.py` | renders stored benchmark runs, with cross-run spread | no |
+| `check_refs.py` | resolves all 85 cited source lines | no |
+| `redact.py` | scrubs, then refuses to write a surviving identifier | no |
 
 ## Running it
 
 ```console
-$ cargo build
+$ cargo build --release                    # bench.py requires release
 $ export POLARIS_CLIENT_ID=root POLARIS_CLIENT_SECRET=s3cr3t
-$ python3 run_rust.py                      # control only, the default
-apache-polaris     1 implicit, 25 not-expressible, 7 ok
-wrote evidence/rust-run-apache-polaris.json
-$ python3 make_surface.py                  # rebuild the surface, no network
+
+$ python3 run_rust.py --storage opendal    # paper 5, control catalog
+apache-polaris     1 implicit, 14 not-expressible, 11 not-issued, 7 ok
+$ python3 run_pyiceberg.py                 # paper 6's other client
+apache-polaris     2 gated, 1 implicit, 4 not-expressible, 16 not-issued, 10 ok
+$ python3 bench.py --rounds 4 --iters 15   # paper 6, timed
+apache-polaris     6 ops, 2 clients, 4 rounds x 15 iters = 720 samples
+$ python3 bench_breakdown.py --iters 80    # paper 6, where the time goes
+
+$ python3 make_surface.py --all            # no network from here down
+$ python3 compare_clients.py
+$ python3 gate_cost.py
+$ python3 bench_report.py
+$ python3 check_refs.py
+$ python3 redact.py
 ```
 
-`src/main.rs` issues the probes and prints one JSON object each; `run_rust.py`
-merges that against `operation_map.py` so all 33 of paper 1's probes get a row,
-and takes catalog configuration and token minting from the conformance harness
-rather than reimplementing them -- the two papers have to be pointed at the same
-catalogs with the same credentials or the comparison is between two setups.
+## Harness invariants
 
-The binary has no write path, so a run cannot leave residue on a vendor catalog.
-Nothing from a `loadTable` response reaches disk except counts and integers, and
-the evidence carries a catalog's name but never its URL, warehouse or namespace.
+Each of these was a bug here, not a rule imported from elsewhere.
 
-## What the control run says
+- **`NOT-ISSUED` is not `NOT-EXPRESSIBLE`.** The first means the runner chose
+  not to send a request it could send -- both runners are read-only, so every
+  write probe is one. The second means the client has no request to send.
+  Folding them together understated the Rust crate by eleven rows.
+- **Storage is a separate crate.** `iceberg` 0.10.1 ships `local-fs` and
+  `memory` only; `iceberg-storage-opendal` carries the cloud backends. Without
+  it every `s3://`, `gs://` and `abfss://` catalog fails at `load_table` on our
+  packaging rather than on anything the catalog did. `IRC_STORAGE` is recorded
+  with every run and never defaulted silently.
+- **Interleave anything compared.** Clients alternate round by round and the
+  decomposition alternates layer by layer, because a server that warms up over
+  a run hands its later blocks a discount. The first decomposition did not, and
+  reported transport as slower than the call containing it; that run is kept as
+  `evidence/bench-breakdown-*.invalid.txt`.
+- **Release build or no evidence.** `bench.py` refuses a debug binary.
+- **One file per benchmark run.** A benchmark whose evidence is replaced by the
+  next run cannot show its own spread, and the spread is the measurement.
+- **Percentiles are computed in code**, from stored samples, never by hand.
+- **Hand-read line numbers rot.** `check_refs.py` resolves every cited line
+  against the installed source and fails if it is no longer inside the function
+  it is cited for. It cannot check that the reading was right, only that it
+  still points where it pointed.
+- **Redact before disk.** Client error text is not ours to predict, so it goes
+  through `redact.py`, which refuses to write a document in which a configured
+  value survived. `python3 redact.py` plants an identifier and watches it fail.
 
-Polaris, 2026-09-04, `local-fs` storage: **7 OK, 1 implicit, 25 not-expressible,
-0 failed.** Every operation this client can express against the control works,
-which is the precondition for pointing it at a credentialed vendor.
+Neither runner has a write path, so no run can leave residue on a vendor
+catalog. Nothing from a `loadTable` response reaches disk except counts and
+integers, and evidence carries a catalog's name but never its URL, warehouse or
+namespace.
 
-Getting there cost one bug, caught by the rule that catches most of them. The
-first run failed `load_table` on the control:
+## Standing caveats for anything either paper says
 
-```console
-StorageFactory must be provided for RestCatalog.
-Use `with_storage_factory` to configure it.
-```
-
-Ours, not Polaris's. But the underlying fact is worth the paper's attention:
-`load_table` returns a `Table`, a `Table` carries a `FileIO`, so this client
-will not hand back a `loadTable` response at all without storage wiring -- the
-HTTP round trip had already succeeded when it refused. And `iceberg` 0.10.1
-ships exactly two storage factories, local filesystem and memory. What a caller
-does for `s3://`, `gs://` or `abfss://` is a question the vendor runs will have
-to answer, and it is a separate question from SigV4. `IRC_STORAGE` is therefore
-a recorded property of every run, never a silent default.
-
-## The auth plan, per catalog
-
-`run_rust.py` classifies each catalog's auth before running it, and the
-classification is itself a result:
-
-| auth | catalogs | through the crate |
-|---|---|---|
-| oauth2 | Polaris | native: `credential` + `oauth2-server-uri` + `scope` |
-| bearer from env | Unity | native: `token` |
-| keypair-signed JWT | Horizon | native: a `credential` with no colon is sent as `client_secret` with no `client_id` (catalog.rs:238), which is the shape Horizon wants. Whether Horizon accepts the crate's grant is still a measurement |
-| gcloud ADC, Azure CLI | BigLake, OneLake | static: a bearer minted outside the crate. It works, and the crate cannot refresh it -- `regenerate_token()` re-runs an OAuth2 grant, which is not how the token was obtained |
-| SigV4 | Glue, S3 Tables | absent |
-
-## Status
-
-Control column green. Two surfaces read from the crate -- auth and operations --
-and one measured run, against Polaris.
-
-Next, in order:
-
-1. The five expressible vendors, one at a time. Each is a real cost and a real
-   round trip, so none of them runs without being asked for.
-2. The SigV4 demonstration. Reading the source says a static header cannot carry
-   a per-request signature; the paper still owes a live endpoint refusing one.
-   The honest form is to lift a signature computed for `GET /v1/config` into
-   `header.Authorization` and show the second request rejected -- that
-   demonstrates the mechanism rather than merely the absence.
-3. The `pyiceberg` control column, so the comparison is client-versus-client
-   rather than Rust-versus-paper-1's-raw-requests.
+Paper 1's carry over unchanged: three of the seven catalogs were measured on
+trial accounts, managed catalogs expose no version, every run is one region at
+one moment, and coverage is 25 of the specification's 35 operations. Presence is
+checked, not correctness -- a benchmark says nothing about whether an answer was
+right, and speed is never a reason to choose a client that cannot reach the
+operations a workload needs.

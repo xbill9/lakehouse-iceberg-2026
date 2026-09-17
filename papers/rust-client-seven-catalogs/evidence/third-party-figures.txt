@@ -1,0 +1,53 @@
+# THIRD-PARTY FIGURES. NOT MEASURED BY THIS HARNESS.
+#
+# Every number below was published by someone else and is quoted, with its
+# source and the date it was read. Nothing here was produced on this machine,
+# and none of it may be presented as a measurement of ours. It exists so that a
+# figure quoted in a paper has a provenance record rather than living only in
+# prose -- the same reason the rest of this directory exists.
+#
+# Read 2026-09-17.
+
+source   https://dev.to/aws/cold-starts-are-dead-5fod
+title    Cold Starts Are Dead
+what     AWS Lambda cold start, p50, minimal hello-world handlers, 512 MB,
+         us-west-2, described by the author as the "platform floor" with no
+         framework dependencies
+figures  Python 3.13   88.3 ms p50 arm64      106.2 ms p50 x86_64
+         Rust          14.1 ms p50 arm64       17.0 ms p50 x86_64
+         Go            45.0 ms p50 arm64       59.8 ms p50 x86_64
+use      Cited in paper 6 as the published floor that excludes dependency
+         import cost, against which this harness's 525.8-557.9 ms pyiceberg
+         cold start is roughly five times larger, 337.9-366.3 ms of it being
+         the import of one library.
+
+source   https://github.com/apache/iceberg-rust/issues/1236
+title    REST catalog: support AWS sigV4
+what     Upstream feature request, open as of 2026-09-17, asking for
+         rest.sigv4-enabled, rest.signing-name and rest.signing-region
+use      Cited in paper 5 so the SigV4 gap is reported as a known, tracked
+         limitation rather than as a discovery.
+
+source   https://github.com/apache/iceberg-rust/discussions/1239
+what     A user reports 403 "Missing Authentication Token" from S3 Tables
+         through the REST catalog; the answer is that SigV4 "isn't supported
+         for the REST Catalog implementation yet", pointing at #1236 and at
+         the iceberg-catalog-s3tables crate.
+use      Same as above.
+
+source   https://datalakehousehub.com/blog/iceberg-rest-catalog-compatibility-report-2026/
+title    The 2026 Iceberg REST Catalog Compatibility Report
+published 2026-09-10
+what     Seven catalog implementations, 25 of the specification's 35
+         operations, declared-versus-served, stored evidence. Client libraries
+         explicitly out of scope; recommends a separate client-compatibility
+         job run through the client libraries actually deployed.
+use      Cited in both papers as the nearest prior art and as the statement
+         that the client-side work is the gap.
+
+source   https://github.com/querygraph/catalog-bench
+what     Commit-path benchmark across five REST catalogs; p50/p95/p99 over
+         1,000 serial commits, six rounds with rotate-left catalog ordering,
+         driven through one binary to eliminate client-side variables.
+use      Cited in paper 6 as the complement: it removes the variable this
+         paper measures.

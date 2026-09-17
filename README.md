@@ -16,7 +16,8 @@ the wire and published alongside it.
 | 2 | [AWS Has Two Iceberg REST Catalogs: What Each One Actually Serves](papers/aws-two-iceberg-rest-catalogs/devto-aws-two-iceberg-rest-catalogs.md) | dev.to `aws-builders`, Builder Center, Medium | published |
 | 3 | [Four Iceberg Tools, Three Agent Frameworks: What Ports, and What Doesn't](papers/iceberg-agent-three-clouds/devto-iceberg-agent-three-clouds.md) | dev.to `gde` and `aws-builders`, Builder Center, Medium | published |
 | 4 | One Iceberg table, four MCP servers, three CLI hosts ([`iceberg-mcp-hosts/`](iceberg-mcp-hosts/README.md)) | — | scaffolding, nothing run |
-| 5 | What a Rust client can reach, across the same seven catalogs ([`iceberg-rust-client/`](iceberg-rust-client/README.md)) | — | control column green, no vendor run yet |
+| 5 | One Rust Client, Seven Iceberg Catalogs: What It Reaches, and What It Takes ([plan](papers/rust-client-seven-catalogs/PLAN.md), [harness](iceberg-rust-client/README.md)) | planned: dev.to `gde` and `aws-builders`, Builder Center, Medium | control catalog green, seven vendors unrun |
+| 6 | Two Iceberg Clients, One Protocol: Where the Time Actually Goes ([plan](papers/two-iceberg-clients-cost/PLAN.md), [harness](iceberg-rust-client/README.md)) | planned: dev.to `gde` and `aws-builders`, Builder Center, Medium | benchmark and decomposition on the control catalog |
 
 Published URLs for each paper are recorded in that paper's `links.txt`.
 
