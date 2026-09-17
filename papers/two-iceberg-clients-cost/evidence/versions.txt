@@ -1,0 +1,24 @@
+client and runtime versions, captured 2026-09-17 for papers 5 and 6
+
+Read from the machine that produced the runs, not from documentation.
+
+python                   3.14.7
+pyiceberg                0.12.0
+rustc                    1.98.1 (48a229cea 2026-09-01)
+cargo                    1.98.1 (797e8a9bc 2026-08-05)
+
+crates, pinned in Cargo.toml and resolved in Cargo.lock:
+  iceberg                  0.10.1
+  iceberg-catalog-rest     0.10.1
+  iceberg-storage-opendal  0.10.1
+  reqwest                  0.12.28
+  opendal                  0.57.0
+
+control catalog, the running container rather than the tag:
+  image                  apache/polaris:latest
+  digest                 sha256:e66366e783f106e94c4d0c5d4b146a08bf55ce194b7add3ecd5d1d3807dd7c71
+  started                2026-09-16T17:08:10.136259474Z
+  version                polaris-server-1.7.0.jar
+
+  The tag is :latest, so the tag is not the version. The line above is the
+  server jar inside the container that answered these runs.

@@ -32,6 +32,7 @@ PAPERS = os.path.join(HERE, os.pardir, "papers")
 MANIFEST = {
     "rust-client-seven-catalogs": [
         "third-party-figures.txt",
+        "versions.txt",
         "rust-client-operation-surface.txt",
         "rust-client-auth-surface.txt",
         "rust-run-apache-polaris.json",
@@ -39,6 +40,7 @@ MANIFEST = {
     ],
     "two-iceberg-clients-cost": [
         "third-party-figures.txt",
+        "versions.txt",
         "bench-comparison.txt",
         "client-comparison.txt",
         "declaration-gate-cost.txt",
