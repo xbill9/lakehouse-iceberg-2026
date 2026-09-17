@@ -1,54 +1,65 @@
 # Does moving the tools behind MCP change what the agent does?
-# Measured 2026-09-16, apache-polaris control catalog, 24 runs.
+# Measured 2026-09-16. 36 runs, 108 checks.
 #
 # One leg, one question, two transports. Same framework, same model, same
 # instruction, same four tools, same catalog. `agent.py` imports the tools into
 # the agent process; `agent_mcp.py` reaches the same module through a server
 # process over stdio JSON-RPC. The transport is the only variable.
 #
-# Questions are paper 3's, unchanged: one answerable from metadata, one needing
-# a data read and a filtered count (8 of the 11 ids are 10 or more).
+# Questions are paper 3's, unchanged: one answerable from catalog metadata, one
+# needing a data read and a filtered count (8 of the 11 ids are 10 or more).
+# Three checks per run.
 
-  leg    question  transport  median  spread  score
-  aws    metadata  imported     4.2s    0.4s   9/9
-  aws    metadata  mcp          4.2s    0.2s   9/9
-  aws    scan      imported     4.6s    0.3s   9/9
-  aws    scan      mcp          4.7s    0.1s   9/9
-  gcp    metadata  imported     7.9s    1.1s   9/9
-  gcp    metadata  mcp          8.6s    2.0s   9/9
-  gcp    scan      imported    11.4s    2.3s   9/9
-  gcp    scan      mcp         11.0s    1.8s   9/9
+  leg    catalog           question  transport  median  score
+  aws    apache-polaris    metadata  imported     4.2s   9/9
+  aws    apache-polaris    metadata  mcp          4.2s   9/9
+  aws    apache-polaris    scan      imported     4.6s   9/9
+  aws    apache-polaris    scan      mcp          4.7s   9/9
+  gcp    apache-polaris    metadata  imported     8.3s   9/9
+  gcp    apache-polaris    metadata  mcp          9.2s   9/9
+  gcp    apache-polaris    scan      imported    11.4s   9/9
+  gcp    apache-polaris    scan      mcp         11.1s   9/9
+  gcp    google-lakehouse  metadata  imported     9.4s   9/9
+  gcp    google-lakehouse  metadata  mcp          9.6s   9/9
+  gcp    google-lakehouse  scan      imported    15.3s   9/9
+  gcp    google-lakehouse  scan      mcp         17.1s   9/9
 
-  imported  36 of 36 checks correct
-  mcp       36 of 36 checks correct
-
-Three checks per run: the row count beside its noun, every column named, and the
-version cited for the metadata question; the largest id, the filtered count and
-the version for the scan question. Graded against
-iceberg-mcp-hosts/evidence/ground-truth-apache-polaris.txt, read from the
-catalog by pyiceberg.
+  imported  54 of 54 checks correct
+  mcp       54 of 54 checks correct
 
 ## Result
 Nothing moved. Every check passes on both transports, on both legs, on both
-questions, and the medians differ by less than the spread within either column.
+questions, on a local catalog and on a cloud one. The medians differ by less
+than the spread inside either column.
 
-That is the useful shape of a null result here. The cost of MCP is not in what
-the agent does -- it is in the code around the agent, which is measured
-separately in mcp-per-framework.txt: three frameworks, three shapes of build(),
-and a three-way branch in run_mcp.py that run_once.py never needed.
+The cost of MCP is not in what the agent does. It is in the code around the
+agent, measured separately in mcp-per-framework.txt: three frameworks, three
+shapes of build(), and a three-way branch in run_mcp.py that run_once.py never
+needed.
 
-Strands on Nova Micro answers in two calls either way; ADK on Gemini takes
-longer and is more variable on both transports, which is a property of the model
-and the question, not of the transport -- the imported and MCP columns move
-together.
+Strands on Nova Micro answers in two calls either way. ADK on Gemini takes
+longer and is more variable on both transports, and BigLake is slower than the
+local Polaris on both -- each of those moves with the model or the catalog, and
+the imported and MCP columns move together.
+
+## Grading
+Each catalog is graded against its own ground truth, read from that catalog by
+iceberg-mcp-hosts/ground_truth.py. Polaris and BigLake hold the same fixture but
+are different physical tables with different snapshot ids and metadata
+locations, so one shared file would mark every BigLake citation wrong by
+construction.
+
+Both transports launch with the same environment and the catalogs file pinned
+absolutely. A run that ends in a launch error, a catalog error, or in under a
+second is recorded as failed rather than scored: a leg that could not start did
+not answer badly. run_mcp.py refuses to start at all on an MCP SDK outside the
+range every framework pins, so a version change cannot arrive as a wrong answer.
 
 ## Scope
-One catalog, local Polaris. Three runs per cell, which is enough to say the
-columns match and not enough to put a number on the difference between them.
-Two legs: the azure leg discovers its tools over MCP but wants
-FOUNDRY_PROJECT_ENDPOINT to answer, so it is absent from this table rather than
-scored.
+Three runs per cell. Enough to say the columns match; not enough to put a number
+on the difference between them.
 
-Both transports are launched with the same environment, the catalogs file
-pinned absolutely, and a run that ends in a launch or catalog error is recorded
-as failed rather than scored -- a leg that could not start did not answer badly.
+Two legs of three. The azure leg discovers its four tools over MCP -- confirmed
+-- and wants FOUNDRY_PROJECT_ENDPOINT to answer, so it is absent rather than
+scored. The aws leg ran on the Polaris control; its Glue arm needs an AWS session
+that has since expired, and is not included.

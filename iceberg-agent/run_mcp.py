@@ -38,6 +38,25 @@ sys.path.insert(0, os.path.join(os.path.dirname(HERE), "iceberg-conformance"))
 THINKING = re.compile(r"<thinking>.*?</thinking>\s*", re.S)
 
 
+def require_sdk():
+    """Refuse to run on an MCP SDK none of the frameworks accept.
+
+    All three pin mcp<2. Installed 2.x, ADK fails on a removed module and Agent
+    Framework on a renamed field, and both failures arrive as an exception the
+    runner catches -- which a caller that scores stdout reads as a wrong answer
+    rather than as a leg that never started. The version is checked here so the
+    run stops with the reason instead.
+    """
+    import importlib.metadata as md
+    version = md.version("mcp")
+    if int(version.split(".")[0]) >= 2:
+        raise SystemExit(
+            "mcp %s is installed and google-adk, agent-framework-core and\n"
+            "strands-agents all require mcp<2. Install one they accept:\n"
+            "  python3 -m pip install 'mcp>=1.24,<2'" % version)
+    return version
+
+
 def load(cloud):
     path = os.path.join(HERE, cloud, "agent_mcp.py")
     spec = importlib.util.spec_from_file_location(cloud + "_agent_mcp", path)
@@ -126,6 +145,7 @@ async def main():
     a = ap.parse_args()
     if a.catalog:
         os.environ["ICEBERG_CATALOG"] = a.catalog
+    require_sdk()
     clouds = sorted(ASK) if a.all else [a.cloud or "aws"]
 
     for cloud in clouds:

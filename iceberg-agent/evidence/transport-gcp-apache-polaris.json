@@ -1,0 +1,139 @@
+{
+  "leg": "gcp",
+  "catalog": "apache-polaris",
+  "graded_against": "4496289927168545616",
+  "results": [
+    {
+      "leg": "gcp",
+      "question": "metadata",
+      "transport": "imported",
+      "run": 1,
+      "elapsed_s": 8.3,
+      "cites_version": true,
+      "correct_row_count": true,
+      "names_all_columns": true,
+      "chars": 1066
+    },
+    {
+      "leg": "gcp",
+      "question": "metadata",
+      "transport": "imported",
+      "run": 2,
+      "elapsed_s": 8.7,
+      "cites_version": true,
+      "correct_row_count": true,
+      "names_all_columns": true,
+      "chars": 980
+    },
+    {
+      "leg": "gcp",
+      "question": "metadata",
+      "transport": "imported",
+      "run": 3,
+      "elapsed_s": 8.2,
+      "cites_version": true,
+      "correct_row_count": true,
+      "names_all_columns": true,
+      "chars": 1130
+    },
+    {
+      "leg": "gcp",
+      "question": "metadata",
+      "transport": "mcp",
+      "run": 1,
+      "elapsed_s": 9.2,
+      "cites_version": true,
+      "correct_row_count": true,
+      "names_all_columns": true,
+      "chars": 1819
+    },
+    {
+      "leg": "gcp",
+      "question": "metadata",
+      "transport": "mcp",
+      "run": 2,
+      "elapsed_s": 8.6,
+      "cites_version": true,
+      "correct_row_count": true,
+      "names_all_columns": true,
+      "chars": 2150
+    },
+    {
+      "leg": "gcp",
+      "question": "metadata",
+      "transport": "mcp",
+      "run": 3,
+      "elapsed_s": 12.0,
+      "cites_version": true,
+      "correct_row_count": true,
+      "names_all_columns": true,
+      "chars": 1931
+    },
+    {
+      "leg": "gcp",
+      "question": "scan",
+      "transport": "imported",
+      "run": 1,
+      "elapsed_s": 10.8,
+      "cites_version": true,
+      "correct_largest_id": true,
+      "correct_filtered_count": true,
+      "chars": 988
+    },
+    {
+      "leg": "gcp",
+      "question": "scan",
+      "transport": "imported",
+      "run": 2,
+      "elapsed_s": 12.1,
+      "cites_version": true,
+      "correct_largest_id": true,
+      "correct_filtered_count": true,
+      "chars": 1247
+    },
+    {
+      "leg": "gcp",
+      "question": "scan",
+      "transport": "imported",
+      "run": 3,
+      "elapsed_s": 11.4,
+      "cites_version": true,
+      "correct_largest_id": true,
+      "correct_filtered_count": true,
+      "chars": 1076
+    },
+    {
+      "leg": "gcp",
+      "question": "scan",
+      "transport": "mcp",
+      "run": 1,
+      "elapsed_s": 11.1,
+      "cites_version": true,
+      "correct_largest_id": true,
+      "correct_filtered_count": true,
+      "chars": 1829
+    },
+    {
+      "leg": "gcp",
+      "question": "scan",
+      "transport": "mcp",
+      "run": 2,
+      "elapsed_s": 11.5,
+      "cites_version": true,
+      "correct_largest_id": true,
+      "correct_filtered_count": true,
+      "chars": 1831
+    },
+    {
+      "leg": "gcp",
+      "question": "scan",
+      "transport": "mcp",
+      "run": 3,
+      "elapsed_s": 10.3,
+      "cites_version": true,
+      "correct_largest_id": true,
+      "correct_filtered_count": true,
+      "chars": 1843
+    }
+  ]
+}

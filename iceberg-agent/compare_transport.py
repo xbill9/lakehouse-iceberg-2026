@@ -36,15 +36,24 @@ QUESTIONS = {
              "rows have an id of 10 or more? Cite the exact table version you read."),
 }
 
-#: The probe table on the control catalog, read from the catalog by
-#: iceberg-mcp-hosts/ground_truth.py rather than restated here.
-TRUTH = os.path.join(os.path.dirname(HERE), "iceberg-mcp-hosts", "evidence",
-                     "ground-truth-apache-polaris.txt")
+#: Ground truth per CATALOG, read from each catalog by
+#: iceberg-mcp-hosts/ground_truth.py rather than restated here. Not one file:
+#: the Polaris and BigLake tables hold the same fixture but are different
+#: physical tables with different snapshot ids and metadata locations, so
+#: grading a BigLake answer against Polaris's marks every citation wrong by
+#: construction.
+TRUTH_DIR = os.path.join(os.path.dirname(HERE), "iceberg-mcp-hosts", "evidence")
 
 
-def truth():
+def truth(catalog):
+    path = os.path.join(TRUTH_DIR, "ground-truth-%s.txt" % catalog)
+    if not os.path.exists(path):
+        raise SystemExit(
+            "no ground truth for %s\n  expected %s\n"
+            "  run: cd ../iceberg-mcp-hosts && python3 ground_truth.py --catalog %s"
+            % (catalog, path, catalog))
     out = {}
-    with open(TRUTH) as handle:
+    with open(path) as handle:
         for line in handle:
             if line.startswith("  ") and "=" in line:
                 k, v = line.strip().split("=", 1)
@@ -125,7 +134,7 @@ def main():
     ap.add_argument("--question", choices=sorted(QUESTIONS), action="append")
     a = ap.parse_args()
     kinds = a.question or sorted(QUESTIONS)
-    t = truth()
+    t = truth(a.catalog)
 
     rows = []
     for kind in kinds:
@@ -150,10 +159,12 @@ def main():
                 print("%-6s %-9s %-9s r%d %6.1fs  %s"
                       % (a.leg, kind, transport, index, elapsed, fields), flush=True)
 
-    out = os.path.join(HERE, "evidence", "transport-%s.json" % a.leg)
+    out = os.path.join(HERE, "evidence", "transport-%s-%s.json" % (a.leg, a.catalog))
     os.makedirs(os.path.dirname(out), exist_ok=True)
     with open(out, "w") as handle:
-        json.dump({"leg": a.leg, "catalog": a.catalog, "results": rows}, handle, indent=2)
+        json.dump({"leg": a.leg, "catalog": a.catalog,
+                   "graded_against": t["snapshot_id"], "results": rows},
+                  handle, indent=2)
     print("\nwrote %s (%d rows)" % (out, len(rows)))
 
 
