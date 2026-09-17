@@ -1,0 +1,11 @@
+# host=claude server=ours-engine Q1 run=1 elapsed_s=35.7 captured=2026-09-16T23:34:36Z
+# question: How many namespaces are in this catalog, and what are they called?
+
+**One namespace: `probe_ns`.**
+
+The count and the listing both come from the catalog, not from me: `list_namespaces()` against the local Polaris REST catalog (`ICEBERG_CATALOG=apache-polaris`), with `len()` computed in the script — `namespace_count=1`. It holds two tables, `probe_ns.probe_table` and `probe_ns.probe_large`.
+
+Two notes on method:
+
+- The MCP tool `iceberg_list_tables` returns only `probe_ns.probe_large` and `probe_ns.probe_table`, so it would have let me *infer* one namespace — but that inference is only sound because both namespaces here happen to be non-empty. An empty namespace is invisible to a table listing. The server's four tools have no `list_namespaces`, which is why I went to the catalog directly for this question.
+- This matches `evidence/ground-truth-apache-polaris.txt` (`namespaces=probe_ns`, `namespace_count=1`, read at 2026-09-16T23:07:04Z). I did not re-run `ground_truth.py`, so that file is untouched; my check ran read-only from `/tmp`.

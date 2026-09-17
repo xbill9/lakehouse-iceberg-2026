@@ -1,0 +1,11 @@
+# host=agy server=ours-rows Q1 run=3 elapsed_s=26.7 captured=2026-09-17T00:01:37Z
+# question: How many namespaces are in this catalog, and what are they called?
+
+Based on querying the catalog via `iceberg_list_tables`:
+
+* **Number of namespaces:** 1
+* **Namespace name:** `probe_ns`
+
+### Tables in `probe_ns`
+* `probe_ns.probe_large`
+* `probe_ns.probe_table`

@@ -1,0 +1,11 @@
+# host=claude server=ours-engine Q4 run=3 elapsed_s=11.8 captured=2026-09-16T23:45:21Z
+# question: How many rows are in probe_ns.probe_large?
+
+**99,999 rows.**
+
+The count came from the snapshot summary's `total-records`, which is exact for the snapshot read:
+
+- snapshot-id: `520235497352034082` (the table's current snapshot)
+- metadata-location: `file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_large/metadata/00008-guid-0001.metadata.json`
+
+The table is format-version 2, partitioned by `ts_day`, with columns `id` (long, required), `ts` (timestamptz), `payload` (string) and `region` (string), and 6 snapshots in total.

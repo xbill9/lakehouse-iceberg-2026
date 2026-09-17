@@ -1,0 +1,8 @@
+# host=agy server=ours-rows Q6 run=2 elapsed_s=19.6 captured=2026-09-17T00:01:10Z
+# question: How many snapshots does probe_ns.probe_large have?
+
+The table `probe_ns.probe_large` has **6** snapshots.
+
+### Citation
+- **Current Snapshot ID:** `520235497352034082`
+- **Metadata Location:** `file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_large/metadata/00008-guid-0001.metadata.json`

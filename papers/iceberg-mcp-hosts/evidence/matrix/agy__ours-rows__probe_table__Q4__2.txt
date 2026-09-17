@@ -1,0 +1,8 @@
+# host=agy server=ours-rows Q4 run=2 elapsed_s=18.5 captured=2026-09-16T23:26:31Z
+# question: How many rows are in probe_ns.probe_table?
+
+There are **11** rows in `probe_ns.probe_table`.
+
+### Citation
+- **Metadata Location:** `file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0002.metadata.json`
+- **Snapshot ID:** `4496289927168545616`

@@ -1,0 +1,9 @@
+# host=claude server=ours-rows Q6 run=3 elapsed_s=9.4 captured=2026-09-16T23:17:32Z
+# question: How many snapshots does probe_ns.probe_table have?
+
+**4 snapshots.**
+
+`iceberg_describe_table` reports `snapshots: 4` for `probe_ns.probe_table` — the count comes from the server, not from me counting rows.
+
+- current-snapshot-id: `4496289927168545616`
+- metadata-location: `file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0002.metadata.json`

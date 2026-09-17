@@ -1,0 +1,16 @@
+# host=claude server=ours-rows Q5 run=3 elapsed_s=46.2 captured=2026-09-16T23:44:20Z
+# question: What is the range of values in the ts column of probe_ns.probe_large?
+
+**`ts` runs from `2026-09-01 00:00:00+00:00` to `2026-09-04 23:59:59+00:00`** — a span of 3 days, 23:59:59, across 4 `ts_day` partitions. 99,999 rows, no nulls, 86,400 distinct `ts` values (so values repeat).
+
+Source: snapshot-id `520235497352034082`, metadata-location `file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_large/metadata/00008-guid-0001.metadata.json`.
+
+How this was measured, and why not through the MCP server:
+
+- `iceberg_list_tables` and `iceberg_describe_table` gave the schema and pinned the version above.
+- `iceberg_scan_table` cannot answer a min/max question. It has no `where` and no aggregate, only a row limit, and it told me so itself: *"exactly 20 row(s) came back, which is the limit, so there are probably more."* Reading a range off those rows would have been a guess over 20 of 99,999.
+- It would also have been wrong. The first 20 rows returned start at `2026-09-02 00:00:05` — the scan does not come back in `ts` order, so the visible minimum is a full day later than the real one. That is the failure mode exactly: an exact-looking figure, cited to a real snapshot, off by 24 hours.
+
+So I loaded the same metadata file with pyiceberg 0.12.0 / pyarrow 25.0.1 as a `StaticTable` and let `pc.min`/`pc.max` do the comparing. The script re-printed the snapshot id it resolved to, and it matches the one `iceberg_describe_table` reported — same immutable version, so the citation above covers both paths.
+
+One thing worth noting for the harness: the gap here is the tool, not the catalog. `iceberg_scan_table` returns rows and leaves the comparison to the model, which is the shape of tool that reliably produces confident wrong answers. If `servers/iceberg_mcp.py` is still in flight (it's untracked in your working tree), this table is a good fixture for the argument — a truncated unordered scan yields `2026-09-02`, the engine yields `2026-09-01`, and both look equally authoritative in an answer.

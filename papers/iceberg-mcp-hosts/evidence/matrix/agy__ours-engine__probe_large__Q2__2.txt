@@ -1,0 +1,8 @@
+# host=agy server=ours-engine Q2 run=2 elapsed_s=39.4 captured=2026-09-16T23:55:26Z
+# question: What tables are in the analytics namespace?
+
+The `analytics` namespace could not be read because it does not exist in the Iceberg catalog (`NoSuchNamespaceException: Namespace does not exist: analytics`).
+
+For reference, the catalog currently contains the following tables under the `probe_ns` namespace:
+- `probe_ns.probe_large`
+- `probe_ns.probe_table`

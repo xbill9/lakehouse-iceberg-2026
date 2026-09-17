@@ -1,0 +1,14 @@
+# host=agy server=ours-rows Q1 run=2 elapsed_s=18.3 captured=2026-09-16T23:25:52Z
+# question: How many namespaces are in this catalog, and what are they called?
+
+There is **1** namespace in this catalog:
+
+- **`probe_ns`**
+
+It contains two tables:
+- `probe_ns.probe_large`
+  - **Metadata location:** `file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_large/metadata/00008-guid-0001.metadata.json`
+  - **Current snapshot ID:** `520235497352034082`
+- `probe_ns.probe_table`
+  - **Metadata location:** `file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0002.metadata.json`
+  - **Current snapshot ID:** `4496289927168545616`

@@ -1,0 +1,10 @@
+# host=claude server=ours-rows Q5 run=3 elapsed_s=27.5 captured=2026-09-16T23:17:23Z
+# question: What is the range of values in the ts column of probe_ns.probe_table?
+
+`ts` in `probe_ns.probe_table` runs from **2026-09-01 00:00:00+00:00** to **2026-09-02 03:00:00+00:00** — a span of 27 hours, with no nulls.
+
+The scan returned all 11 rows of the snapshot (`total-records 11`), so the minimum and maximum are exact rather than the extremes of a sample. The values are hourly stamps at 00:00–03:00 on each of the two days, with 2026-09-01 01:00 appearing once and 2026-09-01 00:00, 02:00 and 03:00 appearing twice each. I sorted the returned values in a shell command rather than reading the extremes off the list by eye.
+
+Source: `metadata-location: file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0002.metadata.json`, `current-snapshot-id: 4496289927168545616`.
+
+One thing worth flagging about the tool rather than the data: `iceberg_scan_table` has no `where` and no aggregate — it returns rows and leaves min/max to whoever reads them. It was safe here only because the table has 11 rows and the scan explicitly reported `COMPLETE`. On `probe_ns.probe_large` the same question would come back as a truncated sample, and an extreme read off it would be wrong with no signal that it was. If you want that question answerable there, the scan tool needs a predicate and server-computed min/max.

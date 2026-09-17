@@ -1,0 +1,15 @@
+# host=claude server=ours-engine Q2 run=3 elapsed_s=11.5 captured=2026-09-16T23:45:00Z
+# question: What tables are in the analytics namespace?
+
+The `analytics` namespace could not be read — the catalog returned:
+
+```
+NoSuchNamespaceException: Namespace does not exist: analytics
+```
+
+Listing every namespace instead returns two tables, both in `probe_ns`:
+
+- `probe_ns.probe_large`
+- `probe_ns.probe_table`
+
+So there is no `analytics` namespace in this catalog at the moment. If you meant one of the `probe_ns` tables, or expected `analytics` to have been seeded by a run that hasn't happened yet, say which and I'll look further.

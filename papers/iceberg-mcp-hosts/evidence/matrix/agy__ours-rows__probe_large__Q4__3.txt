@@ -1,0 +1,11 @@
+# host=agy server=ours-rows Q4 run=3 elapsed_s=54.8 captured=2026-09-17T00:02:58Z
+# question: How many rows are in probe_ns.probe_large?
+
+According to the snapshot summary in the table metadata, there are **99,999** rows in `probe_ns.probe_large`.
+
+### Version & Metadata Citation
+* **Metadata Location:** `file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_large/metadata/00008-guid-0001.metadata.json`
+* **Snapshot ID:** `520235497352034082`
+* **Snapshot Summary `total-records`:** `99999`
+
+*(Note: `iceberg_scan_table` returns a maximum sample of 100 rows per call, so the full row count is derived directly from the immutable snapshot summary in the Iceberg table metadata).*

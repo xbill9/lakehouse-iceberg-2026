@@ -1,0 +1,8 @@
+# host=claude server=ours-engine Q6 run=1 elapsed_s=11.1 captured=2026-09-16T23:36:48Z
+# question: How many snapshots does probe_ns.probe_large have?
+
+**6 snapshots.**
+
+From `iceberg_describe_table` on `probe_ns.probe_large`: `snapshots: 6`, current-snapshot-id `520235497352034082`, metadata-location `file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_large/metadata/00008-guid-0001.metadata.json`.
+
+The count is reported by the tool, not derived by me. Note it is the snapshot count in that one metadata file — expired snapshots would not appear there.

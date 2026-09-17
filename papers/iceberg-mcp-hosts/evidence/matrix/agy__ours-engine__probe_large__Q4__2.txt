@@ -1,0 +1,4 @@
+# host=agy server=ours-engine Q4 run=2 elapsed_s=9.8 captured=2026-09-16T23:55:47Z
+# question: How many rows are in probe_ns.probe_large?
+
+There are **99,999 rows** in `probe_ns.probe_large` (exact count from the snapshot summary of snapshot ID `520235497352034082`).

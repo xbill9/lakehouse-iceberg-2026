@@ -1,0 +1,21 @@
+# host=claude server=ours-engine Q5 run=1 elapsed_s=89.2 captured=2026-09-16T23:36:37Z
+# question: What is the range of values in the ts column of probe_ns.probe_large?
+
+**`ts` runs from `2026-09-01 00:00:00+00:00` to `2026-09-04 23:59:59+00:00`** — a span of 3 days, 23:59:59 (345,599 seconds).
+
+Both endpoints are engine-confirmed, not inferred:
+
+- `ts < '2026-09-01T00:00:01+00:00'` → **2 of 2 rows shown**, both `2026-09-01 00:00:00+00:00`. Complete set, so nothing sorts below it.
+- `ts >= '2026-09-04T23:59:59+00:00'` → **1 of 1 row shown**, `2026-09-04 23:59:59+00:00`. Complete set, so nothing sorts above it.
+
+Read from `snapshot-id 520235497352034082`, metadata-location `file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_large/metadata/00008-guid-0001.metadata.json`.
+
+Three things worth flagging:
+
+**The scan tool computes MIN/MAX for numeric columns only.** `ts` is a `timestamptz`, so the usual "quote the engine's MIN and MAX" path returned a COUNT and nothing else. I pinned the endpoints with boundary filters whose match sets came back complete (`N of N`) instead — still engine-exact, no counting or comparing on my side.
+
+**The data is not a monotonic run, and a naive extrapolation would have been wrong.** The first scan showed `2026-09-02 00:00:05` onward, which extrapolates over 99,999 rows to a maximum near 2026-09-06. That is off by nearly two days: `ts >= '2026-09-06T15:00:00+00:00'` matched exactly 0 rows. `seed_large.py:124` cycles the day with `days=(i % 4)`, so the rows interleave across four partitions rather than advancing.
+
+**Filter timestamps must be strict ISO-8601.** `'2026-09-02 00:00:10+00:00'` — the format the scan tool itself *prints* — is rejected with `ValueError: Invalid timestamp with zone ... (must be ISO-8601)`. The `T` separator is required. Round-tripping a displayed value straight back into `where` fails, which may be worth an invariant note if the host matrix exercises timestamp filters.
+
+One deviation to report: the server allots eight catalog calls, and this took nine. Calls 6 and 7 were burned on the timestamp-format rejection; I spent the extra one rather than close on the seeder's arithmetic unverified.

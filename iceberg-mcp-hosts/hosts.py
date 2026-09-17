@@ -81,10 +81,22 @@ class _GlobalConfigHost(Host):
     add_cmd = remove_cmd = run_cmd = None
 
     def prepare(self, server):
+        """Register the server, and refuse the cell if it did not take.
+
+        This discarded the add's exit code and output. A rejected add then left
+        the host with no tools, and the host answered anyway -- a coding agent
+        has a filesystem, so "no tools" does not read as failure, it reads as a
+        confident correct answer sourced from somewhere the experiment is not
+        watching. A cell that scores 8 of 8 for the wrong reason is worse than
+        one that crashes, so this raises instead.
+        """
         key, spec = server["key"], server["spec"]
         subprocess.run(self.remove_cmd(key), capture_output=True, text=True)
-        subprocess.run(self.add_cmd(key, spec), capture_output=True, text=True,
-                       check=False)
+        p = subprocess.run(self.add_cmd(key, spec), capture_output=True, text=True)
+        if p.returncode != 0:
+            raise RuntimeError(
+                "%s could not register %s: %s"
+                % (self.name, key, ((p.stderr or "") + (p.stdout or "")).strip()))
         return lambda: subprocess.run(self.remove_cmd(key),
                                       capture_output=True, text=True)
 
@@ -110,7 +122,17 @@ class Codex(_GlobalConfigHost):
         return ["codex", "mcp", "remove", key]
 
     def run_cmd(self, question):
-        return (["codex", "exec", "--skip-git-repo-check"]
+        # The counterpart of the other two hosts' --dangerously-skip-permissions,
+        # and required for the legs to be comparable at all. Without it codex
+        # exec runs at approval policy `never` inside a read-only sandbox and
+        # refuses every MCP tool call outright -- "MCP tool call requires
+        # approval, but approval policy is never" -- so the codex column would
+        # have measured a flag this harness failed to set, not the host.
+        # It also restores the server's ability to write: under the read-only
+        # sandbox the trace proxy could not open its file and the cell hung to
+        # the full timeout rather than failing.
+        return (["codex", "exec", "--skip-git-repo-check",
+                 "--dangerously-bypass-approvals-and-sandbox"]
                 + self._model_args("-m") + [question])
 
 
@@ -118,12 +140,19 @@ class Antigravity(_GlobalConfigHost):
     name = "agy"
 
     def add_cmd(self, key, spec):
+        # agy parses flags ONLY before the server name -- `mcp add [flags] <name>
+        # <command> [args...]`. Written the other way round, as codex accepts,
+        # every add failed with "flags must come before the server name" and
+        # `prepare` threw the message away, so each agy cell ran with no tools at
+        # all. It did not look like a failure: the host still answered, and
+        # answered correctly, by reading the repository off disk instead. That is
+        # the finding in the smoke run, and it is why the add is now checked.
         if spec.get("type") == "http":
             return ["agy", "mcp", "add", "-t", "http", key, spec["url"]]
-        cmd = ["agy", "mcp", "add", key]
+        cmd = ["agy", "mcp", "add"]
         for k, v in (spec.get("env") or {}).items():
             cmd += ["--env", "%s=%s" % (k, v)]
-        return cmd + [spec["command"]] + list(spec.get("args") or [])
+        return cmd + [key, spec["command"]] + list(spec.get("args") or [])
 
     def remove_cmd(self, key):
         return ["agy", "mcp", "remove", key]
@@ -133,7 +162,30 @@ class Antigravity(_GlobalConfigHost):
                 + self._model_args())
 
 
-HOSTS = {h.name: h for h in (ClaudeCode(), Codex(), Antigravity())}
+HOSTS = {h.name: h for h in (ClaudeCode(), Antigravity())}
+
+#: Codex is implemented above and deliberately not in HOSTS. MEASURED
+#: 2026-09-16: `codex exec` registers an MCP server -- `codex mcp list` shows it
+#: enabled, and the entry is written to ~/.codex/config.toml for the life of the
+#: cell -- but never serves its tools to the model. Asked directly, and forbidden
+#: the shell, it answers "NO MCP TOOLS", and no frame reaches the server.
+#:
+#: Ruled out before dropping it, because a host that cannot be measured and a
+#: harness that cannot measure it look identical: the server is good (direct
+#: initialize/tools_list/tools_call, and both remaining hosts drive it to a
+#: correct answer); registration happens; the codex_apps tool cache holds codex's
+#: own surface, not ours; and `-c experimental_use_rmcp_client=true` changes
+#: nothing. Two separate faults were found and fixed before this one and did not
+#: explain it -- the approval policy that refused every call, and the read-only
+#: sandbox that hung the trace proxy to the full timeout.
+#:
+#: So this is reported as a property of codex's non-interactive mode, not scored
+#: as a host that answered badly. A cell that ran with no tools would have scored
+#: as a confident correct answer read off the filesystem, which is the failure
+#: documented in evidence/host-mcp-support.txt.
+RETIRED_HOSTS = {
+    "codex": "codex exec serves no MCP tools; see evidence/host-mcp-support.txt",
+}
 
 #: All three accept --model (claude 2.1.273, codex-cli 0.154.0, agy 1.2.3;
 #: codex spells it -m). Whether they all accept the *same* model name is a

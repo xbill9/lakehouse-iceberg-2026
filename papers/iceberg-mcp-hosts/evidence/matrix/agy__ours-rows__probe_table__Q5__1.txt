@@ -1,0 +1,13 @@
+# host=agy server=ours-rows Q5 run=1 elapsed_s=25.2 captured=2026-09-16T23:21:06Z
+# question: What is the range of values in the ts column of probe_ns.probe_table?
+
+The range of values in the `ts` column of `probe_ns.probe_table` is:
+
+- **Minimum:** `2026-09-01 00:00:00+00:00`
+- **Maximum:** `2026-09-02 03:00:00+00:00`
+
+---
+### Provenance & Table Metadata
+- **Current Snapshot ID:** `4496289927168545616`
+- **Metadata Location:** `file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0002.metadata.json`
+- **Total Records Scanned:** 11 (complete table scan for this snapshot)

@@ -1,0 +1,75 @@
+# Which model each host runs when nothing is pinned
+#
+# Axis C exists to remove the host/model confound, and it can only claim to do
+# so if the default it displaces is on record. Read 2026-09-16 on this machine.
+# Each command is the one hosts.py issues, run verbatim.
+#
+# The point of the table is the last column: two of the three hosts report the
+# model that answered, and one does not. For agy, "which model answered" is not
+# observable from the host at all -- not in text output, not in --output-format
+# json -- so on axis B the agy row cannot be attributed even after the fact.
+# That is a reason to pin, not a detail of the plumbing.
+
+host    cli version           default model      where the model was read
+------  --------------------  -----------------  ---------------------------------
+claude  2.1.273 (Claude Code) claude-opus-5[1m]  --output-format json, modelUsage
+codex   codex-cli 0.154.0     gpt-6-astra        exec header, "model:" line
+agy     1.2.3                 NOT REPORTED       neither text nor json carries it
+
+# claude's json also bills a second model, claude-haiku-4-5, for an internal
+# side task. The main-thread model -- the one that answered -- is opus-5[1m].
+# `agy models` lists 14 selectable models (gemini-3.8-flash-* down to
+# gemini-3.1-pro-*) but marks none of them as the default.
+
+# Commands, verbatim:
+#   claude -p "Reply with exactly: ready" --dangerously-skip-permissions \
+#          --output-format json
+#   codex exec --skip-git-repo-check "Reply with exactly: ready"
+#   agy --print "Reply with exactly: ready" --dangerously-skip-permissions \
+#       --output-format json
+#
+# All three returned "ready" and exited 0, so all three run non-interactively
+# under the flags hosts.py uses.
+
+# Sandbox, measured the same day, codex only
+#
+# `codex exec` runs its own shell tool under sandbox: read-only with no network
+# egress -- probed with `curl https://example.com` (HTTP:000) and `touch /tmp/...`
+# ("Read-only file system"). This constrains codex's shell tool. It is NOT
+# established here that it constrains an MCP server codex spawns, and the one
+# attempt to measure that was confounded by a broken server (see below), so
+# nothing about MCP under the codex sandbox should be claimed yet.
+
+# Server registration is global state on codex, and it is not empty
+#
+# `codex mcp list` during a prepared run showed the harness's server alongside
+# `developer-knowledge`, an unrelated server installed globally by a plugin.
+# claude is launched with --strict-mcp-config and sees only the cell's server;
+# codex and agy have no equivalent, so their cells carry an extra tool surface
+# the claude cells do not. This is a confound on axes A and B and has to be
+# handled -- not merely noted -- before the matrix is run.
+
+# Axis C is not available, measured 2026-09-16
+#
+# Axis C exists to pin one model across the hosts, so a host difference is not
+# also a model difference. It cannot be done here, in either direction:
+#
+#   $ claude --model gemini-3.8-flash-medium -p "say ok"
+#   "gemini-3.8-flash-medium" isn't described by this version's model catalog
+#   There's an issue with the selected model ... It may not exist or you may not
+#   have access to it.
+#
+#   $ agy --print "say ok" --model claude-opus-5
+#   error: invalid model selection: model claude-opus-5 is not recognized as a
+#   known model or custom model in settings
+#
+# Paper 3 removed this confound by running Strands on Gemini beside ADK on
+# Gemini: an agent framework is a library, and you hand it whichever model you
+# like. A CLI coding agent is not a library, it is a product bound to its
+# vendor's models, so the same move is unavailable. Every host difference
+# measured here is a host-and-model difference, and there is no later analysis
+# that separates them.
+#
+# That is the honest shape of the result, and it is worth stating plainly rather
+# than approximating: for this class of tool, "which is better" and "whose model
+# is better" are the same question.

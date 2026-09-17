@@ -1,0 +1,4 @@
+# host=agy server=ours-engine Q4 run=2 elapsed_s=6.3 captured=2026-09-16T23:23:27Z
+# question: How many rows are in probe_ns.probe_table?
+
+There are **11 rows** in `probe_ns.probe_table` (based on the snapshot summary for snapshot ID `4496289927168545616`).

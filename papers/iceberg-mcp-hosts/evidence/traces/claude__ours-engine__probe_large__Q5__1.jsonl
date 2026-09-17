@@ -1,0 +1,24 @@
+{"t": 0.0, "dir": "runner", "spawn": ["/home/xbill/.pyenv/versions/3.14.7/bin/python3", "/home/xbill/lakehouse-iceberg-2026/iceberg-mcp-hosts/servers/iceberg_mcp.py"], "full": false}
+{"method": "initialize", "id": 0, "t": 0.001, "dir": "host->server"}
+{"id": 0, "bytes": 1490, "is_error": false, "t": 0.058, "dir": "server->host"}
+{"method": "notifications/initialized", "t": 0.061, "dir": "host->server"}
+{"method": "tools/list", "id": 1, "t": 0.061, "dir": "host->server"}
+{"id": 1, "bytes": 2902, "is_error": false, "tools": ["iceberg_list_tables", "iceberg_describe_table", "iceberg_count_rows", "iceberg_scan_table"], "t": 0.061, "dir": "server->host"}
+{"method": "tools/call", "name": "iceberg_list_tables", "args": {}, "id": 2, "t": 6.425, "dir": "host->server"}
+{"id": 2, "bytes": 103, "is_error": false, "t": 6.693, "dir": "server->host"}
+{"method": "tools/call", "name": "iceberg_describe_table", "args": {"table": "probe_ns.probe_large"}, "id": 3, "t": 8.031, "dir": "host->server"}
+{"id": 3, "bytes": 651, "is_error": false, "t": 8.137, "dir": "server->host"}
+{"method": "tools/call", "name": "iceberg_scan_table", "args": {"table": "probe_ns.probe_large", "columns": "ts", "limit": "5"}, "id": 4, "t": 9.726, "dir": "host->server"}
+{"id": 4, "bytes": 377, "is_error": false, "t": 9.766, "dir": "server->host"}
+{"method": "tools/call", "name": "iceberg_scan_table", "args": {"table": "probe_ns.probe_large", "columns": "ts", "where": "ts < '2026-09-02 00:00:10+00:00'", "limit": "20"}, "id": 5, "t": 21.985, "dir": "host->server"}
+{"id": 5, "bytes": 337, "is_error": false, "t": 21.996, "dir": "server->host"}
+{"method": "tools/call", "name": "iceberg_scan_table", "args": {"table": "probe_ns.probe_large", "columns": "ts", "where": "ts >= '2026-09-06 15:00:00+00:00'", "limit": "20"}, "id": 6, "t": 22.934, "dir": "host->server"}
+{"id": 6, "bytes": 338, "is_error": false, "t": 22.943, "dir": "server->host"}
+{"method": "tools/call", "name": "iceberg_scan_table", "args": {"table": "probe_ns.probe_large", "columns": "ts", "where": "ts < '2026-09-02T00:00:10+00:00'", "limit": "20"}, "id": 7, "t": 26.076, "dir": "host->server"}
+{"id": 7, "bytes": 807, "is_error": false, "t": 26.107, "dir": "server->host"}
+{"method": "tools/call", "name": "iceberg_scan_table", "args": {"table": "probe_ns.probe_large", "columns": "ts", "where": "ts >= '2026-09-06T15:00:00+00:00'", "limit": "20"}, "id": 8, "t": 26.978, "dir": "host->server"}
+{"id": 8, "bytes": 253, "is_error": false, "t": 26.988, "dir": "server->host"}
+{"method": "tools/call", "name": "iceberg_scan_table", "args": {"table": "probe_ns.probe_large", "columns": "ts", "where": "ts < '2026-09-01T00:00:01+00:00'", "limit": "20"}, "id": 9, "t": 70.323, "dir": "host->server"}
+{"id": 9, "bytes": 312, "is_error": false, "t": 70.344, "dir": "server->host"}
+{"method": "tools/call", "name": "iceberg_scan_table", "args": {"table": "probe_ns.probe_large", "columns": "ts", "where": "ts >= '2026-09-04T23:59:59+00:00'", "limit": "20"}, "id": 10, "t": 71.249, "dir": "host->server"}
+{"id": 10, "bytes": 286, "is_error": false, "t": 71.268, "dir": "server->host"}

@@ -1,0 +1,17 @@
+# host=claude server=ours-engine Q5 run=2 elapsed_s=34.6 captured=2026-09-16T23:13:49Z
+# question: What is the range of values in the ts column of probe_ns.probe_table?
+
+**`ts` runs from `2026-09-01 00:00:00+00:00` to `2026-09-02 03:00:00+00:00`** — a span of 27 hours, over 11 rows.
+
+The scan tool computes MIN/MAX only for numeric columns, and `ts` is `timestamptz`, so there was no engine-computed range to quote. The bounds above were established with filters instead, each count exact over the whole snapshot:
+
+| filter | count |
+|---|---|
+| `ts < '2026-09-01T00:00:00+00:00'` | 0 |
+| `ts <= '2026-09-01T00:00:00+00:00'` | 2 |
+| `ts >= '2026-09-02T03:00:00+00:00'` | 1 |
+| `ts > '2026-09-02T03:00:00+00:00'` | 0 |
+
+Nothing falls outside those endpoints and both are occupied, so they are the minimum and maximum. The values are hourly slots on two days: four on 2026-09-01 (00, 01, 02, 03, with 00 and 02 and 03 appearing twice) and four on 2026-09-02 (00–03). `ts` is nullable, and a null would not appear in any of these filters — all 11 rows of the table are present in the unfiltered scan and none is null, so that does not affect the result.
+
+Read from `probe_ns.probe_table`, snapshot-id `4496289927168545616`, metadata-location `file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0002.metadata.json`.

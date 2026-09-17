@@ -1,0 +1,13 @@
+# host=claude server=ours-engine Q1 run=2 elapsed_s=15.9 captured=2026-09-16T23:37:04Z
+# question: How many namespaces are in this catalog, and what are they called?
+
+One namespace: **`probe_ns`**.
+
+`iceberg_list_tables` returned exactly two lines, and both share the same namespace prefix:
+
+```
+probe_ns.probe_large
+probe_ns.probe_table
+```
+
+One caveat on how that number was obtained: the tool lists *tables*, not namespaces, so `probe_ns` is the only namespace **that contains a table**. A namespace created with no tables in it would not appear in this output, and none of the four tools exposed here lists namespaces directly — so this is "1 namespace holding tables", not a catalog-wide `listNamespaces` result.

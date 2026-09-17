@@ -17,9 +17,33 @@
 # evidence as a diagnostic, not in the results table. A benchmark that lets the
 # model do the sums is measuring the model, not the surface it was pointed at.
 
-Q1  What namespaces exist in this catalog?
-Q2  What tables are in the probe namespace?
-Q3  What columns does the probe table have, and what are their types?
-Q4  How many rows are in the probe table?
-Q5  What is the range of values in the ts column?
-Q6  Cite the exact table version you read, by metadata location or snapshot id.
+# v2, 2026-09-16. Q1, Q2 and Q6 were rewritten because their v1 forms could not
+# be graded. MEASURED by cross-scoring the 72 real answers of the first run:
+# their checks passed on EVERY question's answers, not just their own. The
+# shared instruction tells the model to list the tables first, describe the
+# table it will use, and cite the metadata-location and snapshot-id on every
+# figure -- so every answer already named the namespace, named the table and
+# quoted the version, and a check looking for those strings was satisfied before
+# the question was asked. See evidence/scorer-discrimination.txt.
+#
+# The rule the rewrite follows: ask for something the instruction does not
+# already compel. A count of namespaces, a namespace that is not there, and a
+# count of snapshots are all absent from every v1 answer.
+#
+# Q2 is also the fix for a defect. Its v1 form asked about "the probe
+# namespace", but the namespace is probe_ns, so it named something that does not
+# exist by accident. It now does so on purpose, which is the more interesting
+# question anyway: the honest answer is that the namespace is not there, and a
+# host that invents a table for it is the failure worth reporting.
+
+# {table} is substituted with the fully-qualified table under test, so the same
+# wording asks both arms. run_matrix --table picks which. The 11-row probe_table
+# and the 99,999-row probe_large are asked in identical words, which is what
+# makes the difference between their answers a difference of scale.
+
+Q1  How many namespaces are in this catalog, and what are they called?
+Q2  What tables are in the analytics namespace?
+Q3  What columns does {table} have, and what are their types?
+Q4  How many rows are in {table}?
+Q5  What is the range of values in the ts column of {table}?
+Q6  How many snapshots does {table} have?

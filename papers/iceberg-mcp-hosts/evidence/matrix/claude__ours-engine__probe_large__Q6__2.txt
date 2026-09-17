@@ -1,0 +1,9 @@
+# host=claude server=ours-engine Q6 run=2 elapsed_s=12.1 captured=2026-09-16T23:39:06Z
+# question: How many snapshots does probe_ns.probe_large have?
+
+**6 snapshots.**
+
+The figure is reported by the server itself (`snapshots: 6`), not counted by me from a list.
+
+- metadata-location: `file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_large/metadata/00008-guid-0001.metadata.json`
+- current-snapshot-id: `520235497352034082`

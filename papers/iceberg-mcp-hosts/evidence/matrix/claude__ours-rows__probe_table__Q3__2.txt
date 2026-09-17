@@ -1,0 +1,15 @@
+# host=claude server=ours-rows Q3 run=2 elapsed_s=9.3 captured=2026-09-16T23:14:34Z
+# question: What columns does probe_ns.probe_table have, and what are their types?
+
+`probe_ns.probe_table` has four columns:
+
+| column | type | nullability |
+|---|---|---|
+| id | long | required |
+| ts | timestamptz | optional |
+| payload | string | optional |
+| region | string | optional |
+
+It is format-version 2, partitioned by `ts_day` (a day transform on `ts`), and has 4 snapshots.
+
+Source: metadata-location `file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0002.metadata.json`, current-snapshot-id `4496289927168545616`.

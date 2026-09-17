@@ -1,0 +1,17 @@
+# host=claude server=ours-engine Q5 run=2 elapsed_s=74.8 captured=2026-09-16T23:38:54Z
+# question: What is the range of values in the ts column of probe_ns.probe_large?
+
+**`ts` ranges from `2026-09-01 00:00:00+00:00` to `2026-09-04 23:59:59+00:00`** — a span of 3 days, 23:59:59, over all 99,999 rows, with no nulls.
+
+- snapshot-id: `520235497352034082`
+- metadata-location: `file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_large/metadata/00008-guid-0001.metadata.json`
+
+Two things worth recording about how this went, since they bear on the harness rather than on the answer:
+
+**The MCP scan tool does not compute MIN/MAX for `timestamptz`.** Its description promises "MIN and MAX of each numeric column"; `ts` is not numeric, so a scan of it returns a header, sample rows and an exact COUNT — and no range at all. For this question the tool leaves the arithmetic to the model, which is exactly the shape of tool that produces wrong answers. I computed the range with pyiceberg/pyarrow against the same metadata file and snapshot id the tool reported.
+
+**The sample rows are actively misleading, and the tool gives no warning.** An unfiltered scan showed `2026-09-02 00:00:05` first, which reads like a minimum. It is not: `ts < '2026-09-02T00:00:05+00:00'` matched **25,001 rows**, and the true minimum is a full day earlier. Rows come back in file order, not sorted, so a model that reads the first row as the earliest — the natural reading — is wrong by a day here.
+
+Also: the filter parser rejects `'2026-09-02 00:00:05+00:00'` (space separator) with `Invalid timestamp with zone ... must be ISO-8601`, and needs the `T`. That cost two of the eight budgeted catalog calls. The scan output prints timestamps in the space-separated form it will not accept back — copying a value from a result into a `where` is guaranteed to fail.
+
+If you want the MCP path to answer this class of question on its own, `iceberg_scan_table` needs MIN/MAX extended to temporal columns (and ideally to strings), and its sample rows want a line saying the order is arbitrary.

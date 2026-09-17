@@ -1,0 +1,19 @@
+# host=claude server=ours-engine Q5 run=3 elapsed_s=31.8 captured=2026-09-16T23:19:32Z
+# question: What is the range of values in the ts column of probe_ns.probe_table?
+
+**`ts` runs from `2026-09-01 00:00:00+00:00` to `2026-09-02 03:00:00+00:00`** — a span of 27 hours, over 11 rows.
+
+The bounds are engine-computed, not eyeballed. `iceberg_scan_table` reports MIN/MAX only for numeric columns, and `ts` is `timestamptz`, so I established the endpoints with exact counts instead:
+
+| filter | exact count |
+|---|---|
+| `ts < '2026-09-01T00:00:00+00:00'` | 0 |
+| `ts > '2026-09-02T03:00:00+00:00'` | 0 |
+| `ts == '2026-09-01T00:00:00+00:00'` | 2 |
+| `ts == '2026-09-02T03:00:00+00:00'` | 1 |
+
+Nothing falls outside those two values and both are present, so they are the minimum and the maximum.
+
+Source — `probe_ns.probe_table`, snapshot-id `4496289927168545616`, metadata-location `file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0002.metadata.json`.
+
+One thing worth noting for the harness: this is exactly the gap the arithmetic rule is about. A `timestamptz` column falls through the scan tool's MIN/MAX, so a model asked for a date range gets handed rows and left to compare them. Here the table is 11 rows and the scan said it returned all of them, so it was checkable; on `probe_large` it would not be. Extending the MIN/MAX computation to temporal columns would close it.

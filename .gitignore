@@ -39,3 +39,11 @@ iceberg-agent/None/
 
 # SETUP.md has the agent legs install into a venv here.
 .venv/
+
+# Paper 4 raw run artefacts. The captures and axis files carry absolute local
+# paths and the arguments a host actually sent; the copy that publishes is the
+# anonymised one under papers/iceberg-mcp-hosts/evidence, written by
+# publish_evidence.py. Same split paper 3 uses.
+iceberg-mcp-hosts/evidence/matrix/
+iceberg-mcp-hosts/evidence/archive/
+iceberg-mcp-hosts/evidence/matrix-axis-*.json

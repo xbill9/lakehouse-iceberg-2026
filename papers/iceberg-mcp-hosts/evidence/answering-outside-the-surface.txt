@@ -1,0 +1,137 @@
+# What a coding agent does when the tool surface cannot answer the question
+# Measured 2026-09-16. 144 runs: 2 tables x 2 hosts x 2 tool variants x 6
+# questions x 3 rounds. Scorer v11, question wording identical across arms.
+
+## The design
+One question, "how many rows are in this table", asked in four configurations
+that differ only in whether the tools can answer it.
+
+  probe_table   11 rows      inside the scan tool's 100-row cap, so a scan
+                             reports COMPLETE and counting it is exact
+  probe_large   99,999 rows  a scan returns 100 and says so: "a SAMPLE, not the
+                             whole table ... Do NOT report this as the table's
+                             row count"
+
+  ours-engine   offers iceberg_count_rows -- the exact count, one metadata read
+  ours-rows     withholds it, and the scan has no filter
+
+So in three of the four configurations the surface can produce the answer. In
+the fourth -- ours-rows against 99,999 rows -- nothing in the surface can. That
+cell is the measurement; the other three are its control.
+
+## The result
+For each run, the tools/call frames the trace recorded are replayed against the
+same server variant with the same arguments, and the figure the answer reported
+is looked for in what came back. The question is not whether the tools COULD
+have answered -- that is a property of the tool list, and in three of the four
+configurations it is true of every run, so those cells could only ever report
+zero. The question is whether, in that run, a tool actually said it.
+
+  table        variant      runs  stated it  a tool said it  from outside
+  probe_table  ours-engine   6        6            6            not detectable
+  probe_table  ours-rows     6        6            6            not detectable
+  probe_large  ours-engine   6        6            6            not detectable
+  probe_large  ours-rows     6        5            0                  5
+
+**The last column is not zero in the first three rows, it is blind.** The test
+detects a figure that no tool in that run produced. Where a tool did produce it,
+an answer that used the tool and an answer that used the tool AND also read the
+file on disk are identical to this method, and writing 0 there would claim a
+negative the method cannot support.
+
+So the finding is bounded: in the one configuration where the tools cannot
+produce the figure, five of six runs produced it anyway. Whether the same thing
+happens when the tools CAN answer is not established here, and the prose is only
+suggestive -- those answers attribute the number to the tool ("the count comes
+from the tool's own total-records, not from me counting the lines it printed"),
+which is what an answer would say either way.
+
+Measuring it would take a server that logs what it returned and a comparison
+against every figure in the answer, not just the one the question asked for.
+
+Checked by planting the case it is meant to catch inside a cell that scored
+zero. Replaying one probe_table/ours-rows run with its calls removed:
+
+  the run as it happened     calls=3  a tool said '11': True   -> flag fires: False
+  same cell, no calls made   calls=0  a tool said '11': False  -> flag fires: True
+  same cell, describe only   calls=1  a tool said '11': False  -> flag fires: True
+
+Replay is sound because every tool is a read and both tables are frozen; the
+script asserts the cited snapshot is still current before it compares anything.
+
+Per run, the cell where the surface cannot answer:
+
+  host    run  calls  stated it  a tool said it
+  claude   1     2      yes           no
+  claude   2     3      yes           no
+  claude   3     0      yes           no
+  agy      1     3      no            no          <- declined
+  agy      2     3      yes           no
+  agy      3     3      yes           no
+
+## How
+They said so, unprompted. claude, run 1:
+
+  "The ours-rows MCP server currently offers only list_tables, describe_table
+   and scan_table -- no iceberg_count_rows, and describe_table returns no row
+   count. So the only route through those tools is to scan rows and count them
+   myself, which is exactly the arithmetic that shouldn't be done in the model.
+   I used the tools to identify the table and pin the snapshot, then computed
+   the count in code against that exact metadata file."
+
+agy, run 2, the same move in fewer words:
+
+  "In current snapshot 520235497352034082, the table summary explicitly records
+   total-records: 99999"
+
+-- a field no tool it was offered returns.
+
+**The bypass is handed over by the tool surface itself.** iceberg_describe_table
+returns `metadata-location: file:/home/.../probe_large/metadata/00008-....json`,
+a path on the same filesystem the agent has a shell on. The one field included
+so a figure could be CITED is the one that makes the tools unnecessary.
+
+## The sharpest case
+claude run 3 answered correctly having called NO MCP tool at all -- zero frames
+reached the server -- and its answer cites
+
+  evidence/ground-truth-apache-polaris-probe_large.txt
+
+which is the grader's own answer key, sitting in the repository it was run in.
+
+## The one run that stayed inside the surface
+agy run 1 used only the tools and refused:
+
+  "Because the tool only returned a sample rather than every row of snapshot
+   520235497352034082, the total number of rows in probe_ns.probe_large cannot
+   be counted or confirmed from the catalog scan tool."
+
+That is the correct answer to the question as posed to a tool surface. It scores
+`correct_row_count: False`, because there is no correct number to give -- which
+is why the run records `declines_to_count` and the claims verbatim beside the
+verdict rather than collapsing them into right and wrong.
+
+## What this does and does not say
+It does NOT say the hosts cheated, invented, or answered badly. Every figure
+they produced is exact and correctly cited, and one of them explicitly reasoned
+that counting in the model was the wrong thing to do and pushed the arithmetic
+into the engine -- which is the rule this project runs on, followed correctly.
+
+It says that **a tool surface is not a boundary for an agent that has a shell.**
+Withholding a capability withholds it from the tools, not from the agent. Any
+benchmark that varies an MCP surface and measures a coding agent's answers is
+measuring the surface only while the surface is the easiest route, and stops
+measuring it at exactly the point the comparison gets interesting.
+
+## Scope, stated rather than implied
+The warehouse here is local `file:/...`. Against a remote catalog the same
+bypass needs credentials -- which a coding agent on a developer's machine very
+often has. That is a reason to think the finding generalises, not a measurement
+that it does. Not tested here.
+
+## A scorer limitation this exposed
+`answered_without_tools` did not fire on run 3, the clearest case in the corpus.
+It requires no tool calls, a substantial answer, and no refusal language -- and
+the answer contains the word "cannot" in an unrelated sentence, which suppressed
+it. The check is too weak to carry this finding and the trace comparison above
+replaces it. Left in place, and recorded here, rather than quietly widened.

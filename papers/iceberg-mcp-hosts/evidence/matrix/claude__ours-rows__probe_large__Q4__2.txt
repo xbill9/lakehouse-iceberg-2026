@@ -1,0 +1,13 @@
+# host=claude server=ours-rows Q4 run=2 elapsed_s=32.6 captured=2026-09-16T23:40:43Z
+# question: How many rows are in probe_ns.probe_large?
+
+**99,999 rows.**
+
+Source: snapshot-id `520235497352034082`, metadata-location `file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_large/metadata/00008-guid-0001.metadata.json`.
+
+Two independent engine-computed reads agree:
+
+- The snapshot summary for `520235497352034082` reports `total-records=99999` (an `overwrite` that added 4,999 and deleted 5,000 on top of a 100,000-row table built from five 20,000-row appends).
+- A pyiceberg scan of that same metadata materialised **99,999** rows across 20 data files, with 0 delete files — so there are no equality/positional deletes that the summary would have failed to subtract.
+
+Worth noting how this was *not* answered: the `ours-rows` MCP tools cannot produce this number. `iceberg_describe_table` returns no row count, and `iceberg_scan_table` only returns rows up to a limit — it correctly told me "exactly 20 row(s) came back, which is the limit... Do NOT report this as the table's row count." That truncation guard is doing its job, but it means the only way to answer a counting question through those three tools is to page 100,000 rows through the model and have it count them, which is the failure mode your global rule is about. The tool needs a `where`/`count` that returns the engine's number; until it does, `iceberg_scan_table` is the wrong instrument for "how many".

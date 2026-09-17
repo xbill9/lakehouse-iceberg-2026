@@ -1,0 +1,12 @@
+{"t": 0.0, "dir": "runner", "spawn": ["/home/xbill/.pyenv/versions/3.14.7/bin/python3", "/home/xbill/lakehouse-iceberg-2026/iceberg-mcp-hosts/servers/iceberg_mcp.py"], "full": false}
+{"method": "initialize", "id": 0, "t": 0.001, "dir": "host->server"}
+{"id": 0, "bytes": 1490, "is_error": false, "t": 0.057, "dir": "server->host"}
+{"method": "notifications/initialized", "t": 0.059, "dir": "host->server"}
+{"method": "tools/list", "id": 1, "t": 0.059, "dir": "host->server"}
+{"id": 1, "bytes": 2902, "is_error": false, "tools": ["iceberg_list_tables", "iceberg_describe_table", "iceberg_count_rows", "iceberg_scan_table"], "t": 0.059, "dir": "server->host"}
+{"method": "tools/call", "name": "iceberg_list_tables", "args": {"namespace": ""}, "id": 2, "t": 4.904, "dir": "host->server"}
+{"id": 2, "bytes": 103, "is_error": false, "t": 5.177, "dir": "server->host"}
+{"method": "tools/call", "name": "iceberg_describe_table", "args": {"table": "probe_ns.probe_table"}, "id": 3, "t": 6.322, "dir": "host->server"}
+{"id": 3, "bytes": 652, "is_error": false, "t": 6.424, "dir": "server->host"}
+{"method": "tools/call", "name": "iceberg_count_rows", "args": {"table": "probe_ns.probe_table"}, "id": 4, "t": 7.745, "dir": "host->server"}
+{"id": 4, "bytes": 180, "is_error": false, "t": 7.755, "dir": "server->host"}

@@ -1,7 +1,15 @@
 catalog=apache-polaris table=probe_ns.probe_table
+  table=probe_ns.probe_table
   rows=11
+  namespaces=probe_ns
+  namespace_count=1
+  snapshots=4
+  absent_namespace=analytics
   columns=id,ts,payload,region
   types=id:long,ts:timestamptz,payload:string,region:string
   snapshot_id=4496289927168545616
-  metadata_location=file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json
-  read_at=2026-09-16T17:08:46Z
+  metadata_location=file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0002.metadata.json
+  range_id=0|23
+  range_ts=2026-09-01 00:00:00+00:00|2026-09-02 03:00:00+00:00
+  range_payload=row-0-0|row-2-3
+  read_at=2026-09-16T23:07:04Z

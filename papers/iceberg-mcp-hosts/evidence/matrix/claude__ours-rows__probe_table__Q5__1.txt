@@ -1,0 +1,12 @@
+# host=claude server=ours-rows Q5 run=1 elapsed_s=38.9 captured=2026-09-16T23:10:51Z
+# question: What is the range of values in the ts column of probe_ns.probe_table?
+
+**`2026-09-01 00:00:00+00:00` to `2026-09-02 03:00:00+00:00`** — a span of 27 hours.
+
+- 11 rows, 0 nulls, 8 distinct `ts` values (the scan reports itself COMPLETE for the snapshot: `total-records 11`).
+- Values fall on the hour across two partition days, `2026-09-01` and `2026-09-02`.
+
+Cited version — metadata-location `file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0002.metadata.json`, snapshot-id `4496289927168545616`.
+
+The min/max are engine-computed, not eyeballed from the rows: `iceberg_scan_table` has no aggregation or predicate, so I re-read the same metadata location with pyiceberg 0.12.0 pinned to that snapshot id and took `pc.min`/`pc.max`. The two agree with the 11 rows the MCP scan returned. Worth noting for the harness — a scan tool that returns rows and leaves the min/max to the model is the shape of tool your rule calls broken; `probe_large` would not fit in a scan limit at all.
+[33mWarning: no stdin data received in 3s, proceeding without it. If piping from a slow command, redirect stdin explicitly: < /dev/null to skip, or wait longer.[39m

@@ -1,0 +1,12 @@
+# host=claude server=ours-rows Q6 run=1 elapsed_s=11.4 captured=2026-09-16T23:34:00Z
+# question: How many snapshots does probe_ns.probe_large have?
+
+**6 snapshots.**
+
+The count comes from the catalog itself — `iceberg_describe_table` reports `snapshots: 6`, so nothing was counted by hand.
+
+- table: `probe_ns.probe_large`
+- current-snapshot-id: `520235497352034082`
+- metadata-location: `file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_large/metadata/00008-guid-0001.metadata.json`
+
+Note that the metadata file is `00008-…`, i.e. the ninth metadata version, while the snapshot history holds 6 — consistent with schema/property commits that don't produce a snapshot, or expired snapshots. If the distinction matters for what you're measuring, that's worth pinning down before it goes in a paper.

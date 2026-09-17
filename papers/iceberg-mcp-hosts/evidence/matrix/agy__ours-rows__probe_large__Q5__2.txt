@@ -1,0 +1,17 @@
+# host=agy server=ours-rows Q5 run=2 elapsed_s=31.9 captured=2026-09-17T00:00:50Z
+# question: What is the range of values in the ts column of probe_ns.probe_large?
+
+The full range of values for the `ts` column in `probe_ns.probe_large` cannot be determined from the catalog scan because `iceberg_scan_table` returned only a sample of the data rather than every row in the snapshot.
+
+### Details & Citation
+
+- **Table:** `probe_ns.probe_large`
+- **Metadata Location:** `file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_large/metadata/00008-guid-0001.metadata.json`
+- **Current Snapshot ID:** `520235497352034082`
+
+### Scan Result
+When reading the `ts` column:
+- The scan returned **100 row(s)** with the message:
+  > `NOTE: you asked for 1000 rows and this tool returns at most 100, so the rows above are a SAMPLE, not the whole table.`
+- Within this 100-row sample, values range from `2026-09-02 00:00:05+00:00` to `2026-09-02 00:06:41+00:00`.
+- Because the scan only returned a sample and not every row of the snapshot, comparing or deriving the true min/max range of the entire table is not supported by the returned data.

@@ -1,0 +1,11 @@
+# host=claude server=ours-rows Q4 run=3 elapsed_s=19.0 captured=2026-09-16T23:16:55Z
+# question: How many rows are in probe_ns.probe_table?
+
+**11 rows.**
+
+The scan reported it returned the whole snapshot — `11 row(s) ... COMPLETE: these are all 11 rows in this snapshot (total-records 11)` — so the count comes from the engine, not from me counting the lines.
+
+- snapshot-id `4496289927168545616` (current)
+- metadata-location `file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0002.metadata.json`
+
+Worth noting for the paper-4 harness: `iceberg_scan_table` has no `where` and no count parameter, so any question of the form "how many rows meet condition X" still lands the arithmetic on the model unless the table is small enough to come back COMPLETE. The `total-records` line makes the unconditional count exact; a filtered count would not be.

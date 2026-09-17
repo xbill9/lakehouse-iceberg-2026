@@ -55,17 +55,68 @@ def main() -> None:
         types = {f.name: str(f.field_type) for f in tbl.schema().fields}
         rows = int(snap.summary.get("total-records", -1)) if snap else -1
 
+        # Q1 asks what namespaces exist, and it had no truth to be graded
+        # against, so it scored 0 in every run of the first two matrices for
+        # want of a field rather than for want of an answer.
+        spaces = sorted(".".join(n) for n in iceberg_tool.catalog().list_namespaces())
+
+        # Q6 asks how many snapshots the table has. The current snapshot id is
+        # compelled by the instruction -- every answer cites it -- so a question
+        # whose answer IS that id cannot be graded. The count is not compelled,
+        # so it can be.
+        snapshots = len(tbl.metadata.snapshots or [])
+
+        # Q2 asks about a namespace that is deliberately not there. Recorded so
+        # the grader compares against a measured absence rather than a
+        # remembered one -- if someone creates it, this file changes and the
+        # question stops being a trap, loudly.
+        absent = os.getenv("ICEBERG_ABSENT_NAMESPACE", "analytics")
+        absent_really = absent not in [s.split(".")[0] for s in spaces]
+
+        # Q5 asks for the range of the ts column. Same story: unmeasured, and
+        # its column in the results table was really reporting whether the
+        # answer happened to mention the row count in passing. The range is
+        # computed here, in code, from the same snapshot the rest is read from
+        # -- never asked of a model, and never derived from a host's answer.
+        ranges = {}
+        table = tbl.scan().to_arrow()
+        for name in cols:
+            column = table.column(name)
+            try:
+                import pyarrow.compute as pc
+                low, high = pc.min(column).as_py(), pc.max(column).as_py()
+            except Exception:      # noqa: BLE001 - a type with no ordering
+                continue
+            if low is None or high is None:
+                continue
+            ranges[name] = (low, high)
+
         out = [
             "catalog=%s table=%s.%s" % (catalog, a.namespace, a.table),
+            "  table=%s.%s" % (a.namespace, a.table),
             "  rows=%d" % rows,
+            "  namespaces=%s" % ",".join(spaces),
+            "  namespace_count=%d" % len(spaces),
+            "  snapshots=%d" % snapshots,
+            "  absent_namespace=%s" % (absent if absent_really else ""),
             "  columns=%s" % ",".join(cols),
             "  types=%s" % ",".join("%s:%s" % (c, types[c]) for c in cols),
             "  snapshot_id=%s" % (snap.snapshot_id if snap else "none"),
             "  metadata_location=%s" % tbl.metadata_location,
+        ] + [
+            "  range_%s=%s|%s" % (c, ranges[c][0], ranges[c][1]) for c in cols if c in ranges
+        ] + [
             "  read_at=%s" % time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         ]
         text = "\n".join(out) + "\n"
-        path = os.path.join(HERE, "evidence", "ground-truth-%s.txt" % catalog)
+        # One file per TABLE, not per catalog. Two tables in one catalog is the
+        # whole design of the scale arm, and a single filename would have had
+        # the 99,999-row truth silently overwrite the 11-row one -- the same
+        # clobber that lost a host's scored rows earlier in this work.
+        stem = "ground-truth-%s" % catalog
+        if a.table != "probe_table":
+            stem += "-%s" % a.table
+        path = os.path.join(HERE, "evidence", stem + ".txt")
         with open(path, "w") as h:
             h.write(text)
         print(text, end="")

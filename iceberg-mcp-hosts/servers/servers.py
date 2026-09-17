@@ -43,6 +43,17 @@ POLARIS_URI = os.getenv("IRC_POLARIS_URI", "http://localhost:8181/api/catalog")
 HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TRACE = os.getenv("MCP_TRACE", "1") == "1"
 
+#: iceberg_tool resolves ICEBERG_CATALOGS_FILE relative to the *server's* cwd,
+#: defaulting to a bare "catalogs.yaml". A host that launches the server from
+#: anywhere but iceberg-conformance/ then gets FileNotFoundError on every tool
+#: call -- which arrives at the model as a catalog error and reads like a dead
+#: catalog rather than a missing path of ours. Pinned absolutely, as
+#: capture_ground_truth.py and failure_modes.py already do, so a cell does not
+#: depend on the cwd the host happened to start in.
+CATALOGS_FILE = os.getenv(
+    "ICEBERG_CATALOGS_FILE",
+    os.path.join(os.path.dirname(HERE), "iceberg-conformance", "catalogs.yaml"))
+
 
 def _traced(spec):
     """Launch a stdio server through mcp_trace.py, so its calls are on record.
@@ -64,55 +75,75 @@ def _traced(spec):
     return wrapped
 
 SERVERS = {
-    # Community, Rust. Four tools, none of which return rows.
-    "morristai": {
-        "key": "morristai",
-        "answers_rows": False,
-        "traced": TRACE,
-        "catalog": "apache-polaris",
-        "cites_version": None,   # UNKNOWN: table_properties may or may not carry it
-        "missing_binary": _binary("iceberg-mcp")[1],
-        "spec": {
-            "command": _binary("iceberg-mcp")[0],
-            "args": [],
-            "env": {"CATALOG_KIND": "rest", "REST_URI": POLARIS_URI,
-                    "LOG_LEVEL": "info"},
-        },
-    },
-    # Community, Python. SELECT and INSERT through PyIceberg.
-    "ahodroj": {
-        "key": "ahodroj",
+    # ---------------------------------------------------------------- ours --
+    # The instrument. Two entries, one server, one deliberate difference: who
+    # does the arithmetic. Everything else is held still, which is what makes a
+    # difference between hosts attributable to the host.
+    #
+    # This replaced a design that varied third-party servers. That design
+    # measured four maintainers' scope decisions rather than any property of a
+    # host, and it could not even be run: see evidence/server-surfaces.txt for
+    # the ahodroj post-mortem. The servers it compared are kept below, disabled,
+    # because the reason for the change is part of the result.
+    "ours-engine": {
+        "key": "ours-engine",
         "answers_rows": True,
         "traced": TRACE,
-        "catalog": "apache-polaris",
-        "cites_version": False,
-        "missing_binary": _binary("uvx")[1],
+        "catalog": os.getenv("ICEBERG_CATALOG", "apache-polaris"),
+        "cites_version": True,   # describe/count/scan all return the snapshot id
+        "missing_binary": False,
+        "arithmetic": "engine",
         "spec": {
-            "command": _binary("uvx")[0],
-            "args": ["mcp-iceberg-service"],
-            "env": {"ICEBERG_CATALOG_URI": POLARIS_URI},
+            "command": sys.executable,
+            "args": [os.path.join(HERE, "servers", "iceberg_mcp.py")],
+            "env": {"ICEBERG_SCAN_FILTER": "1",
+                    "ICEBERG_CATALOGS_FILE": CATALOGS_FILE,
+                    "ICEBERG_CATALOG": os.getenv("ICEBERG_CATALOG",
+                                                 "apache-polaris")},
         },
     },
-    # Google, first-party, remote. execute_sql over BigLake/Iceberg.
-    "bigquery": {
-        "key": "bigquery",
+    # The same server with the scan's `where`, COUNT, MIN and MAX withheld, so
+    # the only way to a filtered count is for the model to do it. Paper 3
+    # measured this on three frameworks; here it is measured on three hosts
+    # running whatever model they pick for themselves.
+    "ours-rows": {
+        "key": "ours-rows",
         "answers_rows": True,
-        "traced": False,
-        "catalog": "google-lakehouse",
-        "cites_version": False,
-        "spec": {"type": "http", "url": "https://bigquery.googleapis.com/mcp"},
+        "traced": TRACE,
+        "catalog": os.getenv("ICEBERG_CATALOG", "apache-polaris"),
+        "cites_version": True,
+        "missing_binary": False,
+        "arithmetic": "model",
+        "spec": {
+            "command": sys.executable,
+            "args": [os.path.join(HERE, "servers", "iceberg_mcp.py")],
+            # Both halves of the withholding. SCAN_FILTER=0 reverts the scan
+            # tool to rows only; WITHHOLD removes the exact-count tool, which
+            # SCAN_FILTER does not touch. Without the second, every host still
+            # answered "how many rows" from the engine and the axis measured
+            # nothing -- 6 of 6 runs on each variant, 2026-09-16.
+            "env": {"ICEBERG_SCAN_FILTER": "0",
+                    "ICEBERG_WITHHOLD": "iceberg_count_rows",
+                    "ICEBERG_CATALOGS_FILE": CATALOGS_FILE,
+                    "ICEBERG_CATALOG": os.getenv("ICEBERG_CATALOG",
+                                                 "apache-polaris")},
+        },
     },
-    # Google, first-party, remote. Compute control plane, not a query surface --
-    # included precisely because a data question should fail on it.
-    "managed-spark": {
-        "key": "managed-spark",
-        "answers_rows": False,
-        "traced": False,
-        "catalog": "google-lakehouse",
-        "cites_version": False,
-        "spec": {"type": "http",
-                 "url": "https://dataproc-us-central1.googleapis.com/mcp"},
-    },
+}
+
+#: Kept as the record of the abandoned design, and not run. `enabled: false` is
+#: the same convention iceberg-conformance uses for a catalog holding
+#: placeholder config: without it a broken entry answers with real errors that
+#: read like findings. ahodroj is the case in point -- it cannot start, and a
+#: matrix that included it would have scored a server that never ran.
+RETIRED = {
+    "morristai": {"why": "community Rust server, four tools, none return rows; "
+                         "starts, but its surface is its maintainer's scope choice"},
+    "ahodroj": {"why": "cannot start: package on no registry, and from git it "
+                       "dies against mcp 2.x. See evidence/server-surfaces.txt"},
+    "bigquery": {"why": "first-party but read-only SQL over a different catalog, "
+                        "and exposes no snapshot id, so Q6 is unanswerable by surface"},
+    "managed-spark": {"why": "compute control plane, no table read surface at all"},
 }
 
 

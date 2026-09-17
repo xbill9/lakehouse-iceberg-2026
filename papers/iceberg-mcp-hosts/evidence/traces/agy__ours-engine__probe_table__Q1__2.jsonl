@@ -1,0 +1,15 @@
+{"t": 0.0, "dir": "runner", "spawn": ["/home/xbill/.pyenv/versions/3.14.7/bin/python3", "/home/xbill/lakehouse-iceberg-2026/iceberg-mcp-hosts/servers/iceberg_mcp.py"], "full": false}
+{"method": "server/discover", "id": 1, "t": 0.001, "dir": "host->server"}
+{"id": 1, "error": "Method not found: server/discover", "t": 0.057, "dir": "server->host"}
+{"method": "initialize", "id": 2, "t": 0.057, "dir": "host->server"}
+{"id": 2, "bytes": 1490, "is_error": false, "t": 0.057, "dir": "server->host"}
+{"method": "notifications/initialized", "t": 0.057, "dir": "host->server"}
+{"method": "tools/list", "id": 3, "t": 0.057, "dir": "host->server"}
+{"id": 3, "bytes": 2902, "is_error": false, "tools": ["iceberg_list_tables", "iceberg_describe_table", "iceberg_count_rows", "iceberg_scan_table"], "t": 0.057, "dir": "server->host"}
+{"method": "tools/call", "name": "iceberg_list_tables", "args": {}, "id": 4, "t": 8.837, "dir": "host->server"}
+{"id": 4, "bytes": 103, "is_error": false, "t": 9.108, "dir": "server->host"}
+{"method": "tools/call", "name": "iceberg_describe_table", "args": {"table": "probe_ns.probe_table"}, "id": 5, "t": 16.101, "dir": "host->server"}
+{"id": 5, "bytes": 652, "is_error": false, "t": 16.214, "dir": "server->host"}
+{"method": "tools/call", "name": "iceberg_describe_table", "args": {"table": "probe_ns.probe_large"}, "id": 6, "t": 18.234, "dir": "host->server"}
+{"id": 6, "bytes": 651, "is_error": false, "t": 18.243, "dir": "server->host"}
+{"t": 20.291, "dir": "runner", "exit": 0}

@@ -1,0 +1,26 @@
+# host=claude server=ours-engine Q1 run=3 elapsed_s=55.9 captured=2026-09-16T23:18:28Z
+# question: How many namespaces are in this catalog, and what are they called?
+
+**One namespace: `probe_ns`.**
+
+Via the MCP tool, `iceberg_list_tables` returned exactly two lines, both under the same namespace:
+
+```
+probe_ns.probe_large
+probe_ns.probe_table
+```
+
+That result alone doesn't actually answer your question, though. Reading the tool's source (`iceberg-agent/iceberg_tool.py:284-288`), `iceberg_list_tables` calls `cat.list_namespaces()` but only emits `namespace.table` lines — a namespace holding zero tables produces no output and is invisible to the tool. So "one namespace" from the tool output would have been an inference, not a measurement.
+
+I confirmed it against the catalog directly, with the same config the MCP server uses (`ICEBERG_CATALOG=apache-polaris`, the local control column):
+
+```console
+$ python3 -c "... cat.list_namespaces() ..."
+catalog: apache-polaris
+count: 1
+   probe_ns -> tables: 2
+```
+
+`list_namespaces()` returns 1 entry, `probe_ns`, holding 2 tables. Note this is only the top level — I didn't recurse, so a nested child namespace under `probe_ns` wouldn't appear here either, though Polaris would have listed one at this level if it existed at the root.
+
+If you want the MCP surface to be able to answer this on its own, the gap is a `iceberg_list_namespaces` tool — the engine has the call, the tool roster just doesn't expose it.
