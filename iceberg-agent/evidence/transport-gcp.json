@@ -1,0 +1,138 @@
+{
+  "leg": "gcp",
+  "catalog": "apache-polaris",
+  "results": [
+    {
+      "leg": "gcp",
+      "question": "metadata",
+      "transport": "imported",
+      "run": 1,
+      "elapsed_s": 8.7,
+      "cites_version": true,
+      "correct_row_count": true,
+      "names_all_columns": true,
+      "chars": 1039
+    },
+    {
+      "leg": "gcp",
+      "question": "metadata",
+      "transport": "imported",
+      "run": 2,
+      "elapsed_s": 7.6,
+      "cites_version": true,
+      "correct_row_count": true,
+      "names_all_columns": true,
+      "chars": 953
+    },
+    {
+      "leg": "gcp",
+      "question": "metadata",
+      "transport": "imported",
+      "run": 3,
+      "elapsed_s": 7.9,
+      "cites_version": true,
+      "correct_row_count": true,
+      "names_all_columns": true,
+      "chars": 900
+    },
+    {
+      "leg": "gcp",
+      "question": "metadata",
+      "transport": "mcp",
+      "run": 1,
+      "elapsed_s": 8.6,
+      "cites_version": true,
+      "correct_row_count": true,
+      "names_all_columns": true,
+      "chars": 1924
+    },
+    {
+      "leg": "gcp",
+      "question": "metadata",
+      "transport": "mcp",
+      "run": 2,
+      "elapsed_s": 10.2,
+      "cites_version": true,
+      "correct_row_count": true,
+      "names_all_columns": true,
+      "chars": 1874
+    },
+    {
+      "leg": "gcp",
+      "question": "metadata",
+      "transport": "mcp",
+      "run": 3,
+      "elapsed_s": 8.2,
+      "cites_version": true,
+      "correct_row_count": true,
+      "names_all_columns": true,
+      "chars": 1867
+    },
+    {
+      "leg": "gcp",
+      "question": "scan",
+      "transport": "imported",
+      "run": 1,
+      "elapsed_s": 11.4,
+      "cites_version": true,
+      "correct_largest_id": true,
+      "correct_filtered_count": true,
+      "chars": 1091
+    },
+    {
+      "leg": "gcp",
+      "question": "scan",
+      "transport": "imported",
+      "run": 2,
+      "elapsed_s": 12.8,
+      "cites_version": true,
+      "correct_largest_id": true,
+      "correct_filtered_count": true,
+      "chars": 1091
+    },
+    {
+      "leg": "gcp",
+      "question": "scan",
+      "transport": "imported",
+      "run": 3,
+      "elapsed_s": 10.5,
+      "cites_version": true,
+      "correct_largest_id": true,
+      "correct_filtered_count": true,
+      "chars": 1055
+    },
+    {
+      "leg": "gcp",
+      "question": "scan",
+      "transport": "mcp",
+      "run": 1,
+      "elapsed_s": 11.0,
+      "cites_version": true,
+      "correct_largest_id": true,
+      "correct_filtered_count": true,
+      "chars": 1805
+    },
+    {
+      "leg": "gcp",
+      "question": "scan",
+      "transport": "mcp",
+      "run": 2,
+      "elapsed_s": 11.8,
+      "cites_version": true,
+      "correct_largest_id": true,
+      "correct_filtered_count": true,
+      "chars": 1846
+    },
+    {
+      "leg": "gcp",
+      "question": "scan",
+      "transport": "mcp",
+      "run": 3,
+      "elapsed_s": 10.0,
+      "cites_version": true,
+      "correct_largest_id": true,
+      "correct_filtered_count": true,
+      "chars": 1808
+    }
+  ]
+}

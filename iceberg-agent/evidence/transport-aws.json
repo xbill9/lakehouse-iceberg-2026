@@ -1,0 +1,138 @@
+{
+  "leg": "aws",
+  "catalog": "apache-polaris",
+  "results": [
+    {
+      "leg": "aws",
+      "question": "metadata",
+      "transport": "imported",
+      "run": 1,
+      "elapsed_s": 4.5,
+      "cites_version": true,
+      "correct_row_count": true,
+      "names_all_columns": true,
+      "chars": 2688
+    },
+    {
+      "leg": "aws",
+      "question": "metadata",
+      "transport": "imported",
+      "run": 2,
+      "elapsed_s": 4.2,
+      "cites_version": true,
+      "correct_row_count": true,
+      "names_all_columns": true,
+      "chars": 2688
+    },
+    {
+      "leg": "aws",
+      "question": "metadata",
+      "transport": "imported",
+      "run": 3,
+      "elapsed_s": 4.1,
+      "cites_version": true,
+      "correct_row_count": true,
+      "names_all_columns": true,
+      "chars": 2688
+    },
+    {
+      "leg": "aws",
+      "question": "metadata",
+      "transport": "mcp",
+      "run": 1,
+      "elapsed_s": 4.3,
+      "cites_version": true,
+      "correct_row_count": true,
+      "names_all_columns": true,
+      "chars": 1991
+    },
+    {
+      "leg": "aws",
+      "question": "metadata",
+      "transport": "mcp",
+      "run": 2,
+      "elapsed_s": 4.1,
+      "cites_version": true,
+      "correct_row_count": true,
+      "names_all_columns": true,
+      "chars": 1991
+    },
+    {
+      "leg": "aws",
+      "question": "metadata",
+      "transport": "mcp",
+      "run": 3,
+      "elapsed_s": 4.2,
+      "cites_version": true,
+      "correct_row_count": true,
+      "names_all_columns": true,
+      "chars": 1991
+    },
+    {
+      "leg": "aws",
+      "question": "scan",
+      "transport": "imported",
+      "run": 1,
+      "elapsed_s": 4.8,
+      "cites_version": true,
+      "correct_largest_id": true,
+      "correct_filtered_count": true,
+      "chars": 2936
+    },
+    {
+      "leg": "aws",
+      "question": "scan",
+      "transport": "imported",
+      "run": 2,
+      "elapsed_s": 4.5,
+      "cites_version": true,
+      "correct_largest_id": true,
+      "correct_filtered_count": true,
+      "chars": 2936
+    },
+    {
+      "leg": "aws",
+      "question": "scan",
+      "transport": "imported",
+      "run": 3,
+      "elapsed_s": 4.6,
+      "cites_version": true,
+      "correct_largest_id": true,
+      "correct_filtered_count": true,
+      "chars": 2936
+    },
+    {
+      "leg": "aws",
+      "question": "scan",
+      "transport": "mcp",
+      "run": 1,
+      "elapsed_s": 4.7,
+      "cites_version": true,
+      "correct_largest_id": true,
+      "correct_filtered_count": true,
+      "chars": 2502
+    },
+    {
+      "leg": "aws",
+      "question": "scan",
+      "transport": "mcp",
+      "run": 2,
+      "elapsed_s": 4.7,
+      "cites_version": true,
+      "correct_largest_id": true,
+      "correct_filtered_count": true,
+      "chars": 2502
+    },
+    {
+      "leg": "aws",
+      "question": "scan",
+      "transport": "mcp",
+      "run": 3,
+      "elapsed_s": 4.8,
+      "cites_version": true,
+      "correct_largest_id": true,
+      "correct_filtered_count": true,
+      "chars": 2502
+    }
+  ]
+}

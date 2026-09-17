@@ -137,7 +137,12 @@ async def main():
         print("%-6s %5.1fs  tools=%d  calls=%s"
               % (row["cloud"], row["elapsed_s"], len(row["tools_offered"]),
                  ",".join(c.replace("iceberg_", "") for c in row["tool_calls"]) or "none"))
-        print("       %s" % row["answer"][:200].replace("\n", " "))
+        # In full. A caller that scores this output -- compare_transport.py does
+        # -- scores what is printed, and truncating here put the citation and the
+        # tail of the column list past the cut. Gemini writes long answers and
+        # Nova Micro short ones, so a 200-character limit read as ADK losing its
+        # citation over MCP while Strands kept it. That was the printer.
+        print(row["answer"])
 
 
 if __name__ == "__main__":
