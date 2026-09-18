@@ -1,8 +1,0 @@
-# host=agy server=ours-rows Q2 run=2 elapsed_s=30.9 captured=2026-09-16T23:57:37Z
-# question: What tables are in the analytics namespace?
-
-The `analytics` namespace could not be read because it does not exist in the catalog (`NoSuchNamespaceError: Namespace does not exist: analytics`).
-
-The only available tables currently in the catalog are in the `probe_ns` namespace:
-- `probe_ns.probe_large`
-- `probe_ns.probe_table`
