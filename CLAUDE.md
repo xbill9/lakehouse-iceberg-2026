@@ -113,16 +113,19 @@ fail.** A check that cannot fail reads exactly like a check that passes.
 
 Match the existing register, which is understated and declarative. Study the
 published pieces on `dev.to/xbill` — *Cross Cloud A2A Agent Card Field
-Comparison* and *Three Clouds, One Brief* are the closest models.
+Comparison* and *Three Clouds, One Brief* set the register; *Two Rust Clients for
+Gemma 4* (2026-09-11) is the current layout.
 
 **Do:**
 
-- Question-style headers, sentence case. Lowercase table headers.
+- Headings in the current dev.to format: `####`, Title Case, `Step N —`, `🔎 Tip:`. Lowercase table headers.
 - State exact versions and the measurement date near the top.
 - `console` blocks with `$` prefixes; real commands that ran.
-- Say what is *not* being claimed, early. "Nothing here is about X being broken."
+- State the scope early, as a property ("correctness is out of scope"), never as
+  an "X is not Y" line. The prose rules in `~/.claude/CLAUDE.md` ("Writing
+  articles") apply, and the publishing kit's `check-prose.py` enforces them.
 - Foreground method before results — what was held constant, and why.
-- Report null results plainly. "24 of 30 field rows are identical" is a finding.
+- Report null results as results. "24 of 30 field rows are identical" is a finding.
 - Lead with the measurement, not with an adjective.
 
 **Do not:**
