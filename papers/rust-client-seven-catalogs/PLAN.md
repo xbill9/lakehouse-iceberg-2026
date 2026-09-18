@@ -104,19 +104,56 @@ Source-read and control-catalog only. Nothing below has touched a vendor.
    apart; conflating them understated the crate by eleven rows, which was a bug
    in this harness.
 
-## What is owed before this is publishable
+## Vendor runs, 2026-09-18
 
-1. **The five catalogs whose auth this client can express**, one at a time,
-   `--storage opendal`. The questions only a run answers: does Horizon accept
-   the crate's bare-`client_secret` grant; does a statically minted gcloud or
-   Azure bearer survive a run, and what happens at expiry given the crate cannot
-   refresh it; do vended credentials from `loadTable` reach the storage layer.
-2. **The SigV4 demonstration** on Glue or S3 Tables — a signature computed for
-   `GET /v1/config` lifted into `header.Authorization` and refused on the second
-   request. Written as a consequence of a known limitation, with #1236 cited,
-   never as news.
-3. **The write surface**, eleven `NOT-ISSUED` rows today. Same `--allow-writes`
-   discipline as paper 1, same check for `irc_probe_*` residue.
+5. **TLS is the caller's to add.** The first BigLake and OneLake runs failed 7 of
+   7 at transport, no HTTP status: `iceberg-catalog-rest` 0.10.1 declares
+   `reqwest` with `default-features = false` and no TLS feature, and has no cargo
+   features of its own. Fixed with `rustls-tls` in our manifest. Known upstream
+   as apache/iceberg-rust#2888, open -- cited, not claimed.
+6. **Three catalogs green, identically.** Polaris, BigLake, OneLake: 7 OK, 1
+   implicit, 11 not-issued, 14 not-expressible, 0 failed.
+7. **SigV4 demonstrated.** One signature for `GET /v1/config` as static
+   `header.*`: replayed outside the crate it got 200 on that request and 403
+   `InvalidSignatureException` on the next, on Glue and S3 Tables both; through
+   the crate 7 of 7 probes refused.
+8. **Storage.** One read of the metadata file through the crate's FileIO. The
+   crate sends no `X-Iceberg-Access-Delegation`, and no catalog vended storage
+   keys. GCS read OK on application-default credentials. OneLake timed out after
+   47 s: `opendal-service-azdls` 0.57.0 builds its signer context with no command
+   executor (backend.rs:297), so the chain's Azure CLI provider cannot run, and
+   its env comes only from `adls.*` props. Source reading; no upstream issue
+   found 2026-09-18; the fall-through to IMDS is inferred, not traced.
+
+9. **Asking does not help.** With `X-Iceberg-Access-Delegation:
+   vended-credentials` passed as a static header, OneLake still read-timed-out
+   and the FileIO still had no `adls.*` key. The crate deserializes
+   `storage_credentials` (types.rs:226) and nothing reads it; `load_file_io`
+   merges `config` only (catalog.rs:455). The same request from pyiceberg gets
+   one `storage-credentials` entry. Upstream: #2931 (vended credentials across
+   REST/FileIO/backends, open) and #1442 (ADLS vended SAS key format, open) --
+   cited, not claimed.
+
+Harness bugs found on the way, none of which reached a paper:
+
+- `redact.py` matched literals only. The percent-encoded warehouse in the TLS
+  error carried the GCP project id and both OneLake GUIDs to disk while
+  `verify()` passed. Files deleted before any commit; encoded forms, header
+  values and warehouse components are now matched, with a planted-value test.
+- The storage probe split the scheme on `://`; Polaris's `file:/path` has one
+  slash and the whole path came through. `verify()` refused it.
+- The SigV4 replay read the prefix from `overrides` only; S3 Tables puts it in
+  `defaults`, and the replay hit a 404 route. Reads both now, as paper 1's
+  runner does.
+
+## Still not covered, stated in the article
+
+1. **Unity and Horizon**, placeholder config, `enabled: false`. The Horizon
+   bare-`client_secret` grant is the open question worth a run.
+2. **The write surface**, eleven `NOT-ISSUED` rows.
+3. **Token expiry** for the statically minted gcloud and Azure bearers.
+4. **OneLake storage** with a credential the azdls backend accepts (service
+   principal or SAS).
 
 ## Evidence this paper owns
 
@@ -127,6 +164,9 @@ scoped and cannot drift:
     rust-client-operation-surface.txt     what the crate can attempt
     rust-client-auth-surface.txt          the auth surface, read from source
     rust-run-<catalog>.json               one run per catalog
+    rust-sigv4-demo-<catalog>.json        the two AWS demonstrations
+    rust-vendor-runs.txt                  all of the above, rendered by
+                                          vendor_report.py
     declaration-gate-cost.txt             shared with paper 6, context only
 
 **Read `check-facts.py` output by the file it names, not by the tick.** It

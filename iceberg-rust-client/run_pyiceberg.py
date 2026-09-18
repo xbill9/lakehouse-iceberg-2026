@@ -87,7 +87,13 @@ def bearer_from_harness(spec, url):
     return value[len("Bearer "):]
 
 
-def base_props(cat, mode):
+def base_props(cat, mode, token=None):
+    """`token`, when given, is a bearer already minted by the caller. The
+    benchmark passes one so that neither client's timed spawn includes
+    shelling out to gcloud or az; the Rust binary always gets its token that
+    way, and before 2026-09-18 the pyiceberg worker minted its own inside the
+    cold-start wall, which put a gcloud call on one side of the comparison.
+    """
     props = {"uri": cat["base_url"]}
     if cat.get("warehouse"):
         props["warehouse"] = cat["warehouse"]
@@ -115,7 +121,7 @@ def base_props(cat, mode):
         if spec.get("service"):
             props["rest.signing-name"] = spec["service"]
     elif mode == "static":
-        props["token"] = bearer_from_harness(spec, cat["base_url"])
+        props["token"] = token or bearer_from_harness(spec, cat["base_url"])
     return props
 
 

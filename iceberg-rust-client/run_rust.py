@@ -43,7 +43,10 @@ import operation_map as om                           # noqa: E402
 import redact                                        # noqa: E402
 from probe.spec import PROBES, WRITE_PROBES          # noqa: E402
 
-BINARY = os.path.join(HERE, "target", "debug", "irc-probe")
+# IRC_BINARY exists for one purpose: reproducing the no-TLS failure with a
+# binary built without `rustls-tls`, into its own target directory, so the
+# evidence binary is never the one rebuilt. Runs made with it carry --tag.
+BINARY = os.environ.get("IRC_BINARY") or os.path.join(HERE, "target", "debug", "irc-probe")
 
 # Which probes the Rust binary issues. It is the driver's job, not the
 # binary's, to say why the others were not issued.
@@ -131,10 +134,17 @@ def build_env(cat, mode, storage):
     return env
 
 
-def run_binary(cat, mode, storage):
+def run_binary(cat, mode, storage, delegation=None):
     if not os.path.exists(BINARY):
         sys.exit("%s not built -- run `cargo build` first" % BINARY)
     env = build_env(cat, mode, storage)
+    if delegation:
+        # The crate never sends this header on its own; pyiceberg sends
+        # `vended-credentials` by default. As a static header.* property the
+        # crate attaches it to every request, which is how a Rust caller
+        # would have to ask.
+        env["IRC_HEADERS_JSON"] = json.dumps(
+            {"X-Iceberg-Access-Delegation": delegation})
     started = time.time()
     proc = subprocess.run([BINARY], env=env, capture_output=True, text=True,
                           timeout=180)
@@ -144,6 +154,70 @@ def run_binary(cat, mode, storage):
         if line:
             rows.append(json.loads(line))
     return rows, proc.returncode, proc.stderr.strip(), time.time() - started
+
+
+def sigv4_demo(cat, storage):
+    """Hand the crate one SigV4 signature as a static header, and watch what
+    it is worth.
+
+    SigV4 signs the method, path, query string and a set of headers, so a
+    signature is valid for exactly one request. The crate's only way to carry
+    an arbitrary credential is `header.<name>`, which it attaches to every
+    request unchanged. This signs the first request the crate will send --
+    GET /v1/config with its warehouse query and the two headers the crate adds
+    -- and nothing else. It is a consequence of a known limitation (upstream
+    #1236, open), demonstrated rather than asserted; it is not a finding.
+    """
+    from urllib.parse import urlencode
+    spec = cat.get("auth") or {}
+    provider = probe_auth.build(spec)
+    url = cat["base_url"].rstrip("/") + "/v1/config"
+    if cat.get("warehouse"):
+        # The crate builds this with reqwest's .query(), which is
+        # form-urlencoding. Sign exactly what is sent.
+        url += "?" + urlencode({"warehouse": cat["warehouse"]})
+    signed = provider.apply("GET", url, {
+        "content-type": "application/json",
+        "x-client-version": "0.14.1",     # catalog.rs:56, sent on every request
+    }, None)
+    carry = {k: v for k, v in signed.items()
+             if k.lower() in ("authorization", "x-amz-date", "x-amz-security-token")}
+    env = build_env(cat, "static-headers", storage)
+    env["IRC_HEADERS_JSON"] = json.dumps(carry)
+    proc = subprocess.run([BINARY], env=env, capture_output=True, text=True,
+                          timeout=180)
+    rows = [json.loads(l) for l in proc.stdout.splitlines() if l.strip()]
+
+    # The crate's GET /v1/config is implicit, so the run alone cannot say
+    # whether the signature was good for the one request it was computed for.
+    # Replay the same headers outside the crate, to that request and to the
+    # next one, and record both statuses: the control for this demonstration.
+    import requests
+    replay = {}
+    base = {"content-type": "application/json", "x-client-version": "0.14.1"}
+    r = requests.get(url, headers=dict(base, **carry), timeout=30)
+    replay["GET /v1/config (the signed request)"] = r.status_code
+    # overrides first, then defaults, as paper 1's runner does: S3 Tables puts
+    # its prefix under defaults, and reading overrides alone sent the replay to
+    # a route that does not exist (404) on the first attempt.
+    body = r.json() if r.ok else {}
+    prefix = ((body.get("overrides") or {}).get("prefix")
+              or (body.get("defaults") or {}).get("prefix"))
+    nxt = cat["base_url"].rstrip("/") + "/v1/" + (prefix + "/" if prefix else "") + "namespaces"
+    r2 = requests.get(nxt, headers=dict(base, **carry), timeout=30)
+    replay["GET /v1/{prefix}/namespaces (same headers)"] = r2.status_code
+    try:
+        replay["second response message"] = r2.json().get("message")
+    except ValueError:
+        pass
+    rows.append({"probe": "_replay", "replay": replay})
+    # The signature and the key id it names are identifiers too.
+    extra = []
+    creds = provider._credentials()
+    for v in (creds.access_key, creds.token, carry.get("Authorization")):
+        if v:
+            extra.append((v, "<aws-credential>"))
+    return rows, proc.returncode, proc.stderr.strip(), extra
 
 
 def merge(rows, pairs):
@@ -195,6 +269,17 @@ def main():
                     help="StorageFactory to give the client. Recorded with the run. "
                          "Cloud-backed catalogs need `opendal`; the two factories "
                          "in the core crate only reach local paths and memory.")
+    ap.add_argument("--access-delegation", metavar="MODE",
+                    help="send X-Iceberg-Access-Delegation: MODE as a static "
+                         "header, e.g. vended-credentials. Written to "
+                         "rust-run-<catalog>-delegation.json, never over the "
+                         "plain run.")
+    ap.add_argument("--tag", help="suffix for the evidence file, e.g. no-tls; "
+                                  "a tagged run never overwrites an untagged one")
+    ap.add_argument("--sigv4-demo", action="store_true",
+                    help="for a SigV4 catalog: pass one precomputed signature as "
+                         "a static header and record what each request gets. "
+                         "Writes rust-sigv4-demo-<catalog>.json.")
     ap.add_argument("--all", action="store_true",
                     help="every enabled catalog. Costs vendor calls; control catalog first.")
     args = ap.parse_args()
@@ -207,6 +292,51 @@ def main():
         missing = set(wanted) - {c["name"] for c in catalogs}
         if missing:
             sys.exit("not configured or not enabled: %s" % ", ".join(sorted(missing)))
+
+    if args.sigv4_demo:
+        for cat in catalogs:
+            if (cat.get("auth") or {}).get("type") != "sigv4":
+                sys.exit("%s is not a SigV4 catalog" % cat["name"])
+            rows, rc, stderr, extra = sigv4_demo(cat, args.storage)
+            pairs = sorted(redact.values_for(cat) + extra, key=lambda kv: -len(kv[0]))
+            out_rows, replay = [], None
+            for r in rows:
+                if r.get("probe") == "_meta":
+                    continue
+                if r.get("probe") == "_replay":
+                    replay = {k: redact.scrub(v, pairs) if isinstance(v, str) else v
+                              for k, v in r["replay"].items()}
+                    continue
+                r = dict(r)
+                if r.get("error"):
+                    r["error"] = redact.scrub(r["error"], pairs)
+                out_rows.append(r)
+            document = {
+                "meta": {
+                    "catalog": cat["name"],
+                    "crate": "iceberg-catalog-rest 0.10.1",
+                    "what": "one SigV4 signature for GET /v1/config, passed as "
+                            "static header.Authorization / header.X-Amz-Date / "
+                            "header.X-Amz-Security-Token",
+                    "upstream": "apache/iceberg-rust#1236 (open)",
+                    "measured_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                    "exit_code": rc,
+                    "stderr": redact.scrub(stderr, pairs) if stderr else None,
+                    "replay_outside_crate": replay,
+                },
+                "rows": out_rows,
+            }
+            redact.verify(document, pairs)
+            out = os.path.join(HERE, "evidence", "rust-sigv4-demo-%s.json" % cat["name"])
+            with open(out, "w") as fh:
+                json.dump(document, fh, indent=2)
+                fh.write("\n")
+            for r in out_rows:
+                print("%-24s %s %s" % (r["probe"], {True: "ok", False: "FAILED", None: "implicit"}[r.get("ok")],
+                                       (r.get("error") or "")[:160]))
+            print("replay: %s" % json.dumps(replay))
+            print("wrote %s" % os.path.relpath(out, HERE))
+        return
 
     for cat in catalogs:
         mode, detail = auth_plan(cat.get("auth"))
@@ -227,11 +357,23 @@ def main():
             print("%-18s auth not expressible: %s" % (cat["name"], detail))
             rows, rc, stderr = [], None, ""
         else:
-            rows, rc, stderr, _ = run_binary(cat, mode, args.storage)
+            rows, rc, stderr, _ = run_binary(cat, mode, args.storage,
+                                             args.access_delegation)
+            if args.access_delegation:
+                meta["access_delegation_header"] = args.access_delegation
             meta["exit_code"] = rc
             if stderr:
                 meta["stderr"] = redact.scrub(stderr, pairs)
             for r in rows:
+                if r.get("probe") == "storage_read_metadata":
+                    # Outside paper 1's probe list, so it lives in meta rather
+                    # than as a row that would change the probe counts.
+                    if r.get("error"):
+                        r["error"] = redact.scrub(r["error"], pairs)
+                    meta["storage_touch"] = {k: v for k, v in r.items()
+                                             if k != "probe"}
+                if r.get("probe") == "storage_fileio_config":
+                    meta["storage_fileio_config_keys"] = r.get("keys")
                 if r.get("probe") == "_meta":
                     meta["binary_reported"] = {k: v for k, v in r.items()
                                                if k not in ("probe", "catalog")}
@@ -242,9 +384,14 @@ def main():
             counts[r["verdict"]] = counts.get(r["verdict"], 0) + 1
         meta["counts"] = counts
 
-        out = os.path.join(HERE, "evidence", "rust-run-%s.json" % cat["name"])
+        out = os.path.join(HERE, "evidence", "rust-run-%s%s%s.json" % (
+            cat["name"], "-delegation" if args.access_delegation else "",
+            "-" + args.tag if args.tag else ""))
+        if args.tag:
+            meta["tag"] = args.tag
+            meta["binary"] = os.path.relpath(BINARY, HERE)
         # Never overwrite good evidence with a failed run.
-        if mode != "absent" and rc not in (0, None) and not any(
+        if not args.tag and mode != "absent" and rc not in (0, None) and not any(
                 r["verdict"] == "OK" for r in merged):
             out = out.replace(".json", ".failed.json")
         document = {"meta": meta, "rows": merged}

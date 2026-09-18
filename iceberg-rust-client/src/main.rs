@@ -101,6 +101,16 @@ async fn build_catalog() -> RestCatalog {
     if let Some(s) = env_opt("IRC_SCOPE") {
         props.insert("scope".into(), s);
     }
+    // Static headers, the crate's `header.<name>` properties. Used only by the
+    // SigV4 demonstration: one signature, computed outside the crate for one
+    // request, handed over as though it were a credential.
+    if let Some(h) = env_opt("IRC_HEADERS_JSON") {
+        let parsed: HashMap<String, String> =
+            serde_json::from_str(&h).expect("IRC_HEADERS_JSON must be a JSON object of strings");
+        for (k, v) in parsed {
+            props.insert(format!("header.{}", k), v);
+        }
+    }
 
     // `load_table` builds a Table, and a Table carries a FileIO, so the client
     // refuses to hand back a loadTable response at all without a storage
@@ -200,13 +210,28 @@ async fn transport_floor() {
     let warmup: u32 = env_opt("IRC_WARMUP").and_then(|v| v.parse().ok()).unwrap_or(5);
     let iters: u32 = env_opt("IRC_ITERS").and_then(|v| v.parse().ok()).unwrap_or(60);
 
+    let pace = std::time::Duration::from_millis(
+        env_opt("IRC_PACE_MS").and_then(|v| v.parse().ok()).unwrap_or(0));
+    // The same extra headers the Python session sends, so this is the same
+    // request and not a cheaper one. BigLake refuses a call without
+    // x-goog-user-project; before this, its floor would have timed a 403.
+    let extra: HashMap<String, String> = env_opt("IRC_HEADERS_JSON")
+        .map(|h| serde_json::from_str(&h).expect("IRC_HEADERS_JSON must be a JSON object"))
+        .unwrap_or_default();
+
     let client = reqwest::Client::new();
     let fetch = || async {
         let mut req = client.get(&url);
         if let Some(t) = &token {
             req = req.bearer_auth(t);
         }
+        for (k, v) in &extra {
+            req = req.header(k.as_str(), v.as_str());
+        }
         match req.send().await {
+            // A 429 or a 403 is a fast answer to a different question; it is
+            // an error here, never a sample.
+            Ok(resp) if !resp.status().is_success() => Err(format!("HTTP {}", resp.status().as_u16())),
             Ok(resp) => resp.text().await.map(|b| b.len()).map_err(|e| e.to_string()),
             Err(e) => Err(e.to_string()),
         }
@@ -214,11 +239,13 @@ async fn transport_floor() {
 
     for _ in 0..warmup {
         let _ = fetch().await;
+        tokio::time::sleep(pace).await;
     }
     for i in 0..iters {
         let t = Instant::now();
         let outcome = fetch().await;
         let ns = t.elapsed().as_nanos() as u64;
+        tokio::time::sleep(pace).await;
         match outcome {
             Ok(_) => emit(json!({
                 "client": "rust", "op": "transport only", "iter": i, "ns": ns,
@@ -257,7 +284,8 @@ async fn main() {
 
     if env_opt("IRC_MODE").as_deref() == Some("bench") {
         // Cold start is the driver's measurement, not this process's: it is
-        // wall-clock from spawn to a first answer, and a process cannot time
+        // wall-clock from spawn to exit with IRC_ITERS=1, so the catalog is
+        // built and each operation answered once, and a process cannot time
         // its own exec. What this reports is the steady state, with the
         // catalog already built.
         bench(&catalog, &ns, &table).await;
@@ -312,4 +340,35 @@ async fn main() {
     let t = Instant::now();
     record("head_table", t, catalog.table_exists(&table).await
         .map(|b| json!({"exists": b})));
+
+    // Not one of paper 1's probes: the first byte read through the client's
+    // own storage layer. load_table builds a FileIO and never uses it, so a
+    // green load_table says nothing about storage. This reads the metadata
+    // file the catalog pointed at. The crate sends no
+    // X-Iceberg-Access-Delegation header, so whatever credentials this uses
+    // are either vended unasked or ambient; the config key NAMES are recorded
+    // to tell which, never their values, and never the path.
+    let t = Instant::now();
+    let touched = async {
+        let tbl = catalog.load_table(&table).await?;
+        let io = tbl.file_io();
+        let mut keys: Vec<String> = io.config().props().keys().cloned().collect();
+        keys.sort();
+        // Emitted before the read, so a failed read still says what the
+        // storage layer was handed.
+        emit(json!({"probe": "storage_fileio_config", "keys": keys.clone()}));
+        let loc = tbl.metadata_location_result()?.to_string();
+        // `file:/path` has one slash, so split on the colon, not on "://".
+        let scheme = loc.split(':').next().unwrap_or("").to_string();
+        let t_read = Instant::now();
+        let bytes = io.new_input(&loc)?.read().await?;
+        Ok::<Value, iceberg::Error>(json!({
+            "scheme": scheme,
+            "bytes_read": bytes.len(),
+            "read_ms": t_read.elapsed().as_millis() as u64,
+            "fileio_config_keys": keys,
+        }))
+    }
+    .await;
+    record("storage_read_metadata", t, touched);
 }

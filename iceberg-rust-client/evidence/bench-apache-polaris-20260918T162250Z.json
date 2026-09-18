@@ -1,0 +1,5222 @@
+{
+  "meta": {
+    "catalog": "apache-polaris",
+    "control": true,
+    "rust_client": "iceberg-catalog-rest 0.10.1",
+    "rust_profile": "release",
+    "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)",
+    "python": "3.14.7",
+    "pyiceberg": "0.12.0",
+    "storage_factory": "local-fs",
+    "rounds": 4,
+    "iters_per_round": 15,
+    "warmup_per_round": 3,
+    "ops": [
+      "list_namespaces",
+      "load_namespace",
+      "head_namespace",
+      "list_tables",
+      "load_table",
+      "head_table"
+    ],
+    "cpu_count": 16,
+    "measured_utc": "2026-09-18T16:22:50Z",
+    "sample_count": 720
+  },
+  "cold_start_wall": {
+    "rust": {
+      "n": 5,
+      "min_us": 15699.0,
+      "p50_us": 16408.0,
+      "p90_us": 18268.2,
+      "p99_us": 18268.2,
+      "max_us": 18268.2,
+      "stdev_us": 961.2
+    },
+    "pyiceberg": {
+      "n": 5,
+      "min_us": 531104.6,
+      "p50_us": 551527.5,
+      "p90_us": 558109.7,
+      "p99_us": 558109.7,
+      "max_us": 558109.7,
+      "stdev_us": 12561.8
+    }
+  },
+  "stats": [
+    {
+      "op": "list_namespaces",
+      "rust": {
+        "n": 60,
+        "min_us": 142.9,
+        "p50_us": 301.3,
+        "p90_us": 498.4,
+        "p99_us": 647.7,
+        "max_us": 647.7,
+        "stdev_us": 126.1
+      },
+      "pyiceberg": {
+        "n": 60,
+        "min_us": 658.6,
+        "p50_us": 1291.7,
+        "p90_us": 1626.8,
+        "p99_us": 1822.4,
+        "max_us": 1822.4,
+        "stdev_us": 247.0
+      },
+      "p50_ratio_py_over_rust": 4.29
+    },
+    {
+      "op": "load_namespace",
+      "rust": {
+        "n": 60,
+        "min_us": 151.2,
+        "p50_us": 364.4,
+        "p90_us": 473.4,
+        "p99_us": 1426.9,
+        "max_us": 1426.9,
+        "stdev_us": 170.5
+      },
+      "pyiceberg": {
+        "n": 60,
+        "min_us": 627.8,
+        "p50_us": 1281.2,
+        "p90_us": 1591.2,
+        "p99_us": 1681.9,
+        "max_us": 1681.9,
+        "stdev_us": 290.8
+      },
+      "p50_ratio_py_over_rust": 3.52
+    },
+    {
+      "op": "head_namespace",
+      "rust": {
+        "n": 60,
+        "min_us": 133.8,
+        "p50_us": 328.4,
+        "p90_us": 464.7,
+        "p99_us": 647.3,
+        "max_us": 647.3,
+        "stdev_us": 120.1
+      },
+      "pyiceberg": {
+        "n": 60,
+        "min_us": 679.3,
+        "p50_us": 1048.6,
+        "p90_us": 1318.2,
+        "p99_us": 2006.4,
+        "max_us": 2006.4,
+        "stdev_us": 228.8
+      },
+      "p50_ratio_py_over_rust": 3.19
+    },
+    {
+      "op": "list_tables",
+      "rust": {
+        "n": 60,
+        "min_us": 142.6,
+        "p50_us": 327.0,
+        "p90_us": 461.6,
+        "p99_us": 887.3,
+        "max_us": 887.3,
+        "stdev_us": 119.8
+      },
+      "pyiceberg": {
+        "n": 60,
+        "min_us": 721.0,
+        "p50_us": 1003.2,
+        "p90_us": 1315.9,
+        "p99_us": 1568.3,
+        "max_us": 1568.3,
+        "stdev_us": 208.6
+      },
+      "p50_ratio_py_over_rust": 3.07
+    },
+    {
+      "op": "load_table",
+      "rust": {
+        "n": 60,
+        "min_us": 4133.9,
+        "p50_us": 4826.2,
+        "p90_us": 5964.8,
+        "p99_us": 8107.6,
+        "max_us": 8107.6,
+        "stdev_us": 776.9
+      },
+      "pyiceberg": {
+        "n": 60,
+        "min_us": 5533.8,
+        "p50_us": 6481.0,
+        "p90_us": 8978.6,
+        "p99_us": 16143.0,
+        "max_us": 16143.0,
+        "stdev_us": 1612.9
+      },
+      "p50_ratio_py_over_rust": 1.34
+    },
+    {
+      "op": "head_table",
+      "rust": {
+        "n": 60,
+        "min_us": 4155.5,
+        "p50_us": 4659.3,
+        "p90_us": 5250.0,
+        "p99_us": 7211.4,
+        "max_us": 7211.4,
+        "stdev_us": 572.8
+      },
+      "pyiceberg": {
+        "n": 60,
+        "min_us": 4668.3,
+        "p50_us": 5524.5,
+        "p90_us": 6450.2,
+        "p99_us": 10827.5,
+        "max_us": 10827.5,
+        "stdev_us": 901.9
+      },
+      "p50_ratio_py_over_rust": 1.19
+    }
+  ],
+  "samples": [
+    {
+      "client": "rust",
+      "iter": 0,
+      "ns": 552097,
+      "op": "list_namespaces",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 1,
+      "ns": 647729,
+      "op": "list_namespaces",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 2,
+      "ns": 591253,
+      "op": "list_namespaces",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 3,
+      "ns": 573921,
+      "op": "list_namespaces",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 4,
+      "ns": 504415,
+      "op": "list_namespaces",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 5,
+      "ns": 404587,
+      "op": "list_namespaces",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 6,
+      "ns": 351532,
+      "op": "list_namespaces",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 7,
+      "ns": 320089,
+      "op": "list_namespaces",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 8,
+      "ns": 322388,
+      "op": "list_namespaces",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 9,
+      "ns": 327186,
+      "op": "list_namespaces",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 10,
+      "ns": 324041,
+      "op": "list_namespaces",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 11,
+      "ns": 587070,
+      "op": "list_namespaces",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 12,
+      "ns": 498449,
+      "op": "list_namespaces",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 13,
+      "ns": 453335,
+      "op": "list_namespaces",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 14,
+      "ns": 449849,
+      "op": "list_namespaces",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 0,
+      "ns": 512102,
+      "op": "load_namespace",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 1,
+      "ns": 413484,
+      "op": "load_namespace",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 2,
+      "ns": 433253,
+      "op": "load_namespace",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 3,
+      "ns": 401098,
+      "op": "load_namespace",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 4,
+      "ns": 397251,
+      "op": "load_namespace",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 5,
+      "ns": 381494,
+      "op": "load_namespace",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 6,
+      "ns": 373507,
+      "op": "load_namespace",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 7,
+      "ns": 379307,
+      "op": "load_namespace",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 8,
+      "ns": 383359,
+      "op": "load_namespace",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 9,
+      "ns": 380859,
+      "op": "load_namespace",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 10,
+      "ns": 374179,
+      "op": "load_namespace",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 11,
+      "ns": 408244,
+      "op": "load_namespace",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 12,
+      "ns": 378073,
+      "op": "load_namespace",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 13,
+      "ns": 375136,
+      "op": "load_namespace",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 14,
+      "ns": 365424,
+      "op": "load_namespace",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 0,
+      "ns": 390958,
+      "op": "head_namespace",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 1,
+      "ns": 647310,
+      "op": "head_namespace",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 2,
+      "ns": 319401,
+      "op": "head_namespace",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 3,
+      "ns": 584806,
+      "op": "head_namespace",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 4,
+      "ns": 494973,
+      "op": "head_namespace",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 5,
+      "ns": 418585,
+      "op": "head_namespace",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 6,
+      "ns": 366741,
+      "op": "head_namespace",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 7,
+      "ns": 349471,
+      "op": "head_namespace",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 8,
+      "ns": 337818,
+      "op": "head_namespace",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 9,
+      "ns": 335655,
+      "op": "head_namespace",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 10,
+      "ns": 328373,
+      "op": "head_namespace",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 11,
+      "ns": 333836,
+      "op": "head_namespace",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 12,
+      "ns": 424294,
+      "op": "head_namespace",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 13,
+      "ns": 396172,
+      "op": "head_namespace",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 14,
+      "ns": 464674,
+      "op": "head_namespace",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 0,
+      "ns": 400728,
+      "op": "list_tables",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 1,
+      "ns": 417146,
+      "op": "list_tables",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 2,
+      "ns": 398074,
+      "op": "list_tables",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 3,
+      "ns": 396846,
+      "op": "list_tables",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 4,
+      "ns": 433389,
+      "op": "list_tables",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 5,
+      "ns": 317601,
+      "op": "list_tables",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 6,
+      "ns": 327039,
+      "op": "list_tables",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 7,
+      "ns": 274294,
+      "op": "list_tables",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 8,
+      "ns": 272051,
+      "op": "list_tables",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 9,
+      "ns": 254707,
+      "op": "list_tables",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 10,
+      "ns": 257813,
+      "op": "list_tables",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 11,
+      "ns": 271586,
+      "op": "list_tables",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 12,
+      "ns": 257492,
+      "op": "list_tables",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 13,
+      "ns": 272225,
+      "op": "list_tables",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 14,
+      "ns": 312717,
+      "op": "list_tables",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 0,
+      "ns": 5050691,
+      "op": "load_table",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 1,
+      "ns": 5908738,
+      "op": "load_table",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 2,
+      "ns": 5413508,
+      "op": "load_table",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 3,
+      "ns": 5540644,
+      "op": "load_table",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 4,
+      "ns": 6941493,
+      "op": "load_table",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 5,
+      "ns": 5388883,
+      "op": "load_table",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 6,
+      "ns": 5416735,
+      "op": "load_table",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 7,
+      "ns": 5601714,
+      "op": "load_table",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 8,
+      "ns": 8107577,
+      "op": "load_table",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 9,
+      "ns": 7746450,
+      "op": "load_table",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 10,
+      "ns": 5936736,
+      "op": "load_table",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 11,
+      "ns": 5355867,
+      "op": "load_table",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 12,
+      "ns": 5639039,
+      "op": "load_table",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 13,
+      "ns": 6061222,
+      "op": "load_table",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 14,
+      "ns": 5964823,
+      "op": "load_table",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 0,
+      "ns": 4983463,
+      "op": "head_table",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 1,
+      "ns": 4935451,
+      "op": "head_table",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 2,
+      "ns": 5097781,
+      "op": "head_table",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 3,
+      "ns": 5065697,
+      "op": "head_table",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 4,
+      "ns": 5152927,
+      "op": "head_table",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 5,
+      "ns": 6511901,
+      "op": "head_table",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 6,
+      "ns": 5127976,
+      "op": "head_table",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 7,
+      "ns": 5498838,
+      "op": "head_table",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 8,
+      "ns": 5250015,
+      "op": "head_table",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 9,
+      "ns": 5012590,
+      "op": "head_table",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 10,
+      "ns": 4880669,
+      "op": "head_table",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 11,
+      "ns": 4503321,
+      "op": "head_table",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 12,
+      "ns": 4689361,
+      "op": "head_table",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 13,
+      "ns": 4935816,
+      "op": "head_table",
+      "round": 0
+    },
+    {
+      "client": "rust",
+      "iter": 14,
+      "ns": 6329090,
+      "op": "head_table",
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_namespaces",
+      "iter": 0,
+      "ns": 1818731,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_namespaces",
+      "iter": 1,
+      "ns": 1340569,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_namespaces",
+      "iter": 2,
+      "ns": 1205192,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_namespaces",
+      "iter": 3,
+      "ns": 1088137,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_namespaces",
+      "iter": 4,
+      "ns": 1114678,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_namespaces",
+      "iter": 5,
+      "ns": 1426083,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_namespaces",
+      "iter": 6,
+      "ns": 1622280,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_namespaces",
+      "iter": 7,
+      "ns": 1822391,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_namespaces",
+      "iter": 8,
+      "ns": 1444378,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_namespaces",
+      "iter": 9,
+      "ns": 1381227,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_namespaces",
+      "iter": 10,
+      "ns": 1208978,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_namespaces",
+      "iter": 11,
+      "ns": 1456081,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_namespaces",
+      "iter": 12,
+      "ns": 1657683,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_namespaces",
+      "iter": 13,
+      "ns": 1301990,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_namespaces",
+      "iter": 14,
+      "ns": 1202416,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_namespace",
+      "iter": 0,
+      "ns": 1249525,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_namespace",
+      "iter": 1,
+      "ns": 1518177,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_namespace",
+      "iter": 2,
+      "ns": 1437592,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_namespace",
+      "iter": 3,
+      "ns": 1421024,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_namespace",
+      "iter": 4,
+      "ns": 1246936,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_namespace",
+      "iter": 5,
+      "ns": 1464248,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_namespace",
+      "iter": 6,
+      "ns": 1681922,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_namespace",
+      "iter": 7,
+      "ns": 1280838,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_namespace",
+      "iter": 8,
+      "ns": 1290395,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_namespace",
+      "iter": 9,
+      "ns": 1336721,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_namespace",
+      "iter": 10,
+      "ns": 1418722,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_namespace",
+      "iter": 11,
+      "ns": 1342936,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_namespace",
+      "iter": 12,
+      "ns": 1268668,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_namespace",
+      "iter": 13,
+      "ns": 1281228,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_namespace",
+      "iter": 14,
+      "ns": 1285394,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_namespace",
+      "iter": 0,
+      "ns": 1472146,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_namespace",
+      "iter": 1,
+      "ns": 1256666,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_namespace",
+      "iter": 2,
+      "ns": 1148342,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_namespace",
+      "iter": 3,
+      "ns": 1151787,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_namespace",
+      "iter": 4,
+      "ns": 1099522,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_namespace",
+      "iter": 5,
+      "ns": 1066301,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_namespace",
+      "iter": 6,
+      "ns": 1041324,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_namespace",
+      "iter": 7,
+      "ns": 1090698,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_namespace",
+      "iter": 8,
+      "ns": 1085355,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_namespace",
+      "iter": 9,
+      "ns": 2006388,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_namespace",
+      "iter": 10,
+      "ns": 1092770,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_namespace",
+      "iter": 11,
+      "ns": 1055422,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_namespace",
+      "iter": 12,
+      "ns": 1019082,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_namespace",
+      "iter": 13,
+      "ns": 992982,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_namespace",
+      "iter": 14,
+      "ns": 1111897,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_tables",
+      "iter": 0,
+      "ns": 1164202,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_tables",
+      "iter": 1,
+      "ns": 1146881,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_tables",
+      "iter": 2,
+      "ns": 1089500,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_tables",
+      "iter": 3,
+      "ns": 858450,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_tables",
+      "iter": 4,
+      "ns": 790906,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_tables",
+      "iter": 5,
+      "ns": 912165,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_tables",
+      "iter": 6,
+      "ns": 1319470,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_tables",
+      "iter": 7,
+      "ns": 1206323,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_tables",
+      "iter": 8,
+      "ns": 1247459,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_tables",
+      "iter": 9,
+      "ns": 1143957,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_tables",
+      "iter": 10,
+      "ns": 1042543,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_tables",
+      "iter": 11,
+      "ns": 1345864,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_tables",
+      "iter": 12,
+      "ns": 1213819,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_tables",
+      "iter": 13,
+      "ns": 1315868,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_tables",
+      "iter": 14,
+      "ns": 1208673,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_table",
+      "iter": 0,
+      "ns": 8402399,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_table",
+      "iter": 1,
+      "ns": 7074410,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_table",
+      "iter": 2,
+      "ns": 6571799,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_table",
+      "iter": 3,
+      "ns": 6156127,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_table",
+      "iter": 4,
+      "ns": 5828267,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_table",
+      "iter": 5,
+      "ns": 6803982,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_table",
+      "iter": 6,
+      "ns": 6916872,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_table",
+      "iter": 7,
+      "ns": 9356130,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_table",
+      "iter": 8,
+      "ns": 8978583,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_table",
+      "iter": 9,
+      "ns": 9111880,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_table",
+      "iter": 10,
+      "ns": 9110615,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_table",
+      "iter": 11,
+      "ns": 9487204,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_table",
+      "iter": 12,
+      "ns": 7525401,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_table",
+      "iter": 13,
+      "ns": 7635102,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_table",
+      "iter": 14,
+      "ns": 7857420,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_table",
+      "iter": 0,
+      "ns": 6045617,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_table",
+      "iter": 1,
+      "ns": 6993535,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_table",
+      "iter": 2,
+      "ns": 5682084,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_table",
+      "iter": 3,
+      "ns": 6105587,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_table",
+      "iter": 4,
+      "ns": 5854512,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_table",
+      "iter": 5,
+      "ns": 6180086,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_table",
+      "iter": 6,
+      "ns": 5982940,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_table",
+      "iter": 7,
+      "ns": 5725966,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_table",
+      "iter": 8,
+      "ns": 6450250,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_table",
+      "iter": 9,
+      "ns": 6097699,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_table",
+      "iter": 10,
+      "ns": 6292507,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_table",
+      "iter": 11,
+      "ns": 5798489,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_table",
+      "iter": 12,
+      "ns": 5862889,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_table",
+      "iter": 13,
+      "ns": 5628223,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_table",
+      "iter": 14,
+      "ns": 5951610,
+      "round": 0
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_namespaces",
+      "iter": 0,
+      "ns": 1212314,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_namespaces",
+      "iter": 1,
+      "ns": 1222150,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_namespaces",
+      "iter": 2,
+      "ns": 1211537,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_namespaces",
+      "iter": 3,
+      "ns": 1291688,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_namespaces",
+      "iter": 4,
+      "ns": 1186991,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_namespaces",
+      "iter": 5,
+      "ns": 1142423,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_namespaces",
+      "iter": 6,
+      "ns": 1284681,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_namespaces",
+      "iter": 7,
+      "ns": 1438224,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_namespaces",
+      "iter": 8,
+      "ns": 1309869,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_namespaces",
+      "iter": 9,
+      "ns": 1148156,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_namespaces",
+      "iter": 10,
+      "ns": 1059758,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_namespaces",
+      "iter": 11,
+      "ns": 749779,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_namespaces",
+      "iter": 12,
+      "ns": 789502,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_namespaces",
+      "iter": 13,
+      "ns": 680779,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_namespaces",
+      "iter": 14,
+      "ns": 658553,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_namespace",
+      "iter": 0,
+      "ns": 718824,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_namespace",
+      "iter": 1,
+      "ns": 728159,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_namespace",
+      "iter": 2,
+      "ns": 627784,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_namespace",
+      "iter": 3,
+      "ns": 708895,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_namespace",
+      "iter": 4,
+      "ns": 791176,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_namespace",
+      "iter": 5,
+      "ns": 828656,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_namespace",
+      "iter": 6,
+      "ns": 708567,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_namespace",
+      "iter": 7,
+      "ns": 1222690,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_namespace",
+      "iter": 8,
+      "ns": 1321011,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_namespace",
+      "iter": 9,
+      "ns": 923936,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_namespace",
+      "iter": 10,
+      "ns": 1034059,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_namespace",
+      "iter": 11,
+      "ns": 1246645,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_namespace",
+      "iter": 12,
+      "ns": 1241157,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_namespace",
+      "iter": 13,
+      "ns": 1280676,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_namespace",
+      "iter": 14,
+      "ns": 1312106,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_namespace",
+      "iter": 0,
+      "ns": 1158811,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_namespace",
+      "iter": 1,
+      "ns": 1133509,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_namespace",
+      "iter": 2,
+      "ns": 1046110,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_namespace",
+      "iter": 3,
+      "ns": 1403952,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_namespace",
+      "iter": 4,
+      "ns": 1322603,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_namespace",
+      "iter": 5,
+      "ns": 1119620,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_namespace",
+      "iter": 6,
+      "ns": 1246465,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_namespace",
+      "iter": 7,
+      "ns": 1122182,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_namespace",
+      "iter": 8,
+      "ns": 1180171,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_namespace",
+      "iter": 9,
+      "ns": 1223201,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_namespace",
+      "iter": 10,
+      "ns": 1216482,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_namespace",
+      "iter": 11,
+      "ns": 1340476,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_namespace",
+      "iter": 12,
+      "ns": 1157182,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_namespace",
+      "iter": 13,
+      "ns": 1004277,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_namespace",
+      "iter": 14,
+      "ns": 1098288,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_tables",
+      "iter": 0,
+      "ns": 1207601,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_tables",
+      "iter": 1,
+      "ns": 950184,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_tables",
+      "iter": 2,
+      "ns": 894240,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_tables",
+      "iter": 3,
+      "ns": 1141719,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_tables",
+      "iter": 4,
+      "ns": 1123860,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_tables",
+      "iter": 5,
+      "ns": 914060,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_tables",
+      "iter": 6,
+      "ns": 887161,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_tables",
+      "iter": 7,
+      "ns": 739634,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_tables",
+      "iter": 8,
+      "ns": 724684,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_tables",
+      "iter": 9,
+      "ns": 806177,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_tables",
+      "iter": 10,
+      "ns": 1012916,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_tables",
+      "iter": 11,
+      "ns": 1568322,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_tables",
+      "iter": 12,
+      "ns": 1479192,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_tables",
+      "iter": 13,
+      "ns": 1521430,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_tables",
+      "iter": 14,
+      "ns": 1498444,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_table",
+      "iter": 0,
+      "ns": 6637508,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_table",
+      "iter": 1,
+      "ns": 5623439,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_table",
+      "iter": 2,
+      "ns": 5533839,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_table",
+      "iter": 3,
+      "ns": 6440101,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_table",
+      "iter": 4,
+      "ns": 7457890,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_table",
+      "iter": 5,
+      "ns": 6998068,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_table",
+      "iter": 6,
+      "ns": 6081206,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_table",
+      "iter": 7,
+      "ns": 5960260,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_table",
+      "iter": 8,
+      "ns": 6094946,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_table",
+      "iter": 9,
+      "ns": 6610193,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_table",
+      "iter": 10,
+      "ns": 6364843,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_table",
+      "iter": 11,
+      "ns": 6080049,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_table",
+      "iter": 12,
+      "ns": 6049962,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_table",
+      "iter": 13,
+      "ns": 6345183,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_table",
+      "iter": 14,
+      "ns": 6299495,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_table",
+      "iter": 0,
+      "ns": 5441034,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_table",
+      "iter": 1,
+      "ns": 5862014,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_table",
+      "iter": 2,
+      "ns": 10827516,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_table",
+      "iter": 3,
+      "ns": 7664522,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_table",
+      "iter": 4,
+      "ns": 6861723,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_table",
+      "iter": 5,
+      "ns": 5587597,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_table",
+      "iter": 6,
+      "ns": 5524540,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_table",
+      "iter": 7,
+      "ns": 5563170,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_table",
+      "iter": 8,
+      "ns": 5412904,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_table",
+      "iter": 9,
+      "ns": 5206459,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_table",
+      "iter": 10,
+      "ns": 5576583,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_table",
+      "iter": 11,
+      "ns": 5505013,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_table",
+      "iter": 12,
+      "ns": 6409558,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_table",
+      "iter": 13,
+      "ns": 6704304,
+      "round": 1
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_table",
+      "iter": 14,
+      "ns": 5362489,
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 0,
+      "ns": 476084,
+      "op": "list_namespaces",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 1,
+      "ns": 372748,
+      "op": "list_namespaces",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 2,
+      "ns": 329524,
+      "op": "list_namespaces",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 3,
+      "ns": 272510,
+      "op": "list_namespaces",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 4,
+      "ns": 265234,
+      "op": "list_namespaces",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 5,
+      "ns": 328193,
+      "op": "list_namespaces",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 6,
+      "ns": 361568,
+      "op": "list_namespaces",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 7,
+      "ns": 375569,
+      "op": "list_namespaces",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 8,
+      "ns": 381528,
+      "op": "list_namespaces",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 9,
+      "ns": 276581,
+      "op": "list_namespaces",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 10,
+      "ns": 286997,
+      "op": "list_namespaces",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 11,
+      "ns": 276416,
+      "op": "list_namespaces",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 12,
+      "ns": 268967,
+      "op": "list_namespaces",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 13,
+      "ns": 271461,
+      "op": "list_namespaces",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 14,
+      "ns": 265011,
+      "op": "list_namespaces",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 0,
+      "ns": 281463,
+      "op": "load_namespace",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 1,
+      "ns": 1426902,
+      "op": "load_namespace",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 2,
+      "ns": 473379,
+      "op": "load_namespace",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 3,
+      "ns": 365864,
+      "op": "load_namespace",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 4,
+      "ns": 336329,
+      "op": "load_namespace",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 5,
+      "ns": 296855,
+      "op": "load_namespace",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 6,
+      "ns": 300644,
+      "op": "load_namespace",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 7,
+      "ns": 305705,
+      "op": "load_namespace",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 8,
+      "ns": 479735,
+      "op": "load_namespace",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 9,
+      "ns": 562248,
+      "op": "load_namespace",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 10,
+      "ns": 609739,
+      "op": "load_namespace",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 11,
+      "ns": 462786,
+      "op": "load_namespace",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 12,
+      "ns": 452132,
+      "op": "load_namespace",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 13,
+      "ns": 485946,
+      "op": "load_namespace",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 14,
+      "ns": 419129,
+      "op": "load_namespace",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 0,
+      "ns": 383348,
+      "op": "head_namespace",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 1,
+      "ns": 395636,
+      "op": "head_namespace",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 2,
+      "ns": 511189,
+      "op": "head_namespace",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 3,
+      "ns": 411145,
+      "op": "head_namespace",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 4,
+      "ns": 414883,
+      "op": "head_namespace",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 5,
+      "ns": 386233,
+      "op": "head_namespace",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 6,
+      "ns": 400631,
+      "op": "head_namespace",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 7,
+      "ns": 417363,
+      "op": "head_namespace",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 8,
+      "ns": 380756,
+      "op": "head_namespace",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 9,
+      "ns": 372754,
+      "op": "head_namespace",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 10,
+      "ns": 370491,
+      "op": "head_namespace",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 11,
+      "ns": 369101,
+      "op": "head_namespace",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 12,
+      "ns": 496458,
+      "op": "head_namespace",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 13,
+      "ns": 371678,
+      "op": "head_namespace",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 14,
+      "ns": 371953,
+      "op": "head_namespace",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 0,
+      "ns": 443529,
+      "op": "list_tables",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 1,
+      "ns": 372186,
+      "op": "list_tables",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 2,
+      "ns": 363392,
+      "op": "list_tables",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 3,
+      "ns": 432129,
+      "op": "list_tables",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 4,
+      "ns": 524253,
+      "op": "list_tables",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 5,
+      "ns": 416860,
+      "op": "list_tables",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 6,
+      "ns": 497366,
+      "op": "list_tables",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 7,
+      "ns": 436599,
+      "op": "list_tables",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 8,
+      "ns": 414182,
+      "op": "list_tables",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 9,
+      "ns": 461586,
+      "op": "list_tables",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 10,
+      "ns": 545956,
+      "op": "list_tables",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 11,
+      "ns": 508081,
+      "op": "list_tables",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 12,
+      "ns": 501339,
+      "op": "list_tables",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 13,
+      "ns": 412372,
+      "op": "list_tables",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 14,
+      "ns": 336494,
+      "op": "list_tables",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 0,
+      "ns": 4588630,
+      "op": "load_table",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 1,
+      "ns": 4796616,
+      "op": "load_table",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 2,
+      "ns": 4530822,
+      "op": "load_table",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 3,
+      "ns": 4369970,
+      "op": "load_table",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 4,
+      "ns": 4666911,
+      "op": "load_table",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 5,
+      "ns": 5088353,
+      "op": "load_table",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 6,
+      "ns": 4681768,
+      "op": "load_table",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 7,
+      "ns": 4719787,
+      "op": "load_table",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 8,
+      "ns": 4930087,
+      "op": "load_table",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 9,
+      "ns": 4690967,
+      "op": "load_table",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 10,
+      "ns": 4758110,
+      "op": "load_table",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 11,
+      "ns": 5710048,
+      "op": "load_table",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 12,
+      "ns": 4558226,
+      "op": "load_table",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 13,
+      "ns": 4186962,
+      "op": "load_table",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 14,
+      "ns": 4133864,
+      "op": "load_table",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 0,
+      "ns": 4456904,
+      "op": "head_table",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 1,
+      "ns": 4594554,
+      "op": "head_table",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 2,
+      "ns": 4473273,
+      "op": "head_table",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 3,
+      "ns": 4288517,
+      "op": "head_table",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 4,
+      "ns": 4270318,
+      "op": "head_table",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 5,
+      "ns": 4524717,
+      "op": "head_table",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 6,
+      "ns": 4501263,
+      "op": "head_table",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 7,
+      "ns": 4478046,
+      "op": "head_table",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 8,
+      "ns": 4407742,
+      "op": "head_table",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 9,
+      "ns": 4662981,
+      "op": "head_table",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 10,
+      "ns": 4742609,
+      "op": "head_table",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 11,
+      "ns": 4591833,
+      "op": "head_table",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 12,
+      "ns": 4570979,
+      "op": "head_table",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 13,
+      "ns": 7211394,
+      "op": "head_table",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 14,
+      "ns": 4621184,
+      "op": "head_table",
+      "round": 1
+    },
+    {
+      "client": "rust",
+      "iter": 0,
+      "ns": 321012,
+      "op": "list_namespaces",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 1,
+      "ns": 230018,
+      "op": "list_namespaces",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 2,
+      "ns": 167879,
+      "op": "list_namespaces",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 3,
+      "ns": 156972,
+      "op": "list_namespaces",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 4,
+      "ns": 152666,
+      "op": "list_namespaces",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 5,
+      "ns": 152208,
+      "op": "list_namespaces",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 6,
+      "ns": 150124,
+      "op": "list_namespaces",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 7,
+      "ns": 147646,
+      "op": "list_namespaces",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 8,
+      "ns": 149343,
+      "op": "list_namespaces",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 9,
+      "ns": 150615,
+      "op": "list_namespaces",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 10,
+      "ns": 145957,
+      "op": "list_namespaces",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 11,
+      "ns": 143992,
+      "op": "list_namespaces",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 12,
+      "ns": 142937,
+      "op": "list_namespaces",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 13,
+      "ns": 144019,
+      "op": "list_namespaces",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 14,
+      "ns": 144328,
+      "op": "list_namespaces",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 0,
+      "ns": 154880,
+      "op": "load_namespace",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 1,
+      "ns": 153247,
+      "op": "load_namespace",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 2,
+      "ns": 170337,
+      "op": "load_namespace",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 3,
+      "ns": 157394,
+      "op": "load_namespace",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 4,
+      "ns": 151217,
+      "op": "load_namespace",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 5,
+      "ns": 176818,
+      "op": "load_namespace",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 6,
+      "ns": 367789,
+      "op": "load_namespace",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 7,
+      "ns": 304286,
+      "op": "load_namespace",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 8,
+      "ns": 319794,
+      "op": "load_namespace",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 9,
+      "ns": 270673,
+      "op": "load_namespace",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 10,
+      "ns": 253153,
+      "op": "load_namespace",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 11,
+      "ns": 254529,
+      "op": "load_namespace",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 12,
+      "ns": 246074,
+      "op": "load_namespace",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 13,
+      "ns": 246167,
+      "op": "load_namespace",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 14,
+      "ns": 243897,
+      "op": "load_namespace",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 0,
+      "ns": 205777,
+      "op": "head_namespace",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 1,
+      "ns": 182524,
+      "op": "head_namespace",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 2,
+      "ns": 210090,
+      "op": "head_namespace",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 3,
+      "ns": 164390,
+      "op": "head_namespace",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 4,
+      "ns": 148683,
+      "op": "head_namespace",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 5,
+      "ns": 140557,
+      "op": "head_namespace",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 6,
+      "ns": 144623,
+      "op": "head_namespace",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 7,
+      "ns": 138085,
+      "op": "head_namespace",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 8,
+      "ns": 133798,
+      "op": "head_namespace",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 9,
+      "ns": 143254,
+      "op": "head_namespace",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 10,
+      "ns": 146869,
+      "op": "head_namespace",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 11,
+      "ns": 139488,
+      "op": "head_namespace",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 12,
+      "ns": 158743,
+      "op": "head_namespace",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 13,
+      "ns": 140233,
+      "op": "head_namespace",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 14,
+      "ns": 170958,
+      "op": "head_namespace",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 0,
+      "ns": 142616,
+      "op": "list_tables",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 1,
+      "ns": 160534,
+      "op": "list_tables",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 2,
+      "ns": 167941,
+      "op": "list_tables",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 3,
+      "ns": 162354,
+      "op": "list_tables",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 4,
+      "ns": 397571,
+      "op": "list_tables",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 5,
+      "ns": 308914,
+      "op": "list_tables",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 6,
+      "ns": 207075,
+      "op": "list_tables",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 7,
+      "ns": 370496,
+      "op": "list_tables",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 8,
+      "ns": 424752,
+      "op": "list_tables",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 9,
+      "ns": 356685,
+      "op": "list_tables",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 10,
+      "ns": 404491,
+      "op": "list_tables",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 11,
+      "ns": 359911,
+      "op": "list_tables",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 12,
+      "ns": 305918,
+      "op": "list_tables",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 13,
+      "ns": 331349,
+      "op": "list_tables",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 14,
+      "ns": 296258,
+      "op": "list_tables",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 0,
+      "ns": 4527679,
+      "op": "load_table",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 1,
+      "ns": 4268817,
+      "op": "load_table",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 2,
+      "ns": 4253052,
+      "op": "load_table",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 3,
+      "ns": 4632909,
+      "op": "load_table",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 4,
+      "ns": 4684229,
+      "op": "load_table",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 5,
+      "ns": 4514345,
+      "op": "load_table",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 6,
+      "ns": 4648507,
+      "op": "load_table",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 7,
+      "ns": 4722545,
+      "op": "load_table",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 8,
+      "ns": 6002712,
+      "op": "load_table",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 9,
+      "ns": 5168431,
+      "op": "load_table",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 10,
+      "ns": 4834922,
+      "op": "load_table",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 11,
+      "ns": 4350008,
+      "op": "load_table",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 12,
+      "ns": 4199059,
+      "op": "load_table",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 13,
+      "ns": 4730319,
+      "op": "load_table",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 14,
+      "ns": 4677245,
+      "op": "load_table",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 0,
+      "ns": 4524799,
+      "op": "head_table",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 1,
+      "ns": 4545724,
+      "op": "head_table",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 2,
+      "ns": 4562717,
+      "op": "head_table",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 3,
+      "ns": 4659278,
+      "op": "head_table",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 4,
+      "ns": 4462990,
+      "op": "head_table",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 5,
+      "ns": 4686845,
+      "op": "head_table",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 6,
+      "ns": 4735710,
+      "op": "head_table",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 7,
+      "ns": 4350408,
+      "op": "head_table",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 8,
+      "ns": 4351735,
+      "op": "head_table",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 9,
+      "ns": 5489946,
+      "op": "head_table",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 10,
+      "ns": 4458834,
+      "op": "head_table",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 11,
+      "ns": 4284207,
+      "op": "head_table",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 12,
+      "ns": 4155482,
+      "op": "head_table",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 13,
+      "ns": 4586175,
+      "op": "head_table",
+      "round": 2
+    },
+    {
+      "client": "rust",
+      "iter": 14,
+      "ns": 4460097,
+      "op": "head_table",
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_namespaces",
+      "iter": 0,
+      "ns": 1742119,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_namespaces",
+      "iter": 1,
+      "ns": 1468609,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_namespaces",
+      "iter": 2,
+      "ns": 1334401,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_namespaces",
+      "iter": 3,
+      "ns": 1327218,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_namespaces",
+      "iter": 4,
+      "ns": 1265490,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_namespaces",
+      "iter": 5,
+      "ns": 1183355,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_namespaces",
+      "iter": 6,
+      "ns": 1231421,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_namespaces",
+      "iter": 7,
+      "ns": 1038374,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_namespaces",
+      "iter": 8,
+      "ns": 1217928,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_namespaces",
+      "iter": 9,
+      "ns": 1357361,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_namespaces",
+      "iter": 10,
+      "ns": 1299138,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_namespaces",
+      "iter": 11,
+      "ns": 1206515,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_namespaces",
+      "iter": 12,
+      "ns": 1074112,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_namespaces",
+      "iter": 13,
+      "ns": 1195132,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_namespaces",
+      "iter": 14,
+      "ns": 1231235,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_namespace",
+      "iter": 0,
+      "ns": 1385437,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_namespace",
+      "iter": 1,
+      "ns": 1259221,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_namespace",
+      "iter": 2,
+      "ns": 1529220,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_namespace",
+      "iter": 3,
+      "ns": 1186935,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_namespace",
+      "iter": 4,
+      "ns": 915253,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_namespace",
+      "iter": 5,
+      "ns": 900035,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_namespace",
+      "iter": 6,
+      "ns": 898218,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_namespace",
+      "iter": 7,
+      "ns": 1360431,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_namespace",
+      "iter": 8,
+      "ns": 1202499,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_namespace",
+      "iter": 9,
+      "ns": 1012674,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_namespace",
+      "iter": 10,
+      "ns": 859160,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_namespace",
+      "iter": 11,
+      "ns": 874782,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_namespace",
+      "iter": 12,
+      "ns": 780192,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_namespace",
+      "iter": 13,
+      "ns": 753355,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_namespace",
+      "iter": 14,
+      "ns": 754567,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_namespace",
+      "iter": 0,
+      "ns": 679251,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_namespace",
+      "iter": 1,
+      "ns": 692988,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_namespace",
+      "iter": 2,
+      "ns": 749304,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_namespace",
+      "iter": 3,
+      "ns": 1318204,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_namespace",
+      "iter": 4,
+      "ns": 724102,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_namespace",
+      "iter": 5,
+      "ns": 713737,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_namespace",
+      "iter": 6,
+      "ns": 701772,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_namespace",
+      "iter": 7,
+      "ns": 864985,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_namespace",
+      "iter": 8,
+      "ns": 886374,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_namespace",
+      "iter": 9,
+      "ns": 907934,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_namespace",
+      "iter": 10,
+      "ns": 837609,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_namespace",
+      "iter": 11,
+      "ns": 919686,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_namespace",
+      "iter": 12,
+      "ns": 944733,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_namespace",
+      "iter": 13,
+      "ns": 911689,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_namespace",
+      "iter": 14,
+      "ns": 897236,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_tables",
+      "iter": 0,
+      "ns": 978876,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_tables",
+      "iter": 1,
+      "ns": 1003214,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_tables",
+      "iter": 2,
+      "ns": 1107446,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_tables",
+      "iter": 3,
+      "ns": 1085298,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_tables",
+      "iter": 4,
+      "ns": 1054903,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_tables",
+      "iter": 5,
+      "ns": 1110379,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_tables",
+      "iter": 6,
+      "ns": 1023877,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_tables",
+      "iter": 7,
+      "ns": 1009224,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_tables",
+      "iter": 8,
+      "ns": 1043092,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_tables",
+      "iter": 9,
+      "ns": 992322,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_tables",
+      "iter": 10,
+      "ns": 971522,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_tables",
+      "iter": 11,
+      "ns": 1013393,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_tables",
+      "iter": 12,
+      "ns": 1043228,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_tables",
+      "iter": 13,
+      "ns": 993025,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_tables",
+      "iter": 14,
+      "ns": 1132574,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_table",
+      "iter": 0,
+      "ns": 9553951,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_table",
+      "iter": 1,
+      "ns": 7659344,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_table",
+      "iter": 2,
+      "ns": 7738894,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_table",
+      "iter": 3,
+      "ns": 7350170,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_table",
+      "iter": 4,
+      "ns": 7750320,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_table",
+      "iter": 5,
+      "ns": 6408593,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_table",
+      "iter": 6,
+      "ns": 6054500,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_table",
+      "iter": 7,
+      "ns": 6534619,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_table",
+      "iter": 8,
+      "ns": 8599159,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_table",
+      "iter": 9,
+      "ns": 7858662,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_table",
+      "iter": 10,
+      "ns": 6641390,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_table",
+      "iter": 11,
+      "ns": 6980077,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_table",
+      "iter": 12,
+      "ns": 6402680,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_table",
+      "iter": 13,
+      "ns": 6043048,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_table",
+      "iter": 14,
+      "ns": 5979337,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_table",
+      "iter": 0,
+      "ns": 5020177,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_table",
+      "iter": 1,
+      "ns": 5197110,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_table",
+      "iter": 2,
+      "ns": 5588852,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_table",
+      "iter": 3,
+      "ns": 5088225,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_table",
+      "iter": 4,
+      "ns": 5703008,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_table",
+      "iter": 5,
+      "ns": 4784374,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_table",
+      "iter": 6,
+      "ns": 5049646,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_table",
+      "iter": 7,
+      "ns": 4668257,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_table",
+      "iter": 8,
+      "ns": 4737188,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_table",
+      "iter": 9,
+      "ns": 5380469,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_table",
+      "iter": 10,
+      "ns": 5027004,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_table",
+      "iter": 11,
+      "ns": 5242949,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_table",
+      "iter": 12,
+      "ns": 5599207,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_table",
+      "iter": 13,
+      "ns": 5108946,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_table",
+      "iter": 14,
+      "ns": 5291832,
+      "round": 2
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_namespaces",
+      "iter": 0,
+      "ns": 1631991,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_namespaces",
+      "iter": 1,
+      "ns": 1360518,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_namespaces",
+      "iter": 2,
+      "ns": 1566778,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_namespaces",
+      "iter": 3,
+      "ns": 1654114,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_namespaces",
+      "iter": 4,
+      "ns": 1508686,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_namespaces",
+      "iter": 5,
+      "ns": 1317752,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_namespaces",
+      "iter": 6,
+      "ns": 1145116,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_namespaces",
+      "iter": 7,
+      "ns": 1297753,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_namespaces",
+      "iter": 8,
+      "ns": 1564702,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_namespaces",
+      "iter": 9,
+      "ns": 1570495,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_namespaces",
+      "iter": 10,
+      "ns": 1356697,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_namespaces",
+      "iter": 11,
+      "ns": 1554986,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_namespaces",
+      "iter": 12,
+      "ns": 1239419,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_namespaces",
+      "iter": 13,
+      "ns": 1113691,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_namespaces",
+      "iter": 14,
+      "ns": 1626795,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_namespace",
+      "iter": 0,
+      "ns": 1512909,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_namespace",
+      "iter": 1,
+      "ns": 1433436,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_namespace",
+      "iter": 2,
+      "ns": 1591153,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_namespace",
+      "iter": 3,
+      "ns": 1290182,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_namespace",
+      "iter": 4,
+      "ns": 1613879,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_namespace",
+      "iter": 5,
+      "ns": 1488972,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_namespace",
+      "iter": 6,
+      "ns": 1593274,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_namespace",
+      "iter": 7,
+      "ns": 1364160,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_namespace",
+      "iter": 8,
+      "ns": 1644238,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_namespace",
+      "iter": 9,
+      "ns": 1597779,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_namespace",
+      "iter": 10,
+      "ns": 1437680,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_namespace",
+      "iter": 11,
+      "ns": 1285455,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_namespace",
+      "iter": 12,
+      "ns": 1312104,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_namespace",
+      "iter": 13,
+      "ns": 1613897,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_namespace",
+      "iter": 14,
+      "ns": 1415920,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_namespace",
+      "iter": 0,
+      "ns": 1389951,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_namespace",
+      "iter": 1,
+      "ns": 1190782,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_namespace",
+      "iter": 2,
+      "ns": 1070867,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_namespace",
+      "iter": 3,
+      "ns": 1028201,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_namespace",
+      "iter": 4,
+      "ns": 1033045,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_namespace",
+      "iter": 5,
+      "ns": 859097,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_namespace",
+      "iter": 6,
+      "ns": 1048554,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_namespace",
+      "iter": 7,
+      "ns": 938326,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_namespace",
+      "iter": 8,
+      "ns": 934630,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_namespace",
+      "iter": 9,
+      "ns": 1225207,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_namespace",
+      "iter": 10,
+      "ns": 889860,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_namespace",
+      "iter": 11,
+      "ns": 872489,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_namespace",
+      "iter": 12,
+      "ns": 738048,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_namespace",
+      "iter": 13,
+      "ns": 709937,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_namespace",
+      "iter": 14,
+      "ns": 940799,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_tables",
+      "iter": 0,
+      "ns": 849144,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_tables",
+      "iter": 1,
+      "ns": 810803,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_tables",
+      "iter": 2,
+      "ns": 860382,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_tables",
+      "iter": 3,
+      "ns": 861086,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_tables",
+      "iter": 4,
+      "ns": 874179,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_tables",
+      "iter": 5,
+      "ns": 821672,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_tables",
+      "iter": 6,
+      "ns": 808469,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_tables",
+      "iter": 7,
+      "ns": 752528,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_tables",
+      "iter": 8,
+      "ns": 806743,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_tables",
+      "iter": 9,
+      "ns": 829331,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_tables",
+      "iter": 10,
+      "ns": 816988,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_tables",
+      "iter": 11,
+      "ns": 841052,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_tables",
+      "iter": 12,
+      "ns": 838044,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_tables",
+      "iter": 13,
+      "ns": 813489,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "list_tables",
+      "iter": 14,
+      "ns": 721016,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_table",
+      "iter": 0,
+      "ns": 16143007,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_table",
+      "iter": 1,
+      "ns": 6594957,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_table",
+      "iter": 2,
+      "ns": 6623612,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_table",
+      "iter": 3,
+      "ns": 6098585,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_table",
+      "iter": 4,
+      "ns": 5939597,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_table",
+      "iter": 5,
+      "ns": 6007364,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_table",
+      "iter": 6,
+      "ns": 5663640,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_table",
+      "iter": 7,
+      "ns": 5641051,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_table",
+      "iter": 8,
+      "ns": 5856644,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_table",
+      "iter": 9,
+      "ns": 5836393,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_table",
+      "iter": 10,
+      "ns": 6149786,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_table",
+      "iter": 11,
+      "ns": 6480986,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_table",
+      "iter": 12,
+      "ns": 6055832,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_table",
+      "iter": 13,
+      "ns": 6132780,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "load_table",
+      "iter": 14,
+      "ns": 5810442,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_table",
+      "iter": 0,
+      "ns": 5039498,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_table",
+      "iter": 1,
+      "ns": 6636457,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_table",
+      "iter": 2,
+      "ns": 5204382,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_table",
+      "iter": 3,
+      "ns": 4854209,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_table",
+      "iter": 4,
+      "ns": 5081119,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_table",
+      "iter": 5,
+      "ns": 5075084,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_table",
+      "iter": 6,
+      "ns": 4913698,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_table",
+      "iter": 7,
+      "ns": 4991876,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_table",
+      "iter": 8,
+      "ns": 5932387,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_table",
+      "iter": 9,
+      "ns": 5540837,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_table",
+      "iter": 10,
+      "ns": 5373348,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_table",
+      "iter": 11,
+      "ns": 5315017,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_table",
+      "iter": 12,
+      "ns": 5138064,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_table",
+      "iter": 13,
+      "ns": 5448512,
+      "round": 3
+    },
+    {
+      "client": "pyiceberg",
+      "op": "head_table",
+      "iter": 14,
+      "ns": 5110782,
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 0,
+      "ns": 319008,
+      "op": "list_namespaces",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 1,
+      "ns": 375410,
+      "op": "list_namespaces",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 2,
+      "ns": 407741,
+      "op": "list_namespaces",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 3,
+      "ns": 345492,
+      "op": "list_namespaces",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 4,
+      "ns": 299695,
+      "op": "list_namespaces",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 5,
+      "ns": 294773,
+      "op": "list_namespaces",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 6,
+      "ns": 301299,
+      "op": "list_namespaces",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 7,
+      "ns": 287552,
+      "op": "list_namespaces",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 8,
+      "ns": 309803,
+      "op": "list_namespaces",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 9,
+      "ns": 341797,
+      "op": "list_namespaces",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 10,
+      "ns": 283828,
+      "op": "list_namespaces",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 11,
+      "ns": 277100,
+      "op": "list_namespaces",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 12,
+      "ns": 273471,
+      "op": "list_namespaces",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 13,
+      "ns": 318280,
+      "op": "list_namespaces",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 14,
+      "ns": 296306,
+      "op": "list_namespaces",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 0,
+      "ns": 274790,
+      "op": "load_namespace",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 1,
+      "ns": 278639,
+      "op": "load_namespace",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 2,
+      "ns": 306491,
+      "op": "load_namespace",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 3,
+      "ns": 285998,
+      "op": "load_namespace",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 4,
+      "ns": 329359,
+      "op": "load_namespace",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 5,
+      "ns": 370169,
+      "op": "load_namespace",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 6,
+      "ns": 316425,
+      "op": "load_namespace",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 7,
+      "ns": 300100,
+      "op": "load_namespace",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 8,
+      "ns": 324634,
+      "op": "load_namespace",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 9,
+      "ns": 404607,
+      "op": "load_namespace",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 10,
+      "ns": 381998,
+      "op": "load_namespace",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 11,
+      "ns": 364401,
+      "op": "load_namespace",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 12,
+      "ns": 333088,
+      "op": "load_namespace",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 13,
+      "ns": 414912,
+      "op": "load_namespace",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 14,
+      "ns": 323435,
+      "op": "load_namespace",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 0,
+      "ns": 282244,
+      "op": "head_namespace",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 1,
+      "ns": 275093,
+      "op": "head_namespace",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 2,
+      "ns": 315648,
+      "op": "head_namespace",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 3,
+      "ns": 302080,
+      "op": "head_namespace",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 4,
+      "ns": 466003,
+      "op": "head_namespace",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 5,
+      "ns": 309063,
+      "op": "head_namespace",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 6,
+      "ns": 318775,
+      "op": "head_namespace",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 7,
+      "ns": 356348,
+      "op": "head_namespace",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 8,
+      "ns": 298378,
+      "op": "head_namespace",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 9,
+      "ns": 264602,
+      "op": "head_namespace",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 10,
+      "ns": 296876,
+      "op": "head_namespace",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 11,
+      "ns": 253021,
+      "op": "head_namespace",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 12,
+      "ns": 245205,
+      "op": "head_namespace",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 13,
+      "ns": 249149,
+      "op": "head_namespace",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 14,
+      "ns": 237170,
+      "op": "head_namespace",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 0,
+      "ns": 256854,
+      "op": "list_tables",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 1,
+      "ns": 258801,
+      "op": "list_tables",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 2,
+      "ns": 254393,
+      "op": "list_tables",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 3,
+      "ns": 253353,
+      "op": "list_tables",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 4,
+      "ns": 252516,
+      "op": "list_tables",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 5,
+      "ns": 259984,
+      "op": "list_tables",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 6,
+      "ns": 275797,
+      "op": "list_tables",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 7,
+      "ns": 437279,
+      "op": "list_tables",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 8,
+      "ns": 347578,
+      "op": "list_tables",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 9,
+      "ns": 887264,
+      "op": "list_tables",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 10,
+      "ns": 289563,
+      "op": "list_tables",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 11,
+      "ns": 260882,
+      "op": "list_tables",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 12,
+      "ns": 239230,
+      "op": "list_tables",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 13,
+      "ns": 234545,
+      "op": "list_tables",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 14,
+      "ns": 242220,
+      "op": "list_tables",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 0,
+      "ns": 4826221,
+      "op": "load_table",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 1,
+      "ns": 4575372,
+      "op": "load_table",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 2,
+      "ns": 4680706,
+      "op": "load_table",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 3,
+      "ns": 4566374,
+      "op": "load_table",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 4,
+      "ns": 4693751,
+      "op": "load_table",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 5,
+      "ns": 4829769,
+      "op": "load_table",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 6,
+      "ns": 5101803,
+      "op": "load_table",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 7,
+      "ns": 5217954,
+      "op": "load_table",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 8,
+      "ns": 4783335,
+      "op": "load_table",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 9,
+      "ns": 5039384,
+      "op": "load_table",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 10,
+      "ns": 4949116,
+      "op": "load_table",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 11,
+      "ns": 5029812,
+      "op": "load_table",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 12,
+      "ns": 5205391,
+      "op": "load_table",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 13,
+      "ns": 5275284,
+      "op": "load_table",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 14,
+      "ns": 6083744,
+      "op": "load_table",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 0,
+      "ns": 4574874,
+      "op": "head_table",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 1,
+      "ns": 4846415,
+      "op": "head_table",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 2,
+      "ns": 6374305,
+      "op": "head_table",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 3,
+      "ns": 4319965,
+      "op": "head_table",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 4,
+      "ns": 4670822,
+      "op": "head_table",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 5,
+      "ns": 4401589,
+      "op": "head_table",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 6,
+      "ns": 4386185,
+      "op": "head_table",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 7,
+      "ns": 4839425,
+      "op": "head_table",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 8,
+      "ns": 5142500,
+      "op": "head_table",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 9,
+      "ns": 5013163,
+      "op": "head_table",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 10,
+      "ns": 4494372,
+      "op": "head_table",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 11,
+      "ns": 4725329,
+      "op": "head_table",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 12,
+      "ns": 4985761,
+      "op": "head_table",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 13,
+      "ns": 4680425,
+      "op": "head_table",
+      "round": 3
+    },
+    {
+      "client": "rust",
+      "iter": 14,
+      "ns": 4811090,
+      "op": "head_table",
+      "round": 3
+    }
+  ]
+}

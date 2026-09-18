@@ -21,9 +21,12 @@ Rules this harness follows, each of which was a way to get a wrong number:
   startup excluded       Each process builds its catalog, runs a warmup, and
                          only then records. Config fetch and token grant are
                          paid once, outside every sample.
-  startup also measured  Separately, as cold start: wall clock from spawn to
-                         one answered call. It is a real cost and a real
-                         difference; it is just not the same number.
+  startup also measured  Separately, as cold start: wall clock from spawn
+                         to exit, with the catalog built and each of the six
+                         operations answered once. Not "one call" -- that
+                         was this file's description until 2026-09-18, and
+                         on a vendor the difference is six round trips on
+                         each side. Symmetric, so the comparison holds.
   interleaved rounds     Clients alternate round by round, so a machine that
                          gets slower halfway through slows both equally.
   every sample kept      Percentiles are computed here, from the stored
@@ -87,10 +90,12 @@ def rust_env(cat, storage, warmup, iters):
     return env
 
 
-def py_env(cat, warmup, iters):
+def py_env(cat, warmup, iters, token=None):
     env = dict(os.environ)
     env.update({"IRC_CATALOG": cat["name"], "IRC_WARMUP": str(warmup),
                 "IRC_ITERS": str(iters)})
+    if token:
+        env["IRC_TOKEN"] = token
     return env
 
 
@@ -134,7 +139,11 @@ def main():
         sys.exit("not configured or not enabled: %s" % args.only)
 
     r_env = rust_env(cat, args.storage, args.warmup, args.iters)
-    p_env = py_env(cat, args.warmup, args.iters)
+    # The same pre-minted bearer for both clients, when the auth is a static
+    # token. rust_env already carries one in IRC_TOKEN.
+    p_env = py_env(cat, args.warmup, args.iters,
+                   token=(r_env or {}).get("IRC_TOKEN") if (
+                       rr.auth_plan(cat.get("auth"))[0] == "static") else None)
     if r_env is None:
         print("%s: the Rust client cannot express this catalog's auth; "
               "pyiceberg only" % cat["name"])
@@ -167,7 +176,8 @@ def main():
                     row["round"] = rnd
                     samples.append(row)
 
-    # Cold start: spawn to one answered call, nothing else in it. Measured
+    # Cold start: spawn to exit with IRC_ITERS=1 and no warmup, so each client
+    # builds its catalog and answers each of the six operations once. Measured
     # last, so it cannot warm anything the timed rounds depend on.
     cold = {}
     for client, target, env in (("rust", binary, r_env),
@@ -184,8 +194,16 @@ def main():
         if walls:
             cold[client] = stats_for(walls)
 
+    # A sample that carries an error_kind timed a refusal, not the operation.
+    # Kept in the file, never in the stats. Found 2026-09-18 when BigLake
+    # answered a burst of back-to-back runs with 429: no stored run contained
+    # one, but nothing had stopped it from being averaged in.
     by = {}
+    error_samples = 0
     for row in samples:
+        if "error_kind" in row:
+            error_samples += 1
+            continue
         by.setdefault((row["client"], row["op"]), []).append(row["ns"])
 
     stats = []
@@ -219,6 +237,7 @@ def main():
         "cpu_count": os.cpu_count(),
         "measured_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "sample_count": len(samples),
+        "error_sample_count": error_samples,
     }
     if errors:
         meta["errors"] = errors

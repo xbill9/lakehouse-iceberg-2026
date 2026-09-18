@@ -1,0 +1,80 @@
+{
+  "meta": {
+    "catalog": "aws-glue",
+    "crate": "iceberg-catalog-rest 0.10.1",
+    "what": "one SigV4 signature for GET /v1/config, passed as static header.Authorization / header.X-Amz-Date / header.X-Amz-Security-Token",
+    "upstream": "apache/iceberg-rust#1236 (open)",
+    "measured_utc": "2026-09-18T16:10:31Z",
+    "exit_code": 0,
+    "stderr": null,
+    "replay_outside_crate": {
+      "GET /v1/config (the signed request)": 200,
+      "GET /v1/{prefix}/namespaces (same headers)": 403,
+      "second response message": "The request signature we calculated does not match the signature you provided. Check your AWS Secret Access Key and signing method. Consult the service documentation for details."
+    }
+  },
+  "rows": [
+    {
+      "note": "issued by RestCatalog on first use; not separately callable",
+      "ok": null,
+      "probe": "config",
+      "status": "implicit"
+    },
+    {
+      "error": "Unexpected, context: { status: 403 Forbidden, headers: {\"content-type\": \"application/json\", \"connection\": \"keep-alive\", \"date\": \"Fri, 18 Sep 2026 16:10:30 GMT\", \"x-amzn-errortype\": \"InvalidSignatureException:http://internal.amazon.com/coral/com.amazon.coral.service/\", \"x-amzn-requestid\": \"7fd0b43e-350a-4045-99b7-cbca4493b571\", \"content-length\": \"192\"}, json: {\"message\":\"The request signature we calculated does not match the signature you provided. Check your AWS Secret Access Key and signing method. Consult the service documentation for details.\"} } => Received response with unexpected status code",
+      "error_kind": "Unexpected",
+      "ms": 352,
+      "ok": false,
+      "probe": "list_namespaces"
+    },
+    {
+      "error": "Unexpected, context: { status: 403 Forbidden, headers: {\"content-length\": \"192\", \"content-type\": \"application/json\", \"connection\": \"keep-alive\", \"x-amzn-errortype\": \"InvalidSignatureException:http://internal.amazon.com/coral/com.amazon.coral.service/\", \"x-amzn-requestid\": \"1cf74173-5443-4c6f-b9dd-fd4a093d0e75\", \"date\": \"Fri, 18 Sep 2026 16:10:30 GMT\"}, json: {\"message\":\"The request signature we calculated does not match the signature you provided. Check your AWS Secret Access Key and signing method. Consult the service documentation for details.\"} } => Received response with unexpected status code",
+      "error_kind": "Unexpected",
+      "ms": 37,
+      "ok": false,
+      "probe": "list_namespaces_parent"
+    },
+    {
+      "error": "Unexpected, context: { status: 403 Forbidden, headers: {\"content-length\": \"192\", \"x-amzn-requestid\": \"ccf8cd29-9c15-4c65-8246-c8d53b704e32\", \"content-type\": \"application/json\", \"x-amzn-errortype\": \"InvalidSignatureException:http://internal.amazon.com/coral/com.amazon.coral.service/\", \"date\": \"Fri, 18 Sep 2026 16:10:30 GMT\", \"connection\": \"keep-alive\"}, json: {\"message\":\"The request signature we calculated does not match the signature you provided. Check your AWS Secret Access Key and signing method. Consult the service documentation for details.\"} } => Received response with unexpected status code",
+      "error_kind": "Unexpected",
+      "ms": 43,
+      "ok": false,
+      "probe": "load_namespace"
+    },
+    {
+      "error": "Unexpected, context: { status: 403 Forbidden, headers: {\"content-type\": \"application/json\", \"content-length\": \"192\", \"connection\": \"keep-alive\", \"date\": \"Fri, 18 Sep 2026 16:10:30 GMT\", \"x-amzn-requestid\": \"71c84c8d-8d96-4c46-b028-274af2f4003d\", \"x-amzn-errortype\": \"InvalidSignatureException:http://internal.amazon.com/coral/com.amazon.coral.service/\"} } => Received response with unexpected status code",
+      "error_kind": "Unexpected",
+      "ms": 36,
+      "ok": false,
+      "probe": "head_namespace"
+    },
+    {
+      "error": "Unexpected, context: { status: 403 Forbidden, headers: {\"x-amzn-requestid\": \"6f227236-6ac3-453a-8349-0702c8bb53cd\", \"content-length\": \"192\", \"connection\": \"keep-alive\", \"x-amzn-errortype\": \"InvalidSignatureException:http://internal.amazon.com/coral/com.amazon.coral.service/\", \"content-type\": \"application/json\", \"date\": \"Fri, 18 Sep 2026 16:10:30 GMT\"}, json: {\"message\":\"The request signature we calculated does not match the signature you provided. Check your AWS Secret Access Key and signing method. Consult the service documentation for details.\"} } => Received response with unexpected status code",
+      "error_kind": "Unexpected",
+      "ms": 36,
+      "ok": false,
+      "probe": "list_tables"
+    },
+    {
+      "error": "Unexpected, context: { status: 403 Forbidden, headers: {\"content-type\": \"application/json\", \"date\": \"Fri, 18 Sep 2026 16:10:30 GMT\", \"content-length\": \"192\", \"x-amzn-requestid\": \"2eecad8e-9431-4263-a7d6-257a75520873\", \"connection\": \"keep-alive\", \"x-amzn-errortype\": \"InvalidSignatureException:http://internal.amazon.com/coral/com.amazon.coral.service/\"}, json: {\"message\":\"The request signature we calculated does not match the signature you provided. Check your AWS Secret Access Key and signing method. Consult the service documentation for details.\"} } => Received response with unexpected status code",
+      "error_kind": "Unexpected",
+      "ms": 35,
+      "ok": false,
+      "probe": "load_table"
+    },
+    {
+      "error": "Unexpected, context: { status: 403 Forbidden, headers: {\"x-amzn-errortype\": \"InvalidSignatureException:http://internal.amazon.com/coral/com.amazon.coral.service/\", \"connection\": \"keep-alive\", \"x-amzn-requestid\": \"24aaaa7f-db1e-4446-810d-661b97339e06\", \"date\": \"Fri, 18 Sep 2026 16:10:30 GMT\", \"content-type\": \"application/json\", \"content-length\": \"192\"} } => Received response with unexpected status code",
+      "error_kind": "Unexpected",
+      "ms": 42,
+      "ok": false,
+      "probe": "head_table"
+    },
+    {
+      "error": "Unexpected, context: { status: 403 Forbidden, headers: {\"x-amzn-errortype\": \"InvalidSignatureException:http://internal.amazon.com/coral/com.amazon.coral.service/\", \"connection\": \"keep-alive\", \"date\": \"Fri, 18 Sep 2026 16:10:30 GMT\", \"content-length\": \"192\", \"x-amzn-requestid\": \"e0aed5b5-b926-4f2b-a5f8-b160018f7566\", \"content-type\": \"application/json\"}, json: {\"message\":\"The request signature we calculated does not match the signature you provided. Check your AWS Secret Access Key and signing method. Consult the service documentation for details.\"} } => Received response with unexpected status code",
+      "error_kind": "Unexpected",
+      "ms": 27,
+      "ok": false,
+      "probe": "storage_read_metadata"
+    }
+  ]
+}

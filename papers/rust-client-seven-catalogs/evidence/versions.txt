@@ -1,4 +1,5 @@
-client and runtime versions, captured 2026-09-17 for papers 5 and 6
+client and runtime versions, captured 2026-09-17 for papers 5 and 6,
+extended 2026-09-18 when the vendor runs added a TLS backend
 
 Read from the machine that produced the runs, not from documentation.
 
@@ -13,12 +14,32 @@ crates, pinned in Cargo.toml and resolved in Cargo.lock:
   iceberg-storage-opendal  0.10.1
   reqwest                  0.12.28
   opendal                  0.57.0
+  rustls                   0.23.45   via reqwest feature rustls-tls, added
+                                     2026-09-18; iceberg-catalog-rest enables
+                                     no TLS backend of its own
+
+python HTTP stack under pyiceberg:
+  requests                 2.34.2
+  urllib3                  2.7.0
+  ssl                      OpenSSL 3.5.7 9 Jun 2026
 
 control catalog, the running container rather than the tag:
   image                  apache/polaris:latest
   digest                 sha256:e66366e783f106e94c4d0c5d4b146a08bf55ce194b7add3ecd5d1d3807dd7c71
   started                2026-09-16T17:08:10.136259474Z
+                         (same container for the 2026-09-18 runs)
   version                polaris-server-1.7.0.jar
 
   The tag is :latest, so the tag is not the version. The line above is the
   server jar inside the container that answered these runs.
+
+vendor quotas that shaped a run, read 2026-09-18 with
+  gcloud alpha services quota list --service=biglake.googleapis.com
+  (per minute, per project)
+  irc_catalog_requests       75
+  irc_plan_requests          5
+  irc_read_requests          600
+  irc_write_requests         200
+
+  irc_catalog_requests is the one a burst of namespace calls exhausts;
+  it answered with 429 and bench_breakdown.py --pace-ms exists for it.

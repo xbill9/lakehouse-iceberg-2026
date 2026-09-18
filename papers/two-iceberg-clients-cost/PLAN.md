@@ -122,15 +122,53 @@ Control catalog, Polaris over loopback, release build, two runs.
   a sentence in the paper as the reason the interleaving is there.
 - Every sample stored; percentiles computed in code, never by hand.
 
-## What is owed before this is publishable
+## Vendor runs and a second day, 2026-09-18
 
-1. **The same benchmark against vendors**, where the network is real and the
-   ratios compress. Without it this measures one local server.
-2. **Repeats across days**, not minutes, given the spread already seen.
-3. **The decomposition repeated against one vendor**, to show how much of the
-   541–914 us transport gap survives when a real round trip dominates.
-4. Optional and cheap: whether `trust_env=False` moves the end-to-end benchmark,
-   not just the transport layer.
+7. **The per-call gap disappears into a real round trip.** BigLake and OneLake,
+   two runs each: every ratio except `load_table` is 0.90x to 1.04x.
+8. **Cold start does not.** pyiceberg minus Rust, per run: 507.2 to 535.1 ms on
+   loopback, 535.5 to 606.4 on BigLake, 767.6 to 776.2 on OneLake. The ratio
+   compresses to under 2x; the difference does not.
+9. **OneLake `load_table` 4.12x to 4.62x is a different request.** pyiceberg
+   sends `X-Iceberg-Access-Delegation: vended-credentials` by default; the crate
+   sends nothing. Same session, header on and off: +108.5 ms [+102.4, +122.2]
+   at transport, and pyiceberg's `load_table` without it is 36.6 ms, the Rust
+   figure. No effect on Polaris or BigLake.
+10. **BigLake `load_table` 0.95x to 0.96x**, pyiceberg faster, both runs. Not the
+    header (same size and keys, not separable). Unexplained; stated as such.
+11. **Control on a second day:** cheap-call ratio range widens to 1.90x to
+    4.29x; Rust `list_namespaces` p50 spread 154.9%. Decomposition across seven
+    runs unchanged in shape: transport 90-94%, gap 541.2-914.2 us, HTTP stack
+    85.3-90.4% of the difference.
+12. **Vendor decomposition cannot place the transport gap.** OneLake library
+    layer within noise; the Rust floor is one block after the Python layers, so
+    a ~1 ms gap is drift-sized. One interval spanned zero, one did not. Printed
+    with a caveat in the file.
+
+Harness bugs found, none of which reached the paper:
+
+- The pyiceberg worker minted its own gcloud/az token inside the timed spawn;
+  the Rust binary got one from the driver. Vendor cold starts were not
+  comparable. Runs discarded; the driver now mints once for both.
+- "Cold start" was described as spawn to one answered call. It is spawn to
+  exit with each of the six operations answered once. Symmetric, so kept, and
+  every description corrected.
+- Error rows would have been averaged into the stats. None were, but nothing
+  stopped it; now excluded and counted.
+- The Rust transport floor timed any response, and sent none of the session's
+  extra headers -- BigLake needs `x-goog-user-project`, so its floor would have
+  timed a 403. Fixed; every timed layer refuses a non-2xx.
+- The report's cold-start ratio used `%.0f`, printing 1.65 as "2x"; and its
+  prose asserted a one-tenth spread the stored runs contradict.
+- 2xSEM is the wrong bound for heavy-tailed vendor samples; the delegation
+  check and the transport gap use a 95% bootstrap interval on the p50
+  difference.
+
+## Still not covered, stated in the article
+
+1. One day of vendor runs, one machine, one region.
+2. No writes timed.
+3. The BigLake `load_table` edge.
 
 ## Evidence this paper owns
 
@@ -140,6 +178,7 @@ scoped and cannot drift:
 
     bench-comparison.txt                  every figure quoted, rendered
     bench-breakdown-<catalog>-<ts>.txt    the decomposition, one per run
+    bench-delegation-<catalog>-<ts>.txt   load_table with the header on and off
     client-comparison.txt                 surface context, not the headline
     pyiceberg-client-operation-surface.txt
     rust-client-operation-surface.txt

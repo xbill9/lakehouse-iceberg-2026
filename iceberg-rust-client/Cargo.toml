@@ -17,7 +17,14 @@ iceberg-storage-opendal = { version = "=0.10.1", features = ["opendal-gcs", "ope
 # against. Deliberately the same major version and feature set that
 # iceberg-catalog-rest 0.10.1 depends on, so the floor is the same stack the
 # client is using and not a second one compiled differently.
-reqwest = { version = "0.12", default-features = false, features = ["json"] }
+#
+# MEASURED 2026-09-18: iceberg-catalog-rest 0.10.1 declares reqwest with
+# default-features = false and no TLS feature, and exposes no feature of its own
+# to turn one on. Without the line below every https:// catalog failed with
+# "error sending request for url (.../v1/config?...)" before any HTTP status --
+# BigLake and OneLake both, 7 of 7 probes. A caller has to name a TLS backend
+# in their own manifest; Cargo's feature unification hands it to the client.
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
 
 [[bin]]
 name = "irc-probe"

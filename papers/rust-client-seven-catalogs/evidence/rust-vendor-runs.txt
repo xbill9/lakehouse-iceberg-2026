@@ -1,0 +1,62 @@
+Rust client runs, iceberg-catalog-rest 0.10.1, --storage opendal
+One run per catalog. Rendered by vendor_report.py from rust-run-*.json.
+
+  catalog                        auth       ok implicit failed not-issued not-expressible
+  apache-polaris                 native      7        1      0         11              14   measured 2026-09-18T16:07:10Z
+  google-lakehouse [no-tls]      static      0        1      7         11              14   measured 2026-09-18T16:57:24Z
+  google-lakehouse               static      7        1      0         11              14   measured 2026-09-18T16:07:10Z
+  microsoft-onelake +deleg       static      7        1      0         11              14   measured 2026-09-18T16:26:23Z
+  microsoft-onelake [no-tls]     static      0        1      7         11              14   measured 2026-09-18T16:57:25Z
+  microsoft-onelake              static      7        1      0         11              14   measured 2026-09-18T16:07:14Z
+
+  [no-tls] google-lakehouse: binary built without a reqwest TLS feature, as iceberg-catalog-rest 0.10.1 declares it
+    first error: Unexpected => Failed to execute http request, source: error sending request for url (<uri>/v1/config?warehouse=<warehouse>)
+
+  [no-tls] microsoft-onelake: binary built without a reqwest TLS feature, as iceberg-catalog-rest 0.10.1 declares it
+    first error: Unexpected => Failed to execute http request, source: error sending request for url (<uri>/v1/config?warehouse=<warehouse>)
+
+Not run: databricks-unity and snowflake-horizon, whose entries in
+catalogs.yaml still hold placeholder values and carry enabled: false.
+SigV4 catalogs are not run in this mode; see the demonstration below.
+
+Storage: one read of the table's metadata file through the client's own FileIO,
+after load_table. Config key names only.
+
+  apache-polaris
+    fileio config keys: credential, default-base-location, namespace-separator, oauth2-server-uri, prefix, scope
+    storage credential keys among them: none
+    read: ok, scheme file, 5614 bytes, 21 ms
+
+  google-lakehouse
+    fileio config keys: catalog_credential_mode, prefix, snapshot-loading-mode, table-defaults.format-version, token
+    storage credential keys among them: none
+    read: ok, scheme gs, 5497 bytes, 451 ms
+
+  microsoft-onelake   with X-Iceberg-Access-Delegation: vended-credentials as a static header
+    fileio config keys: header.X-Iceberg-Access-Delegation, prefix, token
+    storage credential keys among them: none
+    read: FAILED after 47181 ms
+    error: Unexpected => Failure in doing io operation, source: Unexpected (persistent) at read, context: { timeout: 10 } => io timeout reached
+
+  microsoft-onelake
+    fileio config keys: prefix, token
+    storage credential keys among them: none
+    read: FAILED after 47066 ms
+    error: Unexpected => Failure in doing io operation, source: Unexpected (persistent) at read, context: { timeout: 10 } => io timeout reached
+
+SigV4 demonstration: one signature for GET /v1/config, carried by
+the crate as static header.* properties on every request.
+
+  aws-glue   measured 2026-09-18T16:10:31Z
+    through the crate: 7 of 7 issued probes refused with InvalidSignatureException, 0 succeeded
+    storage read: refused at load_table, InvalidSignatureException
+    replay, GET /v1/config (the signed request): 200
+    replay, GET /v1/{prefix}/namespaces (same headers): 403
+    replay, second response message: The request signature we calculated does not match the signature you provided. Check your AWS Secret Access Key and signing method. Consult the service documentation for details.
+
+  aws-s3tables   measured 2026-09-18T16:10:31Z
+    through the crate: 7 of 7 issued probes refused with InvalidSignatureException, 0 succeeded
+    storage read: refused at load_table, InvalidSignatureException
+    replay, GET /v1/config (the signed request): 200
+    replay, GET /v1/{prefix}/namespaces (same headers): 403
+    replay, second response message: The request signature we calculated does not match the signature you provided. Check your AWS Secret Access Key and signing method. Consult the service documentation for details.

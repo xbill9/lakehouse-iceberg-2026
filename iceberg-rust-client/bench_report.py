@@ -25,7 +25,10 @@ def runs():
     """Every stored run, grouped by catalog, oldest first."""
     by_catalog = {}
     for name in sorted(os.listdir(EV)):
-        if name.startswith("bench-") and name.endswith(".json"):
+        # bench-<catalog>-<ts>.json only. bench-delegation-*.json holds
+        # another script's samples and has no meta block.
+        if (name.startswith("bench-") and name.endswith(".json")
+                and not name.startswith(("bench-delegation-", "bench-breakdown-"))):
             with open(os.path.join(EV, name)) as fh:
                 doc = json.load(fh)
             by_catalog.setdefault(doc["meta"]["catalog"], []).append(doc)
@@ -115,7 +118,7 @@ def main():
 
         cold = doc.get("cold_start_wall") or {}
         if cold:
-            w("  cold start: process spawn to one answered call, milliseconds")
+            w("  cold start: spawn to exit, catalog built and each op answered once, ms")
             w("")
             w("  %-18s %9s %9s %9s %6s" % ("client", "p50", "min", "max", "n"))
             for client in ("rust", "pyiceberg"):
@@ -126,7 +129,7 @@ def main():
                         c["max_us"] / 1000.0, c["n"]))
             if "rust" in cold and "pyiceberg" in cold and cold["rust"]["p50_us"]:
                 w("")
-                w("  %.0fx, and it is paid once per process rather than once "
+                w("  %.1fx, and it is paid once per process rather than once "
                   "per call." % (cold["pyiceberg"]["p50_us"]
                                  / cold["rust"]["p50_us"]))
             w("")
@@ -155,6 +158,25 @@ def main():
             w("  %-18s %9.1f %9.1f %6.1f%%   %9.1f %9.1f %6.1f%%   %s" % (
                 row["op"], r_["min"], r_["max"], r_["spread_pct"],
                 p_["min"], p_["max"], p_["spread_pct"], span))
+        # Cold start across runs, and the per-run difference, computed here so
+        # no article subtracts two ranges by hand.
+        pairs = [(d["cold_start_wall"]["rust"]["p50_us"] / 1000.0,
+                  d["cold_start_wall"]["pyiceberg"]["p50_us"] / 1000.0,
+                  d["meta"]["measured_utc"][:10])
+                 for d in group
+                 if "rust" in d.get("cold_start_wall", {})
+                 and "pyiceberg" in d.get("cold_start_wall", {})]
+        if pairs:
+            diffs = [py - r for r, py, _ in pairs]
+            ratios = [py / r for r, py, _ in pairs]
+            w("")
+            w("  cold start p50 across runs, milliseconds")
+            w("    rust         %.1f to %.1f" % (min(p[0] for p in pairs), max(p[0] for p in pairs)))
+            w("    pyiceberg    %.1f to %.1f" % (min(p[1] for p in pairs), max(p[1] for p in pairs)))
+            w("    difference   %.1f to %.1f, per run, pyiceberg minus rust"
+              % (min(diffs), max(diffs)))
+            w("    ratio        %.1fx to %.1fx" % (min(ratios), max(ratios)))
+            w("    dates        %s" % ", ".join(sorted(set(p[2] for p in pairs))))
         w("")
 
     w("## Reading these numbers honestly")
@@ -163,8 +185,15 @@ def main():
         "The control catalog is a local container over loopback. That is "
         "deliberate -- it is the only configuration where the client's own "
         "cost is visible instead of the network's -- and it is also why these "
-        "ratios are an upper bound. Add twenty milliseconds of vendor latency "
-        "to both sides of a ratio and it moves towards 1.",
+        "ratios are an upper bound. Over a real network the round trip is on "
+        "both sides of every ratio and moves it towards 1; the vendor sections "
+        "above are that, measured.",
+        "Where two clients do not send the same request, a ratio is not a "
+        "client comparison. pyiceberg sends X-Iceberg-Access-Delegation: "
+        "vended-credentials by default and iceberg-catalog-rest sends nothing, "
+        "so a catalog that vends credentials on load_table is timed doing that "
+        "work for one client only. bench_delegation.py measures that row with "
+        "the header on and off; read load_table beside it.",
         "The two operations where the clients are nearly equal, load_table and "
         "head_table, are the two where the server does the most work. That is "
         "the same effect seen from the other end, and it is the check that "
@@ -177,8 +206,9 @@ def main():
         "a debug binary. Both clients are spawned as fresh processes, both "
         "build their catalog and warm up before recording, and the clients "
         "alternate which goes first each round.",
-        "Two runs of the same benchmark on an idle machine moved p50 by "
-        "roughly a tenth. One run is a number; the spread across runs is the "
+        "Runs of the same benchmark on an idle machine move p50 by as much as "
+        "the spread columns above show -- a figure computed from the stored "
+        "runs, not asserted here. One run is a number; the spread across runs is the "
         "measurement, which is why every run is kept as its own file and the "
         "report prints the range.",
         "Nothing here says anything about correctness, and speed is not a "

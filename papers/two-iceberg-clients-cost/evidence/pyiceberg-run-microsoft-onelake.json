@@ -1,0 +1,458 @@
+{
+  "meta": {
+    "catalog": "microsoft-onelake",
+    "client": "pyiceberg 0.12.0",
+    "control": false,
+    "auth_mode": "static",
+    "auth_detail": "bearer token minted outside the client; not refreshable by it",
+    "catalog_objects_built": 3,
+    "measured_utc": "2026-09-18T16:10:51Z",
+    "endpoints_declared": [
+      "DELETE /v1/{prefix}/namespaces/{namespace}",
+      "DELETE /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "GET /v1/{prefix}/namespaces",
+      "GET /v1/{prefix}/namespaces/{namespace}",
+      "GET /v1/{prefix}/namespaces/{namespace}/tables",
+      "GET /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "GET /v1/{prefix}/namespaces/{namespace}/tables/{table}/credentials",
+      "HEAD /v1/{prefix}/namespaces/{namespace}",
+      "HEAD /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "POST /v1/{prefix}/namespaces",
+      "POST /v1/{prefix}/namespaces/{namespace}/tables",
+      "POST /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "POST /v1/{prefix}/tables/rename"
+    ],
+    "counts": {
+      "IMPLICIT": 1,
+      "OK": 10,
+      "SUBSTITUTED": 1,
+      "GATED": 1,
+      "NOT-EXPRESSIBLE": 4,
+      "NOT-ISSUED": 16
+    }
+  },
+  "rows": [
+    {
+      "probe": "config",
+      "surface": "read",
+      "endpoint": "GET /v1/config",
+      "client_status": "implicit",
+      "symbol": "RestCatalog._fetch_config",
+      "source_ref": "rest:707",
+      "declaration_gate": null,
+      "verdict": "IMPLICIT",
+      "ms": 880,
+      "note": "issued by RestCatalog.__init__ on construction; not separately callable",
+      "detail": {
+        "endpoints_declared": 13
+      }
+    },
+    {
+      "probe": "list_namespaces",
+      "surface": "read",
+      "endpoint": "GET /v1/{prefix}/namespaces",
+      "client_status": "reachable",
+      "symbol": "RestCatalog.list_namespaces",
+      "source_ref": "rest:1311",
+      "declaration_gate": "refuses",
+      "verdict": "OK",
+      "endpoint_declared": true,
+      "ms": 535,
+      "detail": {
+        "count": 1
+      }
+    },
+    {
+      "probe": "list_namespaces_paged",
+      "surface": "read",
+      "endpoint": "GET /v1/{prefix}/namespaces",
+      "client_status": "reachable",
+      "symbol": "RestCatalog.list_namespaces",
+      "source_ref": "rest:1316",
+      "declaration_gate": "refuses",
+      "verdict": "OK",
+      "endpoint_declared": true,
+      "ms": 768,
+      "detail": {
+        "count": 1,
+        "page_size_sent": 1
+      }
+    },
+    {
+      "probe": "list_namespaces_parent",
+      "surface": "read",
+      "endpoint": "GET /v1/{prefix}/namespaces",
+      "client_status": "reachable",
+      "symbol": "RestCatalog.list_namespaces",
+      "source_ref": "rest:1325",
+      "declaration_gate": "refuses",
+      "verdict": "OK",
+      "endpoint_declared": true,
+      "ms": 229,
+      "detail": {
+        "count": 0
+      }
+    },
+    {
+      "probe": "load_namespace",
+      "surface": "read",
+      "endpoint": "GET /v1/{prefix}/namespaces/{namespace}",
+      "client_status": "reachable",
+      "symbol": "RestCatalog.load_namespace_properties",
+      "source_ref": "rest:1348",
+      "declaration_gate": "refuses",
+      "verdict": "OK",
+      "endpoint_declared": true,
+      "ms": 42,
+      "detail": {
+        "property_count": 1
+      }
+    },
+    {
+      "probe": "head_namespace",
+      "surface": "read",
+      "endpoint": "HEAD /v1/{prefix}/namespaces/{namespace}",
+      "client_status": "reachable",
+      "symbol": "RestCatalog.namespace_exists",
+      "source_ref": "rest:1383",
+      "declaration_gate": "substitutes",
+      "verdict": "OK",
+      "endpoint_declared": true,
+      "ms": 50,
+      "detail": {
+        "exists": true
+      }
+    },
+    {
+      "probe": "list_tables",
+      "surface": "read",
+      "endpoint": "GET /v1/{prefix}/namespaces/{namespace}/tables",
+      "client_status": "reachable",
+      "symbol": "RestCatalog.list_tables",
+      "source_ref": "rest:1047",
+      "declaration_gate": "refuses",
+      "verdict": "OK",
+      "endpoint_declared": true,
+      "ms": 86,
+      "detail": {
+        "count": 1
+      }
+    },
+    {
+      "probe": "load_table",
+      "surface": "read",
+      "endpoint": "GET /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "client_status": "reachable",
+      "symbol": "RestCatalog.load_table",
+      "source_ref": "rest:1083",
+      "declaration_gate": "refuses",
+      "verdict": "OK",
+      "endpoint_declared": true,
+      "ms": 1904,
+      "detail": {
+        "format_version": 2,
+        "schema_field_count": 3,
+        "snapshot_count": 1,
+        "has_current_snapshot": true,
+        "partition_field_count": 0,
+        "sort_order_field_count": 0
+      }
+    },
+    {
+      "probe": "load_table_snapshots_all",
+      "surface": "read",
+      "endpoint": "GET /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "client_status": "reachable",
+      "symbol": "RestCatalog.load_table",
+      "source_ref": "rest:1086",
+      "declaration_gate": "refuses",
+      "verdict": "OK",
+      "endpoint_declared": true,
+      "ms": 1436,
+      "detail": {
+        "snapshot_count": 1,
+        "snapshots_param_sent": "all"
+      }
+    },
+    {
+      "probe": "head_table",
+      "surface": "read",
+      "endpoint": "HEAD /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "client_status": "reachable",
+      "symbol": "RestCatalog.table_exists",
+      "source_ref": "rest:1411",
+      "declaration_gate": "substitutes",
+      "verdict": "OK",
+      "endpoint_declared": true,
+      "ms": 61,
+      "detail": {
+        "exists": true
+      }
+    },
+    {
+      "probe": "load_credentials",
+      "surface": "read",
+      "endpoint": "GET /v1/{prefix}/namespaces/{namespace}/tables/{table}/credentials",
+      "client_status": "reachable",
+      "symbol": "RestCatalog.load_credentials",
+      "source_ref": "rest:1120",
+      "declaration_gate": "refuses",
+      "verdict": "OK",
+      "endpoint_declared": true,
+      "ms": 303,
+      "detail": {
+        "credential_property_count": 0
+      }
+    },
+    {
+      "probe": "list_views",
+      "surface": "read",
+      "endpoint": "GET /v1/{prefix}/namespaces/{namespace}/views",
+      "client_status": "reachable",
+      "symbol": "RestCatalog.list_views",
+      "source_ref": "rest:1186",
+      "declaration_gate": "silent-empty",
+      "verdict": "SUBSTITUTED",
+      "endpoint_declared": false,
+      "ms": 0,
+      "detail": {
+        "count": 0
+      },
+      "gate": "silent-empty"
+    },
+    {
+      "probe": "plan_table_scan",
+      "surface": "read",
+      "endpoint": "POST /v1/{prefix}/namespaces/{namespace}/tables/{table}/plan",
+      "client_status": "reachable",
+      "symbol": "RestCatalog.plan_scan",
+      "source_ref": "rest:554",
+      "declaration_gate": "refuses",
+      "verdict": "GATED",
+      "gate": "refuses",
+      "endpoint_declared": false,
+      "ms": 0,
+      "error": "Server does not support endpoint: POST /v1/{prefix}/namespaces/{namespace}/tables/{table}/plan"
+    },
+    {
+      "probe": "report_metrics",
+      "surface": "read",
+      "endpoint": "POST /v1/{prefix}/namespaces/{namespace}/tables/{table}/metrics",
+      "client_status": "absent",
+      "symbol": null,
+      "source_ref": "grep, no match",
+      "declaration_gate": null,
+      "verdict": "NOT-EXPRESSIBLE",
+      "why": "No `/metrics` endpoint template and no ScanReport type anywhere in the package. Metrics reporting is not modelled at all."
+    },
+    {
+      "probe": "create_namespace",
+      "surface": "write",
+      "endpoint": "POST /v1/{prefix}/namespaces",
+      "client_status": "reachable",
+      "symbol": "RestCatalog.create_namespace",
+      "source_ref": "rest:1287",
+      "declaration_gate": "refuses",
+      "verdict": "NOT-ISSUED",
+      "why": "read-only runner; this client can express it"
+    },
+    {
+      "probe": "update_namespace_props",
+      "surface": "write",
+      "endpoint": "POST /v1/{prefix}/namespaces/{namespace}/properties",
+      "client_status": "reachable",
+      "symbol": "RestCatalog.update_namespace_properties",
+      "source_ref": "rest:1362",
+      "declaration_gate": "refuses",
+      "verdict": "NOT-ISSUED",
+      "why": "read-only runner; this client can express it"
+    },
+    {
+      "probe": "create_table",
+      "surface": "write",
+      "endpoint": "POST /v1/{prefix}/namespaces/{namespace}/tables",
+      "client_status": "reachable",
+      "symbol": "RestCatalog.create_table",
+      "source_ref": "rest:927",
+      "declaration_gate": "refuses",
+      "verdict": "NOT-ISSUED",
+      "why": "read-only runner; this client can express it"
+    },
+    {
+      "probe": "commit_table",
+      "surface": "write",
+      "endpoint": "POST /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "client_status": "reachable",
+      "symbol": "RestCatalog.commit_table",
+      "source_ref": "rest:1239",
+      "declaration_gate": "refuses",
+      "verdict": "NOT-ISSUED",
+      "why": "read-only runner; this client can express it"
+    },
+    {
+      "probe": "commit_remove_properties",
+      "surface": "write",
+      "endpoint": "POST /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "client_status": "reachable",
+      "symbol": "RestCatalog.commit_table",
+      "source_ref": "rest:1239",
+      "declaration_gate": "refuses",
+      "verdict": "NOT-ISSUED",
+      "why": "read-only runner; this client can express it"
+    },
+    {
+      "probe": "commit_add_schema",
+      "surface": "write",
+      "endpoint": "POST /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "client_status": "reachable",
+      "symbol": "RestCatalog.commit_table",
+      "source_ref": "rest:1239",
+      "declaration_gate": "refuses",
+      "verdict": "NOT-ISSUED",
+      "why": "read-only runner; this client can express it"
+    },
+    {
+      "probe": "commit_set_current_schema",
+      "surface": "write",
+      "endpoint": "POST /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "client_status": "reachable",
+      "symbol": "RestCatalog.commit_table",
+      "source_ref": "rest:1239",
+      "declaration_gate": "refuses",
+      "verdict": "NOT-ISSUED",
+      "why": "read-only runner; this client can express it"
+    },
+    {
+      "probe": "commit_upgrade_format_version",
+      "surface": "write",
+      "endpoint": "POST /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "client_status": "reachable",
+      "symbol": "RestCatalog.commit_table",
+      "source_ref": "rest:1239",
+      "declaration_gate": "refuses",
+      "verdict": "NOT-ISSUED",
+      "why": "read-only runner; this client can express it"
+    },
+    {
+      "probe": "commit_transaction",
+      "surface": "write",
+      "endpoint": "POST /v1/{prefix}/transactions/commit",
+      "client_status": "absent",
+      "symbol": null,
+      "source_ref": "grep, no match",
+      "declaration_gate": null,
+      "verdict": "NOT-EXPRESSIBLE",
+      "why": "No `/v1/{prefix}/transactions/commit` template. create_table_transaction (:949) is a client-side transaction that ends in a single commit_table, not the multi-table endpoint."
+    },
+    {
+      "probe": "rename_table",
+      "surface": "write",
+      "endpoint": "POST /v1/{prefix}/tables/rename",
+      "client_status": "reachable",
+      "symbol": "RestCatalog.rename_table",
+      "source_ref": "rest:1149",
+      "declaration_gate": "refuses",
+      "verdict": "NOT-ISSUED",
+      "why": "read-only runner; this client can express it"
+    },
+    {
+      "probe": "drop_table_purge",
+      "surface": "write",
+      "endpoint": "DELETE /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "client_status": "reachable",
+      "symbol": "RestCatalog.purge_table",
+      "source_ref": "rest:1144",
+      "declaration_gate": "refuses",
+      "verdict": "NOT-ISSUED",
+      "why": "read-only runner; this client can express it"
+    },
+    {
+      "probe": "drop_table",
+      "surface": "write",
+      "endpoint": "DELETE /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+      "client_status": "reachable",
+      "symbol": "RestCatalog.drop_table",
+      "source_ref": "rest:1131",
+      "declaration_gate": "refuses",
+      "verdict": "NOT-ISSUED",
+      "why": "read-only runner; this client can express it"
+    },
+    {
+      "probe": "create_view",
+      "surface": "write",
+      "endpoint": "POST /v1/{prefix}/namespaces/{namespace}/views",
+      "client_status": "reachable",
+      "symbol": "RestCatalog.create_view",
+      "source_ref": "rest:972",
+      "declaration_gate": null,
+      "verdict": "NOT-ISSUED",
+      "why": "read-only runner; this client can express it"
+    },
+    {
+      "probe": "load_view",
+      "surface": "read",
+      "endpoint": "GET /v1/{prefix}/namespaces/{namespace}/views/{view}",
+      "client_status": "reachable",
+      "symbol": "RestCatalog.load_view",
+      "source_ref": "rest:1224",
+      "declaration_gate": "refuses",
+      "verdict": "NOT-ISSUED",
+      "why": "read-only runner; this client can express it"
+    },
+    {
+      "probe": "head_view",
+      "surface": "read",
+      "endpoint": "HEAD /v1/{prefix}/namespaces/{namespace}/views/{view}",
+      "client_status": "reachable",
+      "symbol": "RestCatalog.view_exists",
+      "source_ref": "rest:1446",
+      "declaration_gate": null,
+      "verdict": "NOT-ISSUED",
+      "why": "read-only runner; this client can express it"
+    },
+    {
+      "probe": "replace_view",
+      "surface": "write",
+      "endpoint": "POST /v1/{prefix}/namespaces/{namespace}/views/{view}",
+      "client_status": "absent",
+      "symbol": null,
+      "source_ref": "grep, no match",
+      "declaration_gate": null,
+      "verdict": "NOT-EXPRESSIBLE",
+      "why": "No replace_view and no view commit path. A view's version cannot be updated through this client, only created and dropped."
+    },
+    {
+      "probe": "rename_view",
+      "surface": "write",
+      "endpoint": "POST /v1/{prefix}/views/rename",
+      "client_status": "absent",
+      "symbol": null,
+      "source_ref": "grep, no match",
+      "declaration_gate": null,
+      "verdict": "NOT-EXPRESSIBLE",
+      "why": "No rename_view, and no entry in Endpoints (:138) that could build the URL."
+    },
+    {
+      "probe": "drop_view",
+      "surface": "write",
+      "endpoint": "DELETE /v1/{prefix}/namespaces/{namespace}/views/{view}",
+      "client_status": "reachable",
+      "symbol": "RestCatalog.drop_view",
+      "source_ref": "rest:1496",
+      "declaration_gate": "refuses",
+      "verdict": "NOT-ISSUED",
+      "why": "read-only runner; this client can express it"
+    },
+    {
+      "probe": "drop_namespace",
+      "surface": "write",
+      "endpoint": "DELETE /v1/{prefix}/namespaces/{namespace}",
+      "client_status": "reachable",
+      "symbol": "RestCatalog.drop_namespace",
+      "source_ref": "rest:1299",
+      "declaration_gate": "refuses",
+      "verdict": "NOT-ISSUED",
+      "why": "read-only runner; this client can express it"
+    }
+  ]
+}

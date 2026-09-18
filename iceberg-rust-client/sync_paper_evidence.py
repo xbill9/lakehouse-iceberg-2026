@@ -36,6 +36,14 @@ MANIFEST = {
         "rust-client-operation-surface.txt",
         "rust-client-auth-surface.txt",
         "rust-run-apache-polaris.json",
+        "rust-run-google-lakehouse.json",
+        "rust-run-microsoft-onelake.json",
+        "rust-run-microsoft-onelake-delegation.json",
+        "rust-run-google-lakehouse-no-tls.json",
+        "rust-run-microsoft-onelake-no-tls.json",
+        "rust-sigv4-demo-aws-glue.json",
+        "rust-sigv4-demo-aws-s3tables.json",
+        "rust-vendor-runs.txt",
         "declaration-gate-cost.txt",
     ],
     "two-iceberg-clients-cost": [
@@ -46,13 +54,17 @@ MANIFEST = {
         "declaration-gate-cost.txt",
         "pyiceberg-client-operation-surface.txt",
         "pyiceberg-run-apache-polaris.json",
+        "pyiceberg-run-google-lakehouse.json",
+        "pyiceberg-run-microsoft-onelake.json",
         "rust-client-operation-surface.txt",
     ],
 }
 
 # Globs, for the artifacts that accumulate one file per run.
 GLOBS = {
-    "two-iceberg-clients-cost": ["bench-breakdown-apache-polaris-*.txt"],
+    "two-iceberg-clients-cost": ["bench-breakdown-*.txt", "bench-delegation-*.txt"],
+    # Paper 5 cites OneLake vending a credential to pyiceberg's request.
+    "rust-client-seven-catalogs": ["bench-delegation-microsoft-onelake-*.txt"],
 }
 
 # Also deliberately excluded: bench-<catalog>-<ts>.json, the per-run sample

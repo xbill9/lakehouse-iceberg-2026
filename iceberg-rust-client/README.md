@@ -36,11 +36,13 @@ because a comparison between two setups is not a comparison between two clients.
 | `bench.py` | times both clients, interleaved rounds, one file per run | yes |
 | `bench_worker.py` | pyiceberg's half of the benchmark, spawned | yes |
 | `bench_breakdown.py` | one request at increasing depth, plus the Rust transport floor | yes |
+| `bench_delegation.py` | `load_table` with and without `X-Iceberg-Access-Delegation` | yes |
 | `operation_map.py` / `pyiceberg_map.py` | hand-read maps, file and line per entry | no |
 | `make_surface.py` | renders either map as a surface | no |
 | `compare_clients.py` | joins both maps and both runs | no |
 | `gate_cost.py` | joins paper 1's declarations against pyiceberg's gate | no |
 | `bench_report.py` | renders stored benchmark runs, with cross-run spread | no |
+| `vendor_report.py` | renders every Rust run and SigV4 demonstration | no |
 | `check_refs.py` | resolves all 85 cited source lines | no |
 | `redact.py` | scrubs, then refuses to write a surviving identifier | no |
 
@@ -58,10 +60,19 @@ $ python3 bench.py --rounds 4 --iters 15   # paper 6, timed
 apache-polaris     6 ops, 2 clients, 4 rounds x 15 iters = 720 samples
 $ python3 bench_breakdown.py --iters 80    # paper 6, where the time goes
 
+$ python3 run_rust.py --only google-lakehouse --only microsoft-onelake --storage opendal
+$ python3 run_rust.py --only microsoft-onelake --storage opendal \
+      --access-delegation vended-credentials   # does the crate use what it is vended?
+$ python3 run_rust.py --only aws-glue --only aws-s3tables --sigv4-demo
+$ python3 bench.py --only microsoft-onelake --storage opendal
+$ python3 bench_delegation.py --only microsoft-onelake
+$ python3 bench_breakdown.py --only google-lakehouse --pace-ms 900   # 75/min quota
+
 $ python3 make_surface.py --all            # no network from here down
 $ python3 compare_clients.py
 $ python3 gate_cost.py
 $ python3 bench_report.py
+$ python3 vendor_report.py
 $ python3 check_refs.py
 $ python3 redact.py
 ```
@@ -85,6 +96,22 @@ Each of these was a bug here, not a rule imported from elsewhere.
   reported transport as slower than the call containing it; that run is kept as
   `evidence/bench-breakdown-*.invalid.txt`.
 - **Release build or no evidence.** `bench.py` refuses a debug binary.
+- **TLS is the caller's to add.** `iceberg-catalog-rest` 0.10.1 compiles
+  `reqwest` with no TLS backend; `Cargo.toml` names `rustls-tls`. Without it
+  every `https://` catalog fails at transport with no HTTP status.
+- **Same request or no ratio.** pyiceberg sends `X-Iceberg-Access-Delegation:
+  vended-credentials` by default and the Rust crate sends nothing, so a
+  catalog that vends on `loadTable` is timed doing it for one client only.
+  `bench_delegation.py` exists for that row.
+- **Same credential path or no cold start.** A static bearer is minted once by
+  the driver and handed to both clients. The pyiceberg worker used to mint its
+  own with `gcloud`/`az` inside its timed spawn.
+- **A non-2xx is not a sample.** BigLake's `irc_catalog_requests` quota is 75 a
+  minute and answers a burst with 429. Every timed layer and the Rust transport
+  floor refuse a non-2xx, `bench.py` keeps error rows out of its stats, and
+  `--pace-ms` sleeps between calls outside every sample.
+- **Cold start is spawn to exit**, with the catalog built and each of the six
+  operations answered once -- not "one call", which this README said first.
 - **One file per benchmark run.** A benchmark whose evidence is replaced by the
   next run cannot show its own spread, and the spread is the measurement.
 - **Percentiles are computed in code**, from stored samples, never by hand.
@@ -95,11 +122,15 @@ Each of these was a bug here, not a rule imported from elsewhere.
 - **Redact before disk.** Client error text is not ours to predict, so it goes
   through `redact.py`, which refuses to write a document in which a configured
   value survived. `python3 redact.py` plants an identifier and watches it fail.
+  It matched literals only until 2026-09-18, when a percent-encoded warehouse
+  in a TLS error carried a project id and two workspace GUIDs to disk while
+  `verify()` passed; encoded forms, header values and warehouse components are
+  matched now, and the self-test plants an encoded one.
 
 Neither runner has a write path, so no run can leave residue on a vendor
-catalog. Nothing from a `loadTable` response reaches disk except counts and
-integers, and evidence carries a catalog's name but never its URL, warehouse or
-namespace.
+catalog. Nothing from a `loadTable` response reaches disk except counts,
+integers and key names -- never a value -- and evidence carries a catalog's name
+but never its URL, warehouse or namespace.
 
 ## Standing caveats for anything either paper says
 

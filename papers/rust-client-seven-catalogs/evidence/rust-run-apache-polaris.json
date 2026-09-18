@@ -6,12 +6,37 @@
     "storage_factory": "opendal",
     "auth_mode": "native",
     "auth_detail": "credential + oauth2-server-uri + scope",
-    "measured_utc": "2026-09-17T17:20:09Z",
+    "measured_utc": "2026-09-18T16:07:10Z",
     "exit_code": 0,
     "binary_reported": {
       "crate": "iceberg-catalog-rest",
       "storage_factory": "opendal",
       "version": "0.10.1"
+    },
+    "storage_fileio_config_keys": [
+      "credential",
+      "default-base-location",
+      "namespace-separator",
+      "oauth2-server-uri",
+      "prefix",
+      "scope"
+    ],
+    "storage_touch": {
+      "detail": {
+        "bytes_read": 5614,
+        "fileio_config_keys": [
+          "credential",
+          "default-base-location",
+          "namespace-separator",
+          "oauth2-server-uri",
+          "prefix",
+          "scope"
+        ],
+        "read_ms": 21,
+        "scheme": "file"
+      },
+      "ms": 26,
+      "ok": true
     },
     "counts": {
       "IMPLICIT": 1,
@@ -40,7 +65,7 @@
       "rust_symbol": "Catalog::list_namespaces",
       "source_ref": "catalog.rs:512",
       "verdict": "OK",
-      "ms": 5,
+      "ms": 14,
       "detail": {
         "count": 1
       }
@@ -89,7 +114,7 @@
       "rust_symbol": "Catalog::namespace_exists",
       "source_ref": "catalog.rs:631",
       "verdict": "OK",
-      "ms": 0,
+      "ms": 1,
       "detail": {
         "exists": true
       }
@@ -102,7 +127,7 @@
       "rust_symbol": "Catalog::list_tables",
       "source_ref": "catalog.rs:687",
       "verdict": "OK",
-      "ms": 8,
+      "ms": 0,
       "detail": {
         "count": 2
       }
@@ -115,7 +140,7 @@
       "rust_symbol": "Catalog::load_table",
       "source_ref": "catalog.rs:822",
       "verdict": "OK",
-      "ms": 6,
+      "ms": 5,
       "detail": {
         "format_version": "V2",
         "has_current_snapshot": true,

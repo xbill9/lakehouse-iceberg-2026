@@ -35,7 +35,10 @@ def main():
     cfg = yaml.safe_load(open(os.path.join(CONF, "catalogs.yaml")))
     cat = next(c for c in cfg["catalogs"] if c["name"] == name)
     mode, _detail = rp.auth_plan(cat.get("auth"))
-    catalog = RestCatalog(name, **rp.base_props(cat, mode))
+    # A static bearer is minted by the driver and passed in, exactly as the
+    # Rust binary receives it, so the spawn-to-answer wall is the client's.
+    catalog = RestCatalog(name, **rp.base_props(
+        cat, mode, token=os.environ.get("IRC_TOKEN") or None))
 
     ns = tuple(cat["namespace"].split("."))
     table = ns + (cat["table"],)

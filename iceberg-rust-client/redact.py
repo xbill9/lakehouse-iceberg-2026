@@ -14,7 +14,7 @@ exactly like one that passed.
 
 import json
 import os
-from urllib.parse import urlsplit
+from urllib.parse import quote, urlsplit
 
 
 def values_for(cat, extra_env=()):
@@ -35,11 +35,38 @@ def values_for(cat, extra_env=()):
                              ("table", "<table>")):
         if cat.get(key):
             pairs.append((str(cat[key]), placeholder))
+    # A composite warehouse is split up in storage paths: OneLake's
+    # "<workspace>/<lakehouse>" comes back as abfss://<workspace>@.../<lakehouse>/,
+    # which matches neither the whole value nor its encoding. Each long
+    # component is an identifier on its own.
+    # ARN structure words and regions are not identifiers, and blanking them
+    # makes verify() refuse a document for naming the service it probed.
+    generic = {"arn", "aws", "s3tables", "glue", "bucket", "gs", "abfss",
+               "https", "http"}
+    for part in str(cat.get("warehouse") or "").replace(":", "/").split("/"):
+        if len(part) >= 8 and part not in generic and not part.startswith(
+                ("us-", "eu-", "ap-", "ca-", "sa-", "me-", "af-")):
+            pairs.append((part, "<warehouse-part>"))
+    # Header values carry account identifiers too: BigLake's
+    # x-goog-user-project is the project id itself.
+    for value in (cat.get("headers") or {}).values():
+        if value:
+            pairs.append((str(value), "<header>"))
     for name in extra_env:
         secret = os.environ.get(name, "")
         if secret:
             pairs.append((secret, "<secret>"))
-    return sorted(pairs, key=lambda kv: -len(kv[0]))
+    # Every value also travels percent-encoded, because clients put it in a
+    # query string: `?warehouse=gs%3A%2F%2F<project>-...`. Matching only the
+    # literal let the encoded form through on 2026-09-18 -- a GCP project id
+    # and two OneLake GUIDs reached disk while verify() reported nothing.
+    encoded = []
+    for literal, placeholder in pairs:
+        for form in (quote(literal, safe=""), quote(literal)):
+            if form != literal:
+                encoded.append((form, placeholder))
+    pairs.extend(encoded)
+    return sorted(set(pairs), key=lambda kv: -len(kv[0]))
 
 
 def scrub(text, pairs):
@@ -90,6 +117,23 @@ def _selftest():
 
     doc["error"] = scrub(doc["error"], pairs)
     verify(doc, pairs)
+
+    # The encoded form, which is how the warehouse actually leaked.
+    cat["warehouse"] = "gs://acct-1234-bucket/a b"
+    cat["headers"] = {"x-goog-user-project": "acct-1234"}
+    pairs = values_for(cat)
+    leak = {"error": "error sending request for url (%s/v1/config?warehouse=%s)"
+                     % (cat["base_url"], quote(cat["warehouse"], safe=""))}
+    try:
+        verify(leak, pairs)
+    except RuntimeError:
+        pass
+    else:
+        raise SystemExit("selftest FAILED: verify() passed a percent-encoded identifier")
+    leak["error"] = scrub(leak["error"], pairs)
+    verify(leak, pairs)
+    if "acct-1234" in leak["error"]:
+        raise SystemExit("selftest FAILED: encoded identifier survived scrub")
     for literal, _ in pairs:
         if literal in doc["error"]:
             raise SystemExit("selftest FAILED: %r survived scrub" % literal)
