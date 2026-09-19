@@ -1,0 +1,5 @@
+# Apache Polaris version, read from inside the container that answered the sweep.
+# Captured 2026-09-19T00:16:27Z. Image tag is apache/polaris:latest, so the tag is not the version.
+
+$ docker exec polaris ls /deployments/app | grep polaris-server
+polaris-server-1.7.0.jar

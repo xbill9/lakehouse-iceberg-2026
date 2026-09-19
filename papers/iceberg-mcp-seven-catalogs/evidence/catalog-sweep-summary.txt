@@ -1,0 +1,29 @@
+# One Iceberg MCP server (servers/iceberg_mcp.py), one catalog per process.
+# Rebuilt by `python3 sweep_catalogs.py --report-only` from the saved JSON.
+#
+# python 3.14.7
+# pyiceberg 0.12.0
+# pyarrow 25.0.1
+# fsspec 2026.9.0
+# s3fs 2026.9.0
+# adlfs 2026.8.0
+# botocore 1.43.75
+# azure-identity 1.25.3
+# google-auth 2.57.1
+
+catalog             measured (UTC)        table                   rows  partitioned     seconds: list describe count scan
+apache-polaris      2026-09-18T23:58:37Z  probe_ns.probe_table      11  ts_day          1.0 0.5 0.0 0.1
+                    tools/list: iceberg_list_tables, iceberg_describe_table, iceberg_count_rows, iceberg_scan_table
+aws-glue            2026-09-18T23:58:51Z  probe_ns.probe_table      11  ts_day          2.1 0.7 0.2 1.5
+                    tools/list: iceberg_list_tables, iceberg_describe_table, iceberg_count_rows, iceberg_scan_table
+aws-s3tables        2026-09-18T23:58:57Z  probe_ns.probe_table      11  ts_day          2.2 0.3 0.2 2.0
+                    tools/list: iceberg_list_tables, iceberg_describe_table, iceberg_count_rows, iceberg_scan_table
+google-lakehouse    2026-09-19T00:11:14Z  probe_ns.probe_table      11  ts_day          10.1 1.6 0.5 3.6
+                    tools/list: iceberg_list_tables, iceberg_describe_table, iceberg_count_rows, iceberg_scan_table
+microsoft-onelake   2026-09-18T23:58:45Z  dbo.probe_table            6  (unpartitioned) 2.5 0.2 0.2 3.2
+                    tools/list: iceberg_list_tables, iceberg_describe_table, iceberg_count_rows, iceberg_scan_table
+snowflake-horizon   2026-09-18T23:59:02Z  PROBE_NS.PROBE_TABLE      12  ts_day          7.3 2.2 1.4 1.9
+                    tools/list: iceberg_list_tables, iceberg_describe_table, iceberg_count_rows, iceberg_scan_table
+
+! marks a call whose result was an error. One run per catalog;
+the first call includes building the catalog client and fetching its token.

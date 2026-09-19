@@ -1,0 +1,58 @@
+{
+  "catalog": "microsoft-onelake",
+  "measured": "2026-09-18T23:58:45Z",
+  "calls": [
+    {
+      "tool": "iceberg_list_tables",
+      "arguments": {},
+      "seconds": 2.464,
+      "isError": false,
+      "text": "dbo.probe_table"
+    },
+    {
+      "tool": "iceberg_describe_table",
+      "arguments": {
+        "table": "dbo.probe_table"
+      },
+      "seconds": 0.244,
+      "isError": false,
+      "text": "table: dbo.probe_table\nformat-version: 2\ncolumns:\n  id               int            optional\n  ts               timestamptz    optional\n  payload          string         optional\npartitioned by: (unpartitioned)\nsnapshots: 1\ncurrent-snapshot-id: 3346142071915475645\nmetadata-location: abfss://guid-0005@onelake.dfs.fabric.microsoft.com/guid-0006/Tables/probe_table/metadata/v3.metadata.json\n\nCite the metadata-location and current-snapshot-id above when you state a figure from this table."
+    },
+    {
+      "tool": "iceberg_count_rows",
+      "arguments": {
+        "table": "dbo.probe_table"
+      },
+      "seconds": 0.234,
+      "isError": false,
+      "text": "6 rows, from the snapshot summary (total-records) of snapshot-id 3346142071915475645. This is exact for that snapshot."
+    },
+    {
+      "tool": "iceberg_scan_table",
+      "arguments": {
+        "table": "dbo.probe_table",
+        "limit": 3
+      },
+      "seconds": 3.155,
+      "isError": false,
+      "text": "id | ts | payload\n0 | 2026-09-01 00:00:00+00:00 | row-0-0\n1 | 2026-09-01 01:00:00+00:00 | row-0-1\n20 | 2026-09-01 02:00:00+00:00 | row-2-0\n\n3 of 6 row(s) shown, read from snapshot-id 3346142071915475645\nCOUNT: exactly 6 row(s) are in the table in snapshot-id 3346142071915475645. Exact, over the whole table.\nMIN and MAX of id over those 6 row(s): 0 and 21. Exact."
+    }
+  ],
+  "initialize": {
+    "seconds": 0.163,
+    "serverInfo": {
+      "name": "iceberg",
+      "version": "1.0.0",
+      "instructionVersion": 3,
+      "scanFilter": "1",
+      "catalog": "microsoft-onelake"
+    }
+  },
+  "tools": [
+    "iceberg_list_tables",
+    "iceberg_describe_table",
+    "iceberg_count_rows",
+    "iceberg_scan_table"
+  ],
+  "table": "dbo.probe_table"
+}

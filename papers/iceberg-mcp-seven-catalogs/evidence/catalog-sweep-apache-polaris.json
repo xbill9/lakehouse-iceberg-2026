@@ -1,0 +1,58 @@
+{
+  "catalog": "apache-polaris",
+  "measured": "2026-09-18T23:58:37Z",
+  "calls": [
+    {
+      "tool": "iceberg_list_tables",
+      "arguments": {},
+      "seconds": 0.999,
+      "isError": false,
+      "text": "probe_ns.probe_table"
+    },
+    {
+      "tool": "iceberg_describe_table",
+      "arguments": {
+        "table": "probe_ns.probe_table"
+      },
+      "seconds": 0.459,
+      "isError": false,
+      "text": "table: probe_ns.probe_table\nformat-version: 2\ncolumns:\n  id               long           required\n  ts               timestamptz    optional\n  payload          string         optional\n  region           string         optional\npartitioned by: ts_day\nsnapshots: 4\ncurrent-snapshot-id: 1196292829914853564\nmetadata-location: file:/home/xbill/lakehouse-iceberg-2026/iceberg-conformance/.warehouse/probe_ns/probe_table/metadata/00006-guid-0001.metadata.json\n\nCite the metadata-location and current-snapshot-id above when you state a figure from this table."
+    },
+    {
+      "tool": "iceberg_count_rows",
+      "arguments": {
+        "table": "probe_ns.probe_table"
+      },
+      "seconds": 0.046,
+      "isError": false,
+      "text": "11 rows, from the snapshot summary (total-records) of snapshot-id 1196292829914853564. This is exact for that snapshot."
+    },
+    {
+      "tool": "iceberg_scan_table",
+      "arguments": {
+        "table": "probe_ns.probe_table",
+        "limit": 3
+      },
+      "seconds": 0.086,
+      "isError": false,
+      "text": "id | ts | payload | region\n0 | 2026-09-01 00:00:00+00:00 | row-0-0 | None\n2 | 2026-09-01 02:00:00+00:00 | row-0-2 | None\n3 | 2026-09-01 03:00:00+00:00 | row-0-3 | None\n\n3 of 11 row(s) shown, read from snapshot-id 1196292829914853564\nCOUNT: exactly 11 row(s) are in the table in snapshot-id 1196292829914853564. Exact, over the whole table.\nMIN and MAX of id over those 11 row(s): 0 and 23. Exact."
+    }
+  ],
+  "initialize": {
+    "seconds": 0.148,
+    "serverInfo": {
+      "name": "iceberg",
+      "version": "1.0.0",
+      "instructionVersion": 3,
+      "scanFilter": "1",
+      "catalog": "apache-polaris"
+    }
+  },
+  "tools": [
+    "iceberg_list_tables",
+    "iceberg_describe_table",
+    "iceberg_count_rows",
+    "iceberg_scan_table"
+  ],
+  "table": "probe_ns.probe_table"
+}

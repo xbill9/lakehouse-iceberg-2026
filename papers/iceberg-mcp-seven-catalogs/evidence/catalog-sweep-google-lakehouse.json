@@ -1,0 +1,58 @@
+{
+  "catalog": "google-lakehouse",
+  "measured": "2026-09-19T00:11:14Z",
+  "calls": [
+    {
+      "tool": "iceberg_list_tables",
+      "arguments": {},
+      "seconds": 10.145,
+      "isError": false,
+      "text": "probe_ns.probe_table"
+    },
+    {
+      "tool": "iceberg_describe_table",
+      "arguments": {
+        "table": "probe_ns.probe_table"
+      },
+      "seconds": 1.635,
+      "isError": false,
+      "text": "table: probe_ns.probe_table\nformat-version: 2\ncolumns:\n  id               long           required\n  ts               timestamptz    optional\n  payload          string         optional\n  region           string         optional\npartitioned by: ts_day\nsnapshots: 1\ncurrent-snapshot-id: 6042367411917366632\nmetadata-location: gs://bucket-0002/probe_ns/probe_table/jy3n8ueer5x567uy/metadata/00006-guid-0004.metadata.json\n\nCite the metadata-location and current-snapshot-id above when you state a figure from this table."
+    },
+    {
+      "tool": "iceberg_count_rows",
+      "arguments": {
+        "table": "probe_ns.probe_table"
+      },
+      "seconds": 0.509,
+      "isError": false,
+      "text": "11 rows, from the snapshot summary (total-records) of snapshot-id 6042367411917366632. This is exact for that snapshot."
+    },
+    {
+      "tool": "iceberg_scan_table",
+      "arguments": {
+        "table": "probe_ns.probe_table",
+        "limit": 3
+      },
+      "seconds": 3.634,
+      "isError": false,
+      "text": "id | ts | payload | region\n0 | 2026-09-01 00:00:00+00:00 | row-0-0 | None\n2 | 2026-09-01 02:00:00+00:00 | row-0-2 | None\n3 | 2026-09-01 03:00:00+00:00 | row-0-3 | None\n\n3 of 11 row(s) shown, read from snapshot-id 6042367411917366632\nCOUNT: exactly 11 row(s) are in the table in snapshot-id 6042367411917366632. Exact, over the whole table.\nMIN and MAX of id over those 11 row(s): 0 and 23. Exact."
+    }
+  ],
+  "initialize": {
+    "seconds": 0.136,
+    "serverInfo": {
+      "name": "iceberg",
+      "version": "1.0.0",
+      "instructionVersion": 3,
+      "scanFilter": "1",
+      "catalog": "google-lakehouse"
+    }
+  },
+  "tools": [
+    "iceberg_list_tables",
+    "iceberg_describe_table",
+    "iceberg_count_rows",
+    "iceberg_scan_table"
+  ],
+  "table": "probe_ns.probe_table"
+}

@@ -39,7 +39,8 @@ EVIDENCE = os.path.join(HERE, "evidence")
 #: Hosts that are the finding rather than an account. The MCP endpoints are the
 #: subject of the paper; masking them would turn the server list into noise.
 anon.KEEP_HOSTS |= {"bigquery.googleapis.com", "dataproc-us-central1.googleapis.com",
-                    "localhost:8181", "github.com", "docs.cloud.google.com"}
+                    "localhost:8181", "github.com", "docs.cloud.google.com",
+                    "storage.azure.com"}
 
 
 def collect():
@@ -52,6 +53,15 @@ def collect():
     for sub in ("matrix", "traces"):
         for path in sorted(glob.glob(os.path.join(EVIDENCE, sub, "*"))):
             out["%s/%s" % (sub, os.path.basename(path))] = open(path).read()
+    return out
+
+
+def collect_sweep():
+    """The catalog sweep only: one MCP server, one catalog per process."""
+    out = {}
+    for path in sorted(glob.glob(os.path.join(EVIDENCE, "catalog-sweep-*"))):
+        if ".failed." not in path:
+            out[os.path.basename(path)] = open(path).read()
     return out
 
 
@@ -80,9 +90,13 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--out", default=os.path.join(ROOT, "papers", "iceberg-mcp-hosts", "evidence"),
                     help="published directory; provisional until the article has a slug")
+    ap.add_argument("--sweep", action="store_true",
+                    help="publish the catalog sweep to papers/iceberg-mcp-seven-catalogs/evidence")
     a = ap.parse_args()
+    if a.sweep and a.out == ap.get_default("out"):
+        a.out = os.path.join(ROOT, "papers", "iceberg-mcp-seven-catalogs", "evidence")
 
-    texts = collect()
+    texts = collect_sweep() if a.sweep else collect()
     if not texts:
         raise SystemExit("nothing to publish: %s is empty. Run the matrix first." % EVIDENCE)
     refuse_full_traces(texts)

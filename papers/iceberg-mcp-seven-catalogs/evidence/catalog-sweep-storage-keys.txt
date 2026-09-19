@@ -1,0 +1,13 @@
+# Storage property NAMES each catalog's table load leaves on the client's FileIO.
+# Values are never written. Measured 2026-09-19 (UTC) with pyiceberg 0.12.0:
+#   t = iceberg_tool.catalog().load_table(ident); sorted(t.io.properties)
+# The catalog config for snowflake-horizon sets no s3.* property and no
+# X-Iceberg-Access-Delegation header, so the s3.* names below came from the catalog.
+
+snowflake-horizon
+  client.region
+  py-io-impl
+  s3.access-key-id
+  s3.secret-access-key
+  s3.session-token
+  s3.session-token-expires-at-ms

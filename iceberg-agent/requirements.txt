@@ -24,6 +24,12 @@ botocore[crt]>=1.43
 # error failure_modes.py exists to reproduce. Its control caught this.
 adlfs>=2024.7.0
 
+# The S3 Tables data path, for the same reason. Its catalog entry sets
+# FsspecFileIO, and fsspec's s3:// filesystem is s3fs. MEASURED 2026-09-18:
+# without it the metadata calls succeed and the scan returns
+# `ModuleNotFoundError: No module named 's3fs'`.
+s3fs>=2024.7.0
+
 # `agent-framework-core`, not `agent-framework`. The meta package depends on
 # `agent-framework-core[all]` -- every connector Microsoft ships, Copilot Studio,
 # Cosmos, Azure AI Search, Azure Functions -- and none of them is reachable from

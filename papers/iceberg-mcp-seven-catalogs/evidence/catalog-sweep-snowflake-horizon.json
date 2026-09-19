@@ -1,0 +1,58 @@
+{
+  "catalog": "snowflake-horizon",
+  "measured": "2026-09-18T23:59:02Z",
+  "calls": [
+    {
+      "tool": "iceberg_list_tables",
+      "arguments": {},
+      "seconds": 7.254,
+      "isError": false,
+      "text": "PROBE_NS.PROBE_TABLE"
+    },
+    {
+      "tool": "iceberg_describe_table",
+      "arguments": {
+        "table": "PROBE_NS.PROBE_TABLE"
+      },
+      "seconds": 2.198,
+      "isError": false,
+      "text": "table: PROBE_NS.PROBE_TABLE\nformat-version: 2\ncolumns:\n  id               long           required\n  ts               timestamptz    optional\n  payload          string         optional\n  region           string         optional\npartitioned by: ts_day\nsnapshots: 1\ncurrent-snapshot-id: 9096856357731013671\nmetadata-location: s3://bucket-0001/snowflake/PROBE_DB/PROBE_NS/PROBE_TABLE.5f2d75ba/metadata/00003-guid-0007.metadata.json\n\nCite the metadata-location and current-snapshot-id above when you state a figure from this table."
+    },
+    {
+      "tool": "iceberg_count_rows",
+      "arguments": {
+        "table": "PROBE_NS.PROBE_TABLE"
+      },
+      "seconds": 1.44,
+      "isError": false,
+      "text": "12 rows, from the snapshot summary (total-records) of snapshot-id 9096856357731013671. This is exact for that snapshot."
+    },
+    {
+      "tool": "iceberg_scan_table",
+      "arguments": {
+        "table": "PROBE_NS.PROBE_TABLE",
+        "limit": 3
+      },
+      "seconds": 1.926,
+      "isError": false,
+      "text": "id | ts | payload | region\n20 | 2026-09-01 00:00:00+00:00 | row-2-0 | None\n21 | 2026-09-01 01:00:00+00:00 | row-2-1 | None\n22 | 2026-09-01 02:00:00+00:00 | row-2-2 | None\n\n3 of 12 row(s) shown, read from snapshot-id 9096856357731013671\nCOUNT: exactly 12 row(s) are in the table in snapshot-id 9096856357731013671. Exact, over the whole table.\nMIN and MAX of id over those 12 row(s): 0 and 23. Exact."
+    }
+  ],
+  "initialize": {
+    "seconds": 0.186,
+    "serverInfo": {
+      "name": "iceberg",
+      "version": "1.0.0",
+      "instructionVersion": 3,
+      "scanFilter": "1",
+      "catalog": "snowflake-horizon"
+    }
+  },
+  "tools": [
+    "iceberg_list_tables",
+    "iceberg_describe_table",
+    "iceberg_count_rows",
+    "iceberg_scan_table"
+  ],
+  "table": "PROBE_NS.PROBE_TABLE"
+}

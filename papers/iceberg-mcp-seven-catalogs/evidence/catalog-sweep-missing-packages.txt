@@ -1,0 +1,12 @@
+# What the MCP server returned when a storage package was missing.
+# Captured verbatim from sweep_catalogs.py on 2026-09-18. In each case
+# list, describe and count succeeded; the error text is the tool's reply.
+
+## microsoft-onelake, scan, before `pip install adlfs`
+CATALOG ERROR while scanning dbo.probe_table: ModuleNotFoundError: No module named 'adlfs'. Do not guess the answer this call would have given. Say in your answer that this could not be read.
+
+## aws-s3tables, scan, before `pip install s3fs`
+CATALOG ERROR while scanning probe_ns.probe_table: ModuleNotFoundError: No module named 's3fs'. Do not guess the answer this call would have given. Say in your answer that this could not be read.
+
+## aws-glue and aws-s3tables, list, credentials from `aws login`, before `pip install "botocore[crt]"`
+CATALOG ERROR while listing tables: MissingDependencyException: Missing Dependency: Using the login credential provider requires an additional dependency. You will need to pip install "botocore[crt]" before proceeding.. Do not guess the answer this call would have given. Say in your answer that this could not be read.

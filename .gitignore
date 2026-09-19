@@ -47,3 +47,5 @@ iceberg-agent/None/
 iceberg-mcp-hosts/evidence/matrix/
 iceberg-mcp-hosts/evidence/archive/
 iceberg-mcp-hosts/evidence/matrix-axis-*.json
+# raw tool output per catalog: metadata locations, bucket names, account ids
+iceberg-mcp-hosts/evidence/catalog-sweep-*
