@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>One Iceberg MCP Server, Seven Catalogs: What It Takes to Reach Each One</title>
+  <meta name="description" content="Step by step: one Python MCP server with four read-only Apache Iceberg tools, pointed at Polaris, BigLake, OneLake, Glue, S3 Tables and Horizon by changing one environment variable. All four tools work on all six. What changes per catalog is the login, the storage package, and one Azure credential that takes 553 seconds." />
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <style>
+    body{font-family:-apple-system,'Segoe UI',Roboto,'Liberation Sans',Arial,sans-serif;
+         font-size:18px;line-height:1.58;max-width:42em;color:#242424;}
+    h1,h2,h3,h4{font-weight:700;line-height:1.25;margin-top:1.8em;}
+    h4{font-size:1.25em;}
+    img{max-width:100%;height:auto;display:block;margin:1.6em 0;}
+    pre{background:#f7f7f7;border:1px solid #e6e6e6;border-radius:4px;
+        padding:12px 14px;overflow-x:auto;font-size:14px;line-height:1.45;}
+    code{font-family:'Liberation Mono',Menlo,Consolas,monospace;}
+    :not(pre)>code{background:#f2f2f2;padding:1px 5px;border-radius:3px;font-size:.9em;}
+    blockquote{border-left:3px solid #ddd;margin-left:0;padding-left:1em;color:#555;}
+    hr{border:0;border-top:1px solid #e6e6e6;margin:2.4em 0;}
+  </style>
+</head>
+<body>
+<figure><img src="https://raw.githubusercontent.com/xbill9/lakehouse-iceberg-2026/main/papers/iceberg-mcp-seven-catalogs/medium/img/cover.5c69639b.jpg" alt="One Iceberg MCP Server, Seven Catalogs: What It Takes to Reach Each One" /></figure>
+<p>This article provides a step by step guide to one MCP server for
+Apache Iceberg tables, pointed at seven Iceberg REST catalogs in turn.
+The server offers four read-only tools, and one environment variable
+decides which catalog it reads.</p>
+<p><a
+href="https://github.com/xbill9/lakehouse-iceberg-2026">https://github.com/xbill9/lakehouse-iceberg-2026</a></p>
+<hr />
+<h4 id="what-is-this-project-trying-to-do">What is this project trying
+to Do?</h4>
+<p>An MCP server gives any MCP client, such as Claude Code or another
+coding agent, a fixed set of tools. This one has four, all reads:</p>
+<ul>
+<li><strong><code>iceberg_list_tables</code></strong> — every
+<code>namespace.table</code> in the catalog</li>
+<li><strong><code>iceberg_describe_table</code></strong> — columns,
+partitioning, snapshots and the metadata location</li>
+<li><strong><code>iceberg_count_rows</code></strong> — the exact row
+count from the snapshot summary</li>
+<li><strong><code>iceberg_scan_table</code></strong> — a few rows, plus
+an exact count, min and max</li>
+</ul>
+<p>Every Iceberg REST catalog speaks the same protocol, so in principle
+the same server should work against all of them. This project checks
+that against seven catalogs:</p>
+<ul>
+<li><strong>Apache Polaris</strong> 1.7.0, in Docker on the same
+machine</li>
+<li><strong>Google BigLake</strong>, <strong>Microsoft OneLake</strong>,
+<strong>AWS Glue</strong>, <strong>AWS S3 Tables</strong> and
+<strong>Snowflake Horizon</strong>, over the internet</li>
+<li><strong>Databricks Unity</strong>, not run: its trial account has
+ended</li>
+</ul>
+<p>The server is called directly over MCP, with no AI model involved, so
+each result depends only on the catalog and the server's settings.
+Measured on 2026-09-18 and 2026-09-19 (UTC), one run per catalog, reads
+only.</p>
+<hr />
+<h4 id="where-do-i-start">Where do I start?</h4>
+<p>The strategy is an incremental step by step approach.</p>
+<p>First, the local Polaris catalog, which needs only Docker. Then the
+MCP server, called directly to check all four tools. Then one catalog at
+a time: its login, its storage package, and a run of the same four
+calls.</p>
+<hr />
+<h4 id="at-this-point-you-should-have">At This Point You Should
+Have…</h4>
+<ul>
+<li>Docker, for the local Polaris catalog</li>
+<li>Python 3.10+ with <code>pyiceberg</code> 0.12.0 — this run used
+Python 3.14.7</li>
+<li>For each managed catalog you want to reach, an account with a table
+in it and a working command-line login: <code>gcloud</code>,
+<code>az</code>, <code>aws</code> or a Snowflake key pair</li>
+</ul>
+<hr />
+<h4 id="step-1--start-polaris">Step 1 — Start Polaris</h4>
+<pre class="console"><code>$ git clone https://github.com/xbill9/lakehouse-iceberg-2026
+$ cd lakehouse-iceberg-2026/iceberg-conformance
+$ ./polaris-up.sh
+$ export POLARIS_CLIENT_ID=root POLARIS_CLIENT_SECRET=s3cr3t
+$ python3 seed_table.py --catalog apache-polaris</code></pre>
+<p>That creates <code>probe_ns.probe_table</code>: 11 rows, partitioned
+by day, with four snapshots.</p>
+<hr />
+<h4 id="step-2--look-at-the-server">Step 2 — Look at the Server</h4>
+<p>The server is <code>iceberg-mcp-hosts/servers/iceberg_mcp.py</code>.
+It speaks MCP over stdio as newline-delimited JSON-RPC and answers
+<code>initialize</code>, <code>tools/list</code>,
+<code>tools/call</code> and <code>ping</code>, with no MCP SDK.</p>
+<p>It picks its catalog from two environment variables:</p>
+<pre class="console"><code>$ ICEBERG_CATALOG=aws-glue ICEBERG_CATALOGS_FILE=catalogs.yaml python3 servers/iceberg_mcp.py</code></pre>
+<p><code>catalogs.yaml</code> holds one entry per catalog: the URL, the
+warehouse, and how to log in. The server code is the same for every
+catalog.</p>
+<hr />
+<h4 id="step-3--call-it-without-a-model">Step 3 — Call It Without a
+Model</h4>
+<p><code>sweep_catalogs.py</code> starts the server once per catalog and
+makes the same MCP calls each time: <code>initialize</code>,
+<code>tools/list</code>, then the four tools on the first table
+listed.</p>
+<pre class="console"><code>$ cd ../iceberg-mcp-hosts
+$ python3 sweep_catalogs.py --only apache-polaris
+apache-polaris       probe_ns.probe_table                 list_tables=ok(1.0s)  describe_table=ok(0.4s)  count_rows=ok(0.0s)  scan_table=ok(0.1s)</code></pre>
+<p>The scan's reply shows what a client receives:</p>
+<pre class="plaintext"><code>id | ts | payload | region
+0 | 2026-09-01 00:00:00+00:00 | row-0-0 | None
+2 | 2026-09-01 02:00:00+00:00 | row-0-2 | None
+3 | 2026-09-01 03:00:00+00:00 | row-0-3 | None
+ 
+3 of 11 row(s) shown, read from snapshot-id 1196292829914853564
+COUNT: exactly 11 row(s) are in the table in snapshot-id 1196292829914853564. Exact, over the whole table.
+MIN and MAX of id over those 11 row(s): 0 and 23. Exact.</code></pre>
+<p>A failed catalog call comes back as text starting
+<code>CATALOG ERROR</code>, so an agent can still say what it could not
+read. The sweep counts that text as a failure.</p>
+<hr />
+<h4 id="step-4--add-one-entry-per-catalog">Step 4 — Add One Entry per
+Catalog</h4>
+<p>Each managed catalog needs its own login in
+<code>catalogs.yaml</code>. The server builds a PyIceberg
+<code>RestCatalog</code> from it:</p>
+<p><img src="https://raw.githubusercontent.com/xbill9/lakehouse-iceberg-2026/main/papers/iceberg-mcp-seven-catalogs/medium/img/devto-iceberg-mcp-seven-catalogs-table-1.png"
+alt="Table: catalog, login, how files are read" /></p>
+<p>S3 Tables issues a storage credential when asked with the
+<code>X-Iceberg-Access-Delegation: vended-credentials</code> header.
+Horizon returns one without being asked.</p>
+<hr />
+<h4 id="step-5--install-the-storage-packages">Step 5 — Install the
+Storage Packages</h4>
+<p>Listing, describing and counting read only catalog metadata, so they
+work with <code>pyiceberg</code> alone. Scanning reads data files, and
+three catalogs need packages that <code>pyiceberg</code> does not
+install by default. Without them the server answers three of the four
+tools and the scan fails:</p>
+<pre class="plaintext"><code>CATALOG ERROR while scanning dbo.probe_table: ModuleNotFoundError: No module named &#39;adlfs&#39;.
+ 
+CATALOG ERROR while scanning probe_ns.probe_table: ModuleNotFoundError: No module named &#39;s3fs&#39;.</code></pre>
+<p>AWS logins made with the newer <code>aws login</code> command need
+one more package before any call works:</p>
+<pre class="plaintext"><code>CATALOG ERROR while listing tables: MissingDependencyException: Missing Dependency: Using the login credential provider requires an additional dependency. You will need to pip install &quot;botocore[crt]&quot; before proceeding.
+$ pip install adlfs s3fs &quot;botocore[crt]&quot;</code></pre>
+<p><img src="https://raw.githubusercontent.com/xbill9/lakehouse-iceberg-2026/main/papers/iceberg-mcp-seven-catalogs/medium/img/devto-iceberg-mcp-seven-catalogs-table-2.png"
+alt="Table: package, needed for" /></p>
+<hr />
+<h4 id="mag_right-tip-use-the-az-credential-directly-for-onelake">🔎
+Tip: Use the <code>az</code> Credential Directly for OneLake</h4>
+<p>OneLake's data files need an Azure storage credential as well as the
+catalog token. <code>DefaultAzureCredential</code> is the usual choice,
+and it tries the Azure VM metadata service before the <code>az</code>
+login. Off Azure, that attempt waits out its retries:</p>
+<pre class="plaintext"><code>     917ms No environment configuration found.
+     921ms ManagedIdentityCredential will use IMDS
+  553989ms DefaultAzureCredential acquired a token from AzureCliCredential
+AzureCliCredential      0.6s
+DefaultAzureCredential  553.1s</code></pre>
+<p>Through the MCP server, a three-row OneLake scan took 858.5 seconds
+with <code>DefaultAzureCredential</code> and 3.4 seconds with
+<code>AzureCliCredential</code>. Every other tool call was unaffected,
+because only the scan reads files.</p>
+<hr />
+<h4 id="step-6--run-all-six">Step 6 — Run All Six</h4>
+<pre class="console"><code>$ python3 sweep_catalogs.py --only apache-polaris,google-lakehouse,microsoft-onelake,aws-glue,aws-s3tables,snowflake-horizon
+$ python3 sweep_catalogs.py --report-only
+catalog             measured (UTC)        table                   rows  partitioned     seconds: list describe count scan
+apache-polaris      2026-09-18T23:58:37Z  probe_ns.probe_table      11  ts_day          1.0 0.5 0.0 0.1
+aws-glue            2026-09-18T23:58:51Z  probe_ns.probe_table      11  ts_day          2.1 0.7 0.2 1.5
+aws-s3tables        2026-09-18T23:58:57Z  probe_ns.probe_table      11  ts_day          2.2 0.3 0.2 2.0
+google-lakehouse    2026-09-19T00:11:14Z  probe_ns.probe_table      11  ts_day          10.1 1.6 0.5 3.6
+microsoft-onelake   2026-09-18T23:58:45Z  dbo.probe_table            6  (unpartitioned) 2.5 0.2 0.2 3.2
+snowflake-horizon   2026-09-18T23:59:02Z  PROBE_NS.PROBE_TABLE      12  ts_day          7.3 2.2 1.4 1.9</code></pre>
+<p><strong>All four tools work on all six catalogs.</strong> Each one
+reported the same four tools from <code>tools/list</code>, and no call
+returned an error.</p>
+<p>The first call on each catalog also builds the client and fetches a
+login token, which is why <code>list</code> is the slowest column. Each
+figure is a single call, so the times show scale only.</p>
+<hr />
+<h4 id="step-7--read-what-came-back">Step 7 — Read What Came Back</h4>
+<p>The tables were created separately for an <a
+href="https://dev.to/gde/seven-iceberg-rest-catalogs-what-they-declare-and-what-they-serve-40oj">earlier
+article</a>, and the server reports what each catalog holds:</p>
+<ul>
+<li><strong>OneLake</strong> names its namespace <code>dbo</code>,
+stores <code>id</code> as an optional <code>int</code>, and has 6 rows
+in an unpartitioned table</li>
+<li><strong>Horizon</strong> returns upper-case names,
+<code>PROBE_NS.PROBE_TABLE</code>, and has 12 rows</li>
+<li><strong>The other four</strong> hold the same 11-row table,
+partitioned by day</li>
+</ul>
+<p>A client only has to use the names <code>iceberg_list_tables</code>
+returns. The server passes them back unchanged, so <code>dbo</code> and
+upper-case names need no special handling.</p>
+<hr />
+<h4 id="mag_right-tip-horizon-hands-out-storage-credentials-unasked">🔎
+Tip: Horizon Hands Out Storage Credentials Unasked</h4>
+<p>Loading a Horizon table leaves S3 credentials on the client's file
+reader, although the catalog entry asks for none:</p>
+<pre class="plaintext"><code>snowflake-horizon
+  client.region
+  py-io-impl
+  s3.access-key-id
+  s3.secret-access-key
+  s3.session-token
+  s3.session-token-expires-at-ms</code></pre>
+<p>Horizon's catalog entry supplies no storage login, so its scan reads
+files with that credential. It also means a Horizon table load carries a
+live storage credential, so logs of that response need redacting.</p>
+<hr />
+<h4 id="step-8--use-it-from-an-mcp-client">Step 8 — Use It From an MCP
+Client</h4>
+<p>Any MCP client that starts stdio servers can run it. For Claude Code,
+a project <code>.mcp.json</code>:</p>
+<pre class="json"><code>{
+  &quot;mcpServers&quot;: {
+    &quot;iceberg&quot;: {
+      &quot;command&quot;: &quot;python3&quot;,
+      &quot;args&quot;: [&quot;iceberg-mcp-hosts/servers/iceberg_mcp.py&quot;],
+      &quot;env&quot;: {
+        &quot;ICEBERG_CATALOG&quot;: &quot;aws-glue&quot;,
+        &quot;ICEBERG_CATALOGS_FILE&quot;: &quot;iceberg-conformance/catalogs.yaml&quot;
+      }
+    }
+  }
+}</code></pre>
+<p>To reach a different catalog, change <code>ICEBERG_CATALOG</code>.
+The measurements above call the server directly and do not use this
+file.</p>
+<hr />
+<h4 id="compare-and-contrast">Compare and Contrast</h4>
+<p><img src="https://raw.githubusercontent.com/xbill9/lakehouse-iceberg-2026/main/papers/iceberg-mcp-seven-catalogs/medium/img/devto-iceberg-mcp-seven-catalogs-table-3.png"
+alt="Table: catalog, four tools, extra package, login on the machine" /></p>
+<hr />
+<h4 id="summary">Summary</h4>
+<p>The goal of this article was to point one Iceberg MCP server at seven
+catalogs and record what each one takes. The key to the solution was
+keeping the server code fixed, changing only the catalog entry, and
+calling the tools directly so that no model sits between the catalog and
+the result. The results were:</p>
+<ul>
+<li>🟢 All four tools work on all six catalogs run: Polaris, BigLake,
+OneLake, Glue, S3 Tables and Horizon</li>
+<li>🟢 The only change between catalogs is one environment variable and
+one entry in <code>catalogs.yaml</code></li>
+<li>⚠️ Three packages outside <code>pyiceberg</code>'s defaults are
+needed: <code>adlfs</code> for OneLake, <code>s3fs</code> for S3 Tables,
+and <code>botocore[crt]</code> for an <code>aws login</code> session;
+without them the metadata tools work and the scan fails</li>
+<li>⚠️ <code>DefaultAzureCredential</code> took 553.1 seconds off Azure;
+<code>AzureCliCredential</code> took 0.6</li>
+<li>⚠️ Horizon returns S3 credentials with a table load, unasked</li>
+<li>❌ Databricks Unity was not run, because its trial account has
+ended</li>
+</ul>
+<p>Scope: <code>iceberg_mcp.py</code> 1.0.0 on <code>pyiceberg</code>
+0.12.0, <code>pyarrow</code> 25.0.1, <code>s3fs</code> 2026.9.0,
+<code>adlfs</code> 2026.8.0, <code>botocore</code> 1.43.75 and
+<code>azure-identity</code> 1.25.3, on Python 3.14.7. Apache Polaris
+1.7.0 in Docker with local file storage; the managed catalogs over the
+internet from one machine, AWS in <code>us-east-1</code>. One run per
+catalog on 2026-09-18 and 2026-09-19 (UTC); Unity not run. Reads only.
+The tools are checked for answering without error; the tables differ
+between catalogs, so values are reported and not compared. Managed
+catalogs do not report a version.</p>
+<p>The strategy for pointing one Iceberg MCP server at seven catalogs
+was validated with an incremental step by step approach.</p>
+<hr />
+<h4 id="references">References</h4>
+<ul>
+<li><a
+href="https://github.com/xbill9/lakehouse-iceberg-2026">lakehouse-iceberg-2026
+| GitHub</a></li>
+<li><a href="https://modelcontextprotocol.io/specification">Model
+Context Protocol specification</a></li>
+<li><a
+href="https://github.com/apache/iceberg-python">apache/iceberg-python</a></li>
+<li><a href="https://polaris.apache.org/">Apache Polaris</a></li>
+<li><a
+href="https://dev.to/gde/seven-iceberg-rest-catalogs-what-they-declare-and-what-they-serve-40oj">Seven
+Iceberg REST Catalogs: What They Declare, and What They Serve</a></li>
+<li><a
+href="https://dev.to/gde/four-iceberg-tools-three-agent-frameworks-what-ports-and-what-doesnt-a5g">Four
+Iceberg Tools, Three Agent Frameworks: What Ports, and What
+Doesn't</a></li>
+</ul>
+</body>
+</html>

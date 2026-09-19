@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Two Iceberg Clients, One Protocol: Where the Time Goes</title>
+  <meta name="description" content="Step by step: timing the Rust and Python Iceberg REST clients on the same operations, on a local catalog and on BigLake and OneLake. Rust is 2x to 4x faster per call on the same machine, the two are even over the internet, and Python takes half a second longer to start on every catalog." />
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <style>
+    body{font-family:-apple-system,'Segoe UI',Roboto,'Liberation Sans',Arial,sans-serif;
+         font-size:18px;line-height:1.58;max-width:42em;color:#242424;}
+    h1,h2,h3,h4{font-weight:700;line-height:1.25;margin-top:1.8em;}
+    h4{font-size:1.25em;}
+    img{max-width:100%;height:auto;display:block;margin:1.6em 0;}
+    pre{background:#f7f7f7;border:1px solid #e6e6e6;border-radius:4px;
+        padding:12px 14px;overflow-x:auto;font-size:14px;line-height:1.45;}
+    code{font-family:'Liberation Mono',Menlo,Consolas,monospace;}
+    :not(pre)>code{background:#f2f2f2;padding:1px 5px;border-radius:3px;font-size:.9em;}
+    blockquote{border-left:3px solid #ddd;margin-left:0;padding-left:1em;color:#555;}
+    hr{border:0;border-top:1px solid #e6e6e6;margin:2.4em 0;}
+  </style>
+</head>
+<body>
+<figure><img src="https://raw.githubusercontent.com/xbill9/lakehouse-iceberg-2026/main/papers/two-iceberg-clients-cost/medium/img/cover.6a98c525.jpg" alt="Two Iceberg Clients, One Protocol: Where the Time Goes" /></figure>
+<p>This article provides a step by step comparison of the Rust and
+Python clients for Apache Iceberg REST catalogs. It times both clients
+on the same operations against the same tables, then breaks one request
+down to see where the time goes.</p>
+<p><a
+href="https://github.com/xbill9/lakehouse-iceberg-2026">https://github.com/xbill9/lakehouse-iceberg-2026</a></p>
+<hr />
+<h4 id="what-is-this-project-trying-to-do">What is this project trying
+to Do?</h4>
+<p>Two Apache clients talk to the same catalogs:</p>
+<ul>
+<li><strong><code>iceberg-catalog-rest</code> 0.10.1</strong>, the Rust
+client, built in release mode</li>
+<li><strong><code>pyiceberg</code> 0.12.0</strong>, the Python client,
+on Python 3.14.7</li>
+</ul>
+<p>They run against three catalogs:</p>
+<ul>
+<li><strong>Apache Polaris</strong> 1.7.0 in Docker on the same machine,
+so there is no network time</li>
+<li><strong>Google BigLake</strong> and <strong>Microsoft
+OneLake</strong> over the internet</li>
+</ul>
+<p>Three things are measured: how long each call takes, how long each
+client takes to start, and where the time in one call is spent.</p>
+<p>The benchmark measures speed only. It does not check that answers are
+correct, and a client that lacks an operation you need is the wrong
+choice however fast it is.</p>
+<hr />
+<h4 id="why-not-just-count-features">Why Not Just Count Features?</h4>
+<p>The Rust client supports 13 of the 25 catalog endpoints tested, and
+<code>pyiceberg</code> supports 21. Anyone can count that from the two
+repositories, and it only holds for these two versions.</p>
+<p>How long a call takes is in neither repository, so that is what this
+article measures.</p>
+<hr />
+<h4 id="where-do-i-start">Where do I start?</h4>
+<p>The strategy for comparing the two clients is an incremental step by
+step approach.</p>
+<p>First, both clients are timed against a local catalog, where only the
+client's own time is measured. Then one request is broken down to find
+where the time goes. The same benchmark then runs against two managed
+catalogs, the two clients' requests are compared, and startup time is
+measured last.</p>
+<hr />
+<h4 id="at-this-point-you-should-have">At This Point You Should
+Have…</h4>
+<ul>
+<li>Rust 1.94 or newer, and a <strong>release</strong> build — this run
+used <code>rustc</code> 1.98.1</li>
+<li>Python 3.10+ with <code>pyiceberg</code> 0.12.0</li>
+<li>Docker, for the local Polaris catalog</li>
+<li>A quiet machine — this one is a 16-core Linux host</li>
+<li>Optional: a managed Iceberg REST catalog, for the internet runs</li>
+</ul>
+<hr />
+<h4 id="step-1--build-both-clients-and-start-polaris">Step 1 — Build
+Both Clients and Start Polaris</h4>
+<pre class="console"><code>$ git clone https://github.com/xbill9/lakehouse-iceberg-2026
+$ cd lakehouse-iceberg-2026/iceberg-conformance &amp;&amp; ./polaris-up.sh
+$ export POLARIS_CLIENT_ID=root POLARIS_CLIENT_SECRET=s3cr3t
+$ cd ../iceberg-rust-client &amp;&amp; cargo build --release</code></pre>
+<p>The benchmark will not save results from a debug build.</p>
+<hr />
+<h4 id="step-2--time-both-clients-locally">Step 2 — Time Both Clients
+Locally</h4>
+<p>To keep the comparison fair:</p>
+<ul>
+<li><strong>Each client runs in its own new process.</strong> The
+benchmark script is Python, so running <code>pyiceberg</code> inside it
+would give Python a head start.</li>
+<li><strong>Startup is timed separately.</strong> Each process connects
+and warms up before any call is timed.</li>
+<li><strong>The clients take turns.</strong> They alternate going first,
+so a machine that slows down slows both.</li>
+<li><strong>Every timing is saved</strong>, and the medians are computed
+from the saved files.</li>
+</ul>
+<pre class="console"><code>$ python3 bench.py --rounds 4 --iters 15
+apache-polaris     6 ops, 2 clients, 4 rounds x 15 iters = 720 samples
+$ python3 bench_report.py
+wrote evidence/bench-comparison.txt   8 run(s) across 3 catalog(s)</code></pre>
+<p>Six read operations both clients support, median time in
+microseconds, lowest to highest across four runs on two days:</p>
+<p><img src="https://raw.githubusercontent.com/xbill9/lakehouse-iceberg-2026/main/papers/two-iceberg-clients-cost/medium/img/devto-two-iceberg-clients-cost-table-1.png"
+alt="Table: op, rust, pyiceberg, python ÷ rust" /></p>
+<p><strong>Rust is 1.90x to 4.29x faster on the four small calls, and
+1.14x to 1.38x on the two table calls</strong>, where the server itself
+does more work.</p>
+<p><strong>The numbers vary a lot between runs.</strong> The Rust time
+for <code>list_namespaces</code> ranged from 301.3 to 768.1
+microseconds, a spread of 154.9%. That is why the table shows
+ranges.</p>
+<p>With no network involved, these ratios are as large as the difference
+can get. Step 4 adds the internet.</p>
+<hr />
+<h4 id="step-3--break-one-request-down">Step 3 — Break One Request
+Down</h4>
+<p>The same <code>list_namespaces</code> request is timed in stages on
+one <code>pyiceberg</code> connection: the raw HTTP request, then
+parsing the JSON, then building Python objects, then the full client
+call. The same raw HTTP request is then timed from Rust.</p>
+<pre class="console"><code>$ python3 bench_breakdown.py --iters 120</code></pre>
+<p>Across seven runs on the local catalog, over two days:</p>
+<ul>
+<li><strong>The raw HTTP request is 90% to 94% of
+<code>pyiceberg</code>'s call time.</strong></li>
+<li>The same HTTP request takes <strong>269.8 to 479.7
+microseconds</strong> from Rust's HTTP library, <code>reqwest</code>,
+and <strong>864.3 to 1286.4 microseconds</strong> from Python's,
+<code>requests</code>.</li>
+<li>Everything <code>pyiceberg</code> does after the HTTP request adds
+<strong>57.3 to 134.7 microseconds</strong>.</li>
+</ul>
+<p>So 85% to 90% of the difference between the two clients is the HTTP
+library. That percentage is calculated from the two ranges above, run by
+run.</p>
+<hr />
+<h4 id="mag_right-tip-small-differences-are-noise-here">🔎 Tip: Small
+Differences Are Noise Here</h4>
+<p>The breakdown tool prints, next to each stage, whether the time that
+stage added is bigger than the normal run-to-run noise. Only JSON
+parsing was. How the rest of <code>pyiceberg</code>'s 57.3 to 134.7
+microseconds splits up cannot be measured at this sample size.</p>
+<p>One setting is worth knowing about. <code>requests</code> re-reads
+proxy settings from the environment on every call unless
+<code>trust_env=False</code> is set. Turning it off saved between 32.9
+and 89.9 microseconds in each of five runs, but that saving was bigger
+than the noise in only one run.</p>
+<hr />
+<h4 id="step-4--time-them-over-the-internet">Step 4 — Time Them Over the
+Internet</h4>
+<p>The same benchmark against BigLake and OneLake. Both clients use the
+same login token, created once before the run:</p>
+<pre class="console"><code>$ python3 bench.py --only google-lakehouse --rounds 4 --iters 15 --storage opendal
+google-lakehouse   6 ops, 2 clients, 4 rounds x 15 iters = 720 samples
+$ python3 bench.py --only microsoft-onelake --rounds 4 --iters 15 --storage opendal
+microsoft-onelake  6 ops, 2 clients, 4 rounds x 15 iters = 720 samples</code></pre>
+<p>Two runs each, median time in milliseconds:</p>
+<p><img src="https://raw.githubusercontent.com/xbill9/lakehouse-iceberg-2026/main/papers/two-iceberg-clients-cost/medium/img/devto-two-iceberg-clients-cost-table-2.png"
+alt="Table: op, BigLake rust, BigLake py, ratio, OneLake rust, OneLake py, ratio" /></p>
+<p>Apart from <code>load_table</code>, every ratio is between 0.90x and
+1.04x. The local difference is under a millisecond per call, and a round
+trip of 36 to 200 milliseconds hides it.</p>
+<p>On BigLake, <code>pyiceberg</code> was 4% to 5% faster on
+<code>load_table</code> in both runs, for a reason this test did not
+identify.</p>
+<hr />
+<h4 id="mag_right-tip-biglake-allows-75-catalog-requests-a-minute">🔎
+Tip: BigLake Allows 75 Catalog Requests a Minute</h4>
+<p>BigLake limits catalog requests to 75 a minute per project, and
+answers faster bursts with HTTP 429. The benchmark discards any timing
+that did not return success, and
+<code>bench_breakdown.py --pace-ms</code> waits between requests. The
+limit is visible with:</p>
+<pre class="console"><code>$ gcloud alpha services quota list --service=biglake.googleapis.com \
+    --consumer=projects/&lt;project&gt; \
+    --format=&quot;table(metric,consumerQuotaLimits[0].unit,consumerQuotaLimits[0].quotaBuckets[0].effectiveLimit)&quot;
+biglake.googleapis.com/irc_catalog_requests          1/min/{project}       75
+biglake.googleapis.com/irc_read_requests             1/min/{project}       600</code></pre>
+<hr />
+<h4 id="step-5--compare-the-two-clients-requests">Step 5 — Compare the
+Two Clients' Requests</h4>
+<p>OneLake's <code>load_table</code> took 4.12x to 4.62x longer through
+<code>pyiceberg</code>, while every other OneLake call was even. The two
+clients send different requests.</p>
+<p><code>pyiceberg</code> sends the header
+<code>X-Iceberg-Access-Delegation: vended-credentials</code> by default
+(<code>catalog/rest/__init__.py:881</code>). It asks the catalog to
+include a temporary storage credential with the table. The Rust client
+sends no such header.</p>
+<p><code>bench_delegation.py</code> times the same
+<code>pyiceberg</code> request with and without the header:</p>
+<pre class="console"><code>$ python3 bench_delegation.py --only microsoft-onelake --iters 40
+row                                  p50       p90
+GET, header sent                   146.6     235.5
+GET, header removed                 38.1      41.3
+whole load_table                   148.5     182.4
+whole load_table, no header         36.6      42.4</code></pre>
+<p>With the header, OneLake adds a storage credential to the response
+and takes 108.5 ms longer. Without it, <code>pyiceberg</code>'s
+<code>load_table</code> takes 36.6 ms, inside the Rust client's
+36.3–39.0 ms. On Polaris and BigLake the header made no measurable
+difference.</p>
+<p>So <code>pyiceberg</code> pays 108.5 to 111.9 ms and gets a
+credential for reading the table's files. The Rust client pays nothing
+and gets no credential. The companion article on the Rust client covers
+what happens when it then tries to read the files.</p>
+<hr />
+<h4 id="step-6--measure-startup-time">Step 6 — Measure Startup Time</h4>
+<p>Startup here means starting a new process, connecting, and answering
+each of the six operations once. Median of five starts per client per
+run:</p>
+<p><img src="https://raw.githubusercontent.com/xbill9/lakehouse-iceberg-2026/main/papers/two-iceberg-clients-cost/medium/img/devto-two-iceberg-clients-cost-table-3.png"
+alt="Table: catalog, rust, pyiceberg, python takes longer by" /></p>
+<p>Over the internet both clients wait on the same round trips, so the
+ratio drops from 21.4x–33.6x locally to 1.4x on BigLake and 1.8x on
+OneLake. <strong>The extra half second stays.</strong> It matters for a
+CLI, a Lambda function or a short-lived agent, and hardly at all for a
+service that starts once.</p>
+<p>Where the half second goes, median of five, across seven local
+runs:</p>
+<p><img src="https://raw.githubusercontent.com/xbill9/lakehouse-iceberg-2026/main/papers/two-iceberg-clients-cost/medium/img/devto-two-iceberg-clients-cost-table-4.png"
+alt="Table: step, time" /></p>
+<p>Most of it is importing the library. Connecting to the catalog is the
+smallest part.</p>
+<p>On OneLake the import took 338.9 and 341.4 ms, the same as locally,
+and fetching the config took 447.3 and 493.8 ms. Both clients fetch the
+config; only <code>pyiceberg</code> pays for the import.</p>
+<hr />
+<h4 id="how-this-compares-to-published-lambda-numbers">How This Compares
+to Published Lambda Numbers</h4>
+<p><em>Cold Starts Are Dead</em> measured AWS Lambda start times of
+<strong>88.3 ms for Python 3.13 on arm64</strong> (106.2 ms on x86_64)
+and <strong>14.1 ms for Rust</strong> (17.0 ms), at 512 MB, with
+hello-world functions and <strong>no libraries</strong>.</p>
+<p>The local Python startup here is about six times that: 525.8 to 557.9
+ms against 88.3 ms. The difference is mostly the 337.9 to 366.3 ms spent
+importing <code>pyiceberg</code>.</p>
+<hr />
+<h4 id="compare-and-contrast">Compare and Contrast</h4>
+<p><img src="https://raw.githubusercontent.com/xbill9/lakehouse-iceberg-2026/main/papers/two-iceberg-clients-cost/medium/img/devto-two-iceberg-clients-cost-table-5.png"
+alt="Table: 🦀 iceberg-catalog-rest, 🐍 pyiceberg" /></p>
+<hr />
+<h4 id="so-which-one">So, Which One?</h4>
+<p><strong>For a long-running service, pick by features.</strong> Over
+the internet the per-call difference disappears, and startup happens
+once. Choose the client that supports the operations and login method
+you need.</p>
+<p><strong>For a CLI, a Lambda function or a short-lived agent, startup
+decides it.</strong> Python adds half a second or more per process on
+every catalog tested.</p>
+<hr />
+<h4 id="summary">Summary</h4>
+<p>The goal of this article was to measure how fast the Rust and Python
+Iceberg REST clients are. The key to the solution was running both as
+separate processes against the same catalogs, timing startup separately,
+and breaking one request down to see where the time goes. The results
+were:</p>
+<ul>
+<li>🟢 Locally, Rust is 1.90x to 4.29x faster on small calls, and 85% to
+90% of that difference is the HTTP library</li>
+<li>🟢 Over the internet the difference disappears: 0.90x to 1.04x on
+BigLake and OneLake</li>
+<li>⚠️ Python starts 507.2 to 776.2 ms slower on every catalog, mostly
+from importing the library (337.9 to 366.3 ms locally)</li>
+<li>⚠️ OneLake's 4x on <code>load_table</code> comes from
+<code>pyiceberg</code> requesting a storage credential by default, which
+the Rust client never does</li>
+<li>❌ <code>pyiceberg</code> was 4% to 5% faster on BigLake's
+<code>load_table</code>, cause unknown</li>
+</ul>
+<p>Scope: <code>iceberg-catalog-rest</code> 0.10.1 in a release build
+with <code>rustc</code> 1.98.1 and <code>rustls</code> 0.23.45, and
+<code>pyiceberg</code> 0.12.0 on Python 3.14.7 with
+<code>requests</code> 2.34.2 over OpenSSL 3.5.7, on one 16-core Linux
+host. Apache Polaris 1.7.0 in Docker on the same machine with local file
+storage: four benchmark runs on 2026-09-17 and 2026-09-18, and seven
+breakdown runs of 80 to 120 requests each. Google BigLake and Microsoft
+OneLake over the internet on 2026-09-18: two benchmark runs each. Each
+benchmark run is 720 timed calls across six read operations; startup is
+the median of five starts per client per run. No writes were timed.
+Managed catalogs do not report a version, and each internet run is one
+region at one point in time.</p>
+<p>The strategy for comparing two Iceberg REST clients by speed was
+validated with an incremental step by step approach.</p>
+<hr />
+<h4 id="references">References</h4>
+<ul>
+<li><a
+href="https://github.com/xbill9/lakehouse-iceberg-2026">lakehouse-iceberg-2026
+| GitHub</a></li>
+<li><a
+href="https://github.com/apache/iceberg-rust">apache/iceberg-rust</a></li>
+<li><a
+href="https://github.com/apache/iceberg-python">apache/iceberg-python</a></li>
+<li><a href="https://dev.to/aws/cold-starts-are-dead-5fod">Cold Starts
+Are Dead</a></li>
+<li><a
+href="https://github.com/querygraph/catalog-bench">querygraph/catalog-bench</a></li>
+<li><a
+href="https://dev.to/gde/seven-iceberg-rest-catalogs-what-they-declare-and-what-they-serve-40oj">Seven
+Iceberg REST Catalogs: What They Declare, and What They Serve</a></li>
+</ul>
+</body>
+</html>
