@@ -3,4 +3,5 @@
 devto-gde = https://dev.to/gde/one-iceberg-mcp-server-seven-catalogs-what-it-takes-to-reach-each-one-2605
 devto-aws = https://dev.to/aws-builders/one-iceberg-mcp-server-seven-catalogs-what-it-takes-to-reach-each-one-jp5
 medium    = https://xbill999.medium.com/one-iceberg-mcp-server-seven-catalogs-what-it-takes-to-reach-each-one-bde4773272cf
+builder   = https://builder.aws.com/content/3JbnVuvPrla8IGmEMH9VTJtXK3l/one-iceberg-mcp-server-seven-catalogs-what-it-takes-to-reach-each-one
 repo      = https://github.com/xbill9/lakehouse-iceberg-2026
