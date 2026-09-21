@@ -76,3 +76,16 @@ title    ADLS: Support vended "adls.sas-token.xxx" prefixed tokens
 what     Upstream issue, opened 2025-06-14, open when read 2026-09-21. Covers
          the key format Azure vended credentials arrive in.
 use      Cited in paper 5 as the second half of the OneLake storage result.
+
+source   https://raw.githubusercontent.com/apache/iceberg/main/open-api/rest-catalog-open-api.yaml
+title    Iceberg REST Catalog OpenAPI specification
+what     Read 2026-09-21, 212702 bytes. securitySchemes defines exactly two:
+         OAuth2 (type oauth2) and BearerAuth (type http), and the document's
+         top-level security list is "OAuth2: [catalog]" and "BearerAuth: []".
+         The signing the document describes is remote signing for storage
+         access -- s3.remote-signing-enabled, the RemoteSignRequest schema,
+         and the remote-signing access-delegation mode. No request signing
+         for catalog requests appears in it.
+use      Cited in paper 5 so that SigV4 on Glue and S3 Tables is reported as
+         a layer those two add above the specification, and the Rust client's
+         missing signer is not read as a shortfall against a standard.

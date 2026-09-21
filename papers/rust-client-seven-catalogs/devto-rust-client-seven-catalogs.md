@@ -214,6 +214,8 @@ One more, for anyone building a client: a two-level namespace goes out with the 
 
 The client can log in with a token, with an OAuth2 client ID and secret, or with fixed extra headers. It has no AWS request signing.
 
+The specification's own security schemes are OAuth2 and bearer tokens; the signing it describes covers storage access. Glue and S3 Tables require SigV4 on the catalog requests themselves, a layer above what the specification defines.
+
 | login | catalogs | with this client |
 |---|---|---|
 | OAuth2 | Polaris | built in |
@@ -227,6 +229,40 @@ The client's `regenerate_token()` only knows how to repeat an OAuth2 login. BigL
 Missing SigV4 is already known. `apache/iceberg-rust` issue #1236, *"REST catalog: support AWS sigV4"*, is open and asks for the same three settings `pyiceberg` already has: `rest.sigv4-enabled`, `rest.signing-name` and `rest.signing-region`. Discussion #1239 shows a user getting a 403 from S3 Tables because of it.
 
 Rust code can still use both AWS catalogs. The same project publishes `iceberg-catalog-glue` and `iceberg-catalog-s3tables`, both 0.10.1, which call the AWS APIs directly. The cost is that a Rust tool covering all seven catalogs needs three different catalog clients. In Python, one client covers all seven.
+
+---
+
+#### 🔎 Tip: A Signature Cannot Travel as a Header
+
+The client can carry arbitrary fixed headers, which is the obvious place to put a signature. This test signs the first request the client sends, `GET /v1/config`, hands the client that signature as fixed headers, and lets it send them with every request.
+
+```console
+$ python3 run_rust.py --only aws-glue --only aws-s3tables --sigv4-demo --storage opendal
+$ python3 vendor_report.py
+wrote evidence/rust-vendor-runs.txt
+```
+
+```plaintext
+aws-glue
+  through the crate: 7 of 7 issued probes refused with InvalidSignatureException, 0 succeeded
+  replay, GET /v1/config (the signed request): 200
+  replay, GET /v1/{prefix}/namespaces (same headers): 403
+
+aws-s3tables
+  through the crate: 7 of 7 issued probes refused with InvalidSignatureException, 0 succeeded
+  replay, GET /v1/config (the signed request): 200
+  replay, GET /v1/{prefix}/namespaces (same headers): 403
+```
+
+The "replay" lines send the same headers directly: they work once, on the request they were signed for, and are refused on the next. Glue and S3 Tables give the same error:
+
+```plaintext
+The request signature we calculated does not match the signature you provided.
+Check your AWS Secret Access Key and signing method. Consult the service
+documentation for details.
+```
+
+A SigV4 signature covers one canonical request, so a header that repeats is valid for one request only. That closes the last route this client has to the two AWS catalogs over REST.
 
 ---
 
@@ -322,40 +358,6 @@ The read still timed out, after 47181 ms. The client reads the credential out of
 Both problems are open upstream. `apache/iceberg-rust` #2931 covers using catalog-issued storage credentials, and #1442 covers the Azure SAS token format those credentials use.
 
 For now, reading OneLake's files from this client needs a service principal, or a SAS token created separately.
-
----
-
-#### Step 9 — Try a SigV4 Signature as a Header
-
-A SigV4 signature covers one specific request. The test signs the first request the client sends, `GET /v1/config`, and gives the client the signature as fixed headers. The client then sends those same headers with every request.
-
-```console
-$ python3 run_rust.py --only aws-glue --only aws-s3tables --sigv4-demo --storage opendal
-$ python3 vendor_report.py
-wrote evidence/rust-vendor-runs.txt
-```
-
-```plaintext
-aws-glue
-  through the crate: 7 of 7 issued probes refused with InvalidSignatureException, 0 succeeded
-  replay, GET /v1/config (the signed request): 200
-  replay, GET /v1/{prefix}/namespaces (same headers): 403
-
-aws-s3tables
-  through the crate: 7 of 7 issued probes refused with InvalidSignatureException, 0 succeeded
-  replay, GET /v1/config (the signed request): 200
-  replay, GET /v1/{prefix}/namespaces (same headers): 403
-```
-
-The "replay" lines send the same headers directly: they work once, on the request they were signed for, and are refused on the next. Glue and S3 Tables give the same error:
-
-```plaintext
-The request signature we calculated does not match the signature you provided.
-Check your AWS Secret Access Key and signing method. Consult the service
-documentation for details.
-```
-
-Fixed headers cannot replace request signing, so this client cannot use the AWS REST catalogs.
 
 ---
 
