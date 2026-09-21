@@ -143,7 +143,7 @@ All 7 supported read operations work. The one `IMPLICIT` result is the config re
 
 #### Step 5 — Issue the Write Endpoints
 
-The run above leaves eleven endpoints untried. The client has a method for each of them, and a read-only program sends none of them, which are two separate statements: a method that compiles can still fail on the wire. Polaris is local, permissive and disposable, so the writes run there and on no other catalog. Every request goes through a small logging proxy, so what the client put on the wire is recorded beside what came back.
+The run above leaves eleven endpoints untried: the client has a method for each, and the read-only program sends none. A method that compiles can still fail on the wire, so this step sends them. Polaris is local, permissive and disposable, so the writes run there and on no other catalog, and every request goes through a small logging proxy that records what the client sent beside what came back.
 
 ```console
 $ python3 run_writes.py
@@ -173,9 +173,7 @@ The refusal is the stub from Step 3, and the proxy log shows why it takes 0 ms: 
 
 ---
 
-#### 🔎 Tip: What the Proxy Log Shows
-
-Four things about this client are visible in the requests and not in its documentation.
+#### 🔎 Tip: The Proxy Log Shows Five Things
 
 **A table commit costs two requests.** Each commit re-reads the table first, so one property change is a `GET` and then a `POST`:
 
@@ -206,7 +204,7 @@ Four things about this client are visible in the requests and not in its documen
   _create_table_format_version_property {"asked_for": "V1 in TableCreation and in the format-version property", "format_version": "V1"}
 ```
 
-One more, for anyone building a client: a two-level namespace goes out with the unit separator the specification asks for, as `.../namespaces/irc_probe_rust_1790009108%1Fchild`, and Polaris created, loaded and dropped it through the client.
+**A two-level namespace goes out with the unit separator.** The path is `.../namespaces/irc_probe_rust_1790009108%1Fchild`, which is what the specification asks for, and Polaris created, loaded and dropped it through the client.
 
 ---
 
@@ -232,9 +230,9 @@ Rust code can still use both AWS catalogs. The same project publishes `iceberg-c
 
 ---
 
-#### 🔎 Tip: A Signature Cannot Travel as a Header
+#### 🔎 Tip: Glue and S3 Tables Refuse the Second Request
 
-The client can carry arbitrary fixed headers, which is the obvious place to put a signature. This test signs the first request the client sends, `GET /v1/config`, hands the client that signature as fixed headers, and lets it send them with every request.
+The client can carry fixed headers, so the signature goes there. This test signs the first request the client sends, `GET /v1/config`, and hands the client those headers to send with every request.
 
 ```console
 $ python3 run_rust.py --only aws-glue --only aws-s3tables --sigv4-demo --storage opendal
@@ -262,7 +260,7 @@ Check your AWS Secret Access Key and signing method. Consult the service
 documentation for details.
 ```
 
-A SigV4 signature covers one canonical request, so a header that repeats is valid for one request only. That closes the last route this client has to the two AWS catalogs over REST.
+A signature is computed over the request it signs, so both catalogs took it on `/v1/config` and refused everything after it. Reaching Glue or S3 Tables over REST from Rust needs a signer inside the client.
 
 ---
 
