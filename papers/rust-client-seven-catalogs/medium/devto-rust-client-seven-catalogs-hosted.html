@@ -5,7 +5,7 @@
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
   <title>What One Rust Client Can Reach Across Seven Iceberg Catalogs</title>
-  <meta name="description" content="Step by step: the Apache Rust Iceberg REST client against seven Iceberg catalogs. It logs in to five of them, and on every one it logs in to, all 13 endpoints it implements answer — 7 reads on three catalogs and 11 writes on the local one, with no failures. Two lines of Cargo.toml and one AWS auth scheme are what stand in the way." />
+  <meta name="description" content="Step by step: the Apache Rust Iceberg REST client against seven Iceberg catalogs. It logs in to five of them, and on every one it logs in to, all 13 endpoints it implements answer — 7 reads on three catalogs and 11 writes on the local one, with no failures. The two AWS catalogs need SigV4, which it cannot send, so Rust reaches them through two other crates whose operation sets differ from its own." />
   <style>
     html {
       color: #1a1a1a;
@@ -212,8 +212,10 @@ Horizon</strong>, not run here</li>
 <p>The result is a short one. This client implements 13 of the 25
 operations the earlier article tested, it logs in to five of the seven
 catalogs, and on every catalog it logs in to, all 13 answer. Two lines
-of <code>Cargo.toml</code> and one AWS authentication scheme are what
-stand between it and the rest.</p>
+of <code>Cargo.toml</code> stand between it and those five. The other
+two are AWS, they require a signature this client cannot produce, and
+the Rust answer to that is two more catalog crates that do not implement
+quite the same operations.</p>
 <hr />
 <h4 id="what-does-each-result-mean">What Does Each Result Mean?</h4>
 <p>The test suite is 33 checks covering 25 of the 35 operations in the
@@ -365,28 +367,56 @@ Login to Each Catalog</h4>
 secret, or with fixed extra headers. It has no AWS request signing.</p>
 <p><img src="https://raw.githubusercontent.com/xbill9/lakehouse-iceberg-2026/main/papers/rust-client-seven-catalogs/medium/img/devto-rust-client-seven-catalogs-table-2.png"
 alt="Table: login, catalogs, with this client" /></p>
-<p>The specification's own security schemes are OAuth2 and bearer
-tokens; the signing it describes covers storage access. Glue and S3
-Tables require SigV4 on the catalog requests themselves, a layer above
-what the specification defines, and <code>apache/iceberg-rust</code>
-#1236 is the open request to support it. The token the client does hold
-is refreshed by <code>regenerate_token()</code>, which only knows how to
-repeat an OAuth2 login, so a long-running program on BigLake or OneLake
-mints its own.</p>
-<p>Fixed headers look like a way round the signing gap, and they are
-worth one measurement: a signature minted for
-<code>GET /v1/config</code> and passed as a static header got a 200 on
-that request and a 403 on the next, on Glue and S3 Tables both, with 7
-of 7 probes refused through the client. A signature covers the request
-it signs.</p>
-<p>Rust code can still use both AWS catalogs. The same project publishes
+<p>Glue and S3 Tables require SigV4 on the catalog requests themselves.
+The specification does not describe that — its security schemes are
+OAuth2 and bearer tokens, and the signing in it covers storage access —
+but <code>pyiceberg</code> signs anyway, with
+<code>rest.sigv4-enabled</code>, <code>rest.signing-name</code> and
+<code>rest.signing-region</code>, so the Python REST client reaches all
+seven catalogs and the Rust one reaches five. The request to add it,
+<code>apache/iceberg-rust</code> #1236, has been open since April
+2025.</p>
+<p>Fixed headers look like a way round it, and they are worth one
+measurement: a signature minted for <code>GET /v1/config</code> and
+passed as a static header got a 200 on that request and a 403 on the
+next, on Glue and S3 Tables both, with all 7 checks refused through the
+client. A signature covers the request it signs.</p>
+<p>The token the client does hold is refreshed by
+<code>regenerate_token()</code>, which only knows how to repeat an
+OAuth2 login, so a long-running program on BigLake or OneLake mints its
+own.</p>
+<hr />
+<h4 id="step-7--reach-aws-through-the-other-two-crates">Step 7 — Reach
+AWS Through the Other Two Crates</h4>
+<p>Rust does reach both AWS catalogs. The same Apache project publishes
 <code>iceberg-catalog-glue</code> and
 <code>iceberg-catalog-s3tables</code>, both 0.10.1, which call the AWS
-APIs directly. The cost is that a Rust tool covering all seven catalogs
-needs three different catalog clients. In Python, one client covers all
-seven.</p>
+APIs directly and sign as the AWS SDK does. All three crates implement
+the same <code>Catalog</code> trait, so a program written against
+<code>dyn Catalog</code> swaps between them by changing a
+dependency.</p>
+<p>What changes with the dependency is the set of operations that
+answers. Reading each crate's <code>impl Catalog for</code> block:</p>
+<pre class="plaintext"><code>  Catalog trait method     rest       glue       s3tables
+  update_namespace         refused    sent       refused
+  drop_table               sent       sent       refused
+  register_table           sent       sent       refused</code></pre>
+<p>The other 12 trait methods are sent by all three. Each refusal says
+why:</p>
+<pre class="plaintext"><code>  rest       update_namespace         &#39;Updating namespace not supported yet!&#39;
+  s3tables   drop_table               &#39;drop_table is not supported for S3Tables; use purge_table instead&#39;
+  s3tables   register_table           &#39;Registering a table is not supported yet&#39;
+  s3tables   update_namespace         &#39;Update namespace is not supported for s3tables catalog&#39;</code></pre>
+<p>One of those four is the service speaking: S3 Tables requires a
+purge, which the earlier article measured from the wire, so that refusal
+is the catalog's own rule carried faithfully by the crate. The other
+three are crate-level gaps, and they land at runtime, since all three
+crates satisfy the same trait and compile the same way.</p>
+<p>So a Rust tool covering all seven catalogs carries three catalog
+implementations and an operation set that varies by which one is loaded.
+In Python, one client covers all seven.</p>
 <hr />
-<h4 id="step-7--point-it-at-a-managed-catalog">Step 7 — Point It at a
+<h4 id="step-8--point-it-at-a-managed-catalog">Step 8 — Point It at a
 Managed Catalog</h4>
 <pre class="console"><code>$ python3 run_rust.py --only google-lakehouse --only microsoft-onelake --storage opendal
 google-lakehouse   1 implicit, 14 not-expressible, 11 not-issued, 7 ok
@@ -397,7 +427,7 @@ wrote evidence/rust-run-microsoft-onelake.json</code></pre>
 both, over the internet, with a token minted by <code>gcloud</code> and
 by <code>az</code>.</p>
 <hr />
-<h4 id="step-8--read-the-tables-files">Step 8 — Read the Table's
+<h4 id="step-9--read-the-tables-files">Step 9 — Read the Table's
 Files</h4>
 <p><code>load_table</code> sets up file access but does not read
 anything, so each run also reads the table's metadata file through the
@@ -473,8 +503,10 @@ missing and 1 is a stub that sends no request</li>
 TLS backend (upstream #2888) and <code>iceberg-storage-opendal</code>
 for cloud storage</li>
 <li>❌ Glue and S3 Tables require SigV4, which this client cannot send,
-so a Rust tool covering all seven catalogs needs three catalog clients
-where Python needs one (upstream #1236)</li>
+so a Rust tool covering all seven catalogs loads three catalog crates
+where Python loads one — and those three disagree on three of the 15
+<code>Catalog</code> methods, at runtime (upstream #1236, open since
+April 2025)</li>
 <li>❌ OneLake's files could not be read: the Azure backend cannot use
 an <code>az login</code>, and a credential from the catalog is read and
 then ignored (upstream #2931, #1442)</li>
@@ -519,6 +551,12 @@ tokens</a></li>
 <li><a
 href="https://github.com/apache/iceberg-rust/issues/3134">iceberg-rust
 #3134 — Transaction commits against a base it never validated</a></li>
+<li><a
+href="https://crates.io/crates/iceberg-catalog-glue">iceberg-catalog-glue
+| crates.io</a></li>
+<li><a
+href="https://crates.io/crates/iceberg-catalog-s3tables">iceberg-catalog-s3tables
+| crates.io</a></li>
 <li><a
 href="https://dev.to/gde/seven-iceberg-rest-catalogs-what-they-declare-and-what-they-serve-40oj">Seven
 Iceberg REST Catalogs: What They Declare, and What They Serve</a></li>

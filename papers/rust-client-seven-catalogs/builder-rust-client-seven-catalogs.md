@@ -15,7 +15,7 @@ An earlier article tested what seven Iceberg REST catalogs support. This one ask
 - **AWS Glue** and **AWS S3 Tables**, over the internet
 - **Databricks Unity** and **Snowflake Horizon**, not run here
 
-The result is a short one. This client implements 13 of the 25 operations the earlier article tested, it logs in to five of the seven catalogs, and on every catalog it logs in to, all 13 answer. Two lines of `Cargo.toml` and one AWS authentication scheme are what stand between it and the rest.
+The result is a short one. This client implements 13 of the 25 operations the earlier article tested, it logs in to five of the seven catalogs, and on every catalog it logs in to, all 13 answer. Two lines of `Cargo.toml` stand between it and those five. The other two are AWS, they require a signature this client cannot produce, and the Rust answer to that is two more catalog crates that do not implement quite the same operations.
 
 ---
 
@@ -177,15 +177,43 @@ The client can log in with a token, with an OAuth2 client ID and secret, or with
 | `gcloud` or `az` login | BigLake, OneLake | a token created outside the client, which the client cannot renew |
 | AWS SigV4 signing | Glue, S3 Tables | **not supported** |
 
-The specification's own security schemes are OAuth2 and bearer tokens; the signing it describes covers storage access. Glue and S3 Tables require SigV4 on the catalog requests themselves, a layer above what the specification defines, and `apache/iceberg-rust` #1236 is the open request to support it. The token the client does hold is refreshed by `regenerate_token()`, which only knows how to repeat an OAuth2 login, so a long-running program on BigLake or OneLake mints its own.
+Glue and S3 Tables require SigV4 on the catalog requests themselves. The specification does not describe that — its security schemes are OAuth2 and bearer tokens, and the signing in it covers storage access — but `pyiceberg` signs anyway, with `rest.sigv4-enabled`, `rest.signing-name` and `rest.signing-region`, so the Python REST client reaches all seven catalogs and the Rust one reaches five. The request to add it, `apache/iceberg-rust` #1236, has been open since April 2025.
 
-Fixed headers look like a way round the signing gap, and they are worth one measurement: a signature minted for `GET /v1/config` and passed as a static header got a 200 on that request and a 403 on the next, on Glue and S3 Tables both, with all 7 checks refused through the client. A signature covers the request it signs.
+Fixed headers look like a way round it, and they are worth one measurement: a signature minted for `GET /v1/config` and passed as a static header got a 200 on that request and a 403 on the next, on Glue and S3 Tables both, with all 7 checks refused through the client. A signature covers the request it signs.
 
-Rust code can still use both AWS catalogs. The same project publishes `iceberg-catalog-glue` and `iceberg-catalog-s3tables`, both 0.10.1, which call the AWS APIs directly. The cost is that a Rust tool covering all seven catalogs needs three different catalog clients. In Python, one client covers all seven.
+The token the client does hold is refreshed by `regenerate_token()`, which only knows how to repeat an OAuth2 login, so a long-running program on BigLake or OneLake mints its own.
 
 ---
 
-#### Step 7 — Point It at a Managed Catalog
+#### Step 7 — Reach AWS Through the Other Two Crates
+
+Rust does reach both AWS catalogs. The same Apache project publishes `iceberg-catalog-glue` and `iceberg-catalog-s3tables`, both 0.10.1, which call the AWS APIs directly and sign as the AWS SDK does. All three crates implement the same `Catalog` trait, so a program written against `dyn Catalog` swaps between them by changing a dependency.
+
+What changes with the dependency is the set of operations that answers. Reading each crate's `impl Catalog for` block:
+
+```plaintext
+  Catalog trait method     rest       glue       s3tables
+  update_namespace         refused    sent       refused
+  drop_table               sent       sent       refused
+  register_table           sent       sent       refused
+```
+
+The other 12 trait methods are sent by all three. Each refusal says why:
+
+```plaintext
+  rest       update_namespace         'Updating namespace not supported yet!'
+  s3tables   drop_table               'drop_table is not supported for S3Tables; use purge_table instead'
+  s3tables   register_table           'Registering a table is not supported yet'
+  s3tables   update_namespace         'Update namespace is not supported for s3tables catalog'
+```
+
+One of those four is the service speaking: S3 Tables requires a purge, which the earlier article measured from the wire, so that refusal is the catalog's own rule carried faithfully by the crate. The other three are crate-level gaps, and they land at runtime, since all three crates satisfy the same trait and compile the same way.
+
+So a Rust tool covering all seven catalogs carries three catalog implementations and an operation set that varies by which one is loaded. In Python, one client covers all seven.
+
+---
+
+#### Step 8 — Point It at a Managed Catalog
 
 ```console
 $ python3 run_rust.py --only google-lakehouse --only microsoft-onelake --storage opendal
@@ -199,7 +227,7 @@ The same result as Polaris: all 7 supported read operations work on both, over t
 
 ---
 
-#### Step 8 — Read the Table's Files
+#### Step 9 — Read the Table's Files
 
 `load_table` sets up file access but does not read anything, so each run also reads the table's metadata file through the client. The output lists the names of the settings the storage library received, never their values:
 
@@ -233,7 +261,7 @@ Azure is where that runs out. The Azure backend, `opendal-service-azdls` 0.57.0,
 | a `reqwest` TLS feature | any `https://` catalog | every request fails before any response: 7 failed, 0 ok, no HTTP status. Upstream #2888 |
 | `iceberg-storage-opendal` | loading any cloud-stored table | `load_table` refuses: *"StorageFactory must be provided for RestCatalog"* |
 | a storage login in your environment | reading any table file | the read fails or hangs; catalog-issued credentials are read and unused |
-| a SigV4 signer | Glue and S3 Tables over REST | no login at all; use `iceberg-catalog-glue` or `iceberg-catalog-s3tables` instead |
+| a SigV4 signer | Glue and S3 Tables over REST | no login at all, and Step 7's two crates are the way round it |
 
 The first two are one line each. `iceberg-catalog-rest` 0.10.1 declares `reqwest` with TLS switched off and offers no feature to switch it on, so a build that never names a TLS backend fails on the first `https://` request; Cargo merges features across dependencies, so your own line fixes it, and a project already using `reqwest` with TLS will never see it. The core `iceberg` 0.10.1 crate ships two storage factories, local files and memory (`io/storage/local_fs.rs:330`, `io/storage/memory.rs:250`), with its README pointing at the other crate on line 70.
 
@@ -262,7 +290,7 @@ The goal of this article was to point the Apache Rust Iceberg REST client at sev
 - Every endpoint the client implements answered on every catalog it could log in to: 7 reads on Polaris, BigLake and OneLake, and 11 writes on Polaris, with 0 failures
 - 13 of 25 endpoints are implemented; of the other 12, 11 are missing and 1 is a stub that sends no request
 - Two lines of `Cargo.toml` stand in front of that: a TLS backend (upstream #2888) and `iceberg-storage-opendal` for cloud storage
-- Glue and S3 Tables require SigV4, which this client cannot send, so a Rust tool covering all seven catalogs needs three catalog clients where Python needs one (upstream #1236)
+- Glue and S3 Tables require SigV4, which this client cannot send, so a Rust tool covering all seven catalogs loads three catalog crates where Python loads one — and those three disagree on three of the 15 `Catalog` methods, at runtime (upstream #1236, open since April 2025)
 - OneLake's files could not be read: the Azure backend cannot use an `az login`, and a credential from the catalog is read and then ignored (upstream #2931, #1442)
 
 Scope: `iceberg-catalog-rest` 0.10.1 with `iceberg` 0.10.1, `iceberg-storage-opendal` 0.10.1 and `reqwest` 0.12.28 with `rustls-tls`, built with `rustc` 1.98.1. Source read 2026-09-04, versions captured 2026-09-17, catalog runs 2026-09-18, write run 2026-09-21, one run each from one machine in one region. Polaris 1.7.0 ran in Docker with permissive settings and local file storage, and the writes ran there alone, so those results describe one permissive server. Glue and S3 Tables were tested only with the signature experiment, and Unity and Horizon were not run at all, their rows coming from the source. The tests check that each operation answers; the answers themselves are not checked. Three of the seven catalogs were on trial accounts in the earlier article, and managed catalogs do not report a version.
@@ -280,4 +308,6 @@ The strategy for testing what one Rust Iceberg client can reach was validated wi
 * [iceberg-rust #2931 — Support refreshing vended storage credentials for REST catalog tables](https://github.com/apache/iceberg-rust/issues/2931)
 * [iceberg-rust #1442 — ADLS: Support vended "adls.sas-token.xxx" prefixed tokens](https://github.com/apache/iceberg-rust/issues/1442)
 * [iceberg-rust #3134 — Transaction commits against a base it never validated](https://github.com/apache/iceberg-rust/issues/3134)
+* [iceberg-catalog-glue | crates.io](https://crates.io/crates/iceberg-catalog-glue)
+* [iceberg-catalog-s3tables | crates.io](https://crates.io/crates/iceberg-catalog-s3tables)
 * [Seven Iceberg REST Catalogs: What They Declare, and What They Serve](https://dev.to/gde/seven-iceberg-rest-catalogs-what-they-declare-and-what-they-serve-40oj)

@@ -1,0 +1,37 @@
+The three Rust catalog crates of the Apache Iceberg project,
+method by method. Written by aws_catalog_crates.py from the
+installed crate sources.
+
+Reading: a method absent from a crate's `impl Catalog for`
+block is `--`; one whose body returns FeatureUnsupported is
+`refused`, with its message below the table.
+
+  Catalog trait method     rest       glue       s3tables
+  list_namespaces          sent       sent       sent
+  create_namespace         sent       sent       sent
+  get_namespace            sent       sent       sent
+  namespace_exists         sent       sent       sent
+  update_namespace         refused    sent       refused
+  drop_namespace           sent       sent       sent
+  list_tables              sent       sent       sent
+  create_table             sent       sent       sent
+  load_table               sent       sent       sent
+  drop_table               sent       sent       refused
+  purge_table              sent       sent       sent
+  table_exists             sent       sent       sent
+  rename_table             sent       sent       sent
+  register_table           sent       sent       refused
+  update_table             sent       sent       sent
+
+## What each refusal says
+
+  rest       update_namespace         'Updating namespace not supported yet!'
+  s3tables   drop_table               'drop_table is not supported for S3Tables; use purge_table instead'
+  s3tables   register_table           'Registering a table is not supported yet'
+  s3tables   update_namespace         'Update namespace is not supported for s3tables catalog'
+
+## Crates read
+
+  iceberg-catalog-rest       0.10.1   ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/iceberg-catalog-rest-0.10.1/src
+  iceberg-catalog-glue       0.10.1   ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/iceberg-catalog-glue-0.10.1/src
+  iceberg-catalog-s3tables   0.10.1   ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/iceberg-catalog-s3tables-0.10.1/src
