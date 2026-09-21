@@ -1,0 +1,16 @@
+One Iceberg MCP Server, Seven Catalogs: What It Takes to Reach Each One
+
+Step by step: one Python MCP server with four read-only Apache Iceberg tools, pointed at Polaris, BigLake, OneLake, Glue, S3 Tables and Horizon by changing one environment variable. All four tools work on all six. What changes per catalog is the login, the storage package, and one Azure credential that takes 553 seconds.
+
+What is in it:
+
+- 🟢 All four tools work on all six catalogs run: Polaris, BigLake, OneLake, Glue, S3 Tables and Horizon
+- 🟢 The only change between catalogs is one environment variable and one entry in catalogs.yaml
+- ⚠️ Three packages outside pyiceberg's defaults are needed: adlfs for OneLake, s3fs for S3 Tables, and botocore[crt] for an aws login session; without them the metadata tools work and the scan fails
+- ⚠️ DefaultAzureCredential took 553.1 seconds off Azure; AzureCliCredential took 0.6
+
+dev.to (Google Developer Experts): https://dev.to/gde/one-iceberg-mcp-server-seven-catalogs-what-it-takes-to-reach-each-one-2605
+dev.to (AWS Community Builders): https://dev.to/aws-builders/one-iceberg-mcp-server-seven-catalogs-what-it-takes-to-reach-each-one-jp5
+AWS Builder Center: https://builder.aws.com/content/3JbnVuvPrla8IGmEMH9VTJtXK3l/one-iceberg-mcp-server-seven-catalogs-what-it-takes-to-reach-each-one
+Medium: https://xbill999.medium.com/one-iceberg-mcp-server-seven-catalogs-what-it-takes-to-reach-each-one-bde4773272cf
+Source: https://github.com/xbill9/lakehouse-iceberg-2026
