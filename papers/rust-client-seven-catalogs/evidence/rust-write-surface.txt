@@ -1,0 +1,85 @@
+Write surface of iceberg-catalog-rest 0.10.1, issued against the control catalog.
+Written by run_writes.py. Every request went through wire_proxy.py, which
+logged method, path and the update kinds in the body. Header values are never logged.
+
+  catalog        apache-polaris
+  scratch        irc_probe_rust_1790009108
+  binary         target/release/irc-probe
+
+## Probes
+
+  probe                          verdict      ms     endpoint
+  create_namespace               OK           60     reachable
+  update_namespace_props         UNSUPPORTED  0      unsupported
+  create_table                   OK           64     reachable
+  commit_table                   OK           112    reachable
+  commit_remove_properties       OK           119    reachable
+  commit_add_schema              OK           116    reachable
+  commit_set_current_schema      OK           116    reachable
+  commit_upgrade_format_version  OK           99     reachable
+  rename_table                   OK           3      reachable
+  drop_table_purge               OK           16     reachable
+  drop_table                     OK           3      reachable
+  drop_namespace                 OK           1      reachable
+
+  11 ok, 1 unsupported, 0 failed
+
+## What each probe returned
+
+  create_namespace               {"levels": 1}
+  update_namespace_props         FeatureUnsupported: FeatureUnsupported => Updating namespace not supported yet!
+  create_table                   {"format_version": "V2", "schema_field_count": 1}
+  commit_table                   {"property_now": "set"}
+  commit_remove_properties       {"property_now": null}
+  commit_add_schema              {"schema_field_count": 2, "schema_id_after": 1, "schema_id_before": 0}
+  commit_set_current_schema      {"schema_field_count": 2, "schema_id_after": 1, "schema_id_before": 0}
+  commit_upgrade_format_version  {"format_version_now": "V2"}
+  rename_table                   {"renamed": "t1 -> t2"}
+  drop_table_purge               {"purged": "t3"}
+  drop_table                     {"dropped": "t2"}
+  drop_namespace                 {"dropped": true}
+  _create_table_format_version_property {"asked_for": "V1 in TableCreation and in the format-version property", "format_version": "V1"}
+  _create_namespace_two_level    {"levels": 2}
+  _load_namespace_two_level      {"loaded": true}
+  _drop_namespace_two_level      {"dropped": true}
+
+  residue check                  {"scratch_namespace_still_there": false}
+
+## Requests on the wire, in order
+
+  method  code path
+  GET     200  /v1/config?warehouse=quickstart_catalog
+  POST    200  /v1/quickstart_catalog/namespaces
+          body fields: namespace, properties
+  POST    200  /v1/quickstart_catalog/namespaces/irc_probe_rust_1790009108/tables
+          body fields: name, schema, stage-create
+  GET     200  /v1/quickstart_catalog/namespaces/irc_probe_rust_1790009108/tables/t1
+  POST    200  /v1/quickstart_catalog/namespaces/irc_probe_rust_1790009108/tables/t1
+          updates: set-properties, remove-properties
+  GET     200  /v1/quickstart_catalog/namespaces/irc_probe_rust_1790009108/tables/t1
+  POST    200  /v1/quickstart_catalog/namespaces/irc_probe_rust_1790009108/tables/t1
+          updates: set-properties, remove-properties
+  GET     200  /v1/quickstart_catalog/namespaces/irc_probe_rust_1790009108/tables/t1
+  POST    200  /v1/quickstart_catalog/namespaces/irc_probe_rust_1790009108/tables/t1
+          updates: add-schema, set-current-schema
+          requirements: assert-current-schema-id
+  GET     200  /v1/quickstart_catalog/namespaces/irc_probe_rust_1790009108/tables/t1
+  POST    200  /v1/quickstart_catalog/namespaces/irc_probe_rust_1790009108/tables/t1
+          updates: upgrade-format-version
+  POST    204  /v1/quickstart_catalog/tables/rename
+          body fields: destination, source
+  POST    200  /v1/quickstart_catalog/namespaces/irc_probe_rust_1790009108/tables
+          body fields: name, schema, stage-create
+  DELETE  204  /v1/quickstart_catalog/namespaces/irc_probe_rust_1790009108/tables/t3?purgeRequested=true
+  DELETE  204  /v1/quickstart_catalog/namespaces/irc_probe_rust_1790009108/tables/t2
+  POST    200  /v1/quickstart_catalog/namespaces
+          body fields: namespace
+  GET     200  /v1/quickstart_catalog/namespaces/irc_probe_rust_1790009108%1Fchild
+  DELETE  204  /v1/quickstart_catalog/namespaces/irc_probe_rust_1790009108%1Fchild
+  POST    200  /v1/quickstart_catalog/namespaces/irc_probe_rust_1790009108/tables
+          body fields: name, properties, schema, stage-create
+  DELETE  204  /v1/quickstart_catalog/namespaces/irc_probe_rust_1790009108/tables/t4
+  DELETE  204  /v1/quickstart_catalog/namespaces/irc_probe_rust_1790009108
+  HEAD    404  /v1/quickstart_catalog/namespaces/irc_probe_rust_1790009108
+
+  22 request(s)

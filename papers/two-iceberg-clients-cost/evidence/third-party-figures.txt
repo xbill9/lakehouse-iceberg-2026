@@ -51,3 +51,28 @@ what     Commit-path benchmark across five REST catalogs; p50/p95/p99 over
          driven through one binary to eliminate client-side variables.
 use      Cited in paper 6 as the complement: it removes the variable this
          paper measures.
+
+source   https://github.com/apache/iceberg-rust/issues/2888
+title    Add TLS features to iceberg-catalog-rest
+what     Upstream issue, opened 2026-07-24, open when read 2026-09-21. Reports
+         that reqwest is pinned with default-features = false, so the crate
+         has no TLS backend and https:// catalog URIs fail, and that the only
+         workaround is a TLS feature on the caller's own reqwest dependency,
+         which the body calls "a very implicit and brittle solution".
+use      Cited in paper 5 so the missing TLS backend is reported as a known,
+         tracked limitation rather than as a discovery. The quoted phrase is
+         from the issue body.
+
+source   https://github.com/apache/iceberg-rust/issues/2931
+title    Support refreshing vended storage credentials for REST catalog tables
+what     Upstream issue, opened 2026-07-30, open when read 2026-09-21. Covers
+         carrying catalog-issued storage credentials through the REST client
+         into FileIO and the storage backends.
+use      Cited in paper 5 beside the measurement that the client reads
+         storage_credentials from the response and never passes them on.
+
+source   https://github.com/apache/iceberg-rust/issues/1442
+title    ADLS: Support vended "adls.sas-token.xxx" prefixed tokens
+what     Upstream issue, opened 2025-06-14, open when read 2026-09-21. Covers
+         the key format Azure vended credentials arrive in.
+use      Cited in paper 5 as the second half of the OneLake storage result.

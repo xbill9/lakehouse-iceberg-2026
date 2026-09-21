@@ -193,10 +193,22 @@ def surface(client_name):
 
     w("## Not verified, and therefore not claimed")
     w("")
-    for item in om.UNVERIFIED:
-        for line in _wrap(item):
-            w("  %s" % line)
+    if om.UNVERIFIED:
+        for item in om.UNVERIFIED:
+            for line in _wrap(item):
+                w("  %s" % line)
+            w("")
+    else:
+        w("  nothing outstanding.")
         w("")
+
+    if getattr(om, "VERIFIED_ON_THE_WIRE", None):
+        w("## Settled on the wire, in evidence/rust-write-surface.txt")
+        w("")
+        for item in om.VERIFIED_ON_THE_WIRE:
+            for line in _wrap(item):
+                w("  %s" % line)
+            w("")
 
     with open(out_path, "w") as fh:
         fh.write("\n".join(out).rstrip() + "\n")

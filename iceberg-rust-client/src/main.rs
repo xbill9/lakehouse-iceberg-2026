@@ -33,7 +33,9 @@ use std::time::Instant;
 
 use iceberg::io::{LocalFsStorageFactory, MemoryStorageFactory, StorageFactory};
 use iceberg_storage_opendal::OpenDalResolvingStorageFactory;
-use iceberg::{Catalog, CatalogBuilder, NamespaceIdent, TableIdent};
+use iceberg::spec::{FormatVersion, NestedField, PrimitiveType, Schema, Type};
+use iceberg::transaction::{AddColumn, ApplyTransactionAction, Transaction};
+use iceberg::{Catalog, CatalogBuilder, NamespaceIdent, TableCreation, TableIdent};
 use iceberg_catalog_rest::{
     REST_CATALOG_PROP_URI, REST_CATALOG_PROP_WAREHOUSE, RestCatalog, RestCatalogBuilder,
 };
@@ -282,6 +284,20 @@ async fn main() {
 
     let catalog = build_catalog().await;
 
+    if env_opt("IRC_MODE").as_deref() == Some("writes") {
+        // Every write endpoint the crate can express, issued for real. The
+        // read-only default cannot answer whether a write endpoint works,
+        // only whether a method for it exists, and those are different
+        // claims. Guarded twice so a vendor catalog cannot be written to by
+        // a stray environment variable.
+        if env_opt("IRC_ALLOW_WRITES").as_deref() != Some("yes") {
+            eprintln!("IRC_MODE=writes requires IRC_ALLOW_WRITES=yes");
+            std::process::exit(2);
+        }
+        writes(&catalog).await;
+        return;
+    }
+
     if env_opt("IRC_MODE").as_deref() == Some("bench") {
         // Cold start is the driver's measurement, not this process's: it is
         // wall-clock from spawn to exit with IRC_ITERS=1, so the catalog is
@@ -371,4 +387,332 @@ async fn main() {
     }
     .await;
     record("storage_read_metadata", t, touched);
+}
+
+/// Every write endpoint the crate can express, issued against a scratch
+/// namespace.
+///
+/// The read-only sweep marks these NOT-ISSUED: the crate has a method, and no
+/// request was sent. That is an honest verdict about the sweep and a weak one
+/// about the endpoint, because a method that compiles can still fail on the
+/// wire. This issues each one, on names of its own making, and drops
+/// everything it created.
+///
+/// The table is created at format version 1 so that the upgrade probe sends a
+/// real upgrade rather than a no-op.
+async fn writes(catalog: &RestCatalog) {
+    let stamp = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_secs())
+        .unwrap_or(0);
+    let ns = NamespaceIdent::new(format!("irc_probe_rust_{}", stamp));
+    let t1 = TableIdent::new(ns.clone(), "t1".to_string());
+    let t2 = TableIdent::new(ns.clone(), "t2".to_string());
+    let t3 = TableIdent::new(ns.clone(), "t3".to_string());
+
+    emit(json!({"probe": "_writes_scratch", "namespace": ns.to_url_string()}));
+
+    let schema = Schema::builder()
+        .with_schema_id(0)
+        .with_fields(vec![
+            NestedField::required(1, "id", Type::Primitive(PrimitiveType::Long)).into(),
+        ])
+        .build()
+        .expect("schema");
+
+    let t = Instant::now();
+    record(
+        "create_namespace",
+        t,
+        catalog
+            .create_namespace(&ns, HashMap::from([("owner".to_string(), "irc-probe".to_string())]))
+            .await
+            .map(|n| json!({"levels": n.name().as_ref().len()})),
+    );
+
+    // The stub. It compiles, so the read-only sweep could have called it; it
+    // returns FeatureUnsupported without sending a request, which is what
+    // this call is here to show rather than assert.
+    let t = Instant::now();
+    record(
+        "update_namespace_props",
+        t,
+        catalog
+            .update_namespace(&ns, HashMap::from([("owner".to_string(), "irc-probe-2".to_string())]))
+            .await
+            .map(|_| json!({"updated": true})),
+    );
+
+    let creation = |name: &str| {
+        TableCreation::builder()
+            .name(name.to_string())
+            .schema(schema.clone())
+            .format_version(FormatVersion::V1)
+            .build()
+    };
+
+    let t = Instant::now();
+    let mut table = match catalog.create_table(&ns, creation("t1")).await {
+        Ok(tbl) => {
+            record(
+                "create_table",
+                t,
+                Ok(json!({
+                    "format_version": format!("{:?}", tbl.metadata().format_version()),
+                    "schema_field_count":
+                        tbl.metadata().current_schema().as_struct().fields().len(),
+                })),
+            );
+            tbl
+        }
+        Err(e) => {
+            record("create_table", t, Err(e));
+            emit(json!({"probe": "_writes_abort", "after": "create_table"}));
+            return;
+        }
+    };
+
+    // commitTable, four ways. Each one is its own POST to the same endpoint,
+    // carrying a different TableUpdate, which is why paper 1 probes them
+    // separately. What each request put on the wire is in the proxy log; what
+    // the catalog did with it is the detail below, read back from the table
+    // the commit returned.
+    let t = Instant::now();
+    let out = async {
+        let tx = Transaction::new(&table);
+        let tx = tx
+            .update_table_properties()
+            .set("irc.probe".to_string(), "set".to_string())
+            .apply(tx)?;
+        let tbl = tx.commit(catalog as &dyn Catalog).await?;
+        let got = tbl.metadata().properties().get("irc.probe").cloned();
+        Ok::<(iceberg::table::Table, Value), iceberg::Error>((
+            tbl,
+            json!({"property_now": got}),
+        ))
+    }
+    .await;
+    match out {
+        Ok((tbl, detail)) => {
+            table = tbl;
+            record("commit_table", t, Ok(detail));
+        }
+        Err(e) => record("commit_table", t, Err(e)),
+    }
+
+    let t = Instant::now();
+    let out = async {
+        let tx = Transaction::new(&table);
+        let tx = tx
+            .update_table_properties()
+            .remove("irc.probe".to_string())
+            .apply(tx)?;
+        let tbl = tx.commit(catalog as &dyn Catalog).await?;
+        let got = tbl.metadata().properties().get("irc.probe").cloned();
+        Ok::<(iceberg::table::Table, Value), iceberg::Error>((
+            tbl,
+            json!({"property_now": got}),
+        ))
+    }
+    .await;
+    match out {
+        Ok((tbl, detail)) => {
+            table = tbl;
+            record("commit_remove_properties", t, Ok(detail));
+        }
+        Err(e) => record("commit_remove_properties", t, Err(e)),
+    }
+
+    // addSchema and setCurrentSchema are two TableUpdates and one request:
+    // the crate has one schema action and it emits both. The proxy log is
+    // what shows that, so this records the outcome and names the pair.
+    let t = Instant::now();
+    let before_schema = table.metadata().current_schema_id();
+    let out = async {
+        let tx = Transaction::new(&table);
+        let tx = tx
+            .update_schema()
+            .add_column(AddColumn::optional(
+                "added_by_probe",
+                Type::Primitive(PrimitiveType::String),
+            ))
+            .apply(tx)?;
+        let tbl = tx.commit(catalog as &dyn Catalog).await?;
+        Ok::<(iceberg::table::Table, Value), iceberg::Error>((
+            tbl.clone(),
+            json!({
+                "schema_id_before": before_schema,
+                "schema_id_after": tbl.metadata().current_schema_id(),
+                "schema_field_count": tbl.metadata().current_schema().as_struct().fields().len(),
+            }),
+        ))
+    }
+    .await;
+    match out {
+        Ok((tbl, detail)) => {
+            table = tbl;
+            record("commit_add_schema", t, Ok(detail.clone()));
+            record("commit_set_current_schema", t, Ok(detail));
+        }
+        Err(e) => {
+            let msg = e.to_string();
+            record("commit_add_schema", t, Err(e));
+            record(
+                "commit_set_current_schema",
+                t,
+                Err(iceberg::Error::new(
+                    iceberg::ErrorKind::Unexpected,
+                    format!("same request as commit_add_schema: {}", msg),
+                )),
+            );
+        }
+    }
+
+    let t = Instant::now();
+    let out = async {
+        let tx = Transaction::new(&table);
+        let tx = tx
+            .upgrade_table_version()
+            .set_format_version(FormatVersion::V2)
+            .apply(tx)?;
+        let tbl = tx.commit(catalog as &dyn Catalog).await?;
+        Ok::<Value, iceberg::Error>(json!({
+            "format_version_now": format!("{:?}", tbl.metadata().format_version()),
+        }))
+    }
+    .await;
+    record("commit_upgrade_format_version", t, out);
+
+    let t = Instant::now();
+    record(
+        "rename_table",
+        t,
+        catalog
+            .rename_table(&t1, &t2)
+            .await
+            .map(|_| json!({"renamed": "t1 -> t2"})),
+    );
+
+    // purge and a plain drop are two endpoints (?purgeRequested=true), so the
+    // probe needs a second table rather than reusing the first.
+    let t = Instant::now();
+    record(
+        "_create_table_for_purge",
+        t,
+        catalog
+            .create_table(&ns, creation("t3"))
+            .await
+            .map(|_| json!({"created": "t3"})),
+    );
+
+    let t = Instant::now();
+    record(
+        "drop_table_purge",
+        t,
+        catalog.purge_table(&t3).await.map(|_| json!({"purged": "t3"})),
+    );
+
+    let t = Instant::now();
+    record(
+        "drop_table",
+        t,
+        catalog.drop_table(&t2).await.map(|_| json!({"dropped": "t2"})),
+    );
+
+    // operation_map.py records the multi-level namespace encoding as read
+    // from neither the source nor the wire. The spec joins the levels with
+    // the unit separator, and the proxy log is where the answer is.
+    let nested = NamespaceIdent::from_strs([
+        format!("irc_probe_rust_{}", stamp).as_str(),
+        "child",
+    ])
+    .expect("two-level namespace");
+    let t = Instant::now();
+    record(
+        "_create_namespace_two_level",
+        t,
+        catalog
+            .create_namespace(&nested, HashMap::new())
+            .await
+            .map(|n| json!({"levels": n.name().as_ref().len()})),
+    );
+    let t = Instant::now();
+    record(
+        "_load_namespace_two_level",
+        t,
+        catalog
+            .get_namespace(&nested)
+            .await
+            .map(|_| json!({"loaded": true})),
+    );
+    let t = Instant::now();
+    record(
+        "_drop_namespace_two_level",
+        t,
+        catalog
+            .drop_namespace(&nested)
+            .await
+            .map(|_| json!({"dropped": true})),
+    );
+
+    // TableCreation carries a format_version and CreateTableRequest has no
+    // field for one (types.rs:250), so the asked-for version never leaves the
+    // process. The REST spec's route for it is the `format-version` property,
+    // and this pair of creates is here to show which of the two the catalog
+    // acts on.
+    let t = Instant::now();
+    record(
+        "_create_table_format_version_property",
+        t,
+        catalog
+            .create_table(
+                &ns,
+                TableCreation::builder()
+                    .name("t4".to_string())
+                    .schema(schema.clone())
+                    .format_version(FormatVersion::V1)
+                    .properties(HashMap::from([(
+                        "format-version".to_string(),
+                        "1".to_string(),
+                    )]))
+                    .build(),
+            )
+            .await
+            .map(|tbl| {
+                json!({
+                    "asked_for": "V1 in TableCreation and in the format-version property",
+                    "format_version": format!("{:?}", tbl.metadata().format_version()),
+                })
+            }),
+    );
+
+    let t = Instant::now();
+    record(
+        "_drop_table_t4",
+        t,
+        catalog
+            .drop_table(&TableIdent::new(ns.clone(), "t4".to_string()))
+            .await
+            .map(|_| json!({"dropped": "t4"})),
+    );
+
+    let t = Instant::now();
+    record(
+        "drop_namespace",
+        t,
+        catalog
+            .drop_namespace(&ns)
+            .await
+            .map(|_| json!({"dropped": true})),
+    );
+
+    let t = Instant::now();
+    record(
+        "_residue_check",
+        t,
+        catalog
+            .namespace_exists(&ns)
+            .await
+            .map(|b| json!({"scratch_namespace_still_there": b})),
+    );
 }

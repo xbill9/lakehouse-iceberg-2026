@@ -14,9 +14,17 @@ crates, pinned in Cargo.toml and resolved in Cargo.lock:
   iceberg-storage-opendal  0.10.1
   reqwest                  0.12.28
   opendal                  0.57.0
+  opendal-service-azdls    0.57.0   the Azure backend behind the abfss read,
+                                    resolved in Cargo.lock
   rustls                   0.23.45   via reqwest feature rustls-tls, added
                                      2026-09-18; iceberg-catalog-rest enables
                                      no TLS backend of its own
+
+minimum Rust the crates declare, read from each crate's Cargo.toml in
+~/.cargo/registry on 2026-09-21:
+  iceberg                  rust-version = "1.94"
+  iceberg-catalog-rest     rust-version = "1.94"
+  iceberg-storage-opendal  none declared
 
 python HTTP stack under pyiceberg:
   requests                 2.34.2

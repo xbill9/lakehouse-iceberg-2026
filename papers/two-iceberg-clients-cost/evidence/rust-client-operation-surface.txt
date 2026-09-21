@@ -172,7 +172,8 @@
 
 ## Not verified, and therefore not claimed
 
-  NamespaceIdent::to_url_string() lives in the `iceberg` core crate.
-  Whether a dotted namespace is joined with the unit separator the
-  spec requires was NOT read, and must not be claimed until it is --
-  either from that crate's source or from the wire.
+  nothing outstanding.
+
+## Settled on the wire, in evidence/rust-write-surface.txt
+
+  a two-level namespace is encoded with %1F between the levels

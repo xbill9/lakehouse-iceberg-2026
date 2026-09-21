@@ -132,9 +132,14 @@ BEYOND_THE_SWEEP = [
 ]
 
 # Read from the `iceberg` core crate, not this one, so it is not asserted here.
-UNVERIFIED = [
-    "NamespaceIdent::to_url_string() lives in the `iceberg` core crate. "
-    "Whether a dotted namespace is joined with the unit separator the spec "
-    "requires was NOT read, and must not be claimed until it is -- either "
-    "from that crate's source or from the wire.",
+UNVERIFIED = []
+
+# Settled 2026-09-21 by run_writes.py, from the wire rather than the source:
+# NamespaceIdent::to_url_string() joins the levels with the unit separator the
+# spec requires. A two-level namespace was created, loaded and dropped through
+# the client against the control catalog, and the proxy logged the path as
+# .../namespaces/irc_probe_rust_<stamp>%1Fchild. The artifact is
+# evidence/rust-write-surface.txt.
+VERIFIED_ON_THE_WIRE = [
+    "a two-level namespace is encoded with %1F between the levels",
 ]

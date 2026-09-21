@@ -35,6 +35,8 @@ MANIFEST = {
         "versions.txt",
         "rust-client-operation-surface.txt",
         "rust-client-auth-surface.txt",
+        "rust-source-citations.txt",
+        "rust-write-surface.txt",
         "rust-run-apache-polaris.json",
         "rust-run-google-lakehouse.json",
         "rust-run-microsoft-onelake.json",

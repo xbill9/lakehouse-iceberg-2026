@@ -1,7 +1,7 @@
 ---
 title: "What One Rust Client Can Reach Across Seven Iceberg Catalogs"
 published: false
-description: "Step by step: the Apache Rust Iceberg REST client against seven Iceberg catalogs. It supports 13 of 25 endpoints, works fully on Polaris, BigLake and OneLake, cannot log in to the two AWS catalogs, and needs a TLS library and a storage crate added by hand."
+description: "Step by step: the Apache Rust Iceberg REST client against seven Iceberg catalogs. It supports 13 of 25 endpoints, answers every supported read on Polaris, BigLake and OneLake, reads table files on Polaris and BigLake, cannot log in to the two AWS catalogs, and needs a TLS library and a storage crate added by hand."
 tags: rust, iceberg, lakehouse, dataengineering
 cover_image: https://raw.githubusercontent.com/xbill9/lakehouse-iceberg-2026/main/papers/rust-client-seven-catalogs/cover.fd3f64f1.jpg
 ---
@@ -84,7 +84,7 @@ iceberg-storage-opendal = { version = "=0.10.1", features = ["opendal-gcs", "ope
 reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
 ```
 
-The last two lines add things the client needs but does not bring with it. The two tips after Step 6 explain each one.
+The last two lines add things the client needs but does not bring with it. The two tips after Step 7 explain each one.
 
 ```console
 $ cd ../iceberg-rust-client
@@ -96,7 +96,7 @@ $ cargo build --release
 
 #### Step 3 — List What the Client Supports
 
-Each of the 33 checks is matched to a method in the client's published source code, with the file and line number. A script confirms every cited line still points at the right function:
+Each of the 33 checks is matched to a method in the client's published source code, with the file and line number. A script confirms every line in that map still points at the function it names:
 
 ```console
 $ python3 check_refs.py
@@ -115,14 +115,17 @@ wrote evidence/rust-client-operation-surface.txt   33 probes
 ```plaintext
 13 of 25 distinct endpoints are expressible through this client.
 Counted per probe the figure is 19 of 33, which is the same fact
-weighted by how many probes happened to point at one endpoint.
+weighted by how many probes paper 1 happened to point at one endpoint.
 ```
 
-The 12 unsupported endpoints fall into three groups:
+The 12 endpoints it cannot reach split two ways:
 
-- **Missing — 11 endpoints.** All six view operations, scan planning, metrics reporting, the separate credentials endpoint, and `commitTransaction`. The words `views`, `/plan`, `metrics` and `transactions/commit` do not appear anywhere in the client's source.
+- **Missing — 11 endpoints.** All seven view operations, scan planning, metrics reporting, the separate credentials endpoint, and `commitTransaction`. The words `views`, `/plan`, `metrics` and `transactions/commit` do not appear anywhere in the client's source.
 - **Stubbed — 1 endpoint.** `Catalog::update_namespace` exists, but returns the error `"Updating namespace not supported yet!"` (`catalog.rs:659`) and sends nothing.
-- **Partly supported — 2 checks.** `load_table` cannot ask for `?snapshots=all`, and `list_namespaces` handles paging internally and never sends `pageSize`.
+
+Two endpoints it does reach, it reaches only in part, and both are counted among the 13: `load_table` cannot ask for `?snapshots=all`, and `list_namespaces` handles paging internally and never sends `pageSize`. The line numbers quoted from here on were read by hand and are archived, with the lines themselves, in `evidence/rust-source-citations.txt`.
+
+The client also reaches `registerTable`, which is one of the ten operations the earlier article did not cover, so it sits outside this count of 25.
 
 ---
 
@@ -138,7 +141,77 @@ All 7 supported read operations work. The one `IMPLICIT` result is the config re
 
 ---
 
-#### Step 5 — Match the Login to Each Catalog
+#### Step 5 — Issue the Write Endpoints
+
+The run above leaves eleven endpoints untried. The client has a method for each of them, and a read-only program sends none of them, which are two separate statements: a method that compiles can still fail on the wire. Polaris is local, permissive and disposable, so the writes run there and on no other catalog. Every request goes through a small logging proxy, so what the client put on the wire is recorded beside what came back.
+
+```console
+$ python3 run_writes.py
+apache-polaris     11 ok, 1 unsupported, 0 failed
+wrote evidence/rust-write-surface.txt   22 request(s)
+```
+
+```plaintext
+  probe                          verdict      ms     endpoint
+  create_namespace               OK           60     reachable
+  update_namespace_props         UNSUPPORTED  0      unsupported
+  create_table                   OK           64     reachable
+  commit_table                   OK           112    reachable
+  commit_remove_properties       OK           119    reachable
+  commit_add_schema              OK           116    reachable
+  commit_set_current_schema      OK           116    reachable
+  commit_upgrade_format_version  OK           99     reachable
+  rename_table                   OK           3      reachable
+  drop_table_purge               OK           16     reachable
+  drop_table                     OK           3      reachable
+  drop_namespace                 OK           1      reachable
+```
+
+All eleven work. The scratch namespace is dropped at the end and a `HEAD` on it afterwards returns 404.
+
+The refusal is the stub from Step 3, and the proxy log shows why it takes 0 ms: there is no `POST` to the properties endpoint anywhere in the run. The method returns `FeatureUnsupported` before building a URL.
+
+---
+
+#### 🔎 Tip: What the Proxy Log Shows
+
+Four things about this client are visible in the requests and not in its documentation.
+
+**A table commit costs two requests.** Each commit re-reads the table first, so one property change is a `GET` and then a `POST`:
+
+```plaintext
+  GET     200  /v1/<prefix>/namespaces/<ns>/tables/t1
+  POST    200  /v1/<prefix>/namespaces/<ns>/tables/t1
+          updates: set-properties, remove-properties
+```
+
+**A properties commit always sends both update kinds.** Setting a property and removing one produce the same pair, `set-properties` and `remove-properties`, because the crate's properties action builds both every time (`update_properties.rs:95`). The two differ in their contents.
+
+**Adding a column is one request carrying two updates.** The schema action sends `add-schema` and `set-current-schema` together, with `assert-current-schema-id` as the requirement:
+
+```plaintext
+  POST    200  /v1/<prefix>/namespaces/<ns>/tables/t1
+          updates: add-schema, set-current-schema
+          requirements: assert-current-schema-id
+```
+
+**The format version you ask for in `TableCreation` is dropped.** `CreateTableRequest` has no field for it (`types.rs:250`), so the create body is `name`, `schema` and `stage-create`, and the catalog's default decides. A table created as V1 came back V2. Setting it as a table property works:
+
+```plaintext
+  POST    200  /v1/<prefix>/namespaces/<ns>/tables
+          body fields: name, properties, schema, stage-create
+```
+
+```plaintext
+  _create_table_format_version_property {"asked_for": "V1 in TableCreation and in
+  the format-version property", "format_version": "V1"}
+```
+
+One more, for anyone building a client: a two-level namespace goes out as `<parent>%1Fchild`, the unit separator the specification asks for, and Polaris created, loaded and dropped it through the client.
+
+---
+
+#### Step 6 — Match the Login to Each Catalog
 
 The client can log in with a token, with an OAuth2 client ID and secret, or with fixed extra headers. It has no AWS request signing.
 
@@ -158,7 +231,7 @@ Rust code can still use both AWS catalogs. The same project publishes `iceberg-c
 
 ---
 
-#### Step 6 — Point It at a Managed Catalog
+#### Step 7 — Point It at a Managed Catalog
 
 ```console
 $ python3 run_rust.py --only google-lakehouse --only microsoft-onelake --storage opendal
@@ -209,18 +282,21 @@ Polaris stores its table on local disk. Every managed catalog here stores tables
 
 ---
 
-#### Step 7 — Read the Table's Files
+#### Step 8 — Read the Table's Files
 
 `load_table` sets up file access but does not read anything, so each run also reads the table's metadata file through the client. The output lists the names of the settings the storage library received, never their values:
 
 ```plaintext
 apache-polaris
+  fileio config keys: ...
   storage credential keys among them: none
   read: ok, scheme file, 5614 bytes, 21 ms
 google-lakehouse
+  fileio config keys: ...
   storage credential keys among them: none
   read: ok, scheme gs, 5497 bytes, 451 ms
 microsoft-onelake
+  fileio config keys: ...
   storage credential keys among them: none
   read: FAILED after 47066 ms
   error: Unexpected => Failure in doing io operation, source: Unexpected
@@ -250,7 +326,7 @@ For now, reading OneLake's files from this client needs a service principal, or 
 
 ---
 
-#### Step 8 — Try a SigV4 Signature as a Header
+#### Step 9 — Try a SigV4 Signature as a Header
 
 A SigV4 signature covers one specific request. The test signs the first request the client sends, `GET /v1/config`, and gives the client the signature as fixed headers. The client then sends those same headers with every request.
 
@@ -276,7 +352,8 @@ The "replay" lines send the same headers directly: they work once, on the reques
 
 ```plaintext
 The request signature we calculated does not match the signature you provided.
-Check your AWS Secret Access Key and signing method.
+Check your AWS Secret Access Key and signing method. Consult the service
+documentation for details.
 ```
 
 Fixed headers cannot replace request signing, so this client cannot use the AWS REST catalogs.
@@ -287,20 +364,13 @@ Fixed headers cannot replace request signing, so this client cannot use the AWS 
 
 When `pyiceberg` connects, the catalog sends a list of the endpoints it supports, and `pyiceberg` refuses to call anything not on the list. The Rust client never reads that list.
 
-Using the lists the seven catalogs published in the earlier article:
-
-```plaintext
-2 working endpoints blocked across the seven, both of them loadCredentials
-4 more answered by a substituted request, all HEADs on the two AWS catalogs
-3 of the seven untouched by the gate
-0 of the blocked cases are ones the Rust crate could have sent
-```
-
-`pyiceberg`'s check blocks two endpoints that work, and the Rust client does not support either of them anyway.
+Against the lists the seven catalogs published in the earlier article (`evidence/declaration-gate-cost.txt`), the check blocks 2 working endpoints across the seven, both of them `loadCredentials`, and answers 4 more with a substituted request, all HEADs on the two AWS catalogs. It leaves 3 of the seven catalogs alone. The Rust client has no method for `loadCredentials`, so 0 of the blocked cases are requests it could have sent.
 
 ---
 
 #### Compare and Contrast
+
+The `writes, not run` column counts endpoints the seven-catalog run left alone, all of which Step 5 issued against Polaris.
 
 | catalog | login | ok | failed | writes, not run | unsupported | table files |
 |---|---|---|---|---|---|---|
@@ -327,14 +397,15 @@ What you add beyond the client itself:
 
 The goal of this article was to point the Apache Rust Iceberg REST client at seven catalogs and record what works and what it takes. The key to the solution was matching every test to a line in the client's source code, running the same tests against each catalog, and reading one file through the client's own storage code. The results were:
 
-- 🟢 The client supports 13 of 25 endpoints; 11 are missing, 1 is a stub, and 2 are partly supported
+- 🟢 The client supports 13 of 25 endpoints; of the other 12, 11 are missing and 1 is a stub. Two of the 13 it reaches only in part
 - 🟢 Polaris, BigLake and OneLake: all 7 supported read operations work on each
+- 🟢 All 11 write endpoints work against the local Polaris: 11 ok, 0 failed, with every request logged. The stubbed one sends no request at all
 - ❌ Glue and S3 Tables: the client cannot sign AWS requests, and a signature passed as a header works for one request only (upstream #1236)
 - ⚠️ The client has no TLS built in, so every `https://` catalog fails until you add it (upstream #2888)
 - ⚠️ Loading a cloud-stored table also needs `iceberg-storage-opendal`
 - ❌ OneLake's files could not be read: the Azure storage code cannot use an `az login`, and a credential from the catalog is read and then ignored (upstream #2931, #1442)
 
-Scope: `iceberg-catalog-rest` 0.10.1 with `iceberg` 0.10.1, `iceberg-storage-opendal` 0.10.1 and `reqwest` 0.12.28 with `rustls-tls`, built with `rustc` 1.98.1. Source code read and Polaris run on 2026-09-17; managed catalogs on 2026-09-18, one run each from one machine in one region. Polaris 1.7.0 ran in Docker with permissive settings and local file storage. Glue and S3 Tables were tested only with the signature experiment. Unity and Horizon were not run, and their rows come from reading the source. 33 checks covering 25 of the specification's 35 operations, reads only, so the 11 write checks were not run. The tests check that each operation answers; the answers themselves are not checked. Three of the seven catalogs were on trial accounts in the earlier article, and managed catalogs do not report a version.
+Scope: `iceberg-catalog-rest` 0.10.1 with `iceberg` 0.10.1, `iceberg-storage-opendal` 0.10.1 and `reqwest` 0.12.28 with `rustls-tls`, built with `rustc` 1.98.1. Source code read on 2026-09-04 and versions captured on 2026-09-17; every run on 2026-09-18, one run per catalog from one machine in one region. Polaris 1.7.0 ran in Docker with permissive settings and local file storage. Glue and S3 Tables were tested only with the signature experiment. Unity and Horizon were not run, and their rows come from reading the source. 33 checks covering 25 of the specification's 35 operations. The seven catalogs were run read-only. The eleven write endpoints were issued on 2026-09-21 against the local Polaris alone, so the write results describe that one permissive server. The tests check that each operation answers; the answers themselves are not checked. Three of the seven catalogs were on trial accounts in the earlier article, and managed catalogs do not report a version.
 
 The strategy for testing what one Rust Iceberg client can reach was validated with an incremental step by step approach.
 
@@ -346,6 +417,6 @@ The strategy for testing what one Rust Iceberg client can reach was validated wi
 * [apache/iceberg-rust](https://github.com/apache/iceberg-rust)
 * [iceberg-rust #1236 — REST catalog: support AWS sigV4](https://github.com/apache/iceberg-rust/issues/1236)
 * [iceberg-rust #2888 — Add TLS features to iceberg-catalog-rest](https://github.com/apache/iceberg-rust/issues/2888)
-* [iceberg-rust #2931 — Support refreshing vended storage credentials](https://github.com/apache/iceberg-rust/issues/2931)
-* [iceberg-rust #1442 — ADLS: Support vended SAS token keys](https://github.com/apache/iceberg-rust/issues/1442)
+* [iceberg-rust #2931 — Support refreshing vended storage credentials for REST catalog tables](https://github.com/apache/iceberg-rust/issues/2931)
+* [iceberg-rust #1442 — ADLS: Support vended "adls.sas-token.xxx" prefixed tokens](https://github.com/apache/iceberg-rust/issues/1442)
 * [Seven Iceberg REST Catalogs: What They Declare, and What They Serve](https://dev.to/gde/seven-iceberg-rest-catalogs-what-they-declare-and-what-they-serve-40oj)

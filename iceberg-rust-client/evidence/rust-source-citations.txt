@@ -1,0 +1,96 @@
+# Source lines cited in the prose of papers 5 and 6, quoted verbatim.
+# Written by source_citations.py from the installed crate sources.
+#
+# The file:line references inside operation_map.py and pyiceberg_map.py are
+# checked by check_refs.py instead. These are the ones the prose cites directly.
+
+## Crates read
+
+  iceberg                  0.10.1   ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/iceberg-0.10.1/src
+  iceberg-catalog-rest     0.10.1   ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/iceberg-catalog-rest-0.10.1/src
+  opendal-service-azdls    0.57.0   ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/opendal-service-azdls-0.57.0/src
+
+## Citations
+
+  iceberg-catalog-rest catalog.rs:238   [catalog.rs 33df53e60684]
+      a `credential` with no colon is sent as client_secret with no client_id, which is the shape Horizon wants
+
+           235      /// - `None`: No credential is set.
+           236      /// - `Some(None, client_secret)`: No client_id is set, use client_secret directly.
+           237      /// - `Some(Some(client_id), client_secret)`: Both client_id and client_secret are set.
+      ->   238      pub(crate) fn credential(&self) -> Option<(Option<String>, String)> {
+           239          let cred = self.props.get("credential")?;
+           240  
+           241          match cred.split_once(':') {
+
+  iceberg-catalog-rest catalog.rs:455   [catalog.rs 33df53e60684]
+      load_file_io copies the response's `config` settings and nothing else, so a vended storage credential is never read
+
+           452          metadata_location: Option<&str>,
+           453          extra_config: Option<HashMap<String, String>>,
+           454      ) -> Result<FileIO> {
+      ->   455          let mut props = self.context().await?.config.props.clone();
+           456          if let Some(config) = extra_config {
+           457              props.extend(config);
+           458          }
+
+  iceberg-catalog-rest catalog.rs:659   [catalog.rs 33df53e60684]
+      update_namespace compiles and returns FeatureUnsupported without sending a request
+
+           656      ) -> Result<()> {
+           657          Err(Error::new(
+           658              ErrorKind::FeatureUnsupported,
+      ->   659              "Updating namespace not supported yet!",
+           660          ))
+           661      }
+           662  
+
+  iceberg-catalog-rest types.rs:226   [types.rs c2b99117c6d6]
+      the response type models storage credentials, so the client receives them and discards them
+
+           223      /// Storage credentials for accessing table data. Clients should check this field
+           224      /// before falling back to credentials in the `config` field.
+           225      #[serde(skip_serializing_if = "Option::is_none")]
+      ->   226      pub storage_credentials: Option<Vec<StorageCredential>>,
+           227  }
+           228  
+           229  #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+
+  iceberg io/storage/local_fs.rs:330   [local_fs.rs 6de2aa8d2ca9]
+      one of the two storage factories the core crate ships
+
+           327  pub struct LocalFsStorageFactory;
+           328  
+           329  #[typetag::serde]
+      ->   330  impl StorageFactory for LocalFsStorageFactory {
+           331      fn build(&self, _config: &StorageConfig) -> Result<Arc<dyn Storage>> {
+           332          Ok(Arc::new(LocalFsStorage::new()))
+           333      }
+
+  iceberg io/storage/memory.rs:250   [memory.rs 7ff101af89d7]
+      the other one; every cloud backend lives in iceberg-storage-opendal
+
+           247  pub struct MemoryStorageFactory;
+           248  
+           249  #[typetag::serde]
+      ->   250  impl StorageFactory for MemoryStorageFactory {
+           251      fn build(&self, _config: &StorageConfig) -> Result<Arc<dyn Storage>> {
+           252          Ok(Arc::new(MemoryStorage::new()))
+           253      }
+
+  opendal-service-azdls backend.rs:297   [backend.rs dae94d289ee3]
+      the signer context is built with no command executor, so the chain's Azure CLI provider cannot run
+
+           294          let os_env = OsEnv;
+           295          let info = Arc::new(AccessorInfo::default());
+           296  
+      ->   297          let ctx = Context::new()
+           298              .with_file_read(TokioFileRead)
+           299              .with_http_send(AccessorInfoHttpSend::new(info.clone()))
+           300              .with_env(StaticEnv {
+
+## Greps, quoted with their result
+
+  $ grep -rn with_command_execute <opendal-service-azdls 0.57.0>/src
+  (no matches)
+      nothing in the crate gives the context a command executor
