@@ -1,0 +1,3 @@
+I wanted to know how much of reaching an Apache Iceberg catalog is the catalog itself, and how much is everything around it. So I pointed one Python MCP server with four read-only tools at seven Iceberg REST catalogs in turn, changing one environment variable between runs and calling the tools directly over MCP, with no model involved.
+
+All four tools worked on all six catalogs that ran - Polaris, BigLake, OneLake, Glue, S3 Tables and Horizon. What changed per catalog was the login, the storage package underneath pyiceberg, and one Azure credential: DefaultAzureCredential took 553.1 seconds to resolve, where naming AzureCliCredential took 0.6.
