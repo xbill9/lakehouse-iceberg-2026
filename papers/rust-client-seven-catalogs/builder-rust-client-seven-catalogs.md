@@ -174,8 +174,8 @@ Four things about this client are visible in the requests and not in its documen
 **A table commit costs two requests.** Each commit re-reads the table first, so one property change is a `GET` and then a `POST`:
 
 ```plaintext
-  GET     200  /v1/<prefix>/namespaces/<ns>/tables/t1
-  POST    200  /v1/<prefix>/namespaces/<ns>/tables/t1
+  GET     200  /v1/quickstart_catalog/namespaces/irc_probe_rust_1790009108/tables/t1
+  POST    200  /v1/quickstart_catalog/namespaces/irc_probe_rust_1790009108/tables/t1
           updates: set-properties, remove-properties
 ```
 
@@ -184,7 +184,7 @@ Four things about this client are visible in the requests and not in its documen
 **Adding a column is one request carrying two updates.** The schema action sends `add-schema` and `set-current-schema` together, with `assert-current-schema-id` as the requirement:
 
 ```plaintext
-  POST    200  /v1/<prefix>/namespaces/<ns>/tables/t1
+  POST    200  /v1/quickstart_catalog/namespaces/irc_probe_rust_1790009108/tables/t1
           updates: add-schema, set-current-schema
           requirements: assert-current-schema-id
 ```
@@ -192,16 +192,15 @@ Four things about this client are visible in the requests and not in its documen
 **The format version you ask for in `TableCreation` is dropped.** `CreateTableRequest` has no field for it (`types.rs:250`), so the create body is `name`, `schema` and `stage-create`, and the catalog's default decides. A table created as V1 came back V2. Setting it as a table property works:
 
 ```plaintext
-  POST    200  /v1/<prefix>/namespaces/<ns>/tables
+  POST    200  /v1/quickstart_catalog/namespaces/irc_probe_rust_1790009108/tables
           body fields: name, properties, schema, stage-create
 ```
 
 ```plaintext
-  _create_table_format_version_property {"asked_for": "V1 in TableCreation and in
-  the format-version property", "format_version": "V1"}
+  _create_table_format_version_property {"asked_for": "V1 in TableCreation and in the format-version property", "format_version": "V1"}
 ```
 
-One more, for anyone building a client: a two-level namespace goes out as `<parent>%1Fchild`, the unit separator the specification asks for, and Polaris created, loaded and dropped it through the client.
+One more, for anyone building a client: a two-level namespace goes out with the unit separator the specification asks for, as `.../namespaces/irc_probe_rust_1790009108%1Fchild`, and Polaris created, loaded and dropped it through the client.
 
 ---
 
