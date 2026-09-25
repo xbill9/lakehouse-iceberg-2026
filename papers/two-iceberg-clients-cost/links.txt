@@ -2,6 +2,7 @@
 # a post whose links do not resolve is worse than no post.
 devto-gde = https://dev.to/gde/two-iceberg-clients-one-protocol-where-the-time-goes-4g88
 devto-aws = https://dev.to/aws-builders/two-iceberg-clients-one-protocol-where-the-time-goes-4a2c
-medium    = PENDING
-builder   = PENDING
+# medium  = skipped for this series; not published
+# builder = skipped for this series; not published
 repo      = https://github.com/xbill9/lakehouse-iceberg-2026
+linkedin  = https://www.linkedin.com/feed/update/urn:li:share:7509330666422132736/

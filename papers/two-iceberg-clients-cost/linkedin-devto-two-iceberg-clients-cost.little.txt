@@ -1,0 +1,14 @@
+Two Iceberg Clients, One Protocol: Where the Time Goes
+
+Step by step: timing the Rust and Python Iceberg REST clients on the same operations, on a local catalog and on BigLake and OneLake. Rust is 2x to 4x faster per call on the same machine, the two are even over the internet, and Python takes half a second longer to start on every catalog.
+
+What is in it:
+
+- 🟢 Locally, Rust is 1.90x to 4.29x faster on small calls, and 85% to 90% of that difference is the HTTP library
+- 🟢 Over the internet the difference disappears: 0.90x to 1.04x on BigLake and OneLake
+- ⚠️ Python starts 507.2 to 776.2 ms slower on every catalog, mostly from importing the library \(337.9 to 366.3 ms locally\)
+- ⚠️ OneLake's 4x on load\_table comes from pyiceberg requesting a storage credential by default, which the Rust client never does
+
+dev.to \(Google Developer Experts\): https://dev.to/gde/two-iceberg-clients-one-protocol-where-the-time-goes-4g88
+dev.to \(AWS Community Builders\): https://dev.to/aws-builders/two-iceberg-clients-one-protocol-where-the-time-goes-4a2c
+Source: https://github.com/xbill9/lakehouse-iceberg-2026
