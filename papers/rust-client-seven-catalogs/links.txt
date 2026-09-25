@@ -5,3 +5,4 @@ devto-aws = https://dev.to/aws-builders/what-one-rust-client-can-reach-across-se
 medium    = https://xbill999.medium.com/what-one-rust-client-can-reach-across-seven-iceberg-catalogs-8172f8381a26
 builder   = https://builder.aws.com/content/3JpNJn68bTB70FIqfacqiitu4du/what-one-rust-client-can-reach-across-seven-iceberg-catalogs
 repo      = https://github.com/xbill9/lakehouse-iceberg-2026
+linkedin  = https://www.linkedin.com/feed/update/urn:li:share:7509294270579912704/
