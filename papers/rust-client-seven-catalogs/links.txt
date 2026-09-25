@@ -1,0 +1,7 @@
+# Destination URLs for the LinkedIn post. PENDING fails the run on purpose:
+# a post whose links do not resolve is worse than no post.
+devto-gde = https://dev.to/gde/what-one-rust-client-can-reach-across-seven-iceberg-catalogs-22ll
+devto-aws = https://dev.to/aws-builders/what-one-rust-client-can-reach-across-seven-iceberg-catalogs-24al
+medium    = PENDING
+builder   = https://builder.aws.com/content/3JpNJn68bTB70FIqfacqiitu4du/what-one-rust-client-can-reach-across-seven-iceberg-catalogs
+repo      = https://github.com/xbill9/lakehouse-iceberg-2026
