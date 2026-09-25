@@ -1,0 +1,7 @@
+# Destination URLs for the LinkedIn post. PENDING fails the run on purpose:
+# a post whose links do not resolve is worse than no post.
+devto-gde = https://dev.to/gde/two-iceberg-clients-one-protocol-where-the-time-goes-4g88
+devto-aws = https://dev.to/aws-builders/two-iceberg-clients-one-protocol-where-the-time-goes-4a2c
+medium    = PENDING
+builder   = PENDING
+repo      = https://github.com/xbill9/lakehouse-iceberg-2026
