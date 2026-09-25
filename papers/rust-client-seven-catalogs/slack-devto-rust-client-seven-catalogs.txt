@@ -1,0 +1,17 @@
+I wanted to know how far the Apache Rust client for Iceberg REST catalogs, iceberg-catalog-rest 0.10.1, gets on its own. So I pointed it at seven Iceberg REST catalogs and recorded which endpoints answered on each one.
+
+It can log in to five of the seven, and three of those were run - Polaris, BigLake and OneLake. On all three, every endpoint it implements answered: 7 reads on each, and 11 writes on Polaris, with 0 failures. It implements 13 of 25 endpoints. Glue and S3 Tables need SigV4 signing, which this client cannot send, so a Rust tool covering all seven catalogs loads three catalog crates where Python loads one.
+
+Builder Center Article is here:
+https://builder.aws.com/content/3JpNJn68bTB70FIqfacqiitu4du/what-one-rust-client-can-reach-across-seven-iceberg-catalogs
+
+Medium is here:
+https://xbill999.medium.com/what-one-rust-client-can-reach-across-seven-iceberg-catalogs-8172f8381a26
+
+Dev.to is here:
+https://dev.to/aws-builders/what-one-rust-client-can-reach-across-seven-iceberg-catalogs-24al
+
+Linked In is here:
+https://www.linkedin.com/feed/update/urn:li:share:7509294270579912704/
+
+#ApacheIceberg #Rust #Lakehouse #AWS #DataEngineering
