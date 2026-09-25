@@ -1,0 +1,16 @@
+What One Rust Client Can Reach Across Seven Iceberg Catalogs
+
+Step by step: the Apache Rust Iceberg REST client against seven Iceberg catalogs. It logs in to five of them, and on every one it logs in to, all 13 endpoints it implements answer — 7 reads on three catalogs and 11 writes on the local one, with no failures. The two AWS catalogs need SigV4, which it cannot send, so Rust reaches them through two other crates whose operation sets differ from its own.
+
+What is in it:
+
+- 🟢 Every endpoint the client implements answered on every catalog it could log in to: 7 reads on Polaris, BigLake and OneLake, and 11 writes on Polaris, with 0 failures
+- 🟢 13 of 25 endpoints are implemented; of the other 12, 11 are missing and 1 is a stub that sends no request
+- ⚠️ Two lines of Cargo.toml stand in front of that: a TLS backend \(upstream \#2888\) and iceberg-storage-opendal for cloud storage
+- ❌ Glue and S3 Tables require SigV4, which this client cannot send, so a Rust tool covering all seven catalogs loads three catalog crates where Python loads one — and those three disagree on three of the 15 Catalog methods, at runtime \(upstream \#1236, open since April 2025\)
+
+dev.to \(Google Developer Experts\): https://dev.to/gde/what-one-rust-client-can-reach-across-seven-iceberg-catalogs-22ll
+dev.to \(AWS Community Builders\): https://dev.to/aws-builders/what-one-rust-client-can-reach-across-seven-iceberg-catalogs-24al
+AWS Builder Center: https://builder.aws.com/content/3JpNJn68bTB70FIqfacqiitu4du/what-one-rust-client-can-reach-across-seven-iceberg-catalogs
+Medium: https://xbill999.medium.com/what-one-rust-client-can-reach-across-seven-iceberg-catalogs-8172f8381a26
+Source: https://github.com/xbill9/lakehouse-iceberg-2026

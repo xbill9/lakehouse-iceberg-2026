@@ -2,6 +2,6 @@
 # a post whose links do not resolve is worse than no post.
 devto-gde = https://dev.to/gde/what-one-rust-client-can-reach-across-seven-iceberg-catalogs-22ll
 devto-aws = https://dev.to/aws-builders/what-one-rust-client-can-reach-across-seven-iceberg-catalogs-24al
-medium    = PENDING
+medium    = https://xbill999.medium.com/what-one-rust-client-can-reach-across-seven-iceberg-catalogs-8172f8381a26
 builder   = https://builder.aws.com/content/3JpNJn68bTB70FIqfacqiitu4du/what-one-rust-client-can-reach-across-seven-iceberg-catalogs
 repo      = https://github.com/xbill9/lakehouse-iceberg-2026
