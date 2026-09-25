@@ -1,12 +1,15 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
   <meta charset="utf-8" />
-  <meta name="generator" content="pandoc" />
+  <meta name="generator" content="pandoc 3.11" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
   <title>What One Rust Client Can Reach Across Seven Iceberg Catalogs</title>
   <meta name="description" content="Step by step: the Apache Rust Iceberg REST client against seven Iceberg catalogs. It logs in to five of them, and on every one it logs in to, all 13 endpoints it implements answer — 7 reads on three catalogs and 11 writes on the local one, with no failures. The two AWS catalogs need SigV4, which it cannot send, so Rust reaches them through two other crates whose operation sets differ from its own." />
   <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
     html {
       color: #1a1a1a;
       background-color: #fdfdfd;
@@ -39,7 +42,6 @@
       body {
         background-color: transparent;
         color: black;
-        font-size: 12pt;
       }
       p, h2, h3 {
         orphans: 3;
@@ -89,6 +91,7 @@
       color: #606060;
     }
     code {
+      white-space: pre-wrap;
       font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
       font-size: 85%;
       margin: 0;
@@ -108,8 +111,8 @@
      overflow: visible;
     }
     hr {
-      background-color: #1a1a1a;
       border: none;
+      border-top: 1px solid #1a1a1a;
       height: 1px;
       margin: 1em 0;
     }
@@ -152,10 +155,13 @@
     #TOC a:not(:hover) {
       text-decoration: none;
     }
-    code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
-    div.columns{display: flex; gap: min(4vw, 1.5em);}
-    div.column{flex: auto; overflow-x: auto;}
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
     /* The extra [class] is a hack that increases specificity enough to
        override a similar rule in reveal.js */
@@ -166,7 +172,6 @@
       margin: 0 0.8em 0.2em -1.6em;
       vertical-align: middle;
     }
-    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
   <style>
     body{font-family:-apple-system,'Segoe UI',Roboto,'Liberation Sans',Arial,sans-serif;
@@ -183,11 +188,11 @@
   </style>
 </head>
 <body>
-<figure><img src="https://raw.githubusercontent.com/xbill9/lakehouse-iceberg-2026/main/papers/rust-client-seven-catalogs/medium/img/cover.fd3f64f1.jpg" alt="What One Rust Client Can Reach Across Seven Iceberg Catalogs" /></figure>
 <p>This article provides a step by step guide to pointing the Apache
 Rust client for Iceberg REST catalogs at seven catalogs and recording
 what works. A Python script runs a small Rust program against each
 catalog and saves every result.</p>
+<figure><img src="https://raw.githubusercontent.com/xbill9/lakehouse-iceberg-2026/main/papers/rust-client-seven-catalogs/medium/img/cover.b00343f4.jpg" alt="What One Rust Client Can Reach Across Seven Iceberg Catalogs" /></figure>
 <p><a
 href="https://github.com/xbill9/lakehouse-iceberg-2026">https://github.com/xbill9/lakehouse-iceberg-2026</a></p>
 <hr />

@@ -3,7 +3,7 @@ title: "Two Iceberg Clients, One Protocol: Where the Time Goes"
 published: false
 description: "Step by step: timing the Rust and Python Iceberg REST clients on the same operations, on a local catalog and on BigLake and OneLake. Rust is 2x to 4x faster per call on the same machine, the two are even over the internet, and Python takes half a second longer to start on every catalog."
 tags: rust, python, iceberg, performance
-cover_image: https://raw.githubusercontent.com/xbill9/lakehouse-iceberg-2026/main/papers/two-iceberg-clients-cost/cover.6a98c525.jpg
+cover_image: https://raw.githubusercontent.com/xbill9/lakehouse-iceberg-2026/main/papers/two-iceberg-clients-cost/cover.edde6110.jpg
 ---
 
 This article provides a step by step comparison of the Rust and Python clients for Apache Iceberg REST catalogs. It times both clients on the same operations against the same tables, then breaks one request down to see where the time goes.

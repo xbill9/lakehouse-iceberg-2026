@@ -3,7 +3,7 @@ title: "What One Rust Client Can Reach Across Seven Iceberg Catalogs"
 published: false
 description: "Step by step: the Apache Rust Iceberg REST client against seven Iceberg catalogs. It logs in to five of them, and on every one it logs in to, all 13 endpoints it implements answer — 7 reads on three catalogs and 11 writes on the local one, with no failures. The two AWS catalogs need SigV4, which it cannot send, so Rust reaches them through two other crates whose operation sets differ from its own."
 tags: rust, iceberg, lakehouse, dataengineering
-cover_image: https://raw.githubusercontent.com/xbill9/lakehouse-iceberg-2026/main/papers/rust-client-seven-catalogs/cover.fd3f64f1.jpg
+cover_image: https://raw.githubusercontent.com/xbill9/lakehouse-iceberg-2026/main/papers/rust-client-seven-catalogs/cover.b00343f4.jpg
 ---
 
 This article provides a step by step guide to pointing the Apache Rust client for Iceberg REST catalogs at seven catalogs and recording what works. A Python script runs a small Rust program against each catalog and saves every result.
